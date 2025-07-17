@@ -80,6 +80,10 @@ export const isDevelopment = config.NODE_ENV === 'development';
 export const isProduction = config.NODE_ENV === 'production';
 export const isTest = config.NODE_ENV === 'test';
 
+if (!config) {
+  throw new Error("Config is not defined");
+}
+
 // Database configuration for Drizzle
 export const dbConfig = {
   host: config.DB_HOST,

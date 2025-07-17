@@ -46,7 +46,7 @@ async function registerPlugins() {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       uptime: Math.floor(uptime),
-      environment: config!.NODE_ENV,
+      environment: config.NODE_ENV,
       version: '2.0.0',
       memory: {
         used: Math.round(memory.heapUsed / 1024 / 1024),
@@ -64,7 +64,7 @@ async function registerPlugins() {
       success: true,
       message: 'RevEd Kids Fastify API',
       version: '2.0.0',
-      environment: config!.NODE_ENV,
+      environment: config.NODE_ENV,
       timestamp: new Date().toISOString(),
       endpoints: {
         health: '/api/health',
