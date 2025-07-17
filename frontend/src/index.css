@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fonts personnalisées */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Bangers&family=Nunito:wght@400;700&family=Comic+Neue:wght@400;700&display=swap');
+
+/* Variables CSS personnalisées */
+:root {
+  --primary-color: #8A2BE2; /* Violet */
+  --secondary-color: #00BFFF; /* Bleu */
+  --success-color: #00FF7F; /* Vert */
+  --warning-color: #FFD700; /* Jaune */
+  --error-color: #FF69B4; /* Rose */
+}
+
+/* Styles de base */
+body {
+  margin: 0;
+  font-family: 'Nunito', sans-serif; /* Police de texte principale */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #E6D8FF 0%, #E0F6FF 50%, #F0FFF0 100%); /* Dégradé de fond doux */
+  min-height: 100vh;
+  color: #212121; /* Texte sombre par défaut */
+}
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Classes utilitaires personnalisées */
+.font-fun {
+  font-family: 'Fredoka One', cursive;
+}
+
+.font-magical {
+  font-family: 'Bangers', cursive;
+}
+
+.font-comic {
+  font-family: 'Comic Neue', cursive;
+}
+
+/* Animations personnalisées globales (non gérées par Tailwind) */
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.8);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* Appliquer les animations sur des classes */
+.animate-float-up {
+  animation: floatUp 2s ease-out forwards;
+}
+
+.animate-fade-in-scale {
+  animation: fadeInScale 0.4s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out forwards;
+}
+
+/* Styles pour les sélections de texte */
+::selection {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Styles pour les focus */
+*:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Styles pour les scrollbars personnalisées */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+}
