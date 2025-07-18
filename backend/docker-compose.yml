@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - uploads:/app/uploads
+    restart: unless-stopped
+    networks:
+      - reved-kids
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: reved_kids
+      MYSQL_USER: reved_user
+      MYSQL_PASSWORD: reved_password
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - reved-kids
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - reved-kids
+    command: redis-server --appendonly yes
+
+volumes:
+  mysql_data:
+  redis_data:
+  uploads:
+
+networks:
+  reved-kids:
+    driver: bridge
