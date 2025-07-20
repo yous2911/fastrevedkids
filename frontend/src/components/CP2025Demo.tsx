@@ -33,47 +33,216 @@ const sampleCP2025Data: CP2025Data = {
     }
   ],
   "exercises": [
+    // ===== DÉCOUVERTE - PHONOLOGIE =====
     {
-      "titre": "Reconnaissance du son [o]",
-      "consigne": "Écoute le mot. Entends-tu le son [o] ?",
+      "titre": "Le Mystère du Son [o]",
+      "consigne": "Aide Léo le lion à trouver les mots qui contiennent le son [o]. Écoute attentivement !",
       "type": "QCM",
       "difficulte": "decouverte",
       "moduleId": 1,
       "configuration": {
-        "question": "Entends-tu le son [o] dans 'MOTO' ?",
-        "choix": ["Oui", "Non"],
-        "bonneReponse": "Oui",
-        "audioRequired": true
+        "question": "Dans quel mot entends-tu le son [o] ?",
+        "choix": [
+          {"id": "moto", "text": "MOTO", "image": "/images/words/moto.png", "audio": "/audio/words/moto.mp3"},
+          {"id": "chat", "text": "CHAT", "image": "/images/words/chat.png", "audio": "/audio/words/chat.mp3"},
+          {"id": "soleil", "text": "SOLEIL", "image": "/images/words/soleil.png", "audio": "/audio/words/soleil.mp3"},
+          {"id": "maison", "text": "MAISON", "image": "/images/words/maison.png", "audio": "/audio/words/maison.mp3"}
+        ],
+        "bonneReponse": "moto",
+        "audioRequired": true,
+        "feedback": {
+          "correct": "Bravo ! Tu as bien entendu le son [o] dans MOTO ! 🎉",
+          "incorrect": "Écoute encore... Le son [o] fait 'oooo' comme dans MOTO ! 🦁"
+        }
       },
-      "metadata": { "competenceCode": "CP.FR.L1.1" }
+      "metadata": { 
+        "competenceCode": "CP.FR.L1.1",
+        "cognitiveLoad": "low",
+        "engagement": "high",
+        "storyContext": "Leo the Lion needs help finding words with the [o] sound"
+      }
     },
+
+    // ===== DÉCOUVERTE - NUMÉRATION =====
     {
-      "titre": "Dénombrer jusqu'à 10",
-      "consigne": "Compte les jetons et choisis le bon nombre.",
+      "titre": "Le Trésor de Pirate Pierre",
+      "consigne": "Pirate Pierre a trouvé un trésor ! Compte les pièces d'or avec lui.",
       "type": "QCM",
       "difficulte": "decouverte",
       "moduleId": 2,
       "configuration": {
-        "question": "Combien y a-t-il de jetons ?",
-        "image_url": "/images/exercises/jetons_9.png",
-        "choix": ["7", "8", "9", "10"],
-        "bonneReponse": "9"
+        "question": "Combien de pièces d'or Pirate Pierre a-t-il trouvées ?",
+        "image_url": "/images/exercises/treasure_coins_9.png",
+        "choix": [
+          {"id": "7", "text": "7 pièces", "image": "/images/numbers/7.png"},
+          {"id": "8", "text": "8 pièces", "image": "/images/numbers/8.png"},
+          {"id": "9", "text": "9 pièces", "image": "/images/numbers/9.png"},
+          {"id": "10", "text": "10 pièces", "image": "/images/numbers/10.png"}
+        ],
+        "bonneReponse": "9",
+        "feedback": {
+          "correct": "Excellent ! Pirate Pierre a 9 pièces d'or ! 💰",
+          "incorrect": "Compte encore une fois, doucement... 1, 2, 3, 4, 5, 6, 7, 8, 9 ! 🏴‍☠️"
+        }
       },
-      "metadata": { "competenceCode": "CP.MA.N1.1" }
+      "metadata": { 
+        "competenceCode": "CP.MA.N1.1",
+        "cognitiveLoad": "low",
+        "engagement": "high",
+        "storyContext": "Pirate Pierre discovers a treasure and needs help counting"
+      }
     },
+
+    // ===== DÉCOUVERTE - SYLLABES =====
     {
-      "titre": "Construction de la syllabe 'RI'",
-      "consigne": "Assemble les lettres pour former la syllabe 'RI'.",
+      "titre": "L'Atelier de Syllabes",
+      "consigne": "Aide la fée des syllabes à assembler les lettres pour former 'RI'.",
       "type": "DRAG_DROP",
       "difficulte": "decouverte",
       "moduleId": 1,
       "configuration": {
-        "question": "Forme la syllabe 'RI'",
-        "dragItems": [{"id": "r", "content": "R"}, {"id": "i", "content": "I"}, {"id": "a", "content": "A"}],
-        "zones": [{"id": "syllabe", "label": "Syllabe", "limit": 2}],
-        "solution": ["R", "I"]
+        "question": "Forme la syllabe 'RI' avec les lettres",
+        "dragItems": [
+          {"id": "r", "content": "R", "color": "blue", "sound": "/audio/letters/r.mp3"},
+          {"id": "i", "content": "I", "color": "red", "sound": "/audio/letters/i.mp3"},
+          {"id": "a", "content": "A", "color": "green", "sound": "/audio/letters/a.mp3", "distractor": true}
+        ],
+        "zones": [{"id": "syllabe", "label": "Syllabe", "limit": 2, "visual": "magical_frame"}],
+        "solution": ["R", "I"],
+        "feedback": {
+          "correct": "Parfait ! Tu as formé 'RI' ! La fée est ravie ! ✨",
+          "incorrect": "Essaie encore... R + I = RI ! 🧚‍♀️"
+        }
       },
-      "metadata": { "competenceCode": "CP.FR.L2.1" }
+      "metadata": { 
+        "competenceCode": "CP.FR.L2.1",
+        "cognitiveLoad": "medium",
+        "engagement": "high",
+        "storyContext": "A fairy helps children assemble syllables"
+      }
+    },
+
+    // ===== ENTRAÎNEMENT - PHONOLOGIE =====
+    {
+      "titre": "Le Défi des Sons",
+      "consigne": "Écoute les mots et trouve celui qui contient le son [o].",
+      "type": "QCM",
+      "difficulte": "entrainement",
+      "moduleId": 1,
+      "configuration": {
+        "question": "Quel mot contient le son [o] ?",
+        "choix": [
+          {"id": "robot", "text": "ROBOT", "audio": "/audio/words/robot.mp3"},
+          {"id": "table", "text": "TABLE", "audio": "/audio/words/table.mp3"},
+          {"id": "porte", "text": "PORTE", "audio": "/audio/words/porte.mp3"},
+          {"id": "livre", "text": "LIVRE", "audio": "/audio/words/livre.mp3"}
+        ],
+        "bonneReponse": "robot",
+        "audioRequired": true,
+        "timeLimit": 15,
+        "feedback": {
+          "correct": "Excellent ! ROBOT contient bien le son [o] ! 🤖",
+          "incorrect": "Écoute encore... Le son [o] est dans ROBOT ! 🎯"
+        }
+      },
+      "metadata": { 
+        "competenceCode": "CP.FR.L1.2",
+        "cognitiveLoad": "medium",
+        "engagement": "medium",
+        "storyContext": "A robot challenges children to identify sounds"
+      }
+    },
+
+    // ===== ENTRAÎNEMENT - CALCUL =====
+    {
+      "titre": "Le Marché des Fruits",
+      "consigne": "Aide Marie à compter ses fruits au marché.",
+      "type": "CALCUL",
+      "difficulte": "entrainement",
+      "moduleId": 2,
+      "configuration": {
+        "question": "Marie a 5 pommes et 3 oranges. Combien de fruits a-t-elle en tout ?",
+        "operation": "addition",
+        "resultat": 8,
+        "visual": {
+          "type": "story",
+          "image": "/images/stories/market_fruits.png",
+          "animation": "counting_sequence"
+        },
+        "feedback": {
+          "correct": "Parfait ! 5 + 3 = 8 fruits ! Marie est contente ! 🍎🍊",
+          "incorrect": "Compte : 5 pommes + 3 oranges = 8 fruits ! 🧮"
+        }
+      },
+      "metadata": { 
+        "competenceCode": "CP.MA.N2.1",
+        "cognitiveLoad": "medium",
+        "engagement": "medium",
+        "storyContext": "Marie needs help counting fruits at the market"
+      }
+    },
+
+    // ===== CONSOLIDATION - COMPRÉHENSION =====
+    {
+      "titre": "L'Histoire de Tom",
+      "consigne": "Lis l'histoire de Tom et réponds à la question.",
+      "type": "QCM",
+      "difficulte": "consolidation",
+      "moduleId": 1,
+      "configuration": {
+        "question": "Où va Tom dans l'histoire ?",
+        "story": {
+          "text": "Tom aime aller à l'école. Il prend son sac et marche avec ses amis. L'école est grande et belle.",
+          "audio": "/audio/stories/tom_ecole.mp3",
+          "image": "/images/stories/tom_school.png"
+        },
+        "choix": [
+          {"id": "ecole", "text": "À l'école", "image": "/images/places/school.png"},
+          {"id": "maison", "text": "À la maison", "image": "/images/places/home.png"},
+          {"id": "parc", "text": "Au parc", "image": "/images/places/park.png"},
+          {"id": "magasin", "text": "Au magasin", "image": "/images/places/store.png"}
+        ],
+        "bonneReponse": "ecole",
+        "feedback": {
+          "correct": "Bravo ! Tom va bien à l'école ! 📚",
+          "incorrect": "Relis l'histoire... Tom va à l'école ! 🏫"
+        }
+      },
+      "metadata": { 
+        "competenceCode": "CP.FR.L3.1",
+        "cognitiveLoad": "high",
+        "engagement": "high",
+        "storyContext": "Tom's story about going to school"
+      }
+    },
+
+    // ===== APPROFONDISSEMENT - PROBLÈME =====
+    {
+      "titre": "Le Défi du Chef",
+      "consigne": "Le chef cuisinier a besoin d'aide pour préparer sa recette.",
+      "type": "CALCUL",
+      "difficulte": "approfondissement",
+      "moduleId": 2,
+      "configuration": {
+        "question": "Le chef a 12 œufs. Il en utilise 4 pour faire un gâteau. Combien d'œufs lui reste-t-il ?",
+        "operation": "soustraction",
+        "resultat": 8,
+        "visual": {
+          "type": "problem_solving",
+          "image": "/images/problems/chef_eggs.png",
+          "animation": "egg_counting"
+        },
+        "feedback": {
+          "correct": "Excellent ! 12 - 4 = 8 œufs restent ! Le chef est ravi ! 👨‍🍳",
+          "incorrect": "Calcule : 12 œufs - 4 utilisés = 8 œufs restent ! 🥚"
+        }
+      },
+      "metadata": { 
+        "competenceCode": "CP.MA.N4.2",
+        "cognitiveLoad": "high",
+        "engagement": "high",
+        "storyContext": "A chef needs help calculating ingredients"
+      }
     }
   ]
 };

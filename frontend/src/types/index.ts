@@ -47,6 +47,9 @@ export interface CP2025Module {
 
 export interface ExerciseMetadata {
   competenceCode: string;
+  cognitiveLoad?: 'low' | 'medium' | 'high';
+  engagement?: 'low' | 'medium' | 'high';
+  storyContext?: string;
   [key: string]: unknown;
 }
 
@@ -56,30 +59,75 @@ export interface ImageObject {
   description: string;
 }
 
+// Enhanced choice interface
+export interface ChoiceOption {
+  id: string;
+  text: string;
+  image?: string | ImageObject;
+  audio?: string;
+}
+
+// Feedback interface
+export interface ExerciseFeedback {
+  correct: string;
+  incorrect: string;
+}
+
+// Visual interface
+export interface VisualElement {
+  type: 'story' | 'problem_solving' | 'counting_sequence';
+  image?: string;
+  animation?: string;
+}
+
+// Story interface
+export interface StoryElement {
+  text: string;
+  audio?: string;
+  image?: string;
+}
+
 // Configuration types for different exercise types
 export interface QCMConfiguration {
   question: string;
-  choix: string[] | Array<{id: string; image?: ImageObject; text?: string; audio?: string}>;
+  choix: ChoiceOption[];
   bonneReponse: string;
   audioRequired?: boolean;
   image_url?: string;
   image?: ImageObject;
   phrase_template?: string;
   aide?: string;
+  timeLimit?: number;
+  feedback?: ExerciseFeedback;
+  story?: StoryElement;
 }
 
 export interface DragDropConfiguration {
   question: string;
-  dragItems: Array<{id: string; content: string}>;
-  zones: Array<{id: string; label: string; limit?: number}>;
+  dragItems: Array<{
+    id: string; 
+    content: string;
+    color?: string;
+    sound?: string;
+    distractor?: boolean;
+  }>;
+  zones: Array<{
+    id: string; 
+    label: string; 
+    limit?: number;
+    visual?: string;
+  }>;
   solution: string[] | Record<string, string[]>;
+  feedback?: ExerciseFeedback;
 }
 
 export interface CalculConfiguration {
+  question: string;
   operation: string;
   resultat: number;
-  question?: string;
   aide?: string;
+  visual?: VisualElement;
+  feedback?: ExerciseFeedback;
 }
 
 export interface TextInputConfiguration {
@@ -89,6 +137,7 @@ export interface TextInputConfiguration {
   audioRequired?: boolean;
   lettres?: string[];
   aide?: string;
+  feedback?: ExerciseFeedback;
 }
 
 export interface GeometryConfiguration {
@@ -97,6 +146,7 @@ export interface GeometryConfiguration {
   image?: ImageObject;
   bonneReponse: string;
   aide?: string;
+  feedback?: ExerciseFeedback;
 }
 
 export type ExerciseConfiguration = 
