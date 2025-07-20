@@ -86,7 +86,7 @@ export const competenceReference = {
   'CP.FR.E1.1': {
     titre: 'Maîtriser l\'écriture cursive sur réglure 3mm',
     description: 'Formation correcte des lettres en cursive',
-    periode: 'P1-P2',
+    periode: 'P1',
     prerequis: [],
     objectifs: ['Former lettres minuscules', 'Respecter les lignes de réglure']
   },

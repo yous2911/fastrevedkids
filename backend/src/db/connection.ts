@@ -108,7 +108,7 @@ export async function rollbackMigration(
     // This would need to be implemented based on your migration strategy
     // For now, throwing an error to indicate manual intervention needed
     throw new Error('Migration rollback must be handled manually. Please restore from backup.');
-  } catch {
+  } catch (error) {
     // console.error removed for production
     throw error;
   }
@@ -128,7 +128,7 @@ export async function connectDatabase(): Promise<void> {
 
     dbConnection = await createDatabaseConnection(config);
     // Database connected successfully
-  } catch {
+  } catch (error) {
     // Database connection failed
     throw error;
   }

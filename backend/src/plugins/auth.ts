@@ -16,6 +16,7 @@ interface JWTPayload {
 declare module 'fastify' {
   interface FastifyInstance {
     authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    requireAdmin: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
     generateToken: (payload: { studentId: string; email?: string }) => string;
     generateRefreshToken: (payload: { studentId: string }) => string;
     verifyToken: (token: string) => JWTPayload | null;
@@ -129,7 +130,7 @@ const authPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
         id: decoded.studentId,
         studentId: decoded.studentId,
         ...(decoded.email && { email: decoded.email }),
-      };
+      } as any;
     } catch {
       fastify.log.error('Authentication error');
       reply.code(500).send({
@@ -165,12 +166,34 @@ const authPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
           id: decoded.studentId,
           studentId: decoded.studentId,
           ...(decoded.email && { email: decoded.email }),
-        };
+        } as any;
       }
     } catch {
       // Log error but don't fail the request
       fastify.log.warn('Optional authentication error');
     }
+  });
+
+  // Admin authentication decorator
+  fastify.decorate('requireAdmin', async (request: FastifyRequest, reply: FastifyReply) => {
+    // First check if user is authenticated
+    await fastify.authenticate(request, reply);
+    
+    // Then check admin role (for now, we'll use a simple check)
+    // In a real implementation, you'd check against a user roles table
+    if (!request.user || !request.user.id) {
+      return reply.status(403).send({
+        success: false,
+        error: {
+          message: 'Accès administrateur requis',
+          code: 'ADMIN_REQUIRED'
+        }
+      });
+    }
+    
+    // For development, allow access if user exists
+    // In production, you'd check actual admin roles
+    fastify.log.info(`Admin access granted for user: ${request.user.id}`);
   });
 };
 
