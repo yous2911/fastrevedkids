@@ -10,8 +10,8 @@ import { DatabaseConfig } from '../types';
 const databasePlugin: FastifyPluginAsync = async (fastify) => {
   const config = validateEnvironment();
 
-  // FIXED: Lines 31:21 & 82:21 - Replace any with DatabaseConfig
-  const dbConfig = {
+  // Production-ready database configuration with proper typing
+  const dbConfig: DatabaseConfig = {
     host: config.DB_HOST,
     port: config.DB_PORT,
     user: config.DB_USER,
@@ -19,7 +19,7 @@ const databasePlugin: FastifyPluginAsync = async (fastify) => {
     database: config.DB_NAME,
     connectionLimit: config.DB_CONNECTION_LIMIT,
     ssl: config.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-  } as any;
+  };
 
   const connection = mysql.createPool(dbConfig);
   const db = drizzle(connection, { schema, mode: 'default' });

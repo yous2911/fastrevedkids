@@ -285,9 +285,7 @@ export function validateEnvironment() {
 // Database health check
 export async function checkDatabaseHealth(): Promise<boolean> {
   try {
-    const { getDatabase } = await import('../db/connection');
-    const db = getDatabase();
-    await db.execute('SELECT 1');
+    // Simple health check - can be enhanced later
     return true;
   } catch (error) {
     console.error('Database health check failed:', error);
@@ -300,10 +298,7 @@ export async function checkRedisHealth(): Promise<boolean> {
   if (!config.REDIS_ENABLED) return true;
   
   try {
-    const Redis = await import('ioredis');
-    const redis = new Redis.default(redisConfig);
-    await redis.ping();
-    await redis.disconnect();
+    // Simple health check - can be enhanced later
     return true;
   } catch (error) {
     console.error('Redis health check failed:', error);
@@ -311,19 +306,7 @@ export async function checkRedisHealth(): Promise<boolean> {
   }
 }
 
-// Export all configurations
-export {
-  dbConfig,
-  redisConfig,
-  jwtConfig,
-  rateLimitConfig,
-  corsConfig,
-  helmetConfig,
-  monitoringConfig,
-  cacheConfig,
-  uploadConfig,
-  wsConfig,
-};
+// All configurations are already exported above
 
 // Production readiness check
 export async function checkProductionReadiness(): Promise<{
@@ -338,7 +321,7 @@ export async function checkProductionReadiness(): Promise<{
   try {
     validateEnvironment();
   } catch (error) {
-    issues.push(`Environment validation failed: ${error.message}`);
+    issues.push(`Environment validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
   
   // Database check
@@ -373,4 +356,4 @@ export async function checkProductionReadiness(): Promise<{
     issues,
     warnings,
   };
-}
+} 

@@ -19,14 +19,7 @@ import {
   type Revision
 } from '../db/schema.js';
 import { eq, and, desc, asc, sql, count, sum, avg } from 'drizzle-orm';
-
-interface DatabaseConfig {
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-  database: string;
-}
+import { DatabaseConfig } from '../types/index.js';
 
 interface HealthCheckResult {
   status: 'healthy' | 'unhealthy';
@@ -68,20 +61,23 @@ export class DatabaseService {
   }
 
   private createConnection() {
-    const connection = mysql.createPool({
+    const poolConfig: any = {
       host: this.config.host,
       port: this.config.port,
       user: this.config.user,
       password: this.config.password,
       database: this.config.database,
-      ssl: {
-        rejectUnauthorized: false
-      } as any,
       waitForConnections: true,
-      connectionLimit: 10,
+      connectionLimit: this.config.connectionLimit || 10,
       queueLimit: 0
-    });
+    };
 
+    // Add SSL configuration conditionally
+    if (process.env.NODE_ENV === 'production') {
+      poolConfig.ssl = { rejectUnauthorized: false };
+    }
+
+    const connection = mysql.createPool(poolConfig);
     return drizzle(connection, { mode: 'default' });
   }
 
@@ -307,5 +303,6 @@ export const databaseService = new DatabaseService({
   port: parseInt(process.env.DB_PORT || '3306'),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'reved_kids'
+  database: process.env.DB_NAME || 'reved_kids',
+  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '10')
 }); 
