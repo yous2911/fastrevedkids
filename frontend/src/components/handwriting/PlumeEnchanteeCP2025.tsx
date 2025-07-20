@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CP2025Competence, CP2025_COMPETENCES } from './types/CP2025Types';
-import { PressureState, calculatePressureState, PRESSURE_CONFIG } from './utils/PressureSystem';
-import { TracePoint, CompetenceExercise, CursivePath, generatePerfectTrace } from './types/ExerciseTypes';
+import { CP2025_COMPETENCES } from './types/CP2025Types';
+import { PressureState, calculatePressureState } from './utils/PressureSystem';
+import { TracePoint, CompetenceExercise, generatePerfectTrace } from './types/ExerciseTypes';
 import { CompetenceEvaluation, evaluateCompetence } from './utils/EvaluationSystem';
 import { CP2025AudioManager } from './utils/AudioManager';
 import { useCP2025Backend, CP2025ProgressData } from './hooks/useCP2025Backend';
@@ -171,7 +171,6 @@ const PlumeEnchanteeCP2025: React.FC = () => {
   // États interface
   const [showGuidance, setShowGuidance] = useState(true);
   const [showReglure, setShowReglure] = useState(true);
-  const [reglureSize, setReglureSize] = useState(12); // 3mm = 12px par défaut
   
   // États pression stylet
   const [currentPressure, setCurrentPressure] = useState<PressureState>({
@@ -483,10 +482,6 @@ const PlumeEnchanteeCP2025: React.FC = () => {
     setShowEvaluation(false);
     setPressureHistory([]);
   }, []);
-
-  const playCompetenceIntro = useCallback(() => {
-    audioManager.playCompetenceIntro(currentExercise.competenceCode);
-  }, [currentExercise, audioManager]);
 
   const toggleGuidance = useCallback(() => {
     setShowGuidance(prev => !prev);
