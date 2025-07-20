@@ -62,8 +62,8 @@
   },
   "devDependencies": {
     "identity-obj-proxy": "^3.0.0",
-    "jest-axe": "^9.0.0",
-    "msw": "^2.4.1",
+    "jest-axe": "^10.0.0",
+    "msw": "^2.10.4",
     "ts-jest": "^29.2.3"
   }
 }
