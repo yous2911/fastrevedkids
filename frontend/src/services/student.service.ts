@@ -1,173 +1,109 @@
 import { apiService } from './api.service';
-import { 
-  ApiResponse, 
-  Eleve, 
-  ExercicePedagogique, 
-  TentativeExercice, 
-  TentativeResponse,
-  ValidationError
-} from '../types/api.types';
+import { ApiResponse } from '../types/api.types';
 
-export interface StudentProgress {
-  exerciceId: number;
-  statut: 'NOUVEAU' | 'EN_COURS' | 'ACQUIS' | 'DIFFICILE';
-  nombreTentatives: number;
-  nombreReussites: number;
-  derniereTentative?: string;
-  moyenneTemps: number;
-  progression: number;
-}
-
-export interface StudentSession {
+export interface Student {
   id: number;
-  eleveId: number;
-  dateDebut: string;
-  dateFin?: string;
-  dureeMinutes: number;
-  exercicesReussis: number;
-  exercicesTentes: number;
-  pointsGagnes: number;
-  tauxReussite: number;
+  prenom: string;
+  nom: string;
+  niveauActuel: string;
+  age: number;
+  totalPoints: number;
+  serieJours: number;
+  preferences: any;
+  dernierAcces: string;
+  estConnecte: boolean;
 }
 
-export interface StudentDashboard {
-  eleve: Eleve;
-  stats: {
-    totalExercises: number;
-    completedExercises: number;
-    successRate: number;
-    totalTime: number;
-    streak: number;
-  };
-  recentProgress: StudentProgress[];
-  recommendations: ExercicePedagogique[];
-  achievements: any[];
+export interface ExerciseAttempt {
+  reponse: any;
+  reussi: boolean;
+  tempsSecondes: number;
+  aidesUtilisees?: number;
 }
 
 export class StudentService {
-  private readonly basePath = '/eleves';
+  private basePath = '/students';
 
-  // Get student by ID
-  async getStudent(studentId: number): Promise<ApiResponse<Eleve>> {
-    return apiService.get<Eleve>(`${this.basePath}/${studentId}`);
+  // Login student
+  async login(prenom: string, nom: string): Promise<ApiResponse<{ token: string; student: Student }>> {
+    return apiService.post('/auth/login', { prenom, nom });
   }
 
-  // Get student dashboard with all relevant data
-  async getStudentDashboard(studentId: number): Promise<ApiResponse<StudentDashboard>> {
-    return apiService.get<StudentDashboard>(
-      `${this.basePath}/${studentId}/dashboard`,
-      { cache: true }
-    );
+  // Get student info
+  async getStudent(studentId: number): Promise<ApiResponse<Student>> {
+    return apiService.get(`${this.basePath}/${studentId}`);
   }
 
-  // Get student progress for specific exercises
-  async getStudentProgress(studentId: number, exerciseIds?: number[]): Promise<ApiResponse<StudentProgress[]>> {
-    const params = exerciseIds ? `?exercices=${exerciseIds.join(',')}` : '';
-    return apiService.get<StudentProgress[]>(
-      `${this.basePath}/${studentId}/progression${params}`,
-      { cache: true }
-    );
-  }
-
-  // Get recommended exercises for student
-  async getRecommendations(studentId: number, limit: number = 5): Promise<ApiResponse<ExercicePedagogique[]>> {
-    return apiService.get<ExercicePedagogique[]>(
-      `${this.basePath}/${studentId}/recommendations?limite=${limit}`,
-      { cache: true }
-    );
+  // Get recommendations
+  async getRecommendations(studentId: number, options: {
+    limit?: number;
+    niveau?: string;
+    matiere?: string;
+  } = {}): Promise<ApiResponse<any[]>> {
+    const params = new URLSearchParams();
+    if (options.limit) params.set('limit', options.limit.toString());
+    if (options.niveau) params.set('niveau', options.niveau);
+    if (options.matiere) params.set('matiere', options.matiere);
+    
+    return apiService.get(`${this.basePath}/${studentId}/recommendations?${params}`);
   }
 
   // Submit exercise attempt
-  async submitExerciseAttempt(
+  async submitAttempt(
     studentId: number, 
     exerciseId: number, 
-    attempt: TentativeExercice
-  ): Promise<TentativeResponse> {
-    // Enhanced validation with proper error handling
-    this.validateAttempt(attempt);
-
-    const payload = {
-      exerciceId: exerciseId,
-      tentative: attempt
-    };
-
-    const response = await apiService.post<TentativeResponse['data']>(
-      `${this.basePath}/${studentId}/exercices`,
-      payload,
-      { timeout: 15000, retries: 2 } // Longer timeout for exercise submission
-    );
-
-    return response as TentativeResponse;
+    attempt: ExerciseAttempt
+  ): Promise<ApiResponse<any>> {
+    return apiService.post(`${this.basePath}/${studentId}/attempts`, {
+      exerciseId,
+      attempt
+    });
   }
 
-  // Get student sessions history
-  async getStudentSessions(
-    studentId: number, 
-    limit: number = 10,
-    offset: number = 0
-  ): Promise<ApiResponse<{ sessions: StudentSession[]; total: number }>> {
-    return apiService.get(
-      `${this.basePath}/${studentId}/sessions?limite=${limit}&offset=${offset}`
-    );
-  }
-
-  // Update student profile
-  async updateStudentProfile(studentId: number, updates: Partial<Eleve>): Promise<ApiResponse<Eleve>> {
-    // Remove readonly fields
-    const { id, createdAt, updatedAt, ...allowedUpdates } = updates;
+  // Get student progress
+  async getProgress(studentId: number, options: {
+    matiere?: string;
+    limit?: number;
+  } = {}): Promise<ApiResponse<any[]>> {
+    const params = new URLSearchParams();
+    if (options.matiere) params.set('matiere', options.matiere);
+    if (options.limit) params.set('limit', options.limit.toString());
     
-    return apiService.put<Eleve>(
-      `${this.basePath}/${studentId}`,
-      allowedUpdates
-    );
+    return apiService.get(`${this.basePath}/${studentId}/progress?${params}`);
   }
 
-  // Create new student
-  async createStudent(studentData: Omit<Eleve, 'id' | 'totalPoints' | 'serieJours' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Eleve>> {
-    return apiService.post<Eleve>(this.basePath, studentData);
+  // Update student preferences
+  async updatePreferences(studentId: number, preferences: any): Promise<ApiResponse<Student>> {
+    return apiService.put(`${this.basePath}/${studentId}/preferences`, { preferences });
   }
 
-  // Delete student
-  async deleteStudent(studentId: number): Promise<ApiResponse<void>> {
-    return apiService.delete(`${this.basePath}/${studentId}`);
-  }
-
-  // Enhanced validation with proper error handling
-  private validateAttempt(attempt: TentativeExercice): void {
-    // Fix: Add proper type checking
-    if (typeof attempt.reussi !== 'boolean') {
-      throw new ValidationError('Le statut de réussite est requis', 'reussi');
-    }
-    
-    // Fix: Ensure positive numbers only
-    if (!Number.isFinite(attempt.tempsSecondes) || attempt.tempsSecondes < 0) {
-      throw new ValidationError('Le temps de réponse doit être un nombre positif', 'tempsSecondes');
-    }
-    
-    // Fix: Validate aids count
-    if (!Number.isInteger(attempt.aidesUtilisees) || attempt.aidesUtilisees < 0) {
-      throw new ValidationError('Le nombre d\'aides utilisées doit être un entier positif', 'aidesUtilisees');
-    }
-    
-    // Fix: Better response validation
-    if (attempt.reponse === undefined || attempt.reponse === null || attempt.reponse === '') {
-      throw new ValidationError('Une réponse est requise', 'reponse');
-    }
+  // Get student statistics
+  async getStatistics(studentId: number): Promise<ApiResponse<any>> {
+    return apiService.get(`${this.basePath}/${studentId}/statistics`);
   }
 
   // Get student achievements
-  async getStudentAchievements(studentId: number): Promise<ApiResponse<any[]>> {
+  async getAchievements(studentId: number): Promise<ApiResponse<any[]>> {
     return apiService.get(`${this.basePath}/${studentId}/achievements`);
   }
 
-  // Start new session
-  async startSession(studentId: number): Promise<ApiResponse<{ sessionId: number }>> {
-    return apiService.post(`${this.basePath}/${studentId}/sessions/start`);
+  // Update student level
+  async updateLevel(studentId: number, newLevel: string): Promise<ApiResponse<Student>> {
+    return apiService.put(`${this.basePath}/${studentId}/level`, { niveauActuel: newLevel });
   }
 
-  // End current session
-  async endSession(studentId: number, sessionId: number): Promise<ApiResponse<StudentSession>> {
-    return apiService.post(`${this.basePath}/${studentId}/sessions/${sessionId}/end`);
+  // Get student's learning streak
+  async getStreak(studentId: number): Promise<ApiResponse<{ serieJours: number; lastActivity: string }>> {
+    return apiService.get(`${this.basePath}/${studentId}/streak`);
+  }
+
+  // Log student activity
+  async logActivity(studentId: number, activity: {
+    type: string;
+    details?: any;
+    duration?: number;
+  }): Promise<ApiResponse<any>> {
+    return apiService.post(`${this.basePath}/${studentId}/activity`, activity);
   }
 }
 

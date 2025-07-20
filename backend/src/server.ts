@@ -7,10 +7,9 @@ const build = (opts: FastifyServerOptions = {}) => {
   const serverOptions: FastifyServerOptions = {
     logger: {
       level: config.LOG_LEVEL,
-      prettyPrint: config.NODE_ENV === 'development',
     },
-    bodyLimit: config.BODY_LIMIT,
-    requestTimeout: config.REQUEST_TIMEOUT,
+    bodyLimit: config.MAX_FILE_SIZE,
+    requestTimeout: 30000, // 30 seconds default
     ...opts
   };
 
@@ -19,16 +18,7 @@ const build = (opts: FastifyServerOptions = {}) => {
   // Decorate fastify with config
   app.decorate('config', config as any);
 
-  // Create and decorate cache service
-  const cacheService = createCacheService({
-    host: config.REDIS_HOST || 'localhost',
-    port: config.REDIS_PORT || 6379,
-    password: config.REDIS_PASSWORD || undefined,
-    db: config.REDIS_DB,
-    ttl: config.CACHE_TTL,
-    enabled: config.REDIS_ENABLED,
-  });
-  app.decorate('cache', cacheService);
+  // Cache service will be initialized by the cache plugin
 
   // Register plugins
   async function registerPlugins() {
@@ -44,6 +34,7 @@ const build = (opts: FastifyServerOptions = {}) => {
     // Routes
     await app.register(import('./routes/auth.js'), { prefix: '/api/auth' });
     await app.register(import('./routes/students.js'), { prefix: '/api/students' });
+    await app.register(import('./routes/exercises.js'), { prefix: '/api/exercises' });
     await app.register(import('./routes/monitoring.js'), { prefix: '' });
 
     // Health check route
@@ -79,6 +70,7 @@ const build = (opts: FastifyServerOptions = {}) => {
           health: '/api/health',
           auth: '/api/auth',
           students: '/api/students',
+          exercises: '/api/exercises',
           monitoring: '/api/monitoring',
           docs: '/docs',
         },
