@@ -9,6 +9,7 @@ lerna-debug.log*
 # Production builds
 build/
 dist/
+.next/
 out/
 .nuxt/
 .vuepress/dist
@@ -84,6 +85,9 @@ jspm_packages/
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
+
+# Next.js build output
+.next
 
 # Nuxt.js build / generate output
 .nuxt
