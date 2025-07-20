@@ -29,19 +29,24 @@ export const authSchemas = {
           type: 'string',
           minLength: 2,
           maxLength: 50,
-          description: 'Student first name',
+          pattern: '^[a-zA-ZÀ-ÿ\\s\\-\']+$',
+          description: 'Student first name (2-50 characters, letters only)'
         },
         nom: {
           type: 'string',
           minLength: 2,
           maxLength: 50,
-          description: 'Student last name',
+          pattern: '^[a-zA-ZÀ-ÿ\\s\\-\']+$',
+          description: 'Student last name (2-50 characters, letters only)'
         },
         motDePasse: {
           type: 'string',
-          description: 'Optional password for secure login',
-        },
+          minLength: 4,
+          maxLength: 100,
+          description: 'Optional password for enhanced security'
+        }
       },
+      additionalProperties: false
     },
     response: {
       200: {
@@ -94,10 +99,23 @@ export const authSchemas = {
         type: 'object',
         properties: {
           success: { type: 'boolean' },
-          message: { type: 'string' },
-        },
+          message: { type: 'string' }
+        }
       },
-    },
+      401: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          error: {
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+              code: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
   } as FastifySchema,
 
   refresh: {
@@ -112,13 +130,26 @@ export const authSchemas = {
           data: {
             type: 'object',
             properties: {
-              token: { type: 'string' },
-            },
+              token: { type: 'string' }
+            }
           },
-          message: { type: 'string' },
-        },
+          message: { type: 'string' }
+        }
       },
-    },
+      401: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          error: {
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+              code: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
   } as FastifySchema,
 
   verify: {
@@ -131,9 +162,9 @@ export const authSchemas = {
         studentId: {
           type: 'string',
           pattern: '^\\d+$',
-          description: 'Student ID to verify',
-        },
-      },
+          description: 'Student ID to verify (numeric)'
+        }
+      }
     },
     response: {
       200: {
@@ -178,7 +209,7 @@ export const authSchemas = {
   } as FastifySchema,
 
   health: {
-    description: 'Auth service health check',
+    description: 'Authentication service health check',
     tags: ['auth'],
     response: {
       200: {
@@ -189,16 +220,30 @@ export const authSchemas = {
             type: 'object',
             properties: {
               status: { type: 'string' },
+              service: { type: 'string' },
               timestamp: { type: 'string', format: 'date-time' },
+              jwt: { type: 'object' },
               database: { type: 'string' },
-              totalStudents: { type: 'number' },
-              uptime: { type: 'number' },
-            },
+              uptime: { type: 'number' }
+            }
           },
-          message: { type: 'string' },
-        },
+          message: { type: 'string' }
+        }
       },
-    },
+      503: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          error: {
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+              code: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
   } as FastifySchema,
 };
 

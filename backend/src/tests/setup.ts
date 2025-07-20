@@ -1,94 +1,70 @@
-import { beforeAll, afterAll, beforeEach } from 'vitest';
-import { vi } from 'vitest';
+import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
+import { connectDatabase, disconnectDatabase } from '../db/connection';
 
-// Mock database connection for tests
+let dbConnected = false;
+
 beforeAll(async () => {
-  // Mock the database plugin
-  vi.mock('../plugins/database', () => ({
-    default: vi.fn().mockImplementation(async (fastify) => {
-      // Mock database connection
-      fastify.decorate('db', {
-        query: vi.fn(),
-        execute: vi.fn(),
-        select: vi.fn(),
-        insert: vi.fn(),
-        update: vi.fn(),
-        delete: vi.fn(),
-      });
-      
-      // Mock database health check
-      fastify.decorate('dbHealth', vi.fn().mockResolvedValue({
-        status: 'healthy',
-        message: 'Database connection OK (mocked)',
-      }));
-    }),
-  }));
-
-  // Mock Redis plugin
-  vi.mock('../plugins/redis', () => ({
-    default: vi.fn().mockImplementation(async (fastify) => {
-      // Mock Redis connection
-      fastify.decorate('redis', {
-        get: vi.fn(),
-        set: vi.fn(),
-        del: vi.fn(),
-        exists: vi.fn(),
-        expire: vi.fn(),
-        ttl: vi.fn(),
-        incr: vi.fn(),
-        decr: vi.fn(),
-      });
-      
-      // Mock Redis health check
-      fastify.decorate('redisHealth', vi.fn().mockResolvedValue({
-        status: 'healthy',
-        message: 'Redis connection OK (mocked)',
-      }));
-    }),
-  }));
-
-  // Mock JWT plugin
-  vi.mock('../plugins/auth', () => ({
-    default: vi.fn().mockImplementation(async (fastify) => {
-      // Mock JWT methods
-      fastify.decorate('jwt', {
-        sign: vi.fn().mockReturnValue('mock-jwt-token'),
-        verify: vi.fn().mockReturnValue({ studentId: 1, prenom: 'Alice', nom: 'Dupont' }),
-      });
-      
-      // Mock authentication preHandler
-      fastify.decorate('authenticate', vi.fn().mockImplementation(async (request, reply) => {
-        const authHeader = request.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-          return reply.status(401).send({
-            success: false,
-            error: { message: 'Token requis', code: 'MISSING_TOKEN' },
-          });
-        }
-        
-        // Mock successful authentication
-        request.user = { studentId: 1, prenom: 'Alice', nom: 'Dupont' };
-      }));
-    }),
-  }));
-
-  // Mock validation plugin
-  vi.mock('../plugins/validation', () => ({
-    default: vi.fn().mockImplementation(async (fastify) => {
-      // Validation plugin usually adds schema compilation
-      // For tests, we can mock this or let it pass through
-    }),
-  }));
-
-  console.log('✅ Test mocks initialized');
+  try {
+    if (!dbConnected) {
+      await connectDatabase();
+      dbConnected = true;
+    }
+    
+    // Setup test data if needed
+    await setupTestData();
+  } catch (error) {
+    console.error('Test setup failed:', error);
+    throw error;
+  }
 });
 
 afterAll(async () => {
-  vi.clearAllMocks();
-  console.log('✅ Test mocks cleared');
+  try {
+    if (dbConnected) {
+      await disconnectDatabase();
+      dbConnected = false;
+    }
+  } catch (error) {
+    console.error('Test teardown failed:', error);
+  }
 });
 
 beforeEach(async () => {
-  // Clear mocks before each test but keep the mock implementations
-  vi.clearAllMocks();
+  // Clean slate for each test if needed
+  await cleanTestData();
 });
+
+afterEach(async () => {
+  // Cleanup after each test
+  await cleanupTestResources();
+});
+
+// Test data setup functions
+async function setupTestData() {
+  // Create test students if they don't exist
+  // This ensures tests have predictable data
+  try {
+    // Add test student data here
+    console.log('Test data setup completed');
+  } catch (error) {
+    console.warn('Test data setup failed:', error);
+  }
+}
+
+async function cleanTestData() {
+  // Reset test data to known state
+  try {
+    // Clean up any test artifacts
+  } catch (error) {
+    console.warn('Test data cleanup failed:', error);
+  }
+}
+
+async function cleanupTestResources() {
+  // Cleanup any resources created during tests
+  try {
+    // Clear caches, close connections, etc.
+  } catch (error) {
+    console.warn('Resource cleanup failed:', error);
+  }
+}

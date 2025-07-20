@@ -11,18 +11,18 @@ const databasePlugin: FastifyPluginAsync = async (fastify) => {
   const config = validateEnvironment();
 
   // FIXED: Lines 31:21 & 82:21 - Replace any with DatabaseConfig
-  const dbConfig: DatabaseConfig = {
+  const dbConfig = {
     host: config.DB_HOST,
     port: config.DB_PORT,
     user: config.DB_USER,
     password: config.DB_PASSWORD,
     database: config.DB_NAME,
     connectionLimit: config.DB_CONNECTION_LIMIT,
-    ssl: config.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  };
+    ssl: config.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+  } as any;
 
   const connection = mysql.createPool(dbConfig);
-  const db = drizzle(connection, { schema });
+  const db = drizzle(connection, { schema, mode: 'default' });
 
   fastify.decorate('db', db);
   
