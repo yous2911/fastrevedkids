@@ -33,12 +33,14 @@
       "@/services/*": ["services/*"],
       "@/types/*": ["types/*"],
       "@/utils/*": ["utils/*"]
-    }
+    },
+    "types": ["node", "react", "react-dom", "jest"]
   },
   "include": [
     "src",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "src/setupTests.ts"
   ],
   "exclude": [
     "node_modules",
