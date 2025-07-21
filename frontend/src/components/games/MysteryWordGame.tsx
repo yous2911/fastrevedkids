@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MysteryWordGame as MysteryWordGameType } from '../../types/wahoo.types';
+import { wahooEngine } from '../../services/WahooEngine';
 
 // Types pour le jeu du Mot Mystère
 interface MysteryWordData {
@@ -199,38 +199,37 @@ const VictoryAnimation = ({ word, score }: { word: string, score: number }) => (
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: [0, 1.2, 1] }}
-        transition={{ delay: 0.5, duration: 1 }}
-        className="text-8xl mb-6"
+        transition={{ delay: 0.5, type: "spring" }}
+        className="text-6xl mb-4"
       >
-        🕵️‍♂️
+        🎉
       </motion.div>
       
-      <motion.h1
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1 }}
-        className="text-6xl font-bold mb-4"
+      <motion.h2
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8 }}
+        className="text-3xl font-bold mb-2"
       >
-        MYSTÈRE RÉSOLU!
-      </motion.h1>
+        BRAVO !
+      </motion.h2>
+      
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+        className="text-xl mb-4"
+      >
+        Tu as trouvé le mot : <strong>{word}</strong>
+      </motion.p>
       
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="text-3xl mb-6"
+        transition={{ delay: 1.2 }}
+        className="text-lg"
       >
-        Le mot était: <span className="font-bold text-yellow-300">{word}</span>
-      </motion.div>
-      
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 2, type: "spring" }}
-        className="bg-white bg-opacity-20 p-6 rounded-2xl"
-      >
-        <div className="text-4xl font-bold mb-2">{score} Points</div>
-        <div className="text-lg">Excellent travail de détective!</div>
+        Score : <strong>{score}</strong> points
       </motion.div>
     </motion.div>
   </motion.div>
@@ -238,113 +237,165 @@ const VictoryAnimation = ({ word, score }: { word: string, score: number }) => (
 
 // Composant principal du jeu
 const MysteryWordGame = () => {
-  const [gameState, setGameState] = useState<GameState>(() => {
-    const initialWord = MYSTERY_WORDS[0];
-    return {
-      currentWord: initialWord,
-      letters: initialWord.word.split('').map((letter, index) => ({
-        letter,
-        revealed: false,
-        position: index
-      })),
+  const [gameState, setGameState] = useState<GameState>({
+    currentWord: MYSTERY_WORDS[0],
+    letters: [],
+    guessedLetters: [],
+    wrongGuesses: [],
+    maxWrongGuesses: 6,
+    gameStatus: 'playing',
+    score: 0,
+    hintsUsed: 0
+  });
+
+  const [showHint, setShowHint] = useState(false);
+  const [showVictory, setShowVictory] = useState(false);
+
+  // Initialize game when component mounts
+  useEffect(() => {
+    initializeGame();
+  }, []);
+
+  const initializeGame = () => {
+    const randomWord = MYSTERY_WORDS[Math.floor(Math.random() * MYSTERY_WORDS.length)];
+    const letters = randomWord.word.split('').map((letter, index) => ({
+      letter,
+      revealed: false,
+      position: index
+    }));
+
+    setGameState({
+      currentWord: randomWord,
+      letters,
       guessedLetters: [],
       wrongGuesses: [],
       maxWrongGuesses: 6,
       gameStatus: 'playing',
       score: 0,
       hintsUsed: 0
-    };
-  });
-
-  const [showHint, setShowHint] = useState(false);
-
-  // Gérer la sélection d'une lettre
-  const handleLetterGuess = (letter: string) => {
-    if (gameState.gameStatus !== 'playing' || gameState.guessedLetters.includes(letter)) {
-      return;
-    }
-
-    const newGuessedLetters = [...gameState.guessedLetters, letter];
-    const isLetterInWord = gameState.currentWord.word.includes(letter);
-    
-    let newWrongGuesses = gameState.wrongGuesses;
-    let newLetters = gameState.letters;
-    let newScore = gameState.score;
-
-    if (isLetterInWord) {
-      // Révéler toutes les occurrences de cette lettre
-      newLetters = gameState.letters.map(letterState => 
-        letterState.letter === letter 
-          ? { ...letterState, revealed: true }
-          : letterState
-      );
-      newScore += 10; // Points pour lettre correcte
-    } else {
-      newWrongGuesses = [...gameState.wrongGuesses, letter];
-    }
-
-    // Vérifier les conditions de fin
-    let newGameStatus: 'playing' | 'won' | 'lost' = 'playing';
-    
-    if (newWrongGuesses.length >= gameState.maxWrongGuesses) {
-      newGameStatus = 'lost';
-    } else if (newLetters.every(l => l.revealed)) {
-      newGameStatus = 'won';
-      newScore += 100; // Bonus de victoire
-      newScore += Math.max(0, (gameState.maxWrongGuesses - newWrongGuesses.length) * 20); // Bonus performance
-    }
-
-    setGameState({
-      ...gameState,
-      letters: newLetters,
-      guessedLetters: newGuessedLetters,
-      wrongGuesses: newWrongGuesses,
-      gameStatus: newGameStatus,
-      score: newScore
     });
+    setShowHint(false);
+    setShowVictory(false);
   };
 
-  // Utiliser un indice
-  const useHint = () => {
-    if (gameState.hintsUsed >= 2) return;
+  const handleLetterGuess = (letter: string) => {
+    if (gameState.gameStatus !== 'playing') return;
 
-    // Révéler une lettre non découverte
-    const unrevealedLetters = gameState.letters.filter(l => !l.revealed);
-    if (unrevealedLetters.length > 0) {
-      const randomLetter = unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
-      handleLetterGuess(randomLetter.letter);
+    const newGuessedLetters = [...gameState.guessedLetters, letter];
+    const isCorrect = gameState.currentWord.word.includes(letter);
+    
+    let newWrongGuesses = gameState.wrongGuesses;
+    let newScore = gameState.score;
+    
+    if (isCorrect) {
+      // Correct guess - reveal letters and add points
+      const newLetters = gameState.letters.map(l => ({
+        ...l,
+        revealed: l.letter === letter ? true : l.revealed
+      }));
+      
+      newScore += 10;
+      
+      // Check if word is complete
+      const isWordComplete = newLetters.every(l => l.revealed);
+      
+      if (isWordComplete) {
+        // Word completed - trigger victory
+        const finalScore = newScore + (gameState.maxWrongGuesses - gameState.wrongGuesses.length) * 5;
+        
+        // Integrate with WahooEngine
+        const wahooFeedback = wahooEngine.evaluateResponse(true, 2.0);
+        
+        // Dispatch achievement event
+        window.dispatchEvent(new CustomEvent('wahoo-achievement', {
+          detail: {
+            type: 'mystery_word_completed',
+            word: gameState.currentWord.word,
+            difficulty: gameState.currentWord.difficulty,
+            score: finalScore,
+            wahooIntensity: wahooFeedback.intensity
+          }
+        }));
+
+        setGameState(prev => ({
+          ...prev,
+          gameStatus: 'won',
+          score: finalScore
+        }));
+        
+        setShowVictory(true);
+        return;
+      }
+      
       setGameState(prev => ({
         ...prev,
-        hintsUsed: prev.hintsUsed + 1,
-        score: Math.max(0, prev.score - 20) // Coût de l'indice
+        letters: newLetters,
+        guessedLetters: newGuessedLetters,
+        score: newScore
+      }));
+    } else {
+      // Wrong guess
+      newWrongGuesses = [...gameState.wrongGuesses, letter];
+      newScore = Math.max(0, gameState.score - 5);
+      
+      // Check if game over
+      if (newWrongGuesses.length >= gameState.maxWrongGuesses) {
+        // Game lost - trigger loss event
+        window.dispatchEvent(new CustomEvent('wahoo-achievement', {
+          detail: {
+            type: 'mystery_word_failed',
+            word: gameState.currentWord.word,
+            difficulty: gameState.currentWord.difficulty
+          }
+        }));
+
+        setGameState(prev => ({
+          ...prev,
+          gameStatus: 'lost',
+          wrongGuesses: newWrongGuesses,
+          score: newScore
+        }));
+        return;
+      }
+      
+      setGameState(prev => ({
+        ...prev,
+        guessedLetters: newGuessedLetters,
+        wrongGuesses: newWrongGuesses,
+        score: newScore
       }));
     }
   };
 
-  // Nouveau mot
-  const nextWord = () => {
-    const nextIndex = (MYSTERY_WORDS.findIndex(w => w.id === gameState.currentWord.id) + 1) % MYSTERY_WORDS.length;
-    const nextWord = MYSTERY_WORDS[nextIndex];
+  const useHint = () => {
+    if (gameState.hintsUsed >= 2) return;
     
-    setGameState({
-      currentWord: nextWord,
-      letters: nextWord.word.split('').map((letter, index) => ({
-        letter,
-        revealed: false,
-        position: index
+    const unrevealedLetters = gameState.letters.filter(l => !l.revealed);
+    if (unrevealedLetters.length === 0) return;
+    
+    const randomLetter = unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
+    
+    setGameState(prev => ({
+      ...prev,
+      letters: prev.letters.map(l => ({
+        ...l,
+        revealed: l.letter === randomLetter.letter ? true : l.revealed
       })),
-      guessedLetters: [],
-      wrongGuesses: [],
-      maxWrongGuesses: 6,
-      gameStatus: 'playing',
-      score: gameState.score, // Conserver le score
-      hintsUsed: 0
-    });
-    setShowHint(false);
+      hintsUsed: prev.hintsUsed + 1,
+      score: Math.max(0, prev.score - 10)
+    }));
+  };
+
+  const nextWord = () => {
+    initializeGame();
+  };
+
+  const resetGame = () => {
+    initializeGame();
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-6">
       <div className="max-w-4xl mx-auto">
         
         {/* Header */}
@@ -353,153 +404,148 @@ const MysteryWordGame = () => {
           animate={{ y: 0, opacity: 1 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-white mb-2">🕵️ Mot Mystère</h1>
-          <p className="text-xl text-purple-200">Découvre le mot secret lettre par lettre!</p>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">🔍 Mot Mystère</h1>
+          <p className="text-xl text-gray-600">Découvre le mot caché lettre par lettre</p>
         </motion.div>
 
-        {/* Statistiques */}
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="grid grid-cols-3 gap-4 mb-8"
-        >
-          <div className="bg-white bg-opacity-10 backdrop-blur-sm p-4 rounded-xl text-center text-white">
-            <div className="text-2xl font-bold">{gameState.score}</div>
-            <div className="text-sm">Points</div>
-          </div>
-          <div className="bg-white bg-opacity-10 backdrop-blur-sm p-4 rounded-xl text-center text-white">
-            <div className="text-lg font-bold">{gameState.currentWord.category}</div>
-            <div className="text-sm">Catégorie</div>
-          </div>
-          <div className="bg-white bg-opacity-10 backdrop-blur-sm p-4 rounded-xl text-center text-white">
-            <div className="text-lg font-bold">{gameState.currentWord.difficulty}</div>
-            <div className="text-sm">Difficulté</div>
-          </div>
-        </motion.div>
-
-        {/* Zone de jeu principale */}
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="bg-white rounded-2xl p-8 shadow-2xl mb-6"
-        >
-          {/* Indicateur d'erreurs */}
-          <div className="mb-6">
-            <MistakeIndicator wrongGuesses={gameState.wrongGuesses.length} maxWrong={gameState.maxWrongGuesses} />
+        {/* Game Info */}
+        <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{gameState.score}</div>
+              <div className="text-sm text-gray-600">Points</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {gameState.currentWord.category}
+              </div>
+              <div className="text-sm text-gray-600">Catégorie</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">
+                {gameState.currentWord.difficulty.toUpperCase()}
+              </div>
+              <div className="text-sm text-gray-600">Difficulté</div>
+            </div>
           </div>
 
-          {/* Mot à deviner */}
-          <div className="flex justify-center items-center mb-8 flex-wrap">
-            {gameState.letters.map((letterState, index) => (
-              <LetterTile key={index} {...letterState} />
+          {/* Hint */}
+          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-blue-600">💡</span>
+              <span className="font-semibold text-blue-800">Indice :</span>
+            </div>
+            <p className="text-blue-700">{gameState.currentWord.hint}</p>
+          </div>
+        </div>
+
+        {/* Word Display */}
+        <div className="bg-white rounded-xl p-8 shadow-lg mb-6">
+          <div className="flex justify-center mb-8">
+            {gameState.letters.map((letter, index) => (
+              <LetterTile
+                key={index}
+                letter={letter.letter}
+                revealed={letter.revealed}
+                position={letter.position}
+              />
             ))}
           </div>
 
-          {/* Indice */}
-          <div className="text-center mb-6">
-            <button
-              onClick={() => setShowHint(!showHint)}
-              className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 px-4 py-2 rounded-lg font-bold mr-4 transition-colors"
-            >
-              💡 {showHint ? 'Cacher' : 'Montrer'} l'Indice
-            </button>
-            
-            <button
-              onClick={useHint}
-              disabled={gameState.hintsUsed >= 2}
-              className="bg-orange-400 hover:bg-orange-500 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-bold transition-colors"
-            >
-              🔍 Révéler une Lettre ({2 - gameState.hintsUsed} restants)
-            </button>
-          </div>
+          {/* Mistake Indicator */}
+          <MistakeIndicator 
+            wrongGuesses={gameState.wrongGuesses.length} 
+            maxWrong={gameState.maxWrongGuesses} 
+          />
+        </div>
 
-          <AnimatePresence>
-            {showHint && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="bg-blue-100 border border-blue-300 p-4 rounded-lg text-center text-blue-800 mb-6"
-              >
-                <div className="text-lg">💭 <strong>Indice:</strong> {gameState.currentWord.hint}</div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Clavier virtuel */}
+        {/* Virtual Keyboard */}
+        <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
           <VirtualKeyboard
             onLetterClick={handleLetterGuess}
             guessedLetters={gameState.guessedLetters}
             wrongGuesses={gameState.wrongGuesses}
           />
-
-          {/* Lettres déjà essayées */}
-          {gameState.wrongGuesses.length > 0 && (
-            <div className="text-center mt-6">
-              <div className="text-gray-600 mb-2">Lettres incorrectes:</div>
-              <div className="flex justify-center gap-2 flex-wrap">
-                {gameState.wrongGuesses.map((letter, index) => (
-                  <motion.span
-                    key={letter}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="bg-red-100 text-red-800 px-2 py-1 rounded font-bold"
-                  >
-                    {letter}
-                  </motion.span>
-                ))}
-              </div>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Bouton nouveau mot */}
-        <div className="text-center">
-          <button
-            onClick={nextWord}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-bold text-lg transition-colors"
-          >
-            🎲 Nouveau Mystère
-          </button>
         </div>
-      </div>
 
-      {/* Animation de victoire */}
-      <AnimatePresence>
-        {gameState.gameStatus === 'won' && (
-          <VictoryAnimation word={gameState.currentWord.word} score={gameState.score} />
-        )}
-      </AnimatePresence>
-
-      {/* Animation de défaite */}
-      <AnimatePresence>
-        {gameState.gameStatus === 'lost' && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="fixed inset-0 bg-gradient-to-br from-red-400 to-purple-600 flex items-center justify-center z-50"
+        {/* Game Controls */}
+        <div className="flex justify-center gap-4">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={useHint}
+            disabled={gameState.hintsUsed >= 2 || gameState.gameStatus !== 'playing'}
+            className={`px-6 py-3 rounded-xl font-bold transition-colors ${
+              gameState.hintsUsed >= 2 || gameState.gameStatus !== 'playing'
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+            }`}
           >
-            <motion.div
-              initial={{ y: 50 }}
-              animate={{ y: 0 }}
-              className="text-center text-white"
+            💡 Indice ({2 - gameState.hintsUsed} restants)
+          </motion.button>
+
+          {gameState.gameStatus === 'won' && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={nextWord}
+              className="px-6 py-3 rounded-xl font-bold bg-green-500 hover:bg-green-600 text-white transition-colors"
             >
-              <div className="text-8xl mb-6">🤔</div>
-              <h1 className="text-5xl font-bold mb-4">Mystère Non Résolu!</h1>
-              <div className="text-2xl mb-6">
-                Le mot était: <span className="font-bold text-yellow-300">{gameState.currentWord.word}</span>
+              🎯 Mot Suivant
+            </motion.button>
+          )}
+
+          {gameState.gameStatus === 'lost' && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={resetGame}
+              className="px-6 py-3 rounded-xl font-bold bg-red-500 hover:bg-red-600 text-white transition-colors"
+            >
+              🔄 Recommencer
+            </motion.button>
+          )}
+        </div>
+
+        {/* Game Over Messages */}
+        <AnimatePresence>
+          {gameState.gameStatus === 'lost' && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40"
+            >
+              <div className="bg-white rounded-xl p-8 text-center max-w-md mx-4">
+                <div className="text-6xl mb-4">😔</div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Dommage !</h2>
+                <p className="text-gray-600 mb-4">
+                  Le mot était : <strong>{gameState.currentWord.word}</strong>
+                </p>
+                <p className="text-sm text-gray-500 mb-6">
+                  Score final : {gameState.score} points
+                </p>
+                <button
+                  onClick={resetGame}
+                  className="px-6 py-3 rounded-xl font-bold bg-blue-500 hover:bg-blue-600 text-white transition-colors"
+                >
+                  Réessayer
+                </button>
               </div>
-              <button
-                onClick={nextWord}
-                className="bg-white text-purple-600 px-8 py-3 rounded-xl font-bold text-lg hover:bg-gray-100 transition-colors"
-              >
-                🎯 Nouveau Défi
-              </button>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+
+        {/* Victory Animation */}
+        <AnimatePresence>
+          {showVictory && (
+            <VictoryAnimation 
+              word={gameState.currentWord.word} 
+              score={gameState.score} 
+            />
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

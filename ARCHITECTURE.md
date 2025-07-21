@@ -130,11 +130,13 @@ interface AnimatedLesson {
 - ✅ `mascotCollection.ts` - Inventaire complet (50 objets)
 - ✅ `SyllabieModuleVisualizer.tsx` - Module pédagogique complet
 - ✅ `TutorialService.ts` - Gestion des tutoriels et achievements
+- ✅ `EducationalDashboard.tsx` - Portail parent/enseignant (intégré avec WahooEngine)
+- ✅ `MysteryWordGame.tsx` - Module de jeu de lettres (intégré avec WahooEngine)
+- ✅ `useWahooEngine.ts` - Hook React pour WahooEngine
+- ✅ `useMascotData.ts` - Hook React pour collection mascotte
+- ✅ `useEducationalDashboard.ts` - Hook React pour tableau de bord
 
 ### Composants à Implémenter
-- 🔄 `MysteryWordGame.tsx` - Module de jeu de lettres
-- 🔄 `EducationalDashboard.tsx` - Portail parent/enseignant
-- 🔄 `SyllabieModuleVisualizer.tsx` - Lecteur d'exercices classiques
 - 🔄 `LessonEngine` - Lecteur de Masterclass Animées (HTML/JS vanilla)
 
 ### Architecture Backend

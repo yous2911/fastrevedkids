@@ -1,62 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { StudentMetrics, CompetencyMapping } from '../../types/wahoo.types';
-import { useEducationalDashboard } from '../../hooks/useEducationalDashboard';
+import { wahooEngine } from '../../services/WahooEngine';
+import { MASCOT_COLLECTION } from '../../data/mascotCollection';
 
 // Mapping entre métriques ludiques et compétences éducatives
 const COMPETENCY_MAPPING: CompetencyMapping = {
-  'wizard_hat': {
+  'wizard_hat_epic': {
     description: 'Chapeau de Magicien',
     gameMetric: 'Objet débloqué par 10 exercices de maths',
     educationalValue: 'Maîtrise des opérations de base (addition/soustraction)',
     parentExplanation: 'Votre enfant a démontré une compréhension solide des calculs fondamentaux'
   },
-  'crown': {
-    description: 'Couronne Royale',
-    gameMetric: 'Série de 20 bonnes réponses',
+  'crown_legendary': {
+    description: 'Couronne de la Sagesse',
+    gameMetric: 'Série de 30 bonnes réponses',
     educationalValue: 'Excellence en résolution de problèmes et concentration',
     parentExplanation: 'Votre enfant fait preuve d\'une concentration exceptionnelle et d\'une maîtrise avancée'
   },
-  'detective_hat': {
-    description: 'Chapeau de Détective',
-    gameMetric: 'Résolution de 5 mots mystères',
+  'monocle_detective': {
+    description: 'Monocle de Détective',
+    gameMetric: 'Résolution de mots mystères difficiles',
     educationalValue: 'Développement du vocabulaire et logique déductive',
     parentExplanation: 'Votre enfant enrichit son vocabulaire et développe sa capacité de déduction'
   },
-  'smart_glasses': {
+  'smart_glasses_nerd': {
     description: 'Lunettes de Génie',
     gameMetric: 'Score parfait sur exercices difficiles',
     educationalValue: 'Maîtrise de concepts avancés et pensée critique',
     parentExplanation: 'Votre enfant est prêt pour des défis plus complexes'
-  }
-};
-
-// Données de démonstration
-const DEMO_STUDENT: StudentMetrics = {
-  id: 'student_001',
-  name: 'Emma Martin',
-  age: 9,
-  streakCurrent: 12,
-  totalExercises: 147,
-  mascotHappiness: 89,
-  unlockedItems: ['wizard_hat', 'cool_glasses', 'cap', 'detective_hat'],
-  mysteryWordsCompleted: 8,
-  wahooIntensityHistory: ['standard', 'epic', 'subtle', 'standard', 'epic'],
-  educationalInsights: {
-    masteredConcepts: [
-      'Addition et soustraction jusqu\'à 100',
-      'Reconnaissance des formes géométriques',
-      'Orthographe des mots courants',
-      'Compréhension de lecture niveau CE1'
-    ],
-    strugglingAreas: [
-      'Tables de multiplication (en cours)',
-      'Accord du participe passé'
-    ],
-    confidenceLevel: 'high',
-    cognitiveLoad: 'optimal',
-    engagementPattern: 'Très engagé, sessions longues avec performance constante',
-    learningVelocity: 1.3 // Par rapport à la moyenne de la classe
   }
 };
 
@@ -236,10 +208,152 @@ const GameToEducationTranslator = ({ student }: { student: StudentMetrics }) => 
 // Composant principal du tableau de bord
 const EducationalDashboard = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'competencies' | 'analysis' | 'translation'>('overview');
-  const { studentMetrics, competencyMapping, loading, error } = useEducationalDashboard();
-  
-  // Utiliser les données réelles ou les données de démonstration en fallback
-  const student = studentMetrics || DEMO_STUDENT;
+  const [student, setStudent] = useState<StudentMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const buildStudentMetrics = (): StudentMetrics => {
+      // Get real data from WahooEngine
+      const wahooContext = wahooEngine.getContext();
+      
+      // Get real mascot data
+      const unlockedItems = MASCOT_COLLECTION
+        .filter(item => item.unlocked)
+        .map(item => item.id);
+      
+      const equippedItems = MASCOT_COLLECTION
+        .filter(item => item.equipped)
+        .reduce((acc, item) => ({ ...acc, [item.type]: item.id }), {});
+
+      // Calculate mascot happiness based on real data
+      const mascotHappiness = Math.min(50 + (unlockedItems.length * 5) + (wahooContext.streak * 2), 100);
+
+      // Generate educational insights from real data
+      const educationalInsights = {
+        masteredConcepts: generateMasteredConcepts(wahooContext, unlockedItems),
+        strugglingAreas: generateStrugglingAreas(wahooContext),
+        confidenceLevel: determineConfidenceLevel(wahooContext),
+        cognitiveLoad: determineCognitiveLoad(wahooContext),
+        engagementPattern: analyzeEngagementPattern(wahooContext),
+        learningVelocity: calculateLearningVelocity(wahooContext)
+      };
+
+      return {
+        id: 'student_001', // This would come from your auth system
+        name: 'Emma Martin', // This would come from your user data
+        age: 9,
+        streakCurrent: wahooContext.streak,
+        totalExercises: wahooContext.totalCorrect,
+        mascotHappiness,
+        unlockedItems,
+        mysteryWordsCompleted: 8, // This would come from your mystery word service
+        wahooIntensityHistory: [wahooContext.lastWahooIntensity],
+        educationalInsights
+      };
+    };
+
+    try {
+      setLoading(true);
+      const metrics = buildStudentMetrics();
+      setStudent(metrics);
+    } catch (error) {
+      console.error('Error building student metrics:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Utility functions that work with real data
+  const generateMasteredConcepts = (wahooContext: any, unlockedItems: string[]): string[] => {
+    const concepts: string[] = [];
+    
+    if (wahooContext.totalCorrect > 50) {
+      concepts.push('Addition et soustraction jusqu\'à 100');
+    }
+    
+    if (unlockedItems.includes('wizard_hat_epic')) {
+      concepts.push('Reconnaissance des formes géométriques');
+    }
+    
+    if (wahooContext.streak > 15) {
+      concepts.push('Orthographe des mots courants');
+    }
+    
+    return concepts;
+  };
+
+  const generateStrugglingAreas = (wahooContext: any): string[] => {
+    const areas: string[] = [];
+    
+    if (wahooContext.consecutiveErrors > 3) {
+      areas.push('Tables de multiplication (en cours)');
+    }
+    
+    if (wahooContext.averageResponseTime > 8) {
+      areas.push('Accord du participe passé');
+    }
+    
+    return areas;
+  };
+
+  const determineConfidenceLevel = (wahooContext: any): 'low' | 'medium' | 'high' => {
+    if (wahooContext.streak > 10 && wahooContext.consecutiveErrors < 2) {
+      return 'high';
+    } else if (wahooContext.streak > 5 && wahooContext.consecutiveErrors < 5) {
+      return 'medium';
+    } else {
+      return 'low';
+    }
+  };
+
+  const determineCognitiveLoad = (wahooContext: any): 'optimal' | 'under-challenged' | 'overwhelmed' => {
+    if (wahooContext.consecutiveErrors > 5 || wahooContext.averageResponseTime > 10) {
+      return 'overwhelmed';
+    } else if (wahooContext.studentEnergy > 80 && wahooContext.consecutiveErrors < 2) {
+      return 'under-challenged';
+    } else {
+      return 'optimal';
+    }
+  };
+
+  const analyzeEngagementPattern = (wahooContext: any): string => {
+    if (wahooContext.streak > 10 && wahooContext.studentEnergy > 70) {
+      return 'Très engagé, sessions longues avec performance constante';
+    } else if (wahooContext.streak > 5) {
+      return 'Engagement modéré, progression régulière';
+    } else {
+      return 'Engagement variable, besoin d\'encouragement';
+    }
+  };
+
+  const calculateLearningVelocity = (wahooContext: any): number => {
+    const baseVelocity = 1.0;
+    const streakBonus = wahooContext.streak > 10 ? 0.2 : 0;
+    const accuracyBonus = wahooContext.totalCorrect > 100 ? 0.1 : 0;
+    
+    return Math.min(baseVelocity + streakBonus + accuracyBonus, 2.0);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement du tableau de bord...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!student) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600">Erreur lors du chargement des données</p>
+        </div>
+      </div>
+    );
+  }
 
   const tabs = [
     { id: 'overview', name: 'Vue d\'ensemble', emoji: '📊' },
@@ -247,30 +361,6 @@ const EducationalDashboard = () => {
     { id: 'analysis', name: 'Analyse', emoji: '📈' },
     { id: 'translation', name: 'Traduction', emoji: '🔄' }
   ];
-
-  // Gestion des états de chargement et d'erreur
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement des métriques pédagogiques...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-4xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Erreur de chargement</h2>
-          <p className="text-gray-600">{error}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
@@ -392,7 +482,7 @@ const EducationalDashboard = () => {
               exit={{ opacity: 0, y: -20 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
             >
-              {Object.keys(competencyMapping).map(itemId => (
+              {Object.keys(COMPETENCY_MAPPING).map(itemId => (
                 <CompetencyCard
                   key={itemId}
                   itemId={itemId}
