@@ -4,7 +4,7 @@
   "description": "High-performance educational platform backend with Fastify",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "clean": "rimraf dist",

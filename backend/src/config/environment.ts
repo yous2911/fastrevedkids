@@ -11,7 +11,7 @@ const configSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3000),
   HOST: z.string().default('0.0.0.0'),
-  
+
   // Database
   DB_HOST: z.string().default('localhost'),
   DB_PORT: z.coerce.number().default(3306),
@@ -19,51 +19,51 @@ const configSchema = z.object({
   DB_PASSWORD: z.string().default(''),
   DB_NAME: z.string().default('reved_kids'),
   DB_CONNECTION_LIMIT: z.coerce.number().default(20),
-  
+
   // Redis
   REDIS_HOST: z.string().default('localhost'),
   REDIS_PORT: z.coerce.number().default(6379),
   REDIS_PASSWORD: z.string().optional(),
   REDIS_DB: z.coerce.number().default(0),
   REDIS_ENABLED: z.coerce.boolean().default(true),
-  
+
   // Security
   JWT_SECRET: z.string().min(32),
   JWT_EXPIRES_IN: z.string().default('24h'),
   ENCRYPTION_KEY: z.string().min(32),
-  
+
   // Rate Limiting
   RATE_LIMIT_MAX: z.coerce.number().default(100),
   RATE_LIMIT_WINDOW: z.coerce.number().default(900000), // 15 minutes
-  
+
   // File Upload
   MAX_FILE_SIZE: z.coerce.number().default(10485760), // 10MB
   UPLOAD_PATH: z.string().default('./uploads'),
-  
+
   // Monitoring
   ENABLE_METRICS: z.coerce.boolean().default(true),
   METRICS_INTERVAL: z.coerce.number().default(60000), // 1 minute
-  
+
   // Cache
   CACHE_TTL: z.coerce.number().default(900), // 15 minutes
   CACHE_MAX_SIZE: z.coerce.number().default(1000),
-  
+
   // Performance
   REQUEST_TIMEOUT: z.coerce.number().default(30000), // 30 seconds
   BODY_LIMIT: z.coerce.number().default(10485760), // 10MB
-  
+
   // CORS
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
   CORS_CREDENTIALS: z.coerce.boolean().default(true),
-  
+
   // Logging
   LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
   LOG_FILE: z.string().optional(),
-  
+
   // WebSocket
   WS_HEARTBEAT_INTERVAL: z.coerce.number().default(30000), // 30 seconds
   WS_MAX_CONNECTIONS: z.coerce.number().default(1000),
-  
+
   // SSL Configuration
   SSL_ENABLED: z.coerce.boolean().default(false),
   SSL_CERT_PATH: z.string().optional(),
@@ -88,7 +88,7 @@ export const isProduction = config.NODE_ENV === 'production';
 export const isTest = config.NODE_ENV === 'test';
 
 // Database configuration for Drizzle
-export const dbConfig = {
+const dbConfig = {
   host: config.DB_HOST,
   port: config.DB_PORT,
   user: config.DB_USER,
@@ -104,7 +104,7 @@ export const dbConfig = {
 };
 
 // Redis configuration
-export const redisConfig = {
+const redisConfig = {
   host: config.REDIS_HOST,
   port: config.REDIS_PORT,
   password: config.REDIS_PASSWORD,
@@ -119,7 +119,7 @@ export const redisConfig = {
 };
 
 // JWT configuration
-export const jwtConfig = {
+const jwtConfig = {
   secret: config.JWT_SECRET,
   expiresIn: config.JWT_EXPIRES_IN,
   algorithm: 'HS256' as const,
@@ -128,7 +128,7 @@ export const jwtConfig = {
 };
 
 // Rate limiting configuration
-export const rateLimitConfig = {
+const rateLimitConfig = {
   max: config.RATE_LIMIT_MAX,
   timeWindow: config.RATE_LIMIT_WINDOW,
   cache: 10000,
@@ -141,15 +141,15 @@ export const rateLimitConfig = {
 };
 
 // CORS configuration
-export const corsConfig = {
-  origin: isDevelopment 
+const corsConfig = {
+  origin: isDevelopment
     ? ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000']
     : config.CORS_ORIGIN.split(',').map(origin => origin.trim()),
   credentials: config.CORS_CREDENTIALS,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
+    'Content-Type',
+    'Authorization',
     'X-Requested-With',
     'X-Request-ID',
     'X-API-Key',
@@ -160,7 +160,7 @@ export const corsConfig = {
 };
 
 // Helmet security configuration
-export const helmetConfig = {
+const helmetConfig = {
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
@@ -183,7 +183,7 @@ export const helmetConfig = {
 };
 
 // Monitoring configuration
-export const monitoringConfig = {
+const monitoringConfig = {
   enableMetrics: config.ENABLE_METRICS,
   metricsInterval: config.METRICS_INTERVAL,
   healthCheckTimeout: 5000,
@@ -197,7 +197,7 @@ export const monitoringConfig = {
 };
 
 // Cache configuration
-export const cacheConfig = {
+const cacheConfig = {
   ttl: config.CACHE_TTL,
   maxSize: config.CACHE_MAX_SIZE,
   checkPeriod: 600, // 10 minutes
@@ -207,7 +207,7 @@ export const cacheConfig = {
 };
 
 // File upload configuration
-export const uploadConfig = {
+const uploadConfig = {
   maxFileSize: config.MAX_FILE_SIZE,
   uploadPath: config.UPLOAD_PATH,
   allowedMimeTypes: [
@@ -228,7 +228,7 @@ export const uploadConfig = {
 };
 
 // WebSocket configuration
-export const wsConfig = {
+const wsConfig = {
   heartbeatInterval: config.WS_HEARTBEAT_INTERVAL,
   maxConnections: config.WS_MAX_CONNECTIONS,
   compression: true,
@@ -242,43 +242,43 @@ export const wsConfig = {
 // Validation helper
 export function validateEnvironment() {
   const required = ['JWT_SECRET', 'ENCRYPTION_KEY'];
-  
+
   for (const key of required) {
     if (!process.env[key]) {
       throw new Error(`Missing required environment variable: ${key}`);
     }
   }
-  
+
   // Validate JWT secret length
   if (config.JWT_SECRET.length < 32) {
     throw new Error('JWT_SECRET must be at least 32 characters long');
   }
-  
+
   // Validate encryption key length
   if (config.ENCRYPTION_KEY.length < 32) {
     throw new Error('ENCRYPTION_KEY must be at least 32 characters long');
   }
-  
+
   // Production-specific validations
   if (isProduction) {
     const productionChecks = [
       { key: 'DB_PASSWORD', message: 'Database password is required in production' },
       { key: 'REDIS_PASSWORD', message: 'Redis password is required in production' },
     ];
-    
+
     for (const check of productionChecks) {
       if (!process.env[check.key]) {
         console.warn(`⚠️  Warning: ${check.message}`);
       }
     }
-    
+
     // Check for default/weak passwords
     const weakPasswords = ['password', 'admin', 'root', '123456', 'rootpassword'];
     if (config.DB_PASSWORD && weakPasswords.includes(config.DB_PASSWORD.toLowerCase())) {
       throw new Error('Weak database password detected. Use a strong password in production.');
     }
   }
-  
+
   console.log('✅ Environment validation passed');
 }
 
@@ -298,7 +298,7 @@ export async function checkDatabaseHealth(): Promise<boolean> {
 // Redis health check
 export async function checkRedisHealth(): Promise<boolean> {
   if (!config.REDIS_ENABLED) return true;
-  
+
   try {
     const Redis = await import('ioredis');
     const redis = new Redis.default(redisConfig);
@@ -333,41 +333,41 @@ export async function checkProductionReadiness(): Promise<{
 }> {
   const issues: string[] = [];
   const warnings: string[] = [];
-  
+
   // Environment checks
   try {
     validateEnvironment();
   } catch (error) {
     issues.push(`Environment validation failed: ${error.message}`);
   }
-  
+
   // Database check
   const dbHealthy = await checkDatabaseHealth();
   if (!dbHealthy) {
     issues.push('Database connection failed');
   }
-  
+
   // Redis check
   const redisHealthy = await checkRedisHealth();
   if (!redisHealthy && config.REDIS_ENABLED) {
     warnings.push('Redis connection failed - falling back to memory cache');
   }
-  
+
   // Production-specific checks
   if (isProduction) {
     if (!config.SSL_ENABLED) {
       warnings.push('SSL not enabled in production');
     }
-    
+
     if (config.CORS_ORIGIN === 'http://localhost:3000') {
       issues.push('CORS_ORIGIN still set to localhost in production');
     }
-    
+
     if (config.LOG_LEVEL === 'debug' || config.LOG_LEVEL === 'trace') {
       warnings.push('Debug logging enabled in production');
     }
   }
-  
+
   return {
     ready: issues.length === 0,
     issues,
