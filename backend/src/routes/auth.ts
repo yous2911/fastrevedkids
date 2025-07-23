@@ -123,9 +123,10 @@ export default async function authRoutes(fastify: FastifyInstanceWithPlugins) {
   fastify.post('/logout', {
     schema: authSchemas.logout,
     preHandler: [fastify.authenticate],
-  }, async (request: FastifyRequest & { user: any }, reply: FastifyReply) => {
+  }, async (request, reply) => {
+    const user = (request as any).user;
     try {
-      const { studentId } = request.user;
+      const { studentId } = user;
 
       // Update connection status
       await fastify.db
