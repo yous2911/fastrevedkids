@@ -1,16 +1,16 @@
-import { FastifyInstance } from 'fastify';
+// src/plugins/compress.ts
 import fp from 'fastify-plugin';
 import compress from '@fastify/compress';
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 
-async function compressPlugin(fastify: FastifyInstance): Promise<void> {
+const compressPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   await fastify.register(compress, {
     global: true,
-    encodings: ['gzip', 'deflate', 'br'],
-    threshold: 1024,
-    removeContentLengthHeader: false,
+    threshold: 1024, // Only compress responses > 1KB
+    encodings: ['gzip', 'deflate'],
   });
-}
+  
+  fastify.log.info('✅ Compression plugin registered successfully');
+};
 
-export default fp(compressPlugin, {
-  name: 'compress',
-});
+export default fp(compressPlugin, { name: 'compress' });

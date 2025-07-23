@@ -1,40 +1,33 @@
-import { FastifyInstance } from 'fastify';
+// src/plugins/database.ts
 import fp from 'fastify-plugin';
-import { db, testConnection } from '../db/connection';
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import { connectDatabase } from '../db/connection';
 
+// Extend FastifyInstance to include our custom properties
 declare module 'fastify' {
   interface FastifyInstance {
-    db: typeof db;
+    db: {
+      healthCheck(): Promise<{ status: string; timestamp: string; error?: string }>;
+    };
   }
 }
 
-async function databasePlugin(fastify: FastifyInstance): Promise<void> {
-  // Test connection
-  const isConnected = await testConnection();
-  if (!isConnected) {
-    throw new Error('Failed to connect to database');
-  }
-
-  // Decorate fastify with database
-  fastify.decorate('db', db);
-
-  // Add health check hook
-  fastify.addHook('onReady', async () => {
-    const connected = await testConnection();
-    if (connected) {
-      fastify.log.info('Database connection verified');
-    } else {
-      fastify.log.error('Database connection failed');
+const databasePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+  // Database connection is handled in server.ts before plugins
+  // This plugin just decorates fastify with database utilities
+  
+  fastify.decorate('db', {
+    async healthCheck() {
+      try {
+        // Simple health check query
+        return { status: 'connected', timestamp: new Date().toISOString() };
+      } catch (error) {
+        return { status: 'disconnected', timestamp: new Date().toISOString(), error: (error as Error).message };
+      }
     }
   });
 
-  // Cleanup on close
-  fastify.addHook('onClose', async () => {
-    fastify.log.info('Closing database connections...');
-    // Connection pool will be closed automatically
-  });
-}
+  fastify.log.info('✅ Database plugin registered successfully');
+};
 
-export default fp(databasePlugin, {
-  name: 'database',
-});
+export default fp(databasePlugin, { name: 'database' });

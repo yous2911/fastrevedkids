@@ -1,129 +1,65 @@
 // src/plugins/monitoring.ts
-import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import fp from 'fastify-plugin';
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 
-// Conditional Prometheus import
-let promClient: any;
-try {
-  promClient = require('prom-client');
-} catch (error) {
-  console.warn('Prometheus client not installed, metrics disabled');
-  promClient = {
-    collectDefaultMetrics: () => {},
-    register: {
-      metrics: () => Promise.resolve(''),
-      clear: () => {},
-    },
-    Counter: class MockCounter { 
-      inc() {} 
-      labels() { return this; }
-    },
-    Histogram: class MockHistogram {
-      observe() {}
-      labels() { return this; }
-      startTimer() { return () => {}; }
-    },
-    Gauge: class MockGauge {
-      set() {}
-      inc() {}
-      dec() {}
-      labels() { return this; }
-    },
-  };
+// Extend FastifyInstance to include our custom properties
+declare module 'fastify' {
+  interface FastifyInstance {
+    monitoring: {
+      getMetrics(): {
+        requests: { total: number; errors: number };
+        responseTime: { sum: number; count: number };
+        startTime: number;
+        avgResponseTime: number;
+        uptime: number;
+        memory: NodeJS.MemoryUsage;
+      };
+      resetMetrics(): void;
+    };
+  }
 }
 
-// Metrics
-const httpRequestDuration = new promClient.Histogram({
-  name: 'http_request_duration_seconds',
-  help: 'Duration of HTTP requests in seconds',
-  labelNames: ['method', 'route', 'status_code'],
-  buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
-});
+const monitoringPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+  // Performance metrics
+  const metrics = {
+    requests: { total: 0, errors: 0 },
+    responseTime: { sum: 0, count: 0 },
+    startTime: Date.now(),
+  };
 
-const httpRequestsTotal = new promClient.Counter({
-  name: 'http_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code'],
-});
-
-const memoryUsage = new promClient.Gauge({
-  name: 'nodejs_memory_usage_bytes',
-  help: 'Memory usage in bytes',
-  labelNames: ['type'],
-});
-
-async function monitoringPlugin(fastify: FastifyInstance): Promise<void> {
-  // Collect default metrics
-  promClient.collectDefaultMetrics();
-
-  // Request monitoring hook
-  fastify.addHook('onRequest', async (request: FastifyRequest) => {
+  // Request tracking
+  fastify.addHook('onRequest', async (request) => {
     (request as any).startTime = Date.now();
+    metrics.requests.total++;
   });
 
-  fastify.addHook('onResponse', async (request: FastifyRequest, reply: FastifyReply) => {
-    const responseTime = Date.now() - ((request as any).startTime || Date.now());
-    const route = request.routerPath || request.url;
+  fastify.addHook('onResponse', async (request, reply) => {
+    const responseTime = Date.now() - (request as any).startTime;
+    metrics.responseTime.sum += responseTime;
+    metrics.responseTime.count++;
     
-    httpRequestDuration
-      .labels(request.method, route, reply.statusCode.toString())
-      .observe(responseTime / 1000);
-    
-    httpRequestsTotal
-      .labels(request.method, route, reply.statusCode.toString())
-      .inc();
-  });
-
-  // Memory monitoring
-  setInterval(() => {
-    const memInfo = process.memoryUsage();
-    memoryUsage.labels('rss').set(memInfo.rss);
-    memoryUsage.labels('heapUsed').set(memInfo.heapUsed);
-    memoryUsage.labels('heapTotal').set(memInfo.heapTotal);
-    memoryUsage.labels('external').set(memInfo.external);
-  }, 30000);
-
-  // Metrics endpoint
-  fastify.get('/api/monitoring/metrics', async (request, reply) => {
-    try {
-      const metrics = await promClient.register.metrics();
-      reply.type('text/plain').send(metrics);
-    } catch (error) {
-      reply.status(500).send({ error: 'Failed to collect metrics' });
+    if (reply.statusCode >= 400) {
+      metrics.requests.errors++;
     }
   });
 
-  // Health check endpoint
-  fastify.get('/api/monitoring/health', async () => {
-    const memInfo = process.memoryUsage();
-    return {
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      memory: {
-        used: memInfo.heapUsed,
-        total: memInfo.heapTotal,
-        external: memInfo.external,
-        rss: memInfo.rss,
-      },
-      version: process.version,
-    };
-  });
-
-  // System metrics endpoint
-  fastify.get('/api/monitoring/system', async () => {
-    return {
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
+  // Decorate with monitoring utilities
+  fastify.decorate('monitoring', {
+    getMetrics: () => ({
+      ...metrics,
+      avgResponseTime: metrics.responseTime.count > 0 
+        ? Math.round(metrics.responseTime.sum / metrics.responseTime.count) 
+        : 0,
+      uptime: Date.now() - metrics.startTime,
       memory: process.memoryUsage(),
-      cpu: process.cpuUsage(),
-      version: process.version,
-      platform: process.platform,
-      arch: process.arch,
-    };
+    }),
+    resetMetrics: () => {
+      metrics.requests = { total: 0, errors: 0 };
+      metrics.responseTime = { sum: 0, count: 0 };
+    },
   });
-}
 
-export default fp(monitoringPlugin, {
-  name: 'monitoring',
-});
+  fastify.log.info('✅ Monitoring plugin registered successfully');
+};
+
+export default fp(monitoringPlugin, { name: 'monitoring' });

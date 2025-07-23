@@ -1,64 +1,44 @@
-import { FastifyInstance } from 'fastify';
+// src/plugins/websocket.ts
 import fp from 'fastify-plugin';
 import websocket from '@fastify/websocket';
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 
-async function websocketPlugin(fastify: FastifyInstance): Promise<void> {
+// Extend FastifyInstance to include our custom properties
+declare module 'fastify' {
+  interface FastifyInstance {
+    websocket: {
+      broadcast(message: string): void;
+      getConnectionCount(): number;
+    };
+  }
+}
+
+const websocketPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   await fastify.register(websocket, {
     options: {
       maxPayload: 1048576, // 1MB
       verifyClient: (info: any) => {
-        // Add authentication logic here if needed
+        // Add custom client verification logic here
         return true;
       },
     },
   });
 
-  // WebSocket route for real-time updates
-  fastify.register(async function (fastify) {
-    fastify.get('/ws', { websocket: true }, (connection, request) => {
-      connection.socket.on('message', (message: any) => {
-        try {
-          const data = JSON.parse(message.toString());
-          
-          // Handle different message types
-          switch (data.type) {
-            case 'ping':
-              connection.socket.send(JSON.stringify({ type: 'pong' }));
-              break;
-            case 'subscribe':
-              // Handle subscription logic
-              connection.socket.send(JSON.stringify({ 
-                type: 'subscribed', 
-                channel: data.channel 
-              }));
-              break;
-            default:
-              connection.socket.send(JSON.stringify({ 
-                type: 'error', 
-                message: 'Unknown message type' 
-              }));
-          }
-        } catch (error) {
-          connection.socket.send(JSON.stringify({ 
-            type: 'error', 
-            message: 'Invalid JSON' 
-          }));
+  // WebSocket connection tracking
+  const connections = new Set<WebSocket>();
+
+  fastify.decorate('websocket', {
+    broadcast: (message: string) => {
+      for (const socket of connections) {
+        if (socket.readyState === 1) { // WebSocket.OPEN
+          socket.send(message);
         }
-      });
-
-      connection.socket.on('close', () => {
-        fastify.log.info('WebSocket connection closed');
-      });
-
-      // Send welcome message
-      connection.socket.send(JSON.stringify({ 
-        type: 'welcome', 
-        message: 'Connected to RevEd Kids WebSocket' 
-      }));
-    });
+      }
+    },
+    getConnectionCount: () => connections.size,
   });
-}
 
-export default fp(websocketPlugin, {
-  name: 'websocket',
-});
+  fastify.log.info('✅ WebSocket plugin registered successfully');
+};
+
+export default fp(websocketPlugin, { name: 'websocket' });
