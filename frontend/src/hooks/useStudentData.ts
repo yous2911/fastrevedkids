@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { TentativeExercice, TentativeResponse } from '../types/api.types';
 
 interface StudentData {
   id: string;
@@ -16,7 +17,7 @@ interface StudentData {
   };
 }
 
-export const useStudentData = () => {
+export const useStudentData = (studentId?: number) => {
   const [studentData, setStudentData] = useState<StudentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +100,35 @@ export const useStudentData = () => {
     }
   };
 
+  // Add submitExercise function for ExerciseEngine
+  const submitExercise = useCallback(async (exerciseId: number, attempt: TentativeExercice): Promise<TentativeResponse> => {
+    // Mock implementation - replace with actual API call
+    console.log('Submitting exercise:', { exerciseId, attempt, studentId });
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Mock response
+    return {
+      success: true,
+      data: {
+        reussi: attempt.reussi,
+        pointsGagnes: attempt.reussi ? 10 : 5,
+        nouveauStatut: attempt.reussi ? 'completed' : 'attempted',
+        tauxReussite: 85,
+        nombreTentatives: 1,
+        feedback: attempt.reussi ? 'Excellent travail !' : 'Continue tes efforts !',
+        session: {
+          exercicesReussis: attempt.reussi ? 1 : 0,
+          exercicesTentes: 1,
+          pointsTotal: attempt.reussi ? 10 : 5,
+          tauxReussite: attempt.reussi ? 100 : 0
+        }
+      },
+      message: 'Exercise submitted successfully'
+    };
+  }, [studentId]);
+
   return {
     studentData,
     loading,
@@ -106,6 +136,7 @@ export const useStudentData = () => {
     updateStudentData,
     addXP,
     addAchievement,
-    updatePreferences
+    updatePreferences,
+    submitExercise
   };
 }; 

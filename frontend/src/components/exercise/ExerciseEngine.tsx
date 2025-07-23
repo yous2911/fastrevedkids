@@ -278,18 +278,16 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
       {/* Header */}
       <div className="max-w-4xl mx-auto mb-6">
-        <Card className="bg-white shadow-lg">
-          <div className="flex items-center justify-between p-4">
+        <div className="bg-white shadow-lg rounded-lg p-4">
+          <div className="flex items-center justify-between">
             {/* Exercise Info */}
             <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
                 onClick={onExit}
-                className="text-gray-600 hover:text-gray-800"
+                className="text-gray-600 hover:text-gray-800 flex items-center gap-2"
               >
                 <span className="text-xl">←</span> Retour
-              </Button>
+              </button>
               <div>
                 <h1 className="text-xl font-bold text-gray-800">
                   Exercice {exercise.type}
@@ -331,48 +329,43 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
               </div>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* Exercise Content */}
       <div className="max-w-4xl mx-auto">
-        <Card className="bg-white shadow-xl border border-purple-200">
-          <div className="p-6">
-            {renderExerciseComponent()}
-          </div>
-        </Card>
+        <div className="bg-white shadow-xl border border-purple-200 rounded-lg p-6">
+          {renderExerciseComponent()}
+        </div>
       </div>
 
       {/* Action Bar */}
       <div className="max-w-4xl mx-auto mt-6">
-        <Card className="bg-white shadow-lg">
-          <div className="flex items-center justify-between p-4">
+        <div className="bg-white shadow-lg rounded-lg p-4">
+          <div className="flex items-center justify-between">
             {/* Help Button */}
             {showHints && (
-              <Button
-                variant="outline"
+              <button
                 onClick={handleHintRequest}
                 disabled={exerciseState.isCompleted}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
               >
                 <span>💡</span>
                 Indice
-              </Button>
+              </button>
             )}
 
             <div className="flex-1" />
 
             {/* Submit Button */}
             {!autoSubmit && (
-              <Button
-                variant="primary"
-                size="lg"
+              <button
                 onClick={() => handleSubmit()}
                 disabled={!exerciseState.currentAnswer || exerciseState.isSubmitting || exerciseState.isCompleted}
-                className="min-w-32 flex items-center gap-2"
+                className="min-w-32 flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {exerciseState.isSubmitting ? (
-                  <LoadingSpinner size="sm" />
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : exerciseState.isCompleted ? (
                   <>
                     <span>✅</span>
@@ -381,39 +374,11 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
                 ) : (
                   'Valider'
                 )}
-              </Button>
+              </button>
             )}
           </div>
-        </Card>
-      </div>
-
-      {/* Progress indicator */}
-      {!exerciseState.isCompleted && (
-        <div className="fixed bottom-4 right-4">
-          <div className="bg-white rounded-full p-3 shadow-lg">
-            <div className="w-12 h-12 relative">
-              <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="#e5e7eb"
-                  strokeWidth="2"
-                />
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="#3b82f6"
-                  strokeWidth="2"
-                  strokeDasharray={`${timeLimit ? (exerciseState.timeElapsed / timeLimit) * 100 : 0}, 100`}
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-600">
-                {timeLimit ? Math.max(0, timeLimit - exerciseState.timeElapsed) : exerciseState.timeElapsed}s
-              </div>
-            </div>
-          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }; 
