@@ -27,34 +27,74 @@ const app: FastifyInstance = fastify({
 
 // Register plugins function
 async function registerPlugins(): Promise<void> {
-  // Core plugins
-  await app.register(import('./plugins/cors'));
-  await app.register(import('./plugins/helmet'));
-  await app.register(import('./plugins/compress'));
-  await app.register(import('./plugins/rate-limit'));
-  
-  // Infrastructure plugins
-  await app.register(import('./plugins/redis'));
-  await app.register(import('./plugins/database'));
-  
-  // Authentication
-  await app.register(import('./plugins/auth'));
-  
-  // Validation and documentation
-  await app.register(import('./plugins/validation'));
-  await app.register(import('./plugins/swagger'));
-  
-  // Monitoring
-  await app.register(import('./plugins/monitoring'));
-  
-  // WebSocket support
-  await app.register(import('./plugins/websocket'));
-  
-  // Routes
-  await app.register(import('./routes/health'), { prefix: '/api' });
-  await app.register(import('./routes/auth'), { prefix: '/api/auth' });
-  await app.register(import('./routes/exercises'), { prefix: '/api' });
-  await app.register(import('./routes/cp2025'), { prefix: '/api/cp2025' });
+  try {
+    // Core plugins
+    await app.register(import('./plugins/cors'));
+    app.log.info('✅ CORS plugin registered');
+    
+    await app.register(import('./plugins/helmet'));
+    app.log.info('✅ Helmet plugin registered');
+    
+
+    
+    await app.register(import('./plugins/rate-limit'));
+    app.log.info('✅ Rate limit plugin registered');
+    
+    // Infrastructure plugins
+    await app.register(import('./plugins/redis'));
+    app.log.info('✅ Redis plugin registered');
+    
+    await app.register(import('./plugins/database'));
+    app.log.info('✅ Database plugin registered');
+    
+    // Authentication
+    await app.register(import('./plugins/auth'));
+    app.log.info('✅ Auth plugin registered');
+    
+    // Validation and documentation
+    await app.register(import('./plugins/validation'));
+    app.log.info('✅ Validation plugin registered');
+    
+    await app.register(import('./plugins/swagger'));
+    app.log.info('✅ Swagger plugin registered');
+    
+    // Monitoring
+    await app.register(import('./plugins/monitoring'));
+    app.log.info('✅ Monitoring plugin registered');
+    
+    // WebSocket support
+    await app.register(import('./plugins/websocket'));
+    app.log.info('✅ WebSocket plugin registered');
+    
+    // Routes
+    await app.register(import('./routes/health'), { prefix: '/api' });
+    app.log.info('✅ Health routes registered');
+    
+    await app.register(import('./routes/auth'), { prefix: '/api/auth' });
+    app.log.info('✅ Auth routes registered');
+    
+    await app.register(import('./routes/students'), { prefix: '/api/students' });
+    app.log.info('✅ Students routes registered');
+    
+    await app.register(import('./routes/exercises'), { prefix: '/api' });
+    app.log.info('✅ Exercises routes registered');
+    
+    await app.register(import('./routes/curriculum'), { prefix: '/api/curriculum' });
+    app.log.info('✅ Curriculum routes registered');
+    
+    await app.register(import('./routes/monitoring'), { prefix: '/api/monitoring' });
+    app.log.info('✅ Monitoring routes registered');
+    
+    // await app.register(import('./routes/cp2025'), { prefix: '/api/cp2025' });
+    // app.log.info('✅ CP2025 routes registered');
+    
+  } catch (error) {
+    app.log.error('❌ Error registering plugins:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    throw error;
+  }
   
   // Global error handler
   app.setErrorHandler(async (error, request, reply) => {
@@ -82,16 +122,7 @@ async function registerPlugins(): Promise<void> {
     });
   });
 
-  // Health check endpoint
-  app.get('/api/health', async () => {
-    return {
-      success: true,
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      version: '2.0.0',
-      environment: config.NODE_ENV,
-    };
-  });
+
 
   // Root endpoint
   app.get('/', async () => {
@@ -154,7 +185,11 @@ async function start(): Promise<void> {
     app.log.info(`📚 Docs: ${address}/docs`);
 
   } catch (error) {
-    app.log.error('Error starting server:', error);
+    app.log.error('Error starting server:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      error: error
+    });
     process.exit(1);
   }
 }

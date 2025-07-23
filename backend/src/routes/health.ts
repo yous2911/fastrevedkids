@@ -12,7 +12,7 @@ export default async function healthRoutes(fastify: FastifyInstance): Promise<vo
         version: '2.0.0',
         services: {
           database: dbConnected ? 'connected' : 'disconnected',
-          redis: fastify.redis ? 'connected' : 'not_configured',
+          redis: (fastify as any).redis ? 'connected' : 'not_configured',
         },
         uptime: process.uptime(),
         memory: process.memoryUsage(),
@@ -54,7 +54,7 @@ export default async function healthRoutes(fastify: FastifyInstance): Promise<vo
             responseTime: `${dbResponseTime}ms`,
           },
           redis: {
-            status: fastify.redis ? 'healthy' : 'not_configured',
+            status: (fastify as any).redis ? 'healthy' : 'not_configured',
           },
         },
         system: {

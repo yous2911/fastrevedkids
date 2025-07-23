@@ -1,17 +1,17 @@
 import { drizzle } from 'drizzle-orm/mysql2';
 import mysql from 'mysql2/promise';
-import { dbConfig } from '../config/environment';
+import { config } from '../config/config';
 
-// Re-export dbConfig for other modules
-export { dbConfig } from '../config/environment';
+// Re-export config for other modules
+export { config } from '../config/config';
 
 // Create connection pool
 const pool = mysql.createPool({
-  host: dbConfig.host,
-  port: dbConfig.port,
-  user: dbConfig.user,
-  password: dbConfig.password,
-  database: dbConfig.database,
+  host: config.DB_HOST,
+  port: config.DB_PORT,
+  user: config.DB_USER,
+  password: config.DB_PASSWORD,
+  database: config.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
