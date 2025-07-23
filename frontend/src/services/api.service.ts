@@ -1,4 +1,4 @@
-import { ApiResponse, PaginatedResponse, ApiError, NetworkError, RequestConfig } from '../types/api.types';
+import { ApiResponse, ApiError, NetworkError, RequestConfig } from '../types/api.types';
 
 export class ApiService {
   private baseURL: string;
@@ -71,7 +71,6 @@ export class ApiService {
     if (cache && method === 'GET') {
       const cached = this.getCache<T>(cacheKey);
       if (cached && this.isCacheValid(cacheKey)) {
-        console.log(`📦 Cache hit: ${cacheKey}`);
         return cached;
       }
     }
@@ -99,8 +98,6 @@ export class ApiService {
     // Enhanced retry logic with exponential backoff
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        console.log(`🔄 API Request [${attempt}/${retries}]: ${method} ${url}`);
-        
         const response = await fetch(url, requestConfig);
         
         // Handle empty responses
@@ -138,7 +135,6 @@ export class ApiService {
           this.setCache(cacheKey, responseData);
         }
 
-        console.log(`✅ API Success: ${method} ${url}`);
         return responseData;
 
       } catch (error: unknown) {
@@ -163,13 +159,11 @@ export class ApiService {
           const jitter = Math.random() * 1000;
           const delay = baseDelay + jitter;
           
-          console.log(`⏳ Retry in ${Math.round(delay)}ms...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }
 
-    console.error(`❌ API Failed after ${retries} attempts: ${method} ${url}`, lastError);
     throw lastError;
   }
 

@@ -20,11 +20,11 @@ export function MainApp() {
     <Dashboard 
       onNavigate={(path) => {
         // Handle navigation - could be enhanced with React Router
-        console.log('Navigate to:', path);
+        // TODO: Implement navigation logic
       }}
       onStartExercise={(exercise) => {
         // Handle starting an exercise
-        console.log('Start exercise:', exercise);
+        // TODO: Implement exercise start logic
       }}
       onLogout={logout}
     />

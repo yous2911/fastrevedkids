@@ -1,7 +1,7 @@
 const reportWebVitals = (onPerfEntry?: any) => {
   if (onPerfEntry && onPerfEntry instanceof Function) {
     // Web vitals reporting - simplified for now
-    console.log('Web vitals reporting enabled');
+    // TODO: Implement web vitals reporting
   }
 };
 

@@ -40,7 +40,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           apiService.setAuthToken(savedToken);
         });
       } catch (err) {
-        console.error('Failed to restore session:', err);
         // Clear invalid session data
         localStorage.removeItem('auth_token');
         localStorage.removeItem('student_data');
