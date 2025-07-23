@@ -1,0 +1,274 @@
+{
+  "lessonId": "MASTERCLASS_SUBTRACTION_V1",
+  "title": "La Magie de la Retenue",
+  "description": "Maîtrise la soustraction avec retenue grâce à l'art de l'emprunt magique !",
+  "targetLevel": "CE1-CE2",
+  "duration": "18 minutes", 
+  "competencies": ["soustraction", "retenue", "emprunt", "calcul", "dizaines", "unités"],
+  
+  "problem": { 
+    "type": "arithmetic_operation",
+    "operation": "subtraction",
+    "minuend": 73,
+    "subtrahend": 28,
+    "result": 45,
+    "borrowing_required": true
+  },
+  
+  "voiceover": {
+    "provider": "elevenlabs",
+    "voice_id": "Rachel",
+    "script": [
+      { 
+        "step": 1, 
+        "text": "Bonjour ! Aujourd'hui, nous allons devenir des experts de la soustraction avec retenue. C'est un pouvoir magique !" 
+      },
+      { 
+        "step": 2, 
+        "text": "Regardons notre défi : 73 moins 28. Commençons par les unités ! On veut faire 3 moins 8, mais 3 est plus petit que 8..." 
+      },
+      { 
+        "step": 3, 
+        "text": "La solution magique est d'emprunter une dizaine au 7. Le 7 devient alors 6, et notre 3 reçoit dix unités supplémentaires !" 
+      },
+      { 
+        "step": 4, 
+        "text": "Maintenant, c'est facile ! 13 moins 8, cela fait 5. La magie de l'emprunt a fonctionné !" 
+      },
+      {
+        "step": 5, 
+        "text": "Passons aux dizaines. Il nous reste 6 moins 2, ce qui fait 4. Simple comme bonjour !" 
+      },
+      {
+        "step": 6, 
+        "text": "Et voilà ! Le résultat final est 45. Tu as maîtrisé l'art de l'emprunt ! Plus aucune soustraction ne te résistera !" 
+      }
+    ]
+  },
+
+  "animation_steps": [
+    { 
+      "type": "present_problem", 
+      "targets": ["digit-7", "digit-3", "digit-2", "digit-8"],
+      "duration": 2000,
+      "explanation": "<strong>🧮 Notre défi mathématique !</strong><br>Voici 73 - 28. Commençons par observer le problème. Que remarques-tu avec les unités ?",
+      "mascot": { "emoji": "🤔", "message": "Un défi intéressant nous attend !" },
+      "sounds": ["problem_presentation", "mathematical_intro"],
+      "haptics": ["light"]
+    },
+    { 
+      "type": "highlight_problem", 
+      "targets": ["digit-3", "digit-8"], 
+      "duration": 3000,
+      "explanation": "<strong>🎯 Le problème des unités !</strong><br>On veut faire 3 - 8, mais 3 est plus petit que 8... Comment faire ? Il nous faut une solution magique !",
+      "mascot": { "emoji": "🤔", "message": "Hmm, 3 est plus petit que 8..." },
+      "sounds": ["problem_highlight", "thinking_sound"],
+      "haptics": ["light", "light"]
+    },
+    { 
+      "type": "explain_borrowing", 
+      "targets": ["digit-7"],
+      "duration": 4000,
+      "explanation": "<strong>💡 La Solution Magique : L'Emprunt !</strong><br>On va emprunter une dizaine au 7 ! C'est comme demander de l'aide à son voisin. Le 7 devient 6, mais il nous donne 10 !",
+      "mascot": { "emoji": "💡", "message": "L'art de l'emprunt magique !" },
+      "sounds": ["eureka_moment", "magical_insight"],
+      "haptics": ["medium"]
+    },
+    { 
+      "type": "execute_borrowing", 
+      "from": "digit-7", 
+      "to": "digit-3",
+      "duration": 5000,
+      "explanation": "<strong>⚡ L'emprunt en action !</strong><br>Le 7 devient 6 et prête 10 au 3. Maintenant notre 3 devient 13 ! C'est la magie du système décimal !",
+      "mascot": { "emoji": "✨", "message": "Magie ! 3 devient 13 !" },
+      "sounds": ["magic_whoosh", "borrowing_sound", "magic_transform"],
+      "haptics": ["medium", "success"]
+    },
+    { 
+      "type": "calculate_units", 
+      "operation": "13 - 8",
+      "result": 5,
+      "target": "result-units",
+      "duration": 3000,
+      "explanation": "<strong>🎯 Calcul des unités !</strong><br>Maintenant on peut calculer : 13 - 8 = 5. Facile ! L'emprunt a résolu notre problème !",
+      "mascot": { "emoji": "🎉", "message": "13 - 8 = 5 ! Parfait !" },
+      "sounds": ["calculation_success", "number_magic"],
+      "haptics": ["success"]
+    },
+    { 
+      "type": "calculate_tens", 
+      "operation": "6 - 2", 
+      "result": 4,
+      "target": "result-tens",
+      "duration": 3000,
+      "explanation": "<strong>🎯 Calcul des dizaines !</strong><br>Pour les dizaines : 6 - 2 = 4. N'oublie pas, le 7 est devenu 6 à cause de l'emprunt !",
+      "mascot": { "emoji": "🎯", "message": "6 - 2 = 4 ! Logique !" },
+      "sounds": ["calculation_success", "final_step"],
+      "haptics": ["success"]
+    },
+    {
+      "type": "reveal_result",
+      "result": 45,
+      "targets": ["result-tens", "result-units"],
+      "duration": 4000,
+      "explanation": "<strong>🏆 Résultat final : 45 !</strong><br>🎊 Bravo ! Tu as maîtrisé la soustraction avec retenue ! 73 - 28 = 45. Tu es un vrai magicien des maths !",
+      "mascot": { "emoji": "🎊", "message": "Champion de la soustraction !" },
+      "sounds": ["epic_success", "mathematical_fanfare"],
+      "haptics": ["epic", "celebration"]
+    }
+  ],
+
+  "interactive_elements": {
+    "borrowing_visualization": {
+      "borrow_indicator": "Flèche animée montrant l'emprunt",
+      "number_transformation": "Animation du changement 3→13, 7→6",
+      "step_by_step": "Décomposition visuelle de chaque étape"
+    },
+    "practice_problems": [
+      {"problem": "52 - 27", "answer": 25, "borrowing": true},
+      {"problem": "81 - 34", "answer": 47, "borrowing": true},
+      {"problem": "95 - 48", "answer": 47, "borrowing": true},
+      {"problem": "64 - 29", "answer": 35, "borrowing": true}
+    ],
+    "difficulty_progression": [
+      {"level": 1, "description": "Emprunt simple (unités seulement)"},
+      {"level": 2, "description": "Emprunt avec zéros"},
+      {"level": 3, "description": "Emprunt multiple"}
+    ]
+  },
+
+  "quiz": [
+    { 
+      "type": "computational",
+      "problem": "Calcule : 73 - 28", 
+      "answer": "45", 
+      "alternatives": ["45"],
+      "hint": "N'oublie pas d'emprunter une dizaine ! 3 devient 13, 7 devient 6...",
+      "explanation": "3 < 8, donc on emprunte : 13 - 8 = 5 et 6 - 2 = 4. Résultat : 45 !",
+      "show_work": true
+    },
+    { 
+      "type": "conceptual",
+      "problem": "Que devient le 7 quand on emprunte une dizaine ?", 
+      "answer": "6", 
+      "alternatives": ["six"],
+      "hint": "Quand on emprunte, le chiffre diminue de 1...",
+      "explanation": "Quand on emprunte 1 dizaine, le 7 devient 6 (7 - 1 = 6) !"
+    },
+    { 
+      "type": "application",
+      "problem": "Si 3 < 8, que faut-il faire ?", 
+      "answer": "emprunter", 
+      "alternatives": ["emprunter une dizaine", "faire un emprunt"],
+      "hint": "Quand le chiffre du haut est plus petit...",
+      "explanation": "Quand le chiffre du haut est plus petit, on emprunte une dizaine au chiffre de gauche !"
+    },
+    {
+      "type": "computational",
+      "problem": "Calcule : 85 - 39",
+      "answer": "46",
+      "alternatives": ["46"],
+      "hint": "5 < 9, donc il faut emprunter ! 15 - 9 = ? et 7 - 3 = ?",
+      "explanation": "5 < 9 donc on emprunte : 15 - 9 = 6 et 7 - 3 = 4. Résultat : 46 !",
+      "show_work": true
+    },
+    {
+      "type": "strategy",
+      "problem": "Pourquoi emprunte-t-on en soustraction ?",
+      "answer": "pour pouvoir soustraire",
+      "alternatives": ["parce que le chiffre est trop petit", "pour avoir assez"],
+      "hint": "Quand on n'a pas assez d'unités...",
+      "explanation": "On emprunte quand le chiffre du haut est plus petit que celui du bas, pour pouvoir faire la soustraction !"
+    }
+  ],
+
+  "learning_objectives": [
+    "Comprendre le concept d'emprunt en soustraction",
+    "Maîtriser la technique de la retenue",
+    "Identifier quand un emprunt est nécessaire",
+    "Exécuter correctement les calculs avec emprunt",
+    "Développer l'autonomie en calcul mental"
+  ],
+
+  "assessment_criteria": {
+    "problem_identification": "Identifie quand un emprunt est nécessaire",
+    "borrowing_execution": "Exécute correctement l'emprunt",
+    "calculation_accuracy": "Calcule correctement après emprunt",
+    "step_sequencing": "Respecte l'ordre des étapes",
+    "verification": "Vérifie ses résultats"
+  },
+
+  "common_errors": [
+    {
+      "error": "Oublier de réduire le chiffre des dizaines",
+      "example": "73-28: calculer 13-8=5 mais garder 7-2=5",
+      "correction": "Se rappeler que 7 devient 6 après l'emprunt"
+    },
+    {
+      "error": "Emprunter quand ce n'est pas nécessaire", 
+      "example": "45-23: emprunter alors que 5>3",
+      "correction": "Vérifier d'abord si l'emprunt est nécessaire"
+    },
+    {
+      "error": "Confondre l'ordre de soustraction",
+      "example": "Faire 8-3 au lieu de 13-8",
+      "correction": "Toujours soustraire le bas du haut"
+    }
+  ],
+
+  "extension_activities": [
+    {
+      "type": "real_world_problems",
+      "description": "Problèmes concrets nécessitant la soustraction avec retenue",
+      "examples": [
+        "J'ai 73€, j'achète un jeu à 28€. Combien me reste-t-il ?",
+        "Il y a 82 élèves, 35 partent en sortie. Combien restent ?",
+        "Mon livre a 91 pages, j'en ai lu 47. Combien me reste-t-il ?"
+      ]
+    },
+    {
+      "type": "estimation_strategy",
+      "description": "Estimer avant de calculer pour vérifier",
+      "examples": [
+        "73-28 ≈ 70-30 = 40 (proche de 45 ✓)",
+        "85-39 ≈ 90-40 = 50 (proche de 46 ✓)"
+      ]
+    },
+    {
+      "type": "mental_calculation",
+      "description": "Développer le calcul mental avec la retenue",
+      "progression": [
+        "Soustractions simples avec emprunt",
+        "Estimation rapide",
+        "Vérification mentale"
+      ]
+    }
+  ],
+
+  "technical_requirements": {
+    "sounds": {
+      "problem_presentation": "Son d'introduction du problème (2s)",
+      "thinking_sound": "Son de réflexion (1s)",
+      "eureka_moment": "Son de découverte (1.5s)",
+      "magic_whoosh": "Son magique d'emprunt (2s)",
+      "borrowing_sound": "Son spécifique à l'emprunt (1s)",
+      "magic_transform": "Son de transformation 3→13 (1.5s)",
+      "calculation_success": "Son de calcul réussi (1s)",
+      "mathematical_fanfare": "Fanfare mathématique (3s)"
+    },
+    "haptics": {
+      "light": "Vibration légère pour l'introduction",
+      "medium": "Vibration moyenne pour les étapes importantes",
+      "success": "Pattern de succès pour les calculs corrects",
+      "epic": "Pattern épique pour le résultat final",
+      "celebration": "Pattern de célébration pour la réussite"
+    },
+    "animations": {
+      "number_highlight": "Mise en surbrillance des chiffres",
+      "borrowing_arrow": "Flèche animée montrant l'emprunt",
+      "number_transformation": "Animation 3→13, 7→6",
+      "calculation_reveal": "Révélation progressive du résultat",
+      "success_sparkles": "Étincelles de réussite"
+    }
+  }
+} 

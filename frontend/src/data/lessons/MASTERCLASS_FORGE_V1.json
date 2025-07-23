@@ -1,0 +1,203 @@
+{
+  "lessonId": "MASTERCLASS_FORGE_V1",
+  "title": "La Forge des Sons",
+  "description": "Transforme les lettres mortes en syllabes vivantes grâce à la magie de la forge phonétique !",
+  "targetLevel": "CP",
+  "duration": "15 minutes",
+  "competencies": ["lecture", "phonétique", "syllabes"],
+  
+  "problem": { 
+    "type": "phonetic_forge",
+    "letters": ["M", "A"],
+    "targetSyllable": "MA"
+  },
+  
+  "voiceover": {
+    "provider": "elevenlabs",
+    "voice_id": "Antoni",
+    "script": [
+      { 
+        "step": 1, 
+        "text": "Bienvenue dans la Forge des Sons ! Ici, nous transformons les lettres mortes en syllabes vivantes." 
+      },
+      { 
+        "step": 2, 
+        "text": "Regarde ! Voici la lettre M. Elle chante son propre son : mmmmm. Et voici A, qui chante : aaaaa." 
+      },
+      { 
+        "step": 3, 
+        "text": "Maintenant, la magie va opérer ! Les deux lettres entrent dans la forge. Les engrenages tournent, les étincelles surgissent !" 
+      },
+      { 
+        "step": 4, 
+        "text": "Et voilà ! De la fusion naît MA ! Une nouvelle entité qui chante fièrement : maaaaa !" 
+      },
+      { 
+        "step": 5, 
+        "text": "À ton tour maintenant ! Choisis des lettres et deviens Maître-Forgeron des sons !" 
+      }
+    ]
+  },
+
+  "animation_steps": [
+    { 
+      "type": "summon_forge", 
+      "targets": ["forge-container"],
+      "duration": 2000,
+      "explanation": "<strong>🔥 La Forge des Sons s'éveille</strong><br>Dans cet atelier magique naissent les syllabes ! Les flammes dansent, les engrenages se préparent...",
+      "mascot": { "emoji": "🧙‍♂️", "message": "Prépare-toi à forger des sons !" },
+      "sounds": ["forge_ignition", "magical_intro"],
+      "haptics": ["medium", "light"]
+    },
+    { 
+      "type": "present_letters", 
+      "letters": ["M", "A"],
+      "targets": ["letter-m", "letter-a"],
+      "duration": 3000,
+      "explanation": "<strong>📜 Voici nos lettres-cristaux magiques</strong><br>M chante son son pur [mmm], A danse en chantant [aaa]. Écoute leur mélodie unique !",
+      "mascot": { "emoji": "🎵", "message": "Écoute bien leur chanson !" },
+      "sounds": ["letter_appears", "letter_m", "letter_a"],
+      "haptics": ["light", "light"]
+    },
+    { 
+      "type": "forge_fusion", 
+      "fromLetters": ["M", "A"],
+      "targets": ["forge-chamber"],
+      "duration": 4000,
+      "explanation": "<strong>⚡ La fusion commence !</strong><br>Les lettres entrent dans la chambre magique ! Les engrenages tournent, les étincelles jaillissent, l'alchimie opère !",
+      "mascot": { "emoji": "🔥", "message": "L'alchimie de la lecture !" },
+      "sounds": ["forge_working", "letter_fusion", "magic_sparks"],
+      "haptics": ["success", "medium", "epic"]
+    },
+    { 
+      "type": "reveal_syllable", 
+      "result": "MA",
+      "sound": "[ma]",
+      "targets": ["syllable-result"],
+      "duration": 3000,
+      "explanation": "<strong>✨ Naissance de la syllabe MA !</strong><br>De la fusion magique naît une entité vivante qui chante [ma] ! C'est la magie de la lecture : deux lettres deviennent un son !",
+      "mascot": { "emoji": "🎉", "message": "La magie de la lecture opère !" },
+      "sounds": ["syllable_birth", "syllable_ma", "magic_chime"],
+      "haptics": ["epic", "success"]
+    },
+    { 
+      "type": "interactive_practice", 
+      "targets": ["practice-area"],
+      "duration": 0,
+      "explanation": "<strong>🎮 À ton tour, Maître-Forgeron !</strong><br>Tu as découvert le secret ! Maintenant, choisis tes propres lettres et forge tes syllabes. Deviens l'artisan de la lecture !",
+      "mascot": { "emoji": "🏆", "message": "Tu es maintenant un vrai forgeron !" },
+      "sounds": ["practice_mode", "magical_fanfare"],
+      "haptics": ["light"]
+    },
+    {
+      "type": "celebrate",
+      "targets": ["forge-container", "practice-area"],
+      "duration": 5000,
+      "explanation": "<strong>🏆 Tu maîtrises la Forge des Sons !</strong><br>🎊 Tu peux maintenant créer toutes les syllabes du monde ! Chaque mot n'est plus qu'un assemblage de tes créations magiques !",
+      "mascot": { "emoji": "👑", "message": "Tu es devenu Roi de la lecture !" },
+      "sounds": ["epic_success", "celebration_fanfare"],
+      "haptics": ["epic", "celebration"]
+    }
+  ],
+
+  "interactive_elements": {
+    "letter_bank": ["L", "O", "R", "E", "S", "I", "T", "U", "N", "P", "C", "H"],
+    "practice_syllables": ["MA", "LO", "RE", "SI", "TU", "NO", "PI", "CU"],
+    "success_messages": [
+      "Magnifique création !",
+      "Tu es un vrai alchimiste des mots !",
+      "Cette syllabe est parfaite !",
+      "La magie opère encore !"
+    ]
+  },
+
+  "quiz": [
+    { 
+      "type": "phonetic",
+      "problem": "Que donne M + A dans la forge magique ?", 
+      "answer": "MA", 
+      "alternatives": ["ma", "Ma"],
+      "hint": "M chante [mmm], A chante [aaa]... Que donne leur fusion ?",
+      "explanation": "M et A fusionnent pour créer la syllabe MA qui chante [ma] !"
+    },
+    { 
+      "type": "phonetic",
+      "problem": "Si je forge L + O, qu'est-ce que j'obtiens ?", 
+      "answer": "LO", 
+      "alternatives": ["lo", "Lo"],
+      "hint": "Pense à la forge magique ! L + O = ?",
+      "explanation": "L et O se combinent pour former LO [lo] !"
+    },
+    { 
+      "type": "conceptual",
+      "problem": "Comment s'appelle la fusion de deux lettres ?", 
+      "answer": "syllabe", 
+      "alternatives": ["une syllabe", "sylabe", "silabe"],
+      "hint": "C'est ce que produit la forge quand deux lettres fusionnent !",
+      "explanation": "Quand deux lettres fusionnent, elles créent une syllabe !"
+    },
+    {
+      "type": "creative",
+      "problem": "Forge ta propre syllabe avec R + I",
+      "answer": "RI",
+      "alternatives": ["ri", "Ri"],
+      "hint": "Utilise la magie de la forge !",
+      "explanation": "R et I ensemble donnent RI [ri] ! Tu es un vrai forgeron !"
+    }
+  ],
+
+  "learning_objectives": [
+    "Comprendre que les lettres ont des sons",
+    "Découvrir la fusion phonétique",
+    "Créer des syllabes par combinaison",
+    "Développer la conscience phonologique",
+    "Préparer la lecture syllabique"
+  ],
+
+  "assessment_criteria": {
+    "recognition": "Reconnaît les sons des lettres",
+    "combination": "Combine les lettres en syllabes",
+    "pronunciation": "Prononce correctement les syllabes",
+    "creativity": "Crée de nouvelles combinaisons",
+    "understanding": "Comprend le principe de la fusion"
+  },
+
+  "extension_activities": [
+    {
+      "type": "word_building",
+      "description": "Utiliser les syllabes pour construire des mots simples",
+      "examples": ["MA-MAN", "LO-TO", "RE-NO"]
+    },
+    {
+      "type": "sound_hunt",
+      "description": "Chercher les syllabes dans les mots du quotidien",
+      "examples": ["MA dans MAMAN", "LO dans CHOCOLAT"]
+    }
+  ],
+
+  "technical_requirements": {
+    "sounds": {
+      "forge_ignition": "Son d'allumage de forge (2s)",
+      "letter_m": "Prononciation de M [mmm] (1s)",
+      "letter_a": "Prononciation de A [aaa] (1s)",
+      "forge_working": "Bruit de forge en activité (3s)",
+      "syllable_ma": "Prononciation de MA [ma] (1s)",
+      "syllable_birth": "Son magique de naissance (2s)",
+      "celebration_fanfare": "Fanfare de célébration (4s)"
+    },
+    "haptics": {
+      "light": "Vibration douce (50ms)",
+      "medium": "Vibration moyenne (100ms)", 
+      "success": "Pattern de succès (50-50-100ms)",
+      "epic": "Pattern épique (100-100-200ms)",
+      "celebration": "Pattern de fête (50-50-50-200ms)"
+    },
+    "animations": {
+      "forge_flames": "Flammes dansantes CSS",
+      "gear_rotation": "Rotation des engrenages",
+      "letter_fusion": "Animation de fusion des lettres",
+      "syllable_birth": "Animation de naissance syllabe",
+      "celebration_particles": "Particules de célébration"
+    }
+  }
+} 

@@ -1,0 +1,260 @@
+{
+  "lessonId": "MASTERCLASS_TIME_V1",
+  "title": "Le Secret de la Grande Horloge",
+  "description": "Perce les mystères du temps avec les aiguilles magiques !",
+  "targetLevel": "CE1",
+  "duration": "15 minutes",
+  "competencies": ["heure", "temps", "aiguilles", "horloge", "minutes"],
+  
+  "problem": { 
+    "type": "clock_reading",
+    "times": ["03:00", "03:30", "04:15", "04:45"],
+    "focus": ["heure_pile", "demi_heure", "quart_heure", "moins_quart"]
+  },
+  
+  "voiceover": {
+    "provider": "elevenlabs",
+    "voice_id": "Antoni",
+    "script": [
+      { 
+        "step": 1, 
+        "text": "Bonjour ! Prêt à percer le secret des horloges magiques ? Regarde bien cette horloge. Il y a deux aiguilles qui dansent ensemble." 
+      },
+      { 
+        "step": 2, 
+        "text": "C'est facile ! Quand la grande aiguille est tout en haut, sur le 12, on lit simplement le chiffre montré par la petite aiguille. Ici, il est 3 heures pile !" 
+      },
+      { 
+        "step": 3, 
+        "text": "Maintenant, quand la grande aiguille est tout en bas, sur le 6, cela veut dire 'et demie'. La petite aiguille a un peu avancé. Il est 3 heures et demie." 
+      },
+      { 
+        "step": 4, 
+        "text": "Regarde ! La grande aiguille est sur le 3. On dit 'et quart'. Comme la petite aiguille vient de passer le 4, il est 4 heures et quart." 
+      },
+      { 
+        "step": 5, 
+        "text": "Et quand la grande aiguille est sur le 9, on dit 'moins le quart'. La petite aiguille est presque sur le 5. Il est donc 5 heures moins le quart ! Tu sais tout maintenant !" 
+      }
+    ]
+  },
+
+  "animation_steps": [
+    { 
+      "type": "present_clock", 
+      "targets": ["clock-face", "hour-hand", "minute-hand"],
+      "duration": 2500,
+      "explanation": "<strong>🕐 L'Horloge Magique apparaît !</strong><br>Voici notre horloge enchantée ! Elle a deux aiguilles : la <strong>petite</strong> pour les heures, la <strong>grande</strong> pour les minutes.",
+      "mascot": { "emoji": "🕐", "message": "Découvrons les secrets du temps !" },
+      "sounds": ["clock_appear", "magical_chime"],
+      "haptics": ["medium"]
+    },
+    { 
+      "type": "demonstrate_hour", 
+      "time": "03:00", 
+      "highlight": ["hour-hand", "number-12"], 
+      "duration": 3000,
+      "explanation": "<strong>⏰ L'heure pile - 3 heures !</strong><br>Quand la grande aiguille est sur le <strong>12</strong>, on lit la petite aiguille. Elle pointe vers le <strong>3</strong> : il est 3 heures pile !",
+      "mascot": { "emoji": "🎯", "message": "3 heures pile ! Simple !" },
+      "sounds": ["clock_tick", "hour_chime_3"],
+      "haptics": ["light", "success"]
+    },
+    { 
+      "type": "demonstrate_half", 
+      "time": "03:30", 
+      "highlight": ["minute-hand", "number-6"], 
+      "duration": 3500,
+      "explanation": "<strong>🕕 Et demie - 3h30 !</strong><br>Quand la grande aiguille est sur le <strong>6</strong>, on dit <strong>'et demie'</strong>. La petite aiguille a un peu avancé : il est 3 heures et demie !",
+      "mascot": { "emoji": "🕕", "message": "3 heures et demie !" },
+      "sounds": ["clock_tick", "half_hour_chime"],
+      "haptics": ["light", "success"]
+    },
+    { 
+      "type": "demonstrate_quarter", 
+      "time": "04:15", 
+      "highlight": ["minute-hand", "number-3"], 
+      "duration": 3500,
+      "explanation": "<strong>🕒 Et quart - 4h15 !</strong><br>Quand la grande aiguille est sur le <strong>3</strong>, on dit <strong>'et quart'</strong>. La petite aiguille a passé le 4 : il est 4 heures et quart !",
+      "mascot": { "emoji": "🕒", "message": "4 heures et quart !" },
+      "sounds": ["clock_tick", "quarter_chime"],
+      "haptics": ["light", "success"]
+    },
+    { 
+      "type": "demonstrate_quarter_to", 
+      "time": "04:45", 
+      "highlight": ["minute-hand", "number-9"], 
+      "duration": 3500,
+      "explanation": "<strong>🕘 Moins le quart - 4h45 !</strong><br>Quand la grande aiguille est sur le <strong>9</strong>, on dit <strong>'moins le quart'</strong>. La petite aiguille approche du 5 : il est 5 heures moins le quart !",
+      "mascot": { "emoji": "🕘", "message": "5 heures moins le quart !" },
+      "sounds": ["clock_tick", "quarter_to_chime"],
+      "haptics": ["light", "success"]
+    },
+    {
+      "type": "celebrate",
+      "targets": ["clock-face", "hour-hand", "minute-hand"],
+      "duration": 5000,
+      "explanation": "<strong>🏆 Tu maîtrises l'art de lire l'heure !</strong><br>🎊 Tu connais maintenant tous les secrets de l'horloge ! Heure pile, et demie, et quart, moins le quart... Tu es un expert du temps !",
+      "mascot": { "emoji": "🎓", "message": "Maître du temps !" },
+      "sounds": ["epic_success", "time_celebration"],
+      "haptics": ["epic", "celebration"]
+    }
+  ],
+
+  "interactive_elements": {
+    "clock_manipulation": {
+      "drag_hour_hand": "Faire glisser l'aiguille des heures",
+      "drag_minute_hand": "Faire glisser l'aiguille des minutes",
+      "time_display": "Affichage de l'heure en format numérique"
+    },
+    "practice_times": [
+      {"time": "02:00", "description": "2 heures pile"},
+      {"time": "02:30", "description": "2 heures et demie"},
+      {"time": "03:15", "description": "3 heures et quart"},
+      {"time": "03:45", "description": "4 heures moins le quart"},
+      {"time": "05:00", "description": "5 heures pile"},
+      {"time": "05:30", "description": "5 heures et demie"}
+    ],
+    "difficulty_levels": [
+      {"level": 1, "description": "Heures piles seulement"},
+      {"level": 2, "description": "Heures piles + et demie"},
+      {"level": 3, "description": "Toutes les variantes (pile, demie, quart, moins quart)"}
+    ]
+  },
+
+  "quiz": [
+    { 
+      "type": "visual_reading",
+      "problem": "Quelle heure est-il ?", 
+      "clock_time": "03:00",
+      "answer": "3 heures", 
+      "alternatives": ["3 heures pile", "3h00"],
+      "hint": "Regarde où pointe la grande aiguille...",
+      "explanation": "La grande aiguille est sur le 12, la petite sur le 3 : il est 3 heures pile !"
+    },
+    { 
+      "type": "visual_reading",
+      "problem": "Quelle heure est-il ?", 
+      "clock_time": "04:30",
+      "answer": "4 heures et demie", 
+      "alternatives": ["4h30", "4 heures 30"],
+      "hint": "La grande aiguille est sur le 6...",
+      "explanation": "La grande aiguille est sur le 6, la petite entre 4 et 5 : il est 4 heures et demie !"
+    },
+    { 
+      "type": "conceptual",
+      "problem": "Que signifie 'et quart' ?", 
+      "answer": "15 minutes", 
+      "alternatives": ["un quart d'heure", "15 min"],
+      "hint": "Un quart, c'est une partie de quelque chose...",
+      "explanation": "'Et quart' signifie 15 minutes, soit un quart d'heure !"
+    },
+    {
+      "type": "visual_reading",
+      "problem": "Quelle heure est-il ?",
+      "clock_time": "02:45",
+      "answer": "3 heures moins le quart",
+      "alternatives": ["2h45", "2 heures 45"],
+      "hint": "La grande aiguille est sur le 9...",
+      "explanation": "La grande aiguille est sur le 9, la petite approche du 3 : il est 3 heures moins le quart !"
+    },
+    {
+      "type": "application",
+      "problem": "Si je me lève à 7h00 et que je prends 30 minutes pour me préparer, à quelle heure suis-je prêt ?",
+      "answer": "7h30",
+      "alternatives": ["7 heures et demie", "7h30"],
+      "hint": "7h00 + 30 minutes = ?",
+      "explanation": "7h00 + 30 minutes = 7h30, soit 7 heures et demie !"
+    }
+  ],
+
+  "learning_objectives": [
+    "Reconnaître les aiguilles de l'horloge",
+    "Lire l'heure pile",
+    "Comprendre 'et demie'",
+    "Maîtriser 'et quart' et 'moins le quart'",
+    "Développer la notion du temps"
+  ],
+
+  "assessment_criteria": {
+    "hour_recognition": "Reconnaît l'aiguille des heures",
+    "minute_recognition": "Reconnaît l'aiguille des minutes",
+    "exact_time": "Lit l'heure pile correctement",
+    "half_hour": "Comprend 'et demie'",
+    "quarter_time": "Maîtrise 'et quart' et 'moins le quart'"
+  },
+
+  "common_errors": [
+    {
+      "error": "Confondre les aiguilles",
+      "example": "Lire la grande aiguille pour les heures",
+      "correction": "La petite aiguille = heures, la grande = minutes"
+    },
+    {
+      "error": "Oublier 'pile' pour l'heure exacte", 
+      "example": "Dire '3 heures' au lieu de '3 heures pile'",
+      "correction": "Quand la grande aiguille est sur 12, on dit 'pile'"
+    },
+    {
+      "error": "Confondre 'et quart' et 'moins le quart'",
+      "example": "Dire 'et quart' quand l'aiguille est sur 9",
+      "correction": "Sur 3 = 'et quart', sur 9 = 'moins le quart'"
+    }
+  ],
+
+  "extension_activities": [
+    {
+      "type": "daily_routine",
+      "description": "Associer les heures aux activités quotidiennes",
+      "examples": [
+        "8h00 - Je me lève",
+        "12h00 - Je déjeune",
+        "16h00 - Je goûte",
+        "20h00 - Je vais me coucher"
+      ]
+    },
+    {
+      "type": "time_estimation",
+      "description": "Estimer le temps écoulé",
+      "examples": [
+        "Combien de temps dure le petit-déjeuner ?",
+        "En combien de temps arrives-tu à l'école ?",
+        "Combien de temps dure la récréation ?"
+      ]
+    },
+    {
+      "type": "digital_analog",
+      "description": "Faire le lien entre format digital et analogique",
+      "examples": [
+        "14h30 = 2h30 sur l'horloge",
+        "09h15 = 9h15 sur l'horloge",
+        "16h45 = 5h moins le quart sur l'horloge"
+      ]
+    }
+  ],
+
+  "technical_requirements": {
+    "sounds": {
+      "clock_appear": "Son d'apparition de l'horloge (2s)",
+      "clock_tick": "Tic-tac de l'horloge (0.5s)",
+      "hour_chime_3": "Carillon pour 3 heures (2s)",
+      "half_hour_chime": "Carillon pour la demi-heure (1.5s)",
+      "quarter_chime": "Carillon pour le quart (1.5s)",
+      "quarter_to_chime": "Carillon pour moins le quart (1.5s)",
+      "time_celebration": "Célébration temporelle (3s)"
+    },
+    "haptics": {
+      "light": "Vibration légère pour les transitions",
+      "medium": "Vibration moyenne pour l'apparition",
+      "success": "Pattern de succès pour chaque heure",
+      "epic": "Pattern épique pour la célébration finale",
+      "celebration": "Pattern de célébration pour la réussite"
+    },
+    "animations": {
+      "clock_appear": "Animation d'apparition de l'horloge",
+      "hand_movement": "Mouvement fluide des aiguilles",
+      "time_highlight": "Mise en surbrillance de l'heure",
+      "success_sparkles": "Étincelles de réussite",
+      "celebration_particles": "Particules de célébration temporelle"
+    }
+  }
+} 
