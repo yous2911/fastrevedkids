@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface Student {
   id: number;
@@ -103,7 +103,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
         }
       }
     } catch (err) {
-      console.error('Failed to load recommendations:', err);
+      // Handle recommendation loading error silently
     }
   };
 
