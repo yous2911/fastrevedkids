@@ -1,217 +1,141 @@
 import { useState, useEffect, useCallback } from 'react';
 import { revisionService, RevisionExercise, RevisionStats, RevisionFilters } from '../services/revision.service';
 
-interface UseRevisionsOptions {
-  eleveId: number;
-  autoRefresh?: boolean;
-  refreshInterval?: number;
-  filters?: RevisionFilters;
-}
-
-interface UseRevisionsReturn {
-  // État
-  exercises: RevisionExercise[];
-  stats: RevisionStats | null;
-  loading: boolean;
-  error: string | null;
-  selectedExercise: RevisionExercise | null;
-
-  // Actions
-  loadRevisions: () => Promise<void>;
-  selectExercise: (exercise: RevisionExercise) => void;
-  clearSelection: () => void;
-  recordSuccess: (exerciseId: number, questionId?: string, tempsReponse?: number, score?: number) => Promise<void>;
-  recordFailure: (exerciseId: number, questionId?: string, tempsReponse?: number, typeErreur?: string) => Promise<void>;
-  postponeRevision: (revisionId: number, newDate: string) => Promise<void>;
-  cancelRevision: (revisionId: number) => Promise<void>;
-  
-  // Utilitaires
-  getOverdueExercises: () => RevisionExercise[];
-  getHighPriorityExercises: () => RevisionExercise[];
-  getExercisesBySubject: (subject: string) => RevisionExercise[];
-  refreshStats: () => Promise<void>;
-}
-
-export const useRevisions = ({
-  eleveId,
-  autoRefresh = true,
-  refreshInterval = 300000, // 5 minutes
-  filters
-}: UseRevisionsOptions): UseRevisionsReturn => {
+export const useRevisions = (eleveId: number) => {
   const [exercises, setExercises] = useState<RevisionExercise[]>([]);
   const [stats, setStats] = useState<RevisionStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedExercise, setSelectedExercise] = useState<RevisionExercise | null>(null);
 
-  // Charger les révisions
-  const loadRevisions = useCallback(async () => {
+  const loadExercises = useCallback(async (filters?: RevisionFilters) => {
     try {
       setLoading(true);
       setError(null);
-
+      
       const [exercisesData, statsData] = await Promise.all([
         revisionService.getExercisesToRevise(eleveId, filters),
         revisionService.getRevisionStats(eleveId)
       ]);
 
-      if (exercisesData.success && exercisesData.data) {
+      if (exercisesData.data) {
         setExercises(exercisesData.data.exercices || []);
       }
 
-      if (statsData.success && statsData.data) {
+      if (statsData.data) {
         setStats(statsData.data);
       }
     } catch (err) {
-      console.error('Erreur lors du chargement des révisions:', err);
-      setError('Impossible de charger les révisions');
+      setError(err instanceof Error ? err.message : 'Failed to load revisions');
     } finally {
       setLoading(false);
     }
-  }, [eleveId, filters]);
+  }, [eleveId]);
 
-  // Actualiser les statistiques
   const refreshStats = useCallback(async () => {
     try {
       const statsData = await revisionService.getRevisionStats(eleveId);
-      if (statsData.success && statsData.data) {
+      if (statsData.data) {
         setStats(statsData.data);
       }
     } catch (err) {
-      console.error('Erreur lors de l\'actualisation des statistiques:', err);
+      setError(err instanceof Error ? err.message : 'Failed to refresh stats');
     }
   }, [eleveId]);
 
-  // Enregistrer une réussite
-  const recordSuccess = useCallback(async (
-    exerciseId: number, 
-    questionId?: string, 
-    tempsReponse?: number, 
-    score?: number
-  ) => {
+  const recordFailure = useCallback(async (exerciseId: number, questionId?: string) => {
     try {
-      await revisionService.recordSuccess(eleveId, {
+      const result = await revisionService.recordFailure(eleveId, {
+        exerciceId: exerciseId,
+        questionId
+      });
+      
+      if (result.data) {
+        // Refresh exercises after recording failure
+        await loadExercises();
+      }
+      
+      return result;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to record failure');
+      throw err;
+    }
+  }, [eleveId, loadExercises]);
+
+  const recordSuccess = useCallback(async (exerciseId: number, questionId?: string, score?: number) => {
+    try {
+      const result = await revisionService.recordSuccess(eleveId, {
         exerciceId: exerciseId,
         questionId,
-        tempsReponse,
         score
       });
-
-      // Recharger les données
-      await loadRevisions();
+      
+      if (result.data) {
+        // Refresh exercises after recording success
+        await loadExercises();
+      }
+      
+      return result;
     } catch (err) {
-      console.error('Erreur lors de l\'enregistrement de la réussite:', err);
+      setError(err instanceof Error ? err.message : 'Failed to record success');
       throw err;
     }
-  }, [eleveId, loadRevisions]);
+  }, [eleveId, loadExercises]);
 
-  // Enregistrer un échec
-  const recordFailure = useCallback(async (
-    exerciseId: number, 
-    questionId?: string, 
-    tempsReponse?: number, 
-    typeErreur?: string
-  ) => {
+  const postponeRevision = useCallback(async (revisionId: number, nouvelleDate: string, raison: string) => {
     try {
-      await revisionService.recordFailure(eleveId, {
-        exerciceId: exerciseId,
-        questionId,
-        tempsReponse,
-        typeErreur: typeErreur as any
-      });
-
-      // Recharger les données
-      await loadRevisions();
+      const result = await revisionService.postponeRevision(revisionId, nouvelleDate, raison);
+      
+      if (result.data) {
+        // Refresh exercises after postponing
+        await loadExercises();
+      }
+      
+      return result;
     } catch (err) {
-      console.error('Erreur lors de l\'enregistrement de l\'échec:', err);
+      setError(err instanceof Error ? err.message : 'Failed to postpone revision');
       throw err;
     }
-  }, [eleveId, loadRevisions]);
+  }, [loadExercises]);
 
-  // Reporter une révision
-  const postponeRevision = useCallback(async (revisionId: number, newDate: string) => {
+  const cancelRevision = useCallback(async (revisionId: number, raison?: string) => {
     try {
-      await revisionService.postponeRevision(revisionId, newDate, 'Reporté par l\'élève');
-      await loadRevisions();
+      const result = await revisionService.cancelRevision(revisionId, raison);
+      
+      if (result.data) {
+        // Refresh exercises after cancelling
+        await loadExercises();
+      }
+      
+      return result;
     } catch (err) {
-      console.error('Erreur lors du report de la révision:', err);
+      setError(err instanceof Error ? err.message : 'Failed to cancel revision');
       throw err;
     }
-  }, [loadRevisions]);
+  }, [loadExercises]);
 
-  // Annuler une révision
-  const cancelRevision = useCallback(async (revisionId: number) => {
-    try {
-      await revisionService.cancelRevision(revisionId, 'Annulé par l\'élève');
-      await loadRevisions();
-    } catch (err) {
-      console.error('Erreur lors de l\'annulation de la révision:', err);
-      throw err;
-    }
-  }, [loadRevisions]);
-
-  // Sélectionner un exercice
-  const selectExercise = useCallback((exercise: RevisionExercise) => {
-    setSelectedExercise(exercise);
-  }, []);
-
-  // Effacer la sélection
-  const clearSelection = useCallback(() => {
-    setSelectedExercise(null);
-  }, []);
-
-  // Obtenir les exercices en retard
-  const getOverdueExercises = useCallback(() => {
-    return exercises.filter(exercise => {
-      const now = new Date();
-      const dueDate = new Date(exercise.datePrevue);
-      return dueDate < now;
-    });
-  }, [exercises]);
-
-  // Obtenir les exercices haute priorité
-  const getHighPriorityExercises = useCallback(() => {
-    return exercises.filter(exercise => exercise.priorite >= 30);
-  }, [exercises]);
-
-  // Obtenir les exercices par matière
-  const getExercisesBySubject = useCallback((subject: string) => {
-    return exercises.filter(exercise => 
-      exercise.exercice.matiere.toLowerCase() === subject.toLowerCase()
-    );
-  }, [exercises]);
-
-  // Effet initial et auto-refresh
   useEffect(() => {
-    loadRevisions();
-
-    if (autoRefresh) {
-      const interval = setInterval(loadRevisions, refreshInterval);
-      return () => clearInterval(interval);
-    }
-  }, [loadRevisions, autoRefresh, refreshInterval]);
+    loadExercises();
+  }, [loadExercises]);
 
   return {
-    // État
     exercises,
     stats,
     loading,
     error,
-    selectedExercise,
-
-    // Actions
-    loadRevisions,
-    selectExercise,
-    clearSelection,
-    recordSuccess,
+    loadExercises,
+    refreshStats,
     recordFailure,
+    recordSuccess,
     postponeRevision,
     cancelRevision,
-
-    // Utilitaires
-    getOverdueExercises,
-    getHighPriorityExercises,
-    getExercisesBySubject,
-    refreshStats
+    // Utility functions from service
+    calculateDisplayPriority: revisionService.calculateDisplayPriority.bind(revisionService),
+    isOverdue: revisionService.isOverdue.bind(revisionService),
+    formatDueDate: revisionService.formatDueDate.bind(revisionService),
+    getPriorityColor: revisionService.getPriorityColor.bind(revisionService),
+    getDifficultyIcon: revisionService.getDifficultyIcon.bind(revisionService),
+    filterBySubject: revisionService.filterBySubject.bind(revisionService),
+    sortByPriority: revisionService.sortByPriority.bind(revisionService),
+    groupBySubject: revisionService.groupBySubject.bind(revisionService)
   };
 }; 

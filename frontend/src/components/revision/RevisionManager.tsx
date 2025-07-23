@@ -302,6 +302,7 @@ export const RevisionManager: React.FC<RevisionManagerProps> = ({
       {/* Toast de notification */}
       {showToast && (
         <Toast
+          id="revision-toast"
           message={toastMessage}
           type={toastType}
           onClose={() => setShowToast(false)}

@@ -5,7 +5,7 @@ import { useSound } from '../../hooks/useSound';
 import { useHaptic } from '../../hooks/useHaptic';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'ghost' | 'magical';
+  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'ghost' | 'magical' | 'outline';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   loading?: boolean;
   icon?: React.ReactNode;
@@ -29,7 +29,8 @@ const variantClasses = {
   warning: 'bg-gradient-to-r from-energy-500 to-magical-yellow hover:from-energy-400 hover:to-magical-yellow-light text-white shadow-energy-glow hover:shadow-lg',
   danger: 'bg-gradient-to-r from-fun-500 to-magical-pink hover:from-fun-400 hover:to-magical-pink-light text-white shadow-fun-glow hover:shadow-lg',
   ghost: 'bg-transparent hover:bg-magical-violet-glow text-magical-violet border-2 border-magical-violet hover:border-magical-violet-light',
-  magical: 'bg-gradient-to-r from-magical-violet via-magical-blue to-magical-green hover:from-magical-pink hover:via-magical-violet hover:to-magical-blue text-white shadow-sparkle hover:shadow-magical-lg animate-gradient-shift'
+  magical: 'bg-gradient-to-r from-magical-violet via-magical-blue to-magical-green hover:from-magical-pink hover:via-magical-violet hover:to-magical-blue text-white shadow-sparkle hover:shadow-magical-lg animate-gradient-shift',
+  outline: 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-200'
 };
 
 const sizeClasses = {

@@ -64,7 +64,7 @@ const FrenchMathsGame: React.FC = () => {
         setDefis(response.data);
         setError(null);
       } else {
-        setError(response.error || 'Erreur inconnue lors du chargement des défis.');
+        setError(typeof response.error === 'string' ? response.error : 'Erreur inconnue lors du chargement des défis.');
       }
       setLoading(false);
     });

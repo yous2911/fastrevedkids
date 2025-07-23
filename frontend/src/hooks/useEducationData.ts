@@ -1,134 +1,102 @@
-import { useCallback, useMemo } from 'react';
-import { educationService, HierarchyFilters, ExerciseFilters } from '../services/education.service';
-import { useApiData } from './useApiData';
-import { Niveau, Matiere, Chapitre, SousChapitre, ExercicePedagogique } from '../types/api.types';
+import { useState, useEffect, useCallback } from 'react';
+import { apiService } from '../services/api.service';
 
-export interface UseEducationDataReturn {
-  // Hierarchy data
-  niveaux: Niveau[] | null;
-  niveauxLoading: boolean;
-  
-  // Content data
-  currentHierarchy: any | null;
-  hierarchyLoading: boolean;
-  
-  // Exercise data
-  exercises: ExercicePedagogique[] | null;
-  exercisesLoading: boolean;
-  exercisesPagination: any | null;
-  
-  // Statistics
-  stats: any | null;
-  statsLoading: boolean;
-  
-  // Actions
-  loadHierarchyForLevel: (niveau: string) => Promise<void>;
-  searchExercises: (filters: ExerciseFilters) => Promise<void>;
-  refreshStats: () => Promise<void>;
+export interface EducationData {
+  subjects: Array<{
+    id: number;
+    name: string;
+    icon: string;
+    color: string;
+    description: string;
+  }>;
+  levels: Array<{
+    id: number;
+    name: string;
+    grade: string;
+    description: string;
+  }>;
+  topics: Array<{
+    id: number;
+    name: string;
+    subjectId: number;
+    levelId: number;
+    description: string;
+    difficulty: 'beginner' | 'intermediate' | 'advanced';
+  }>;
 }
 
-export function useEducationData(): UseEducationDataReturn {
-  // Fetch all education levels
-  const {
-    data: niveaux,
-    loading: niveauxLoading,
-    refresh: refreshNiveaux
-  } = useApiData(
-    () => educationService.getNiveaux(),
-    {
-      immediate: true,
-      transform: (response) => response || []
-    }
-  );
+export const useEducationData = () => {
+  const [data, setData] = useState<EducationData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Current hierarchy (loaded on demand)
-  const {
-    data: currentHierarchy,
-    loading: hierarchyLoading,
-    refresh: loadHierarchy
-  } = useApiData(
-    () => Promise.resolve({ success: true, data: null }), // Placeholder
-    {
-      immediate: false
-    }
-  );
-
-  // Exercise search results
-  const {
-    data: exerciseResults,
-    loading: exercisesLoading,
-    refresh: executeExerciseSearch
-  } = useApiData(
-    () => Promise.resolve({ success: true, data: { exercices: [], pagination: null } }),
-    {
-      immediate: false
-    }
-  );
-
-  // Global statistics
-  const {
-    data: stats,
-    loading: statsLoading,
-    refresh: refreshStats
-  } = useApiData(
-    () => educationService.getStatistics(),
-    {
-      immediate: true
-    }
-  );
-
-  // Load hierarchy for specific level
-  const loadHierarchyForLevel = useCallback(async (niveau: string): Promise<void> => {
+  const loadData = useCallback(async () => {
     try {
-      const hierarchy = await educationService.getEducationHierarchy(niveau);
-      // Update hierarchy state manually since we can't use execute with different params
-      // In a real implementation, you'd want to refactor this
-      console.log('Loaded hierarchy for level:', niveau, hierarchy);
-    } catch (error) {
-      console.error('Failed to load hierarchy:', error);
+      setLoading(true);
+      setError(null);
+
+      const [subjectsResponse, levelsResponse, topicsResponse] = await Promise.all([
+        apiService.get('/api/subjects'),
+        apiService.get('/api/levels'),
+        apiService.get('/api/topics')
+      ]);
+
+      setData({
+        subjects: subjectsResponse.data || [],
+        levels: levelsResponse.data || [],
+        topics: topicsResponse.data || []
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load education data');
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  // Search exercises with filters
-  const searchExercises = useCallback(async (filters: ExerciseFilters): Promise<void> => {
-    try {
-      const results = await educationService.searchExercices(filters);
-      // Update exercise results state manually
-      console.log('Search results:', results);
-    } catch (error) {
-      console.error('Failed to search exercises:', error);
-    }
-  }, []);
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
-  // Memoized derived data
-  const derivedData = useMemo(() => {
-    const exercises = exerciseResults?.exercices || [];
-    const pagination = exerciseResults?.pagination || null;
+  const getSubjects = useCallback(() => {
+    return data?.subjects || [];
+  }, [data]);
 
-    return {
-      exercises,
-      exercisesPagination: pagination,
-      totalExercises: (pagination as any)?.total || 0,
-      hasMoreExercises: (pagination as any)?.hasMore || false
-    };
-  }, [exerciseResults]);
+  const getLevels = useCallback(() => {
+    return data?.levels || [];
+  }, [data]);
+
+  const getTopics = useCallback((subjectId?: number, levelId?: number) => {
+    if (!data?.topics) return [];
+    
+    return data.topics.filter(topic => {
+      if (subjectId && topic.subjectId !== subjectId) return false;
+      if (levelId && topic.levelId !== levelId) return false;
+      return true;
+    });
+  }, [data]);
+
+  const getSubjectById = useCallback((id: number) => {
+    return data?.subjects.find(subject => subject.id === id);
+  }, [data]);
+
+  const getLevelById = useCallback((id: number) => {
+    return data?.levels.find(level => level.id === id);
+  }, [data]);
+
+  const getTopicById = useCallback((id: number) => {
+    return data?.topics.find(topic => topic.id === id);
+  }, [data]);
 
   return {
-    // Raw data
-    niveaux,
-    niveauxLoading,
-    currentHierarchy,
-    hierarchyLoading,
-    stats,
-    statsLoading,
-    
-    // Derived data
-    ...derivedData,
-    exercisesLoading,
-    
-    // Actions
-    loadHierarchyForLevel,
-    searchExercises,
-    refreshStats
+    data,
+    loading,
+    error,
+    loadData,
+    getSubjects,
+    getLevels,
+    getTopics,
+    getSubjectById,
+    getLevelById,
+    getTopicById
   };
-} 
+}; 

@@ -25,18 +25,12 @@ export interface DropZone {
   currentItem?: DragItem | null;
 }
 
-// CP2025 specific data type
-export interface CP2025Data {
-  letters: string[];
-  words: string[];
-  sounds: string[];
-  exercises: any[];
-  progression: {
-    level: number;
-    completed: string[];
-    current: string;
-  };
-}
+// Additional sound types
+export type SoundType = 
+  | 'click' | 'hover' | 'success' | 'error' | 'warning' | 'info'
+  | 'xp_gain' | 'level_up' | 'achievement' | 'sparky_happy' | 'sparky_thinking'
+  | 'button_click' | 'exercise_complete' | 'correct_answer' | 'wrong_answer'
+  | 'session_timeout' | 'notification' | 'mascot_interaction';
 
 // Re-export everything needed
 export type { 
@@ -45,4 +39,15 @@ export type {
   TentativeExercice, 
   TentativeResponse,
   Eleve
-} from './api.types'; 
+} from './api.types';
+
+// Export CP2025 types explicitly to avoid conflicts
+export type {
+  Difficulte,
+  TypeExercice,
+  NiveauScolaire,
+  CP2025Exercise,
+  CP2025Module,
+  CP2025Data,
+  CP2025Statistics
+} from './cp2025.types'; 

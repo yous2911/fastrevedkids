@@ -38,7 +38,10 @@ export const Profile: React.FC<ProfileProps> = ({ onBack }) => {
 
   const handleSave = async () => {
     try {
-      await updateProfile(formData);
+      await updateProfile({
+        name: `${formData.prenom} ${formData.nom}`,
+        avatar: `/avatars/${formData.mascotteType}.png`
+      });
       
       // Update current student in app state
       if (currentStudent) {

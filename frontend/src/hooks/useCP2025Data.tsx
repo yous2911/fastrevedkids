@@ -127,6 +127,7 @@ export function useCP2025Data(options: UseCP2025DataOptions = {}): UseCP2025Data
   const getModuleExerciseProgression = (moduleId: number) => service?.getModuleExerciseProgression(moduleId) || {
     decouverte: [],
     entrainement: [],
+    maitrise: [],
     consolidation: [],
     approfondissement: []
   };

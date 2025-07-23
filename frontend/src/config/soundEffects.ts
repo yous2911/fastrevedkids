@@ -20,7 +20,10 @@ export type SoundCategory =
   | 'exercises'
   | 'portal'
   | 'ambient'
-  | 'ui';
+  | 'ui'
+  | 'session';
+
+export type SoundType = keyof typeof SOUND_EFFECTS;
 
 export const SOUND_EFFECTS: Record<string, SoundEffect> = {
   // 🎭 Sparky Mascot Sounds
@@ -408,6 +411,14 @@ export const SOUND_EFFECTS: Record<string, SoundEffect> = {
     category: 'ui',
     volume: 0.4,
     description: 'Toggle switch off'
+  },
+  session_timeout: {
+    id: 'session_timeout',
+    name: 'Session Timeout',
+    file: '/sounds/ui/session_timeout.mp3',
+    category: 'session',
+    volume: 0.8,
+    description: 'Sound played when a user session times out'
   }
 };
 
@@ -452,6 +463,11 @@ export const SOUND_CATEGORIES: Record<SoundCategory, { name: string; description
     name: 'UI Interactions',
     description: 'General user interface sounds',
     color: '#6B7280'
+  },
+  session: {
+    name: 'Session',
+    description: 'Sounds related to user sessions and timeouts',
+    color: '#EF4444'
   }
 };
 
