@@ -1,7 +1,7 @@
 import fp from 'fastify-plugin';
 import cors from '@fastify/cors';
 
-import { validateEnvironment } from '../config/environment.js';
+import { config } from '../config/config.js';
 
 const corsPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   const config = validateEnvironment();

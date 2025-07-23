@@ -1,9 +1,7 @@
 import fastify, { FastifyServerOptions } from 'fastify';
-import { validateEnvironment } from './config/environment.js';
+import { config } from './config/config.js';
 
 const build = (opts: FastifyServerOptions = {}) => {
-  const config = validateEnvironment();
-
   const serverOptions: FastifyServerOptions = {
     logger: {
       level: config.LOG_LEVEL,

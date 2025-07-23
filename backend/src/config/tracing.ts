@@ -39,7 +39,7 @@ const sdk = new NodeSDK({
 // Initialize metrics
 const meterProvider = new MeterProvider();
 const prometheusExporter = new PrometheusExporter({
-  port: env.METRICS_PORT || 9464,
+  port: config.METRICS_PORT || 9464,
   endpoint: '/metrics',
 });
 

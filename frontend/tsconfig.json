@@ -5,9 +5,8 @@
       "dom",
       "dom.iterable",
       "es6",
+      "es2015",
       "es2017",
-      "es2018",
-      "es2019",
       "es2020"
     ],
     "allowJs": true,
@@ -24,9 +23,6 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": "src",
-    "noImplicitAny": false,
-    "strictPropertyInitialization": false,
-    "types": ["react", "react-dom", "node"],
     "paths": {
       "@/*": ["*"],
       "@/components/*": ["components/*"],
@@ -38,8 +34,7 @@
   },
   "include": [
     "src",
-    "**/*.ts",
-    "**/*.tsx"
+    "tests"
   ],
   "exclude": [
     "node_modules",

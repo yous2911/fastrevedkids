@@ -223,8 +223,11 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 1,
         "configuration": {
           "question": "Entends-tu le son [o] dans 'MOTO' ?",
-          "choix": ["Oui", "Non"],
-          "bonneReponse": "Oui",
+          "choix": [
+            { "id": "oui", "text": "Oui" },
+            { "id": "non", "text": "Non" }
+          ],
+          "bonneReponse": "oui",
           "audioRequired": true
         },
         "metadata": { "competenceCode": "CP.FR.L1.1" }
@@ -238,7 +241,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "configuration": {
           "question": "Combien y a-t-il de jetons ?",
           "image_url": "/images/exercises/jetons_9.png",
-          "choix": ["7", "8", "9", "10"],
+          "choix": [
+            { "id": "7", "text": "7" },
+            { "id": "8", "text": "8" },
+            { "id": "9", "text": "9" },
+            { "id": "10", "text": "10" }
+          ],
           "bonneReponse": "9"
         },
         "metadata": { "competenceCode": "CP.MA.N1.1" }
@@ -266,10 +274,14 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 4,
-        "configuration": { 
-          "question": "75", 
-          "choix": ["Soixante-cinq", "Soixante-quinze", "Septante-cinq"], 
-          "bonneReponse": "Soixante-quinze" 
+        "configuration": {
+          "question": "75",
+          "choix": [
+            { "id": "soixante-cinq", "text": "Soixante-cinq" },
+            { "id": "soixante-quinze", "text": "Soixante-quinze" },
+            { "id": "septante-cinq", "text": "Septante-cinq" }
+          ],
+          "bonneReponse": "soixante-quinze"
         },
         "metadata": { "competenceCode": "CP.MA.N1.4" }
       },
@@ -282,8 +294,11 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "configuration": {
           "question": "Complète la phrase.",
           "image": { "url_placeholder": "/images/people/garcons.png", "description": "Deux garçons qui jouent au ballon." },
-          "choix": ["le", "les"], 
-          "bonneReponse": "les", 
+          "choix": [
+            { "id": "le", "text": "le" },
+            { "id": "les", "text": "les" }
+          ],
+          "bonneReponse": "les",
           "phrase_template": "___ garçons jouent."
         },
         "metadata": { "competenceCode": "CP.FR.G1.3" }
@@ -311,7 +326,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
           "question": "Forme la syllabe 'CHON'",
           "dragItems": [{"id": "d1", "content": "CH"}, {"id": "d2", "content": "ON"}, {"id": "d3", "content": "AN"}],
           "zones": [{"id": "z1", "label": "Syllabe", "limit": 2}],
-          "solution": ["CH", "ON"]
+          "solution": ["d1", "d2"]
         },
         "metadata": { "competenceCode": "CP.FR.L1.3" }
       },
@@ -336,8 +351,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 3,
         "configuration": {
           "question": "Texte : 'Le lion est dans la savane. Il voit une gazelle. Il a très faim.' Que voit le lion ?",
-          "choix": ["Un zèbre", "Un serpent", "Une gazelle"],
-          "bonneReponse": "Une gazelle"
+          "choix": [
+            { "id": "un-zebre", "text": "Un zèbre" },
+            { "id": "un-serpent", "text": "Un serpent" },
+            { "id": "une-gazelle", "text": "Une gazelle" }
+          ],
+          "bonneReponse": "une-gazelle"
         },
         "metadata": { "competenceCode": "CP.FR.C2.1" }
       },
@@ -361,10 +380,13 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 5,
-        "configuration": { 
-          "question": "Choisis le bon mot.", 
-          "choix": ["Soleil", "Solide"], 
-          "bonneReponse": "Soleil" 
+        "configuration": {
+          "question": "Choisis le bon mot.",
+          "choix": [
+            { "id": "soleil", "text": "Soleil" },
+            { "id": "solide", "text": "Solide" }
+          ],
+          "bonneReponse": "soleil"
         },
         "metadata": { "competenceCode": "CP.FR.L1.4" }
       },
@@ -377,8 +399,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "configuration": {
           "question": "Regarde les groupes de pommes.",
           "image": { "url_placeholder": "/images/groups/3x2_pommes.png", "description": "Trois groupes distincts, chacun contenant deux pommes." },
-          "choix": ["2 + 3", "3 + 3", "2 + 2 + 2"],
-          "bonneReponse": "2 + 2 + 2"
+          "choix": [
+            { "id": "2+3", "text": "2 + 3" },
+            { "id": "3+3", "text": "3 + 3" },
+            { "id": "2+2+2", "text": "2 + 2 + 2" }
+          ],
+          "bonneReponse": "2+2+2"
         },
         "metadata": { "competenceCode": "CP.MA.N4.3" }
       },
@@ -388,10 +414,13 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 5,
-        "configuration": { 
-          "question": "Choisis le mot où tu entends [s].", 
-          "choix": ["Poison", "Poisson"], 
-          "bonneReponse": "Poisson" 
+        "configuration": {
+          "question": "Choisis le mot où tu entends [s].",
+          "choix": [
+            { "id": "poison", "text": "Poison" },
+            { "id": "poisson", "text": "Poisson" }
+          ],
+          "bonneReponse": "poisson"
         },
         "metadata": { "competenceCode": "CP.FR.L1.4" }
       },
@@ -417,10 +446,13 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 5,
-        "configuration": { 
-          "question": "Phrase : 'Le gâteau est beau mais il n'est pas bon.' Est-ce que le gâteau est bon ?", 
-          "choix": ["Oui", "No"], 
-          "bonneReponse": "Non" 
+        "configuration": {
+          "question": "Phrase : 'Le gâteau est beau mais il n'est pas bon.' Est-ce que le gâteau est bon ?",
+          "choix": [
+            { "id": "oui", "text": "Oui" },
+            { "id": "non", "text": "Non" }
+          ],
+          "bonneReponse": "non"
         },
         "metadata": { "competenceCode": "CP.FR.C1.4" }
       },
@@ -450,8 +482,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "configuration": {
           "question": "Quel est le fruit préféré des élèves ?",
           "image": { "url_placeholder": "/images/charts/fruits_bar_chart.png", "description": "Un diagramme en barres montrant les fruits préférés. Pomme: 5 votes. Banane: 3 votes. Fraise: 8 votes. La barre pour 'Fraise' est la plus haute." },
-          "choix": ["Pomme", "Banane", "Fraise"],
-          "bonneReponse": "Fraise"
+          "choix": [
+            { "id": "pomme", "text": "Pomme" },
+            { "id": "banane", "text": "Banane" },
+            { "id": "fraise", "text": "Fraise" }
+          ],
+          "bonneReponse": "fraise"
         },
         "metadata": { "competenceCode": "CP.MA.D1.3" }
       },
@@ -461,10 +497,13 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "entrainement",
         "moduleId": 5,
-        "configuration": { 
-          "question": "Choisis le bon mot.", 
-          "choix": ["un phare", "une harpe"], 
-          "bonneReponse": "un phare" 
+        "configuration": {
+          "question": "Choisis le bon mot.",
+          "choix": [
+            { "id": "un-phare", "text": "un phare" },
+            { "id": "une-harpe", "text": "une harpe" }
+          ],
+          "bonneReponse": "un-phare"
         },
         "metadata": { "competenceCode": "CP.FR.L1.5" }
       },
@@ -487,10 +526,14 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "entrainement",
         "moduleId": 5,
-        "configuration": { 
-          "question": "Quelle heure est-il", 
-          "choix": [".", "?", "!"], 
-          "bonneReponse": "?" 
+        "configuration": {
+          "question": "Quelle heure est-il",
+          "choix": [
+            { "id": "point", "text": "." },
+            { "id": "question", "text": "?" },
+            { "id": "exclamation", "text": "!" }
+          ],
+          "bonneReponse": "question"
         },
         "metadata": { "competenceCode": "CP.FR.L3.4" }
       },
@@ -504,7 +547,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
           "question": "87 = ... + ...",
           "dragItems": [{"id": "d1", "content": "7"}, {"id": "d2", "content": "80"}, {"id": "d3", "content": "8"}],
           "zones": [{"id": "z1", "label": "Dizaines"}, {"id": "z2", "label": "Unités"}],
-          "solution": {"z1": ["80"], "z2": ["7"]}
+          "solution": {"z1": ["d2"], "z2": ["d1"]}
         },
         "metadata": { "competenceCode": "CP.MA.N2.3" }
       },
@@ -554,10 +597,14 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "consolidation",
         "moduleId": 5,
-        "configuration": { 
-          "question": "Léo met son manteau, son bonnet et ses gants avant de sortir. Quel temps fait-il probablement dehors ?", 
-          "choix": ["Il fait chaud", "Il fait froid", "Il pleut"], 
-          "bonneReponse": "Il fait froid" 
+        "configuration": {
+          "question": "Léo met son manteau, son bonnet et ses gants avant de sortir. Quel temps fait-il probablement dehors ?",
+          "choix": [
+            { "id": "chaud", "text": "Il fait chaud" },
+            { "id": "froid", "text": "Il fait froid" },
+            { "id": "pluie", "text": "Il pleut" }
+          ],
+          "bonneReponse": "froid"
         },
         "metadata": { "competenceCode": "CP.FR.C2.4" }
       },
@@ -587,7 +634,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
             {"id": "p2", "content": "Tom joue au football."}
           ],
           "zones": [{"id": "z1", "label": "Histoire ordonnée"}],
-          "solution": ["Tom joue au football.", "Il marque un but."]
+          "solution": ["p2", "p1"]
         },
         "metadata": { "competenceCode": "CP.FR.E3.2" }
       },
@@ -640,8 +687,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 5,
         "configuration": {
           "question": "Texte : 'C'est le matin. La poule rousse sort du poulailler. Elle picore des graines près de la mare.' Où la poule trouve-t-elle les graines ?",
-          "choix": ["Dans le poulailler", "Près de la mare", "Dans la maison"],
-          "bonneReponse": "Près de la mare"
+          "choix": [
+            { "id": "poulailler", "text": "Dans le poulailler" },
+            { "id": "mare", "text": "Près de la mare" },
+            { "id": "maison", "text": "Dans la maison" }
+          ],
+          "bonneReponse": "mare"
         },
         "metadata": { "competenceCode": "CP.FR.L3.3" }
       },
@@ -672,8 +723,11 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 8,
         "configuration": {
           "question": "Affirmation : Le nombre 8 est plus grand que le nombre 12.",
-          "choix": ["Vrai", "Faux"],
-          "bonneReponse": "Faux",
+          "choix": [
+            { "id": "vrai", "text": "Vrai" },
+            { "id": "faux", "text": "Faux" }
+          ],
+          "bonneReponse": "faux",
           "aide": "Regarde la file numérique. Le nombre 8 vient avant le nombre 12."
         },
         "metadata": { "competenceCode": "CP.MA.N1.5" }
@@ -684,10 +738,14 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 7,
-        "configuration": { 
-          "question": "Cherche l'intrus.", 
-          "choix": ["table", "chaise", "joli"], 
-          "bonneReponse": "joli" 
+        "configuration": {
+          "question": "Cherche l'intrus.",
+          "choix": [
+            { "id": "table", "text": "table" },
+            { "id": "chaise", "text": "chaise" },
+            { "id": "joli", "text": "joli" }
+          ],
+          "bonneReponse": "joli"
         },
         "metadata": { "competenceCode": "CP.FR.G1.1" }
       },
@@ -699,8 +757,11 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 8,
         "configuration": {
           "question": "Problème : Tu as 10 bonbons. Tu en manges 3. Pour savoir combien il t'en reste, tu dois faire...",
-          "choix": ["une addition (+)", "une soustraction (-)"],
-          "bonneReponse": "une soustraction (-)",
+          "choix": [
+            { "id": "addition", "text": "une addition (+)" },
+            { "id": "soustraction", "text": "une soustraction (-)" }
+          ],
+          "bonneReponse": "soustraction",
           "aide": "Quand on retire quelque chose, on fait une soustraction."
         },
         "metadata": { "competenceCode": "CP.MA.P3.2" }
@@ -729,10 +790,14 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 7,
-        "configuration": { 
-          "question": "J'adore jouer au ballon", 
-          "choix": ["?", "!", "."], 
-          "bonneReponse": "."
+        "configuration": {
+          "question": "J'adore jouer au ballon",
+          "choix": [
+            { "id": "question", "text": "?" },
+            { "id": "exclamation", "text": "!" },
+            { "id": "point", "text": "." }
+          ],
+          "bonneReponse": "point"
         },
         "metadata": { "competenceCode": "CP.FR.E3.3" }
       },
@@ -742,11 +807,14 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 7,
-        "configuration": { 
-          "question": "Le mot 'ordinateur' a 3 syllabes.", 
-          "choix": ["Vrai", "Faux"], 
-          "bonneReponse": "Faux", 
-          "aide": "Comptons ensemble : or-di-na-teur. Il y en a 4 !" 
+        "configuration": {
+          "question": "Le mot 'ordinateur' a 3 syllabes.",
+          "choix": [
+            { "id": "vrai", "text": "Vrai" },
+            { "id": "faux", "text": "Faux" }
+          ],
+          "bonneReponse": "faux",
+          "aide": "Comptons ensemble : or-di-na-teur. Il y en a 4 !"
         },
         "metadata": { "competenceCode": "CP.FR.L2.3" }
       },
@@ -756,10 +824,14 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "entrainement",
         "moduleId": 8,
-        "configuration": { 
-          "question": "Le résultat est 15. Quelle était l'opération ?", 
-          "choix": ["10 + 4", "18 - 3", "7 + 7"], 
-          "bonneReponse": "18 - 3" 
+        "configuration": {
+          "question": "Le résultat est 15. Quelle était l'opération ?",
+          "choix": [
+            { "id": "10+4", "text": "10 + 4" },
+            { "id": "18-3", "text": "18 - 3" },
+            { "id": "7+7", "text": "7 + 7" }
+          ],
+          "bonneReponse": "18-3"
         },
         "metadata": { "competenceCode": "CP.MA.N3.1" }
       },
@@ -799,8 +871,11 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 7,
         "configuration": {
           "question": "Situation : Un garçon regarde par la fenêtre. Réponse : 'Il pleut.'",
-          "choix": ["Quel âge a le garçon ?", "Quel temps fait-il ?"],
-          "bonneReponse": "Quel temps fait-il ?"
+          "choix": [
+            { "id": "age", "text": "Quel âge a le garçon ?" },
+            { "id": "temps", "text": "Quel temps fait-il ?" }
+          ],
+          "bonneReponse": "temps"
         },
         "metadata": { "competenceCode": "CP.FR.C2.4" }
       },
@@ -812,8 +887,11 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 8,
         "configuration": {
           "question": "Avec un billet de 5€, je peux acheter une glace à 3€ et un bonbon à 1€.",
-          "choix": ["Vrai", "Faux"],
-          "bonneReponse": "Vrai", 
+          "choix": [
+            { "id": "vrai", "text": "Vrai" },
+            { "id": "faux", "text": "Faux" }
+          ],
+          "bonneReponse": "vrai",
           "aide": "La glace et le bonbon coûtent 3 + 1 = 4€ en tout. C'est moins que 5€."
         },
         "metadata": { "competenceCode": "CP.MA.M4.4" }
@@ -844,21 +922,29 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "configuration": {
           "question": "La règle mesure 10 cm. Combien mesure la gomme environ ?",
           "image": { "url_placeholder": "/images/measures/gomme_estimation.png", "description": "Une règle graduée de 10cm. En dessous, une gomme qui fait visiblement moins de la moitié de la règle, environ 4cm." },
-          "choix": ["1 cm", "4 cm", "10 cm"],
-          "bonneReponse": "4 cm"
+          "choix": [
+            { "id": "1cm", "text": "1 cm" },
+            { "id": "4cm", "text": "4 cm" },
+            { "id": "10cm", "text": "10 cm" }
+          ],
+          "bonneReponse": "4cm"
         },
         "metadata": { "competenceCode": "CP.MA.M1.4" }
       },
       {
         "titre": "Inférence avancée",
-        "consigne": "Lis la situation et choisis ce qu'il s'est probablement passé.",
+        "consigne": "Lis la situation et choisis ce qu'il s'est probably passé.",
         "type": "QCM",
         "difficulte": "consolidation",
         "moduleId": 7,
-        "configuration": { 
-          "question": "Mila revient du jardin avec les mains pleines de terre et un grand sourire. Elle tient un seau rempli de fraises. Qu'a-t-elle fait ?", 
-          "choix": ["Elle a fait une sieste.", "Elle a fait du jardinage.", "Elle a lu un livre."], 
-          "bonneReponse": "Elle a fait du jardinage." 
+        "configuration": {
+          "question": "Mila revient du jardin avec les mains pleines de terre et un grand sourire. Elle tient un seau rempli de fraises. Qu'a-t-elle fait ?",
+          "choix": [
+            { "id": "sieste", "text": "Elle a fait une sieste." },
+            { "id": "jardinage", "text": "Elle a fait du jardinage." },
+            { "id": "lecture", "text": "Elle a lu un livre." }
+          ],
+          "bonneReponse": "jardinage"
         },
         "metadata": { "competenceCode": "CP.FR.C2.4" }
       },
@@ -886,7 +972,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
           "question": "Analyse la phrase : Le chat noir dort.",
           "dragItems": [{"id": "w1", "content": "chat"}, {"id": "w2", "content": "noir"}, {"id": "w3", "content": "dort"}],
           "zones": [{"id": "z1", "label": "Nom"}, {"id": "z2", "label": "Adjectif"}, {"id": "z3", "label": "Verbe"}],
-          "solution": {"z1": ["chat"], "z2": ["noir"], "z3": ["dort"]}
+          "solution": {"z1": ["w1"], "z2": ["w2"], "z3": ["w3"]}
         },
         "metadata": { "competenceCode": "CP.FR.G1.1" }
       },
@@ -900,11 +986,11 @@ export function createCompleteCP2025Dataset(): CP2025Data {
           "question": "Quelle affirmation est correcte ?",
           "image": { "url_placeholder": "/images/charts/animaux_bar_chart.png", "description": "Diagramme des animaux préférés. Chiens: 9 votes. Chats: 7 votes. Poissons: 4 votes." },
           "choix": [
-            "Le poisson est l'animal le plus populaire.",
-            "Il y a plus de votes pour les chats que pour les chiens.",
-            "Le chien est plus populaire que le chat."
+            { "id": "poisson-populaire", "text": "Le poisson est l'animal le plus populaire." },
+            { "id": "chats-plus-populaires", "text": "Il y a plus de votes pour les chats que pour les chiens." },
+            { "id": "chien-plus-populaire", "text": "Le chien est plus populaire que le chat." }
           ],
-          "bonneReponse": "Le chien est plus populaire que le chat."
+          "bonneReponse": "chien-plus-populaire"
         },
         "metadata": { "competenceCode": "CP.MA.D1.4" }
       },
@@ -914,11 +1000,14 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "consolidation",
         "moduleId": 7,
-        "configuration": { 
-          "question": "Lucas __ un vélo et il va __ l'école.", 
-          "choix": ["a / à", "à / a"], 
-          "bonneReponse": "a / à", 
-          "aide": "On peut remplacer 'a' par 'avait'. On ne peut pas pour 'à'." 
+        "configuration": {
+          "question": "Lucas __ un vélo et il va __ l'école.",
+          "choix": [
+            { "id": "a-a", "text": "a / à" },
+            { "id": "a-a-inverse", "text": "à / a" }
+          ],
+          "bonneReponse": "a-a",
+          "aide": "On peut remplacer 'a' par 'avait'. On ne peut pas pour 'à'."
         },
         "metadata": { "competenceCode": "CP.FR.E2.2" }
       },
@@ -939,7 +1028,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
             {"id": "z1", "label": "Position 1"},
             {"id": "z2", "label": "Position 2"}
           ],
-          "solution": {"z1": ["Livre Rouge"], "z2": ["Livre Bleu"]}
+          "solution": {"z1": ["d1"], "z2": ["d2"]}
         },
         "metadata": { "competenceCode": "CP.MA.G2.1" }
       },
@@ -964,10 +1053,13 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 9,
-        "configuration": { 
-          "question": "Je ___ un pirate et tu ___ une fée.", 
-          "choix": ["suis / es", "es / suis"], 
-          "bonneReponse": "suis / es" 
+        "configuration": {
+          "question": "Je ___ un pirate et tu ___ une fée.",
+          "choix": [
+            { "id": "suis-es", "text": "suis / es" },
+            { "id": "es-suis", "text": "es / suis" }
+          ],
+          "bonneReponse": "suis-es"
         },
         "metadata": { "competenceCode": "FR.CE1.G2.1" }
       },
@@ -977,11 +1069,15 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 10,
-        "configuration": { 
-          "question": "Cent-vingt-trois", 
-          "choix": ["123", "10023", "1203"], 
-          "bonneReponse": "123", 
-          "aide": "Cent = 1 centaine, vingt = 2 dizaines, trois = 3 unités." 
+        "configuration": {
+          "question": "Cent-vingt-trois",
+          "choix": [
+            { "id": "123", "text": "123" },
+            { "id": "10023", "text": "10023" },
+            { "id": "1203", "text": "1203" }
+          ],
+          "bonneReponse": "123",
+          "aide": "Cent = 1 centaine, vingt = 2 dizaines, trois = 3 unités."
         },
         "metadata": { "competenceCode": "MA.CE1.N1.1" }
       },
@@ -991,10 +1087,13 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 9,
-        "configuration": { 
-          "question": "Phrase : 'La courageuse tortue mange une salade.' Qui est-ce qui mange ?", 
-          "choix": ["La salade", "La courageuse tortue"], 
-          "bonneReponse": "La courageuse tortue" 
+        "configuration": {
+          "question": "Phrase : 'La courageuse tortue mange une salade.' Qui est-ce qui mange ?",
+          "choix": [
+            { "id": "salade", "text": "La salade" },
+            { "id": "tortue", "text": "La courageuse tortue" }
+          ],
+          "bonneReponse": "tortue"
         },
         "metadata": { "competenceCode": "FR.CE1.G1.2" }
       },
@@ -1018,11 +1117,14 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 9,
-        "configuration": { 
-          "question": "Mon chien ___ beau __ très gentil.", 
-          "choix": ["est / et", "et / est"], 
-          "bonneReponse": "est / et", 
-          "aide": "'est' est le verbe être. 'et' veut dire 'et puis'." 
+        "configuration": {
+          "question": "Mon chien ___ beau __ très gentil.",
+          "choix": [
+            { "id": "est-et", "text": "est / et" },
+            { "id": "et-est", "text": "et / est" }
+          ],
+          "bonneReponse": "est-et",
+          "aide": "'est' est le verbe être. 'et' veut dire 'et puis'."
         },
         "metadata": { "competenceCode": "FR.CE1.E2.3" }
       },
@@ -1035,8 +1137,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "configuration": {
           "question": "Quelle heure est-il ?",
           "image": { "url_placeholder": "/images/clocks/horloge_02h30.png", "description": "Une horloge analogique. La petite aiguille est entre le 2 et le 3, la grande sur le 6." },
-          "choix": ["Deux heures", "Deux heures et demie", "Trois heures"],
-          "bonneReponse": "Deux heures et demie"
+          "choix": [
+            { "id": "deux-heures", "text": "Deux heures" },
+            { "id": "deux-heures-et-demie", "text": "Deux heures et demie" },
+            { "id": "trois-heures", "text": "Trois heures" }
+          ],
+          "bonneReponse": "deux-heures-et-demie"
         },
         "metadata": { "competenceCode": "MA.CE1.M3.1" }
       },
@@ -1046,10 +1152,15 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "decouverte",
         "moduleId": 9,
-        "configuration": { 
-          "question": "Cherche l'intrus.", 
-          "choix": ["courir", "maison", "chanter", "voir"], 
-          "bonneReponse": "maison" 
+        "configuration": {
+          "question": "Cherche l'intrus.",
+          "choix": [
+            { "id": "courir", "text": "courir" },
+            { "id": "maison", "text": "maison" },
+            { "id": "chanter", "text": "chanter" },
+            { "id": "voir", "text": "voir" }
+          ],
+          "bonneReponse": "maison"
         },
         "metadata": { "competenceCode": "FR.CE1.G1.1" }
       },
@@ -1104,7 +1215,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
           "question": "Remets dans l'ordre.",
           "dragItems": [{"id":"p1", "content":"Je prends mon parapluie"}, {"id":"p2", "content":"parce qu'il pleut"}],
           "zones": [{"id": "z1", "label": "Phrase ordonnée"}],
-          "solution": ["Je prends mon parapluie", "parce qu'il pleut"]
+          "solution": ["p1", "p2"]
         },
         "metadata": { "competenceCode": "FR.CE1.C1.4" }
       },
@@ -1114,11 +1225,14 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "entrainement",
         "moduleId": 9,
-        "configuration": { 
-          "question": "Les élèves ___ dans la cour avec ___ ballon.", 
-          "choix": ["son / sont", "sont / son"], 
-          "bonneReponse": "sont / son", 
-          "aide": "'sont' est le verbe être. 'son' montre que le ballon est à quelqu'un." 
+        "configuration": {
+          "question": "Les élèves ___ dans la cour avec ___ ballon.",
+          "choix": [
+            { "id": "son-sont", "text": "son / sont" },
+            { "id": "sont-son", "text": "sont / son" }
+          ],
+          "bonneReponse": "sont-son",
+          "aide": "'sont' est le verbe être. 'son' montre que le ballon est à quelqu'un."
         },
         "metadata": { "competenceCode": "FR.CE1.E2.3" }
       },
@@ -1131,8 +1245,11 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "configuration": {
           "question": "Observe bien le papillon.",
           "image": { "url_placeholder": "/images/shapes/papillon_symetrique.png", "description": "Un papillon parfaitement symétrique dessiné autour d'un axe vertical." },
-          "choix": ["Oui", "Non"],
-          "bonneReponse": "Oui", 
+          "choix": [
+            { "id": "oui", "text": "Oui" },
+            { "id": "non", "text": "Non" }
+          ],
+          "bonneReponse": "oui",
           "aide": "Si on plie l'image sur le trait, les deux moitiés se superposent parfaitement."
         },
         "metadata": { "competenceCode": "MA.CE1.G3.2" }
@@ -1184,10 +1301,13 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "consolidation",
         "moduleId": 9,
-        "configuration": { 
-          "question": "Nous (mangeons/mangez) et vous (chante/chantez).", 
-          "choix": ["mangeons / chantez", "mangez / chante"], 
-          "bonneReponse": "mangeons / chantez" 
+        "configuration": {
+          "question": "Nous (mangeons/mangez) et vous (chante/chantez).",
+          "choix": [
+            { "id": "mangeons-chantez", "text": "mangeons / chantez" },
+            { "id": "mangez-chante", "text": "mangez / chante" }
+          ],
+          "bonneReponse": "mangeons-chantez"
         },
         "metadata": { "competenceCode": "FR.CE1.G2.2" }
       },
@@ -1213,8 +1333,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 10,
         "configuration": {
           "question": "Texte : Le film commence à 16h et il dure 2 heures. Réponse : 'À 18h.'",
-          "choix": ["À quelle heure le film commence-t-il ?", "Combien de temps dure le film ?", "À quelle heure le film se termine-t-il ?"],
-          "bonneReponse": "À quelle heure le film se termine-t-il ?"
+          "choix": [
+            { "id": "heure-debut", "text": "À quelle heure le film commence-t-il ?" },
+            { "id": "duree", "text": "Combien de temps dure le film ?" },
+            { "id": "heure-fin", "text": "À quelle heure le film se termine-t-il ?" }
+          ],
+          "bonneReponse": "heure-fin"
         },
         "metadata": { "competenceCode": "MA.CE1.P3.3" }
       },
@@ -1227,8 +1351,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "configuration": {
           "question": "Regarde bien les aiguilles.",
           "image": { "url_placeholder": "/images/clocks/horloge_04h15.png", "description": "Une horloge analogique. La petite aiguille est juste après le 4, la grande sur le 3." },
-          "choix": ["Quatre heures", "Quatre heures et quart", "Cinq heures moins le quart"],
-          "bonneReponse": "Quatre heures et quart"
+          "choix": [
+            { "id": "quatre-heures", "text": "Quatre heures" },
+            { "id": "quatre-heures-et-quart", "text": "Quatre heures et quart" },
+            { "id": "cinq-heures-moins-le-quart", "text": "Cinq heures moins le quart" }
+          ],
+          "bonneReponse": "quatre-heures-et-quart"
         },
         "metadata": { "competenceCode": "MA.CE1.M3.1" }
       },
@@ -1238,11 +1366,14 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "type": "QCM",
         "difficulte": "consolidation",
         "moduleId": 9,
-        "configuration": { 
-          "question": "Les joueurs ___ gagné le match, ___ est très contents !", 
-          "choix": ["ont / on", "on / ont"], 
-          "bonneReponse": "ont / on", 
-          "aide": "'ont' est le verbe avoir (ils avaient). 'on' peut être remplacé par 'il'." 
+        "configuration": {
+          "question": "Les joueurs ___ gagné le match, ___ est très contents !",
+          "choix": [
+            { "id": "ont-on", "text": "ont / on" },
+            { "id": "on-ont", "text": "on / ont" }
+          ],
+          "bonneReponse": "ont-on",
+          "aide": "'ont' est le verbe avoir (ils avaient). 'on' peut être remplacé par 'il'."
         },
         "metadata": { "competenceCode": "FR.CE1.E2.3" }
       }

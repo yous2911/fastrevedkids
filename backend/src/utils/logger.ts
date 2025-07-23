@@ -1,5 +1,5 @@
 import pino, { LoggerOptions } from 'pino';
-import { validateEnvironment } from '../config/environment.js';
+import { config } from '../config/config.js';
 
 const loggerOptions: LoggerOptions = {
   level: validateEnvironment().LOG_LEVEL,
