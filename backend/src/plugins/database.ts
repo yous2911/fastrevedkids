@@ -1,37 +1,40 @@
-// src/plugins/database.ts
+import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
-import { FastifyPluginAsync } from 'fastify';
-import mysql from 'mysql2/promise';
-import { drizzle } from 'drizzle-orm/mysql2';
-import { validateEnvironment } from '../config/environment.js';
-import * as schema from '../db/schema.js';
-import { DatabaseConfig } from '../types';
+import { db, testConnection } from '../db/connection';
 
-const databasePlugin: FastifyPluginAsync = async (fastify) => {
-  const config = validateEnvironment();
+declare module 'fastify' {
+  interface FastifyInstance {
+    db: typeof db;
+  }
+}
 
-  // Production-ready database configuration with proper typing
-  const dbConfig: DatabaseConfig = {
-    host: config.DB_HOST,
-    port: config.DB_PORT,
-    user: config.DB_USER,
-    password: config.DB_PASSWORD,
-    database: config.DB_NAME,
-    connectionLimit: config.DB_CONNECTION_LIMIT,
-    ssl: config.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-  };
+async function databasePlugin(fastify: FastifyInstance): Promise<void> {
+  // Test connection
+  const isConnected = await testConnection();
+  if (!isConnected) {
+    throw new Error('Failed to connect to database');
+  }
 
-  const connection = mysql.createPool(dbConfig);
-  const db = drizzle(connection, { schema, mode: 'default' });
-
+  // Decorate fastify with database
   fastify.decorate('db', db);
-  
-  fastify.addHook('onClose', async () => {
-    await connection.end();
+
+  // Add health check hook
+  fastify.addHook('onReady', async () => {
+    const connected = await testConnection();
+    if (connected) {
+      fastify.log.info('Database connection verified');
+    } else {
+      fastify.log.error('Database connection failed');
+    }
   });
-};
+
+  // Cleanup on close
+  fastify.addHook('onClose', async () => {
+    fastify.log.info('Closing database connections...');
+    // Connection pool will be closed automatically
+  });
+}
 
 export default fp(databasePlugin, {
   name: 'database',
-  dependencies: ['config'],
 });

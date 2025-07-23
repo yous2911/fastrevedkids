@@ -1,130 +1,309 @@
-import { students, progress, exercises } from '../db/schema.js';
-import { eq, and, desc } from 'drizzle-orm';
-import { RecommendationScore, ExerciseRecommendation } from '../types/index.js';
+import { db } from '../db/connection';
+import * as schema from '../db/schema';
+import { eq, and, sql, not, desc } from 'drizzle-orm';
+import type { Exercise, Student, NewProgress } from '../db/schema';
 
 export class RecommendationService {
-  // FIXED: Lines 12:17 & 13:20 - Replace any with proper types
-  private scores: RecommendationScore[] = [];
-  private cache: Map<string, ExerciseRecommendation[]> = new Map();
+  async getRecommendedExercises(studentId: number, limit: number = 5): Promise<Exercise[]> {
+    try {
+      const student = await db
+        .select()
+        .from(schema.students)
+        .where(eq(schema.students.id, studentId))
+        .limit(1);
 
-  // FIXED: Line 16:93 - Replace any with proper parameter types
-  async getRecommendations(studentId: number, options: {
-    limit?: number;
-    niveau?: string;
-    matiere?: string;
-  } = {}): Promise<ExerciseRecommendation[]> {
-    // FIXED: Line 17 - Remove unused variables, use options directly
-    const { limit = 10, niveau, matiere } = options;
+      if (!student[0]) {
+        return [];
+      }
 
-    const cacheKey = `recommendations_${studentId}_${JSON.stringify(options)}`;
-    const cached = this.cache.get(cacheKey);
-    
-    if (cached) {
-      return cached;
+      // Get exercises the student has already completed
+      const completedExercises = await db
+        .select({ exerciseId: schema.progress.exerciseId })
+        .from(schema.progress)
+        .where(and(
+          eq(schema.progress.studentId, studentId),
+          eq(schema.progress.statut, 'TERMINE')
+        ));
+
+      const completedIds = completedExercises.map(p => p.exerciseId);
+
+      // Get recommended exercises based on student's niveau
+      const whereConditions = [
+        eq(schema.exercises.niveau, student[0].niveauActuel),
+        eq(schema.exercises.estActif, true)
+      ];
+
+      // Exclude completed exercises if any exist
+      if (completedIds.length > 0) {
+        whereConditions.push(not(sql`${schema.exercises.id} IN (${completedIds.map(() => '?').join(',')})`));
+      }
+
+      const recommendedExercises = await db
+        .select()
+        .from(schema.exercises)
+        .where(and(...whereConditions))
+        .orderBy(sql`RAND()`)
+        .limit(limit);
+
+      return recommendedExercises;
+    } catch (error) {
+      console.error('Error getting recommended exercises:', error);
+      return [];
     }
+  }
 
-    // FIXED: Line 40:60 - Replace any with proper query result
-    const studentProgress = await progress.findMany({
-      where: eq(progress.studentId, studentId)
-    });
+  async getNextExercise(studentId: number, moduleId?: number): Promise<Exercise | null> {
+    try {
+      const student = await db
+        .select()
+        .from(schema.students)
+        .where(eq(schema.students.id, studentId))
+        .limit(1);
 
-    // FIXED: Line 68:65 - Replace any with proper exercise query
-    const availableExercises = await exercises.findMany({
-      where: and(
-        niveau ? eq(exercises.niveau, niveau) : undefined,
-        matiere ? eq(exercises.matiere, matiere) : undefined
-      )
-    });
+      if (!student[0]) {
+        return null;
+      }
 
-    // FIXED: Line 84:63 - Replace any with recommendation calculation
-    const recommendations: ExerciseRecommendation[] = availableExercises
-      .map(exercise => {
-        const score = this.calculateRecommendationScore(exercise, studentProgress);
-        return {
-          exercise,
-          score: score.score,
-          reasons: score.reasons,
-          metadata: {
-            difficulty: exercise.difficulte,
-            estimatedTime: exercise.tempsEstime,
-          },
+      // Get exercises the student has already completed
+      const completedExercises = await db
+        .select({ exerciseId: schema.progress.exerciseId })
+        .from(schema.progress)
+        .where(and(
+          eq(schema.progress.studentId, studentId),
+          eq(schema.progress.statut, 'TERMINE')
+        ));
+
+      const completedIds = completedExercises.map(p => p.exerciseId);
+
+      // Build where conditions
+      const whereConditions = [
+        eq(schema.exercises.niveau, student[0].niveauActuel),
+        eq(schema.exercises.estActif, true)
+      ];
+
+      // Add module filter if specified
+      if (moduleId) {
+        whereConditions.push(eq(schema.exercises.moduleId, moduleId));
+      }
+
+      // Exclude completed exercises if any exist
+      if (completedIds.length > 0) {
+        whereConditions.push(not(sql`${schema.exercises.id} IN (${completedIds.map(() => '?').join(',')})`));
+      }
+
+      const nextExercise = await db
+        .select()
+        .from(schema.exercises)
+        .where(and(...whereConditions))
+        .orderBy(schema.exercises.ordre)
+        .limit(1);
+
+      return nextExercise[0] || null;
+    } catch (error) {
+      console.error('Error getting next exercise:', error);
+      return null;
+    }
+  }
+
+  async recordExerciseAttempt(data: {
+    studentId: number;
+    exerciseId: number;
+    score: number;
+    completed: boolean;
+    timeSpent?: number;
+  }): Promise<boolean> {
+    try {
+      // Check if progress record exists
+      const existingProgress = await db
+        .select()
+        .from(schema.progress)
+        .where(and(
+          eq(schema.progress.studentId, data.studentId),
+          eq(schema.progress.exerciseId, data.exerciseId)
+        ))
+        .limit(1);
+
+      const statut = data.completed ? 'TERMINE' : 'ECHEC';
+      const pointsGagnes = data.completed ? Math.round(data.score) : 0;
+
+      if (existingProgress[0]) {
+        // Update existing progress
+        await db
+          .update(schema.progress)
+          .set({
+            statut,
+            nombreTentatives: sql`nombre_tentatives + 1`,
+            nombreReussites: data.completed ? sql`nombre_reussites + 1` : sql`nombre_reussites`,
+            tauxReussite: sql`(nombre_reussites + ${data.completed ? 1 : 0}) * 100.0 / (nombre_tentatives + 1)`,
+            pointsGagnes: sql`points_gagnes + ${pointsGagnes}`,
+            derniereTentative: new Date(),
+            premiereReussite: data.completed && !existingProgress[0].premiereReussite ? new Date() : existingProgress[0].premiereReussite,
+            updatedAt: new Date(),
+          })
+          .where(and(
+            eq(schema.progress.studentId, data.studentId),
+            eq(schema.progress.exerciseId, data.exerciseId)
+          ));
+      } else {
+        // Create new progress record
+        const newProgress: NewProgress = {
+          studentId: data.studentId,
+          exerciseId: data.exerciseId,
+          statut,
+          nombreTentatives: 1,
+          nombreReussites: data.completed ? 1 : 0,
+          tauxReussite: data.completed ? '100.00' : '0.00',
+          pointsGagnes,
+          derniereTentative: new Date(),
+          premiereReussite: data.completed ? new Date() : null,
+          historique: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
         };
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, limit);
 
-    this.cache.set(cacheKey, recommendations);
-    return recommendations;
-  }
+        await db.insert(schema.progress).values(newProgress);
+      }
 
-  // FIXED: Lines 94:19, 94:27, 96:25 - Replace any with proper types
-  private calculateRecommendationScore(
-    exercise: typeof exercises.$inferSelect,
-    studentProgress: (typeof progress.$inferSelect)[]
-  ): RecommendationScore {
-    let score = 50; // Base score
-    const reasons: string[] = [];
+      // Update student's total points if completed
+      if (data.completed) {
+        await db
+          .update(schema.students)
+          .set({
+            totalPoints: sql`total_points + ${pointsGagnes}`,
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.students.id, data.studentId));
+      }
 
-    // Check if student has attempted this exercise
-    const attemptedExercise = studentProgress.find(p => p.exerciseId === exercise.id);
-    
-    if (!attemptedExercise) {
-      score += 20;
-      reasons.push('Nouvel exercice à découvrir');
-    } else if (attemptedExercise.statut === 'ECHEC') {
-      score += 30;
-      reasons.push('Exercice à réviser après échec');
-    } else if (parseFloat(attemptedExercise.tauxReussite) < 70) {
-      score += 25;
-      reasons.push('Exercice à améliorer');
-    }
-
-    // FIXED: Lines 114:16, 115:14, 117:14 - Replace any with proper difficulty scoring
-    const difficultyScore = this.getDifficultyScore(exercise.difficulte);
-    const subjectScore = this.getSubjectScore(exercise.matiere, studentProgress);
-    const levelScore = this.getLevelScore(exercise.niveau, studentProgress);
-
-    score += difficultyScore + subjectScore + levelScore;
-
-    return {
-      score: Math.min(score, 100),
-      reasons,
-    };
-  }
-
-  private getDifficultyScore(difficulty: string): number {
-    switch (difficulty) {
-      case 'FACILE': return 10;
-      case 'MOYEN': return 20;
-      case 'DIFFICILE': return 30;
-      default: return 15;
+      return true;
+    } catch (error) {
+      console.error('Error recording exercise attempt:', error);
+      return false;
     }
   }
 
-  private getSubjectScore(subject: string, studentProgress: (typeof progress.$inferSelect)[]): number {
-    const subjectProgress = studentProgress.filter(p => p.exercise?.matiere === subject);
-    if (subjectProgress.length === 0) return 15; // New subject bonus
-    
-    const averageScore = subjectProgress.reduce((sum, p) => sum + parseFloat(p.tauxReussite), 0) / subjectProgress.length;
-    return averageScore < 50 ? 25 : 5; // Help with weak subjects
+  async getExercisesByDifficulty(studentId: number, difficulte: 'FACILE' | 'MOYEN' | 'DIFFICILE'): Promise<Exercise[]> {
+    try {
+      const student = await db
+        .select()
+        .from(schema.students)
+        .where(eq(schema.students.id, studentId))
+        .limit(1);
+
+      if (!student[0]) {
+        return [];
+      }
+
+      const exercises = await db
+        .select()
+        .from(schema.exercises)
+        .where(and(
+          eq(schema.exercises.niveau, student[0].niveauActuel),
+          eq(schema.exercises.difficulte, difficulte),
+          eq(schema.exercises.estActif, true)
+        ))
+        .orderBy(schema.exercises.ordre);
+
+      return exercises;
+    } catch (error) {
+      console.error('Error getting exercises by difficulty:', error);
+      return [];
+    }
   }
 
-  private getLevelScore(level: string, studentProgress: (typeof progress.$inferSelect)[]): number {
-    const levelProgress = studentProgress.filter(p => p.exercise?.niveau === level);
-    if (levelProgress.length === 0) return 10; // New level bonus
-    
-    const averageScore = levelProgress.reduce((sum, p) => sum + parseFloat(p.tauxReussite), 0) / levelProgress.length;
-    return averageScore < 60 ? 20 : 0; // Help with weak levels
+  async getExercisesBySubject(studentId: number, matiere: string): Promise<Exercise[]> {
+    try {
+      const student = await db
+        .select()
+        .from(schema.students)
+        .where(eq(schema.students.id, studentId))
+        .limit(1);
+
+      if (!student[0]) {
+        return [];
+      }
+
+      const exercises = await db
+        .select()
+        .from(schema.exercises)
+        .where(and(
+          eq(schema.exercises.niveau, student[0].niveauActuel),
+          eq(schema.exercises.matiere, matiere),
+          eq(schema.exercises.estActif, true)
+        ))
+        .orderBy(schema.exercises.ordre);
+
+      return exercises;
+    } catch (error) {
+      console.error('Error getting exercises by subject:', error);
+      return [];
+    }
   }
 
-  async clearCache(): Promise<void> {
-    this.cache.clear();
+  async getStudentWeaknesses(studentId: number): Promise<{
+    matiere: string;
+    difficulte: string;
+    count: number;
+  }[]> {
+    try {
+      // Get exercises where student failed or struggled
+      const weakAreas = await db
+        .select({
+          matiere: schema.exercises.matiere,
+          difficulte: schema.exercises.difficulte,
+          count: sql<number>`count(*)`,
+        })
+        .from(schema.progress)
+        .innerJoin(schema.exercises, eq(schema.progress.exerciseId, schema.exercises.id))
+        .where(and(
+          eq(schema.progress.studentId, studentId),
+          eq(schema.progress.statut, 'ECHEC')
+        ))
+        .groupBy(schema.exercises.matiere, schema.exercises.difficulte)
+        .orderBy(desc(sql`count(*)`));
+
+      return weakAreas.map(area => ({
+        matiere: area.matiere,
+        difficulte: area.difficulte,
+        count: Number(area.count),
+      }));
+    } catch (error) {
+      console.error('Error getting student weaknesses:', error);
+      return [];
+    }
   }
 
-  async getCacheStats(): Promise<{ size: number; keys: string[] }> {
-    return {
-      size: this.cache.size,
-      keys: Array.from(this.cache.keys()),
-    };
+  async getPersonalizedRecommendations(studentId: number, limit: number = 10): Promise<Exercise[]> {
+    try {
+      const weaknesses = await this.getStudentWeaknesses(studentId);
+      
+      if (weaknesses.length === 0) {
+        // If no weaknesses, recommend based on current level
+        return await this.getRecommendedExercises(studentId, limit);
+      }
+
+      // Focus on weakest areas
+      const recommendations: Exercise[] = [];
+      
+      for (const weakness of weaknesses.slice(0, 3)) { // Top 3 weak areas
+        const exercises = await db
+          .select()
+          .from(schema.exercises)
+          .where(and(
+            eq(schema.exercises.matiere, weakness.matiere),
+            eq(schema.exercises.difficulte, weakness.difficulte as 'FACILE' | 'MOYEN' | 'DIFFICILE'),
+            eq(schema.exercises.estActif, true)
+          ))
+          .orderBy(sql`RAND()`)
+          .limit(Math.ceil(limit / 3));
+
+        recommendations.push(...exercises);
+      }
+
+      return recommendations.slice(0, limit);
+    } catch (error) {
+      console.error('Error getting personalized recommendations:', error);
+      return [];
+    }
   }
 }

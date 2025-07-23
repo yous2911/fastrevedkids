@@ -365,11 +365,12 @@ const performReadinessCheck = async () => {
 const checkDatabaseHealth = async () => {
   try {
     // This would use your actual database connection
-    // const result = await db.raw('SELECT 1');
+    // await db.raw('SELECT 1');
     return { status: 'healthy', message: 'Database connection successful' };
   } catch (error) {
     logger.error('Database health check failed', { error });
-    return { status: 'unhealthy', message: 'Database connection failed', error: error.message };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown database error';
+    return { status: 'unhealthy', message: 'Database connection failed', error: errorMessage };
   }
 };
 
@@ -381,7 +382,8 @@ const checkRedisHealth = async () => {
     return { status: 'healthy', message: 'Redis connection successful' };
   } catch (error) {
     logger.error('Redis health check failed', { error });
-    return { status: 'unhealthy', message: 'Redis connection failed', error: error.message };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown Redis error';
+    return { status: 'unhealthy', message: 'Redis connection failed', error: errorMessage };
   }
 };
 
@@ -415,7 +417,8 @@ const checkDatabaseHealthDetailed = async () => {
     // Add more detailed database checks
     return { status: 'healthy', message: 'Database detailed check passed' };
   } catch (error) {
-    return { status: 'unhealthy', message: 'Database detailed check failed', error: error.message };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown database error';
+    return { status: 'unhealthy', message: 'Database detailed check failed', error: errorMessage };
   }
 };
 
@@ -424,7 +427,8 @@ const checkRedisHealthDetailed = async () => {
     // Add more detailed Redis checks
     return { status: 'healthy', message: 'Redis detailed check passed' };
   } catch (error) {
-    return { status: 'unhealthy', message: 'Redis detailed check failed', error: error.message };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown Redis error';
+    return { status: 'unhealthy', message: 'Redis detailed check failed', error: errorMessage };
   }
 };
 
@@ -470,7 +474,8 @@ const checkDatabaseReadiness = async () => {
     // Check if database is ready to accept connections
     return { ready: true, message: 'Database ready' };
   } catch (error) {
-    return { ready: false, message: 'Database not ready', error: error.message };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown database error';
+    return { ready: false, message: 'Database not ready', error: errorMessage };
   }
 };
 
@@ -479,7 +484,8 @@ const checkRedisReadiness = async () => {
     // Check if Redis is ready to accept connections
     return { ready: true, message: 'Redis ready' };
   } catch (error) {
-    return { ready: false, message: 'Redis not ready', error: error.message };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown Redis error';
+    return { ready: false, message: 'Redis not ready', error: errorMessage };
   }
 };
 

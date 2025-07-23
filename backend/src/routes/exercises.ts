@@ -1,373 +1,478 @@
-import { FastifyInstance } from 'fastify';
-import { databaseService } from '../services/database.service.js';
-import { exerciseGeneratorService } from '../services/exercise-generator.service.js';
+import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { z } from 'zod';
+import { CP2025Service } from '../services/cp2025.service';
+import { AnalyticsService } from '../services/analytics.service';
+import { RecommendationService } from '../services/recommendation.service';
+import type { AuthenticatedRequest } from '../types/fastify-extended';
 
-export default async function exerciseRoutes(fastify: FastifyInstance) {
-  // Get exercises by level and subject
-  fastify.get('/by-level/:niveau', {
+// Validation schemas
+const exerciseQuerySchema = z.object({
+  level: z.string().optional(),
+  difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
+  type: z.string().optional(),
+  limit: z.coerce.number().min(1).max(50).default(10),
+  search: z.string().optional(),
+});
+
+const attemptSchema = z.object({
+  exerciseId: z.number(),
+  score: z.number().min(0).max(100),
+  completed: z.boolean(),
+  timeSpent: z.number().optional(),
+  answers: z.any().optional(),
+});
+
+export default async function exerciseRoutes(fastify: FastifyInstance): Promise<void> {
+  const cp2025Service = new CP2025Service();
+  const analyticsService = new AnalyticsService();
+  const recommendationService = new RecommendationService();
+
+  // Get all exercises with filters
+  fastify.get('/exercises', {
     schema: {
-      params: {
-        type: 'object',
-        required: ['niveau'],
-        properties: {
-          niveau: { type: 'string', enum: ['cp', 'ce1', 'ce2', 'cm1', 'cm2'] }
-        }
-      },
       querystring: {
         type: 'object',
         properties: {
-          matiere: { type: 'string' },
-          limit: { type: 'number', default: 10 }
+          level: { type: 'string' },
+          difficulty: { type: 'string', enum: ['easy', 'medium', 'hard'] },
+          type: { type: 'string' },
+          limit: { type: 'number', minimum: 1, maximum: 50, default: 10 },
+          search: { type: 'string' },
+        },
+      },
+    },
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const query = exerciseQuerySchema.parse(request.query);
+      
+      let exercises = await cp2025Service.getAllExercises();
+
+      // Apply filters
+      if (query.level) {
+        exercises = await cp2025Service.getExercisesByLevel(query.level);
+      }
+
+      if (query.difficulty) {
+        // Map query difficulty to schema difficulty
+        const difficultyMap: Record<string, 'FACILE' | 'MOYEN' | 'DIFFICILE'> = {
+          'easy': 'FACILE',
+          'medium': 'MOYEN', 
+          'hard': 'DIFFICILE'
+        };
+        const mappedDifficulty = difficultyMap[query.difficulty];
+        if (mappedDifficulty) {
+          exercises = exercises.filter(ex => ex.difficulte === mappedDifficulty);
         }
       }
-    }
-  }, async (request, reply) => {
-    try {
-      const { niveau } = request.params as { niveau: string };
-      const { matiere, limit } = request.query as { matiere?: string; limit?: number };
-      
-      const exercises = await databaseService.getExercisesByLevel(niveau, matiere, limit);
-      
-      return {
+
+      if (query.search) {
+        exercises = await cp2025Service.searchExercises(query.search);
+      }
+
+      // Apply limit
+      exercises = exercises.slice(0, query.limit);
+
+      return reply.send({
         success: true,
         data: {
           exercises,
-          count: exercises.length,
-          niveau,
-          matiere: matiere || 'all'
-        }
-      };
+          total: exercises.length,
+        },
+      });
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return reply.status(400).send({
+          success: false,
+          error: {
+            message: 'Invalid query parameters',
+            details: error.errors,
+            statusCode: 400,
+          },
+        });
+      }
+
       fastify.log.error('Get exercises error:', error);
       return reply.status(500).send({
         success: false,
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'Failed to get exercises'
-        }
+          message: 'Failed to fetch exercises',
+          statusCode: 500,
+        },
       });
     }
   });
 
-  // Get specific exercise by ID
-  fastify.get('/:id', {
+  // Get exercise by ID
+  fastify.get('/exercises/:id', {
     schema: {
       params: {
         type: 'object',
         required: ['id'],
         properties: {
-          id: { type: 'number' }
-        }
-      }
-    }
-  }, async (request, reply) => {
+          id: { type: 'number' },
+        },
+      },
+    },
+  }, async (request: FastifyRequest<{ Params: { id: number } }>, reply: FastifyReply) => {
     try {
-      const { id } = request.params as { id: number };
-      
-      const exercise = await databaseService.getExerciseById(id);
-      
+      const exerciseId = Number(request.params.id);
+      const exercise = await cp2025Service.getExerciseById(exerciseId);
+
       if (!exercise) {
         return reply.status(404).send({
           success: false,
           error: {
-            code: 'EXERCISE_NOT_FOUND',
-            message: 'Exercise not found'
-          }
+            message: 'Exercise not found',
+            statusCode: 404,
+          },
         });
       }
 
-      return {
+      return reply.send({
         success: true,
-        data: { exercise }
-      };
+        data: { exercise },
+      });
     } catch (error) {
       fastify.log.error('Get exercise error:', error);
       return reply.status(500).send({
         success: false,
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'Failed to get exercise'
-        }
+          message: 'Failed to fetch exercise',
+          statusCode: 500,
+        },
       });
     }
   });
 
-  // Generate new exercises
-  fastify.post('/generate', {
-    preHandler: fastify.authenticate,
-    schema: {
-      body: {
-        type: 'object',
-        required: ['niveau', 'matiere'],
-        properties: {
-          niveau: { type: 'string', enum: ['cp', 'ce1', 'ce2', 'cm1', 'cm2'] },
-          matiere: { type: 'string' },
-          difficulte: { type: 'string', enum: ['decouverte', 'entrainement', 'maitrise', 'expert'] },
-          count: { type: 'number', default: 5 },
-          concepts: { type: 'array', items: { type: 'string' } }
-        }
-      }
-    }
-  }, async (request, reply) => {
-    try {
-      const { niveau, matiere, difficulte, count, concepts } = request.body as any;
-      
-      const exercises = exerciseGeneratorService.generateExercisesBatch(
-        niveau,
-        matiere,
-        difficulte,
-        count,
-        concepts
-      );
-
-      return {
-        success: true,
-        data: {
-          exercises,
-          count: exercises.length,
-          niveau,
-          matiere,
-          difficulte
-        }
-      };
-    } catch (error) {
-      fastify.log.error('Generate exercises error:', error);
-      return reply.status(500).send({
-        success: false,
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: 'Failed to generate exercises'
-        }
-      });
-    }
-  });
-
-  // Get personalized exercises for student
-  fastify.get('/personalized', {
-    preHandler: fastify.authenticate,
+  // Get recommended exercises for authenticated user
+  fastify.get('/exercises/recommendations', {
+    preHandler: [fastify.authenticate],
     schema: {
       querystring: {
         type: 'object',
         properties: {
-          matiere: { type: 'string' },
-          count: { type: 'number', default: 3 }
-        }
-      }
-    }
-  }, async (request, reply) => {
+          limit: { type: 'number', minimum: 1, maximum: 20, default: 5 },
+        },
+      },
+    },
+  }, async (request: AuthenticatedRequest<{ Querystring: { limit?: number } }>, reply: FastifyReply) => {
     try {
-      const studentId = (request.user as any).studentId;
-      const { matiere, count } = request.query as { matiere?: string; count?: number };
-      
-      // Get student info
-      const student = await databaseService.getStudentById(studentId);
-      if (!student) {
-        return reply.status(404).send({
-          success: false,
-          error: {
-            code: 'STUDENT_NOT_FOUND',
-            message: 'Student not found'
-          }
-        });
-      }
-
-      // Get student's weak areas (simplified - you can enhance this)
-      const weakConcepts: string[] = []; // TODO: Analyze student progress to find weak areas
-      
-      const exercises = exerciseGeneratorService.generatePersonalizedExercises(
-        studentId,
-        student.niveauActuel as any,
-        matiere as any || 'mathematiques',
-        weakConcepts,
-        count
+      const limit = request.query?.limit || 5;
+      const recommendations = await recommendationService.getRecommendedExercises(
+        request.user.id,
+        limit
       );
 
-      return {
+      return reply.send({
         success: true,
         data: {
-          exercises,
-          count: exercises.length,
-          niveau: student.niveauActuel,
-          matiere: matiere || 'mathematiques',
-          personalized: true
-        }
-      };
+          recommendations,
+          total: recommendations.length,
+        },
+      });
     } catch (error) {
-      fastify.log.error('Get personalized exercises error:', error);
+      fastify.log.error('Get recommendations error:', error);
       return reply.status(500).send({
         success: false,
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'Failed to get personalized exercises'
-        }
+          message: 'Failed to fetch recommendations',
+          statusCode: 500,
+        },
       });
     }
   });
 
-  // Submit exercise answer
-  fastify.post('/:id/submit', {
-    preHandler: fastify.authenticate,
+  // Get next exercise for user
+  fastify.get('/exercises/next', {
+    preHandler: [fastify.authenticate],
+    schema: {
+      querystring: {
+        type: 'object',
+        properties: {
+          moduleId: { type: 'number' },
+        },
+      },
+    },
+  }, async (request: AuthenticatedRequest, reply: FastifyReply) => {
+    try {
+      const moduleId = request.query?.moduleId;
+      const nextExercise = await recommendationService.getNextExercise(
+        request.user.id,
+        moduleId
+      );
+
+      if (!nextExercise) {
+        return reply.send({
+          success: true,
+          data: {
+            exercise: null,
+            message: 'No more exercises available',
+          },
+        });
+      }
+
+      return reply.send({
+        success: true,
+        data: { exercise: nextExercise },
+      });
+    } catch (error) {
+      fastify.log.error('Get next exercise error:', error);
+      return reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to fetch next exercise',
+          statusCode: 500,
+        },
+      });
+    }
+  });
+
+  // Submit exercise attempt
+  fastify.post('/exercises/attempts', {
+    preHandler: [fastify.authenticate],
+    schema: {
+      body: {
+        type: 'object',
+        required: ['exerciseId', 'score', 'completed'],
+        properties: {
+          exerciseId: { type: 'number' },
+          score: { type: 'number', minimum: 0, maximum: 100 },
+          completed: { type: 'boolean' },
+          timeSpent: { type: 'number' },
+          answers: {},
+        },
+      },
+    },
+  }, async (request: AuthenticatedRequest, reply: FastifyReply) => {
+    try {
+      const attemptData = attemptSchema.parse(request.body);
+
+      // Verify exercise exists
+      const exercise = await cp2025Service.getExerciseById(attemptData.exerciseId);
+      if (!exercise) {
+        return reply.status(404).send({
+          success: false,
+          error: {
+            message: 'Exercise not found',
+            statusCode: 404,
+          },
+        });
+      }
+
+      // Record the attempt
+      const success = await recommendationService.recordExerciseAttempt({
+        studentId: request.user.id,
+        exerciseId: attemptData.exerciseId,
+        score: attemptData.score,
+        completed: attemptData.completed,
+        timeSpent: attemptData.timeSpent,
+      });
+
+      if (!success) {
+        return reply.status(500).send({
+          success: false,
+          error: {
+            message: 'Failed to record attempt',
+            statusCode: 500,
+          },
+        });
+      }
+
+      return reply.send({
+        success: true,
+        data: {
+          message: 'Attempt recorded successfully',
+          score: attemptData.score,
+          completed: attemptData.completed,
+        },
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return reply.status(400).send({
+          success: false,
+          error: {
+            message: 'Invalid attempt data',
+            details: error.errors,
+            statusCode: 400,
+          },
+        });
+      }
+
+      fastify.log.error('Submit attempt error:', error);
+      return reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to submit attempt',
+          statusCode: 500,
+        },
+      });
+    }
+  });
+
+  // Get user progress
+  fastify.get('/students/:studentId/progress', {
+    preHandler: [fastify.authenticate],
+    schema: {
+      params: {
+        type: 'object',
+        required: ['studentId'],
+        properties: {
+          studentId: { type: 'number' },
+        },
+      },
+    },
+  }, async (request: AuthenticatedRequest<{ Params: { studentId: number } }>, reply: FastifyReply) => {
+    try {
+      const studentId = Number(request.params.studentId);
+      
+      // Check if user can access this student's data
+      if (request.user.id !== studentId) {
+        return reply.status(403).send({
+          success: false,
+          error: {
+            message: 'Access denied',
+            statusCode: 403,
+          },
+        });
+      }
+
+      const progress = await analyticsService.getStudentProgress(studentId);
+
+      return reply.send({
+        success: true,
+        data: { progress },
+      });
+    } catch (error) {
+      fastify.log.error('Get progress error:', error);
+      return reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to fetch progress',
+          statusCode: 500,
+        },
+      });
+    }
+  });
+
+  // Get exercise statistics
+  fastify.get('/exercises/statistics', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const stats = await cp2025Service.getExerciseStatistics();
+
+      return reply.send({
+        success: true,
+        data: { statistics: stats },
+      });
+    } catch (error) {
+      fastify.log.error('Get exercise statistics error:', error);
+      return reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to fetch statistics',
+          statusCode: 500,
+        },
+      });
+    }
+  });
+
+  // Get all modules
+  fastify.get('/modules', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const modules = await cp2025Service.getAllModules();
+
+      return reply.send({
+        success: true,
+        data: {
+          modules,
+          total: modules.length,
+        },
+      });
+    } catch (error) {
+      fastify.log.error('Get modules error:', error);
+      return reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to fetch modules',
+          statusCode: 500,
+        },
+      });
+    }
+  });
+
+  // Get module by ID
+  fastify.get('/modules/:id', {
     schema: {
       params: {
         type: 'object',
         required: ['id'],
         properties: {
-          id: { type: 'number' }
-        }
+          id: { type: 'number' },
+        },
       },
-      body: {
-        type: 'object',
-        required: ['answer'],
-        properties: {
-          answer: { type: 'string' },
-          timeSpent: { type: 'number' },
-          attempts: { type: 'number', default: 1 }
-        }
-      }
-    }
-  }, async (request, reply) => {
+    },
+  }, async (request: FastifyRequest<{ Params: { id: number } }>, reply: FastifyReply) => {
     try {
-      const studentId = (request.user as any).studentId;
-      const { id } = request.params as { id: number };
-      const { answer, timeSpent, attempts } = request.body as any;
-      
-      // Get exercise
-      const exercise = await databaseService.getExerciseById(id);
-      if (!exercise) {
+      const moduleId = Number(request.params.id);
+      const module = await cp2025Service.getModuleById(moduleId);
+
+      if (!module) {
         return reply.status(404).send({
           success: false,
           error: {
-            code: 'EXERCISE_NOT_FOUND',
-            message: 'Exercise not found'
-          }
+            message: 'Module not found',
+            statusCode: 404,
+          },
         });
       }
 
-      // Check answer (simplified - you can enhance this)
-      const isCorrect = checkAnswer(exercise, answer);
-      const points = isCorrect ? exercise.pointsMax : 0;
-
-      // Record progress
-      const progress = await databaseService.recordProgress({
-        studentId,
-        exerciseId: id,
-        statut: isCorrect ? 'TERMINE' : 'ECHEC',
-        nombreTentatives: attempts,
-        nombreReussites: isCorrect ? 1 : 0,
-        tauxReussite: isCorrect ? 100 : 0,
-        pointsGagnes: points,
-        derniereTentative: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-
-      return {
+      return reply.send({
         success: true,
-        data: {
-          correct: isCorrect,
-          points,
-          progress,
-          feedback: isCorrect ? exercise.contenu?.feedback_succes : exercise.contenu?.feedback_echec
-        }
-      };
+        data: { module },
+      });
     } catch (error) {
-      fastify.log.error('Submit exercise error:', error);
+      fastify.log.error('Get module error:', error);
       return reply.status(500).send({
         success: false,
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'Failed to submit exercise'
-        }
+          message: 'Failed to fetch module',
+          statusCode: 500,
+        },
       });
     }
   });
 
-  // Get available exercise templates
-  fastify.get('/templates', {
+  // Get exercises by module
+  fastify.get('/modules/:id/exercises', {
     schema: {
-      querystring: {
+      params: {
         type: 'object',
+        required: ['id'],
         properties: {
-          niveau: { type: 'string' },
-          matiere: { type: 'string' }
-        }
-      }
-    }
-  }, async (request, reply) => {
+          id: { type: 'number' },
+        },
+      },
+    },
+  }, async (request: FastifyRequest<{ Params: { id: number } }>, reply: FastifyReply) => {
     try {
-      const { niveau, matiere } = request.query as { niveau?: string; matiere?: string };
-      
-      const templates = exerciseGeneratorService.getAvailableTemplates(
-        niveau as any,
-        matiere as any
-      );
+      const moduleId = Number(request.params.id);
+      const exercises = await cp2025Service.getExercisesByModule(moduleId);
 
-      return {
+      return reply.send({
         success: true,
         data: {
-          templates: templates.map(t => ({
-            type: t.type,
-            niveau: t.niveau,
-            matiere: t.matiere,
-            difficulte: t.difficulte,
-            concepts: t.concepts
-          })),
-          count: templates.length
-        }
-      };
+          exercises,
+          total: exercises.length,
+        },
+      });
     } catch (error) {
-      fastify.log.error('Get templates error:', error);
+      fastify.log.error('Get module exercises error:', error);
       return reply.status(500).send({
         success: false,
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'Failed to get templates'
-        }
+          message: 'Failed to fetch module exercises',
+          statusCode: 500,
+        },
       });
     }
   });
-
-  // Health check for exercise service
-  fastify.get('/health', async (request, reply) => {
-    try {
-      const dbHealth = await databaseService.healthCheck();
-      
-      return {
-        success: true,
-        data: {
-          service: 'exercises',
-          status: 'healthy',
-          timestamp: new Date(),
-          database: dbHealth.status,
-          templates: exerciseGeneratorService.getAvailableTemplates().length,
-          details: {
-            uptime: process.uptime(),
-            memory: process.memoryUsage(),
-            database: dbHealth.details
-          }
-        }
-      };
-    } catch (error) {
-      fastify.log.error('Exercise health check error:', error);
-      return reply.status(503).send({
-        success: false,
-        error: {
-          code: 'SERVICE_UNHEALTHY',
-          message: 'Exercise service is unhealthy'
-        }
-      });
-    }
-  });
-}
-
-// Helper function to check answers
-function checkAnswer(exercise: any, answer: string): boolean {
-  if (!exercise.contenu) return false;
-  
-  const expected = exercise.contenu.reponse_attendue;
-  if (Array.isArray(expected)) {
-    return expected.includes(answer);
-  }
-  
-  return answer.toLowerCase().trim() === expected.toLowerCase().trim();
 } 

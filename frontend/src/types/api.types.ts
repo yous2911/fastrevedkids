@@ -16,7 +16,7 @@ export interface PaginatedResponse<T = any> extends ApiResponse<{
   pagination: {
     total: number;
     page: number;
-    limite: number;
+    limit: number;
     totalPages: number;
     hasMore: boolean;
   };

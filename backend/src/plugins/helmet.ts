@@ -1,7 +1,8 @@
+import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import helmet from '@fastify/helmet';
 
-const helmetPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+async function helmetPlugin(fastify: FastifyInstance): Promise<void> {
   await fastify.register(helmet, {
     contentSecurityPolicy: {
       directives: {
@@ -11,13 +12,10 @@ const helmetPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
         imgSrc: ["'self'", 'data:', 'https:'],
       },
     },
-    hsts: {
-      maxAge: 31536000,
-      includeSubDomains: true,
-      preload: true,
-    },
+    crossOriginEmbedderPolicy: false,
   });
-  fastify.log.info('✅ Helmet security plugin registered successfully');
-};
+}
 
-export default fp(helmetPlugin, { name: 'helmet' });
+export default fp(helmetPlugin, {
+  name: 'helmet',
+});

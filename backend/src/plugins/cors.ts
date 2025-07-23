@@ -1,22 +1,16 @@
+import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import cors from '@fastify/cors';
+import { corsConfig } from '../config/config';
 
-import { validateEnvironment } from '../config/environment.js';
-
-const corsPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-  const config = validateEnvironment();
-
+async function corsPlugin(fastify: FastifyInstance): Promise<void> {
   await fastify.register(cors, {
-    origin: config.CORS_ORIGIN,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
-    maxAge: 86400, // 24 hours
+    origin: corsConfig.origin,
+    credentials: corsConfig.credentials,
+    methods: corsConfig.methods,
+    allowedHeaders: corsConfig.allowedHeaders,
   });
-
-  fastify.log.info('✅ CORS plugin registered successfully');
-};
+}
 
 export default fp(corsPlugin, {
   name: 'cors',

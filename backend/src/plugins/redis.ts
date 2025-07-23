@@ -1,30 +1,33 @@
+import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
-import { FastifyPluginAsync } from 'fastify';
-import { RedisConfig } from '../types';
+import redis from '@fastify/redis';
+import { config } from '../config/config';
 
-const redisPlugin: FastifyPluginAsync = async (fastify) => {
-  if (fastify.config.REDIS_ENABLED && fastify.config.REDIS_HOST) {
-    // FIXED: Line 5:37 - Replace any with RedisConfig
-    const options: RedisConfig = {
-      host: fastify.config.REDIS_HOST,
-      port: fastify.config.REDIS_PORT || 6379,
-      password: fastify.config.REDIS_PASSWORD,
-      db: fastify.config.REDIS_DB || 0,
-      retryDelayOnFailover: 100,
-      lazyConnect: true,
-      maxRetriesPerRequest: 3,
-      connectTimeout: 10000,
-      commandTimeout: 5000,
-    };
+async function redisPlugin(fastify: FastifyInstance): Promise<void> {
+  if (config.REDIS_HOST) {
+    try {
+      const redisOptions: any = {
+        host: config.REDIS_HOST,
+      };
+      
+      // Only add defined properties
+      if (config.REDIS_PORT) redisOptions.port = config.REDIS_PORT;
+      if (config.REDIS_PASSWORD) redisOptions.password = config.REDIS_PASSWORD;
+      redisOptions.db = 0;
+      redisOptions.maxRetriesPerRequest = 3;
+      redisOptions.retryDelayOnFailover = 100;
 
-    await fastify.register(import('@fastify/redis'), options);
-    fastify.log.info('Redis plugin registered');
+      await fastify.register(redis, redisOptions);
+      
+      fastify.log.info('Redis connected successfully');
+    } catch (error) {
+      fastify.log.warn('Redis connection failed, falling back to memory cache:', error);
+    }
   } else {
-    fastify.log.info('Redis disabled, skipping Redis plugin');
+    fastify.log.info('Redis not configured, using memory-only caching');
   }
-};
+}
 
 export default fp(redisPlugin, {
   name: 'redis',
-  dependencies: ['config'],
 });

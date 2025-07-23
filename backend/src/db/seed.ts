@@ -1,221 +1,132 @@
-import { getDatabase, connectDatabase, disconnectDatabase } from './connection';
-import { students, modules, exercises } from './schema';
-import bcrypt from 'bcrypt';
+import { db } from './connection';
+import * as schema from './schema';
+import type { NewExercise } from './schema';
 
-async function seedDatabase() {
+export async function seed() {
   try {
-    // console.log removed for production
+    console.log('🌱 Starting database seeding...');
 
-    await connectDatabase();
-    const db = getDatabase();
-
-    // Create sample students
-    // console.log removed for production
-    const hashedPassword = await bcrypt.hash('password123', 10);
-
-    await db.insert(students).values([
+    // Seed students
+    console.log('📚 Seeding students...');
+    const students = await db.insert(schema.students).values([
       {
         prenom: 'Alice',
         nom: 'Dupont',
-        dateNaissance: new Date('2015-03-15'),
-        age: 9,
-        niveauActuel: 'CE2',
-        emailParent: 'parent1@example.com',
-        motDePasseHash: hashedPassword,
-        totalPoints: 250,
-        serieJours: 5,
-        preferences: { theme: 'colorful', sound: true },
-        adaptations: { fontSize: 'large' },
-      },
-      {
-        prenom: 'Thomas',
-        nom: 'Martin',
-        dateNaissance: new Date('2014-09-22'),
-        age: 10,
-        niveauActuel: 'CM1',
-        emailParent: 'parent2@example.com',
-        motDePasseHash: hashedPassword,
-        totalPoints: 180,
-        serieJours: 3,
-        preferences: { theme: 'space', sound: false },
-        adaptations: {},
-      },
-      {
-        prenom: 'Emma',
-        nom: 'Bernard',
-        dateNaissance: new Date('2016-01-10'),
         age: 8,
+        niveauActuel: 'CP',
+        totalPoints: 0,
+        serieJours: 0,
+        preferences: {},
+        metadata: {},
+        estConnecte: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        prenom: 'Bob',
+        nom: 'Martin',
+        age: 9,
         niveauActuel: 'CE1',
-        emailParent: 'parent3@example.com',
-        motDePasseHash: hashedPassword,
-        totalPoints: 95,
-        serieJours: 1,
-        preferences: { theme: 'nature', sound: true },
-        adaptations: { difficulty: 'easy' },
+        totalPoints: 0,
+        serieJours: 0,
+        preferences: {},
+        metadata: {},
+        estConnecte: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     ]);
 
-    // Create sample modules
-    // console.log removed for production
-    await db.insert(modules).values([
+    // Seed modules
+    console.log('📖 Seeding modules...');
+    const modules = await db.insert(schema.modules).values([
       {
-        titre: 'Addition et Soustraction',
-        description: 'Apprentissage des opérations de base',
-        niveau: 'CE2',
+        nom: 'Mathématiques CP',
+        description: 'Module de mathématiques pour le CP',
+        niveau: 'CP',
         matiere: 'MATHEMATIQUES',
-        periode: 'P1',
         ordre: 1,
-        actif: true,
-        metadata: { difficulty: 'beginner', estimatedDuration: 120 },
+        estActif: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
-        titre: 'Tables de Multiplication',
-        description: 'Mémorisation des tables de multiplication',
-        niveau: 'CE2',
-        matiere: 'MATHEMATIQUES',
-        periode: 'P2',
-        ordre: 2,
-        actif: true,
-        metadata: { difficulty: 'intermediate', estimatedDuration: 180 },
-      },
-      {
-        titre: 'Lecture et Compréhension',
-        description: 'Améliorer la lecture et la compréhension de texte',
-        niveau: 'CE2',
+        nom: 'Français CP',
+        description: 'Module de français pour le CP',
+        niveau: 'CP',
         matiere: 'FRANCAIS',
-        periode: 'P1',
-        ordre: 1,
-        actif: true,
-        metadata: { difficulty: 'beginner', estimatedDuration: 150 },
-      },
-      {
-        titre: 'Grammaire de Base',
-        description: 'Les règles fondamentales de grammaire',
-        niveau: 'CE2',
-        matiere: 'FRANCAIS',
-        periode: 'P2',
         ordre: 2,
-        actif: true,
-        metadata: { difficulty: 'intermediate', estimatedDuration: 200 },
+        estActif: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     ]);
 
-    // Create sample exercises
-    // console.log removed for production
-    await db.insert(exercises).values([
-      {
-        titre: 'Addition simple 1-10',
-        consigne: 'Calculez les additions suivantes',
-        type: 'CALCUL',
-        difficulte: 'decouverte',
-        pointsReussite: 10,
-        dureeEstimee: 5,
-        ordre: 1,
-        moduleId: 1, // Addition et Soustraction
-        configuration: {
-          questions: [
-            { question: '3 + 4 = ?', answer: 7 },
-            { question: '5 + 2 = ?', answer: 7 },
-            { question: '1 + 9 = ?', answer: 10 },
-          ],
-        },
-        actif: true,
-        metadata: { tags: ['addition', 'basic'] },
+    // Seed exercises
+    console.log('🎯 Seeding exercises...');
+    const exercise1: NewExercise = {
+      moduleId: 1,
+      titre: 'Addition simple',
+      contenu: {
+        question: 'Combien font 2 + 3 ?',
+        options: ['4', '5', '6', '7'],
+        correctAnswer: '5',
+        type: 'multiple-choice',
+        explanation: '2 + 3 = 5',
       },
-      {
-        titre: 'Soustraction simple 1-10',
-        consigne: 'Calculez les soustractions suivantes',
-        type: 'CALCUL',
-        difficulte: 'decouverte',
-        pointsReussite: 10,
-        dureeEstimee: 5,
-        ordre: 2,
-        moduleId: 1,
-        configuration: {
-          questions: [
-            { question: '10 - 3 = ?', answer: 7 },
-            { question: '8 - 5 = ?', answer: 3 },
-            { question: '9 - 4 = ?', answer: 5 },
-          ],
-        },
-        actif: true,
-        metadata: { tags: ['soustraction', 'basic'] },
-      },
-      {
-        titre: 'Table de 2',
-        consigne: 'Récitez et calculez la table de multiplication de 2',
-        type: 'QCM',
-        difficulte: 'consolidation',
-        pointsReussite: 15,
-        dureeEstimee: 8,
-        ordre: 1,
-        moduleId: 2, // Tables de Multiplication
-        configuration: {
-          questions: [
-            {
-              question: '2 × 3 = ?',
-              options: ['4', '6', '8', '10'],
-              correctAnswer: 1,
-            },
-            {
-              question: '2 × 7 = ?',
-              options: ['12', '14', '16', '18'],
-              correctAnswer: 1,
-            },
-          ],
-        },
-        actif: true,
-        metadata: { tags: ['multiplication', 'table2'] },
-      },
-      {
-        titre: 'Lecture de phrase simple',
-        consigne: 'Lisez la phrase et répondez aux questions',
-        type: 'LECTURE',
-        difficulte: 'decouverte',
-        pointsReussite: 12,
-        dureeEstimee: 10,
-        ordre: 1,
-        moduleId: 3, // Lecture et Compréhension
-        configuration: {
-          text: 'Le chat mange sa nourriture dans la cuisine.',
-          questions: [
-            {
-              question: 'Où le chat mange-t-il ?',
-              options: ['Dans le salon', 'Dans la cuisine', 'Dans la chambre'],
-              correctAnswer: 1,
-            },
-          ],
-        },
-        actif: true,
-        metadata: { tags: ['lecture', 'comprehension'] },
-      },
-      {
-        titre: 'Reconnaître le nom',
-        consigne: 'Identifiez les noms dans les phrases suivantes',
-        type: 'DRAG_DROP',
-        difficulte: 'consolidation',
-        pointsReussite: 15,
-        dureeEstimee: 12,
-        ordre: 1,
-        moduleId: 4, // Grammaire de Base
-        configuration: {
-          sentence: 'Le chien court dans le jardin.',
-          words: ['Le', 'chien', 'court', 'dans', 'le', 'jardin'],
-          correctNouns: ['chien', 'jardin'],
-        },
-        actif: true,
-        metadata: { tags: ['grammaire', 'nom'] },
-      },
-    ]);
+      difficulte: 'FACILE',
+      matiere: 'MATHEMATIQUES',
+      niveau: 'CP',
+      ordre: 1,
+      tempsEstime: 60,
+      pointsMax: 10,
+      estActif: true,
+      metadata: {},
+      donneesSupplementaires: {},
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-    // console.log removed for production
+    const exercise2: NewExercise = {
+      moduleId: 2,
+      titre: 'Lecture de syllabes',
+      contenu: {
+        question: 'Lis cette syllabe: MA',
+        correctAnswer: 'MA',
+        type: 'fill-in-blank',
+        explanation: 'La syllabe MA se prononce "ma"',
+      },
+      difficulte: 'FACILE',
+      matiere: 'FRANCAIS',
+      niveau: 'CP',
+      ordre: 1,
+      tempsEstime: 45,
+      pointsMax: 10,
+      estActif: true,
+      metadata: {},
+      donneesSupplementaires: {},
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-    await disconnectDatabase();
-    process.exit(0);
-  } catch {
-    // console.error removed for production
-    process.exit(1);
+    await db.insert(schema.exercises).values([exercise1, exercise2]);
+
+    console.log('✅ Database seeding completed successfully!');
+  } catch (error) {
+    console.error('❌ Database seeding failed:', error);
+    throw error;
   }
 }
 
-seedDatabase();
+// Run seeding if called directly
+if (require.main === module) {
+  seed()
+    .then(() => {
+      console.log('🎉 Seeding finished');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('💥 Seeding failed:', error);
+      process.exit(1);
+    });
+}

@@ -244,7 +244,6 @@ const cachePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
         db: fastify.config.REDIS_DB || 0,
         maxRetriesPerRequest: 3,
         lazyConnect: true,
-        keepAlive: 30000,
         connectTimeout: 10000,
         commandTimeout: 5000,
         retryDelayOnFailover: 100,

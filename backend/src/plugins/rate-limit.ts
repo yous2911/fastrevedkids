@@ -1,32 +1,32 @@
+import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import rateLimit from '@fastify/rate-limit';
+import { rateLimitConfig } from '../config/config';
 
-import { validateEnvironment } from '../config/environment.js';
-
-const rateLimitPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-  const config = validateEnvironment();
-
+async function rateLimitPlugin(fastify: FastifyInstance): Promise<void> {
   await fastify.register(rateLimit, {
-    max: config.RATE_LIMIT_MAX,
-    timeWindow: config.RATE_LIMIT_TIME_WINDOW,
-    allowList: ['127.0.0.1', '::1'],
-    keyGenerator: request => {
+    max: rateLimitConfig.max,
+    timeWindow: rateLimitConfig.timeWindow,
+    cache: rateLimitConfig.cache,
+    allowList: rateLimitConfig.allowList,
+    continueExceeding: rateLimitConfig.continueExceeding,
+    skipOnError: rateLimitConfig.skipOnError,
+    keyGenerator: (request: any) => {
       return request.ip;
     },
-    errorResponseBuilder: (request, context) => {
+    errorResponseBuilder: (request: any, context: any) => {
       return {
         success: false,
         error: {
-          code: 'RATE_LIMIT_EXCEEDED',
-          message: `Rate limit exceeded, retry in ${Math.ceil(context.ttl / 1000)} seconds`,
-          retryAfter: Math.ceil(context.ttl / 1000),
+          message: 'Rate limit exceeded',
+          statusCode: 429,
+          limit: context.max,
+          resetTime: new Date(Date.now() + context.ttl),
         },
       };
     },
   });
-
-  fastify.log.info('✅ Rate limiting plugin registered successfully');
-};
+}
 
 export default fp(rateLimitPlugin, {
   name: 'rate-limit',

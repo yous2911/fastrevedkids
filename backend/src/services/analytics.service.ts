@@ -1,139 +1,161 @@
-import { eq, and } from 'drizzle-orm';
-import { students, progress, exercises, sessions } from '../db/schema.js';
-import { AnalyticsData, ProgressMetrics } from '../types/index.js';
+import { db } from '../db/connection';
+import * as schema from '../db/schema';
+import { eq, and, sql, gte, lte, desc, count } from 'drizzle-orm';
 
 export class AnalyticsService {
-  private data: AnalyticsData[] = [];
-  private cache: Map<string, ProgressMetrics> = new Map();
-
-  async recordAction(studentId: number, action: string, metadata: Record<string, unknown> = {}): Promise<void> {
-    const analyticsData: AnalyticsData = {
-      studentId,
-      action,
-      metadata,
-      timestamp: new Date(),
-    };
-
-    this.data.push(analyticsData);
-  }
-
-  async getStudentMetrics(studentId: number): Promise<ProgressMetrics> {
-    const cacheKey = `metrics_${studentId}`;
-    const cached = this.cache.get(cacheKey);
-    
-    if (cached) {
-      return cached;
-    }
-
-    const totalExercisesResult = await exercises.findMany();
-
-    const completedExercisesResult = await progress.findMany({
-      where: and(
-        eq(progress.studentId, studentId),
-        eq(progress.statut, 'TERMINE')
-      )
-    });
-
-    const averageScoreResult = await progress.findMany({
-      where: eq(progress.studentId, studentId)
-    });
-
-    const totalExercises: number = totalExercisesResult.length;
-    const completedExercises: number = completedExercisesResult.length;
-
-    const totalScore = averageScoreResult.reduce((sum, p) => sum + parseFloat(p.tauxReussite), 0);
-    const averageScore = averageScoreResult.length > 0 ? totalScore / averageScoreResult.length : 0;
-
-    const metrics: ProgressMetrics = {
-      totalExercises,
-      completedExercises,
-      averageScore,
-      timeSpent: 0, // Calculate from sessions
-      successRate: completedExercises / totalExercises * 100,
-      streakDays: 0, // Calculate streak
-      totalPoints: 0, // Calculate from progress
-      level: 'Débutant', // Determine level based on progress
-    };
-
-    this.cache.set(cacheKey, metrics);
-    return metrics;
-  }
-
-  async getPerformanceTrends(studentId: number, days: number = 30): Promise<Array<{
-    date: string;
-    exercises: number;
-    score: number;
-    timeSpent: number;
-  }>> {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-
-    const sessionsData = await sessions.findMany({
-      where: and(
-        eq(sessions.studentId, studentId),
-        // Add date filter here
-      )
-    });
-
-    return sessionsData.map(session => ({
-      date: session.dateDebut.toISOString().split('T')[0],
-      exercises: session.exercicesCompletes,
-      score: 0, // Calculate based on progress
-      timeSpent: session.dureeSecondes,
-    }));
-  }
-
-  async generateReport(_studentId: number, _days: number): Promise<{
-    summary: ProgressMetrics;
-    trends: Array<{ date: string; exercises: number; score: number; timeSpent: number }>;
-    recommendations: string[];
-  }> {
-    return {
-      summary: await this.getStudentMetrics(_studentId),
-      trends: await this.getPerformanceTrends(_studentId, _days),
-      recommendations: [
-        'Continuer à pratiquer régulièrement',
-        'Se concentrer sur les sujets difficiles',
-        'Réviser les exercices échoués',
-      ],
-    };
-  }
-
-  async getSubjectPerformance(studentId: number): Promise<Record<string, {
-    total: number;
-    completed: number;
+  async getStudentProgress(studentId: number): Promise<{
+    totalExercises: number;
+    completedExercises: number;
     averageScore: number;
-  }>> {
-    const progressData = await progress.findMany({
-      select: {
-        exerciseId: progress.exerciseId,
-        statut: progress.statut,
-        tauxReussite: progress.tauxReussite,
-      },
-      where: eq(progress.studentId, studentId),
-      include: {
-        exercise: true
-      }
-    });
+    progressByModule: Array<{
+      moduleId: number;
+      moduleName: string;
+      completed: number;
+      total: number;
+      averageScore: number;
+    }>;
+  }> {
+    try {
+      // Get total exercises completed by student
+      const progressData = await db
+        .select({
+          exerciseId: schema.progress.exerciseId,
+          score: schema.progress.pointsGagnes,
+          completed: schema.progress.statut,
+        })
+        .from(schema.progress)
+        .where(eq(schema.progress.studentId, studentId));
 
-    const subjectStats: Record<string, { total: number; completed: number; averageScore: number }> = {};
+      const completedExercises = progressData.filter(p => p.completed === 'TERMINE');
+      const totalExercises = progressData.length;
+      const averageScore = completedExercises.length > 0 
+        ? completedExercises.reduce((sum, p) => sum + (p.score || 0), 0) / completedExercises.length 
+        : 0;
 
-    // Process results to calculate subject performance
-    progressData.forEach(item => {
-      // Implementation details...
-    });
+      // Get progress by module
+      const progressByModule = await db
+        .select({
+          moduleId: schema.exercises.moduleId,
+          moduleName: schema.modules.nom,
+          completed: count(schema.progress.id),
+          total: count(schema.exercises.id),
+        })
+        .from(schema.progress)
+        .innerJoin(schema.exercises, eq(schema.progress.exerciseId, schema.exercises.id))
+        .innerJoin(schema.modules, eq(schema.exercises.moduleId, schema.modules.id))
+        .where(and(
+          eq(schema.progress.studentId, studentId),
+          eq(schema.progress.statut, 'TERMINE')
+        ))
+        .groupBy(schema.exercises.moduleId, schema.modules.nom);
 
-    return subjectStats;
+      return {
+        totalExercises,
+        completedExercises: completedExercises.length,
+        averageScore,
+        progressByModule: progressByModule.map(p => ({
+          moduleId: p.moduleId,
+          moduleName: p.moduleName,
+          completed: Number(p.completed),
+          total: Number(p.total),
+          averageScore: 0, // Would need additional query to calculate
+        })),
+      };
+    } catch (error) {
+      console.error('Error getting student progress:', error);
+      return {
+        totalExercises: 0,
+        completedExercises: 0,
+        averageScore: 0,
+        progressByModule: [],
+      };
+    }
   }
 
-  async clearCache(): Promise<void> {
-    this.cache.clear();
+  async getStudentSessionStats(studentId: number, days: number = 30): Promise<{
+    totalSessions: number;
+    averageSessionDuration: number;
+    totalPoints: number;
+    exercisesCompleted: number;
+  }> {
+    try {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const sessions = await db
+        .select({
+          dureeSecondes: schema.sessions.dureeSecondes,
+          pointsGagnes: schema.sessions.pointsGagnes,
+          exercicesCompletes: schema.sessions.exercicesCompletes,
+        })
+        .from(schema.sessions)
+        .where(and(
+          eq(schema.sessions.studentId, studentId),
+          gte(schema.sessions.dateDebut, startDate)
+        ));
+
+      const totalSessions = sessions.length;
+      const averageSessionDuration = totalSessions > 0 
+        ? sessions.reduce((sum, s) => sum + s.dureeSecondes, 0) / totalSessions 
+        : 0;
+      const totalPoints = sessions.reduce((sum, s) => sum + s.pointsGagnes, 0);
+      const exercisesCompleted = sessions.reduce((sum, s) => sum + s.exercicesCompletes, 0);
+
+      return {
+        totalSessions,
+        averageSessionDuration,
+        totalPoints,
+        exercisesCompleted,
+      };
+    } catch (error) {
+      console.error('Error getting student session stats:', error);
+      return {
+        totalSessions: 0,
+        averageSessionDuration: 0,
+        totalPoints: 0,
+        exercisesCompleted: 0,
+      };
+    }
   }
 
-  async getCacheStats(): Promise<{ size: number; keys: string[] }> {
-    return {
-      size: this.cache.size,
-      keys: Array.from(this.cache.keys()),
-    };
+  async getExerciseCompletionRate(exerciseId: number): Promise<{
+    totalAttempts: number;
+    successfulAttempts: number;
+    completionRate: number;
+    averageScore: number;
+  }> {
+    try {
+      const progress = await db
+        .select({
+          statut: schema.progress.statut,
+          pointsGagnes: schema.progress.pointsGagnes,
+        })
+        .from(schema.progress)
+        .where(eq(schema.progress.exerciseId, exerciseId));
+
+      const totalAttempts = progress.length;
+      const successfulAttempts = progress.filter(p => p.statut === 'TERMINE').length;
+      const completionRate = totalAttempts > 0 ? (successfulAttempts / totalAttempts) * 100 : 0;
+      const averageScore = successfulAttempts > 0 
+        ? progress
+            .filter(p => p.statut === 'TERMINE')
+            .reduce((sum, p) => sum + (p.pointsGagnes || 0), 0) / successfulAttempts 
+        : 0;
+
+      return {
+        totalAttempts,
+        successfulAttempts,
+        completionRate,
+        averageScore,
+      };
+    } catch (error) {
+      console.error('Error getting exercise completion rate:', error);
+      return {
+        totalAttempts: 0,
+        successfulAttempts: 0,
+        completionRate: 0,
+        averageScore: 0,
+      };
+    }
   }
 }
