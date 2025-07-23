@@ -1,4 +1,4 @@
-import { ChoiceOption } from './exercise.types';
+import { ChoiceOption, DragItem, DropZone } from './exercise.types';
 
 // Fix ApiResponse structure to match backend
 export interface ApiResponse<T = any> {
@@ -54,19 +54,6 @@ export interface ExerciseDragDropProps {
   disabled: boolean;
   currentAnswer: any;
   showValidation: boolean;
-}
-
-export interface DragItem {
-  id: string;
-  content: string;
-  category?: string;
-}
-
-export interface DropZone {
-  id: string;
-  label: string;
-  accepts?: string[];
-  currentItem?: DragItem | null;
 }
 
 // Core entities matching backend models
