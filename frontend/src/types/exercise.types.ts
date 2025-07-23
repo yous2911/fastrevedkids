@@ -1,7 +1,9 @@
-// Create unified exercise types to resolve conflicts
+// frontend/src/types/exercise.types.ts
+// Unified exercise types to resolve all conflicts
+
 export interface ChoiceOption {
   id: string;
-  text: string; // Changed from 'label' to 'text' to match usage
+  text: string; // Standardized to 'text' instead of 'label'
   value: string | number;
   correct?: boolean;
 }
@@ -25,4 +27,13 @@ export interface ExerciseValidationResult {
   score: number;
   feedback?: string;
   hints?: string[];
+}
+
+// Common props interface for all exercise components
+export interface BaseExerciseProps {
+  exercise: import('./api.types').ExercicePedagogique;
+  onAnswerChange: (answer: any) => void;
+  disabled: boolean;
+  currentAnswer: any;
+  showValidation: boolean;
 } 

@@ -1,5 +1,7 @@
 // ===== TYPES PARTAGÉS ENTRE FRONTEND ET BACKEND =====
 
+import { DragItem } from './exercise.types';
+
 // Types pour les créatures magiques
 export interface CreatureMagique {
   id: string;
@@ -65,13 +67,13 @@ export interface DefiPhonique {
   dropZones?: Array<{
     id: string;
     label: string;
-    accepts?: string[];
-    currentItem?: any;
+    accepts: string[];
+    currentItem: DragItem | null;
   }>;
   components?: Array<{
     id: string;
     content: string;
-    category?: string;
+    category: string;
     type: string;
   }>;
   
@@ -82,14 +84,6 @@ export interface DefiPhonique {
   period?: number;
   timeLimit?: number;
   successMessage?: string;
-}
-
-// Types pour les réponses API
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  count?: number;
 }
 
 // Types pour les statistiques
