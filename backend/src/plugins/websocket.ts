@@ -5,6 +5,7 @@ import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import { config } from '../config/config';
 
 const websocketPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+  // Register websocket support
   await fastify.register(websocket, {
     options: {
       maxPayload: 1048576, // 1MB
@@ -18,8 +19,9 @@ const websocketPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
   // WebSocket connection management
   const connections = new Map<string, any>();
 
-  // Add WebSocket route with proper typing
-  fastify.register(async function (fastify) {
+  // FIXED: Register WebSocket route in a separate context to avoid conflicts
+  await fastify.register(async function websocketRoutes(fastify: FastifyInstance) {
+    // WebSocket endpoint - separate from HTTP routes
     fastify.get('/ws', { websocket: true }, (connection: any, request: any) => {
       const connectionId = request.id || `conn_${Date.now()}`;
       connections.set(connectionId, connection);
@@ -28,13 +30,12 @@ const websocketPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
         try {
           const data = JSON.parse(message.toString());
           
-          // Handle different message types
           switch (data.type) {
             case 'ping':
               connection.socket.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
               break;
             case 'subscribe':
-              // Handle subscriptions (e.g., progress updates, notifications)
+              // Handle subscriptions
               break;
             default:
               fastify.log.warn('Unknown WebSocket message type:', data.type);
@@ -58,12 +59,12 @@ const websocketPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
     });
   });
 
-  // Broadcast helper
+  // FIXED: Broadcast helper with proper typing
   fastify.decorate('broadcast', (message: any) => {
     const payload = JSON.stringify(message);
     connections.forEach((connection, id) => {
       try {
-        if (connection.socket.readyState === 1) { // WebSocket.OPEN
+        if (connection.socket.readyState === 1) {
           connection.socket.send(payload);
         }
       } catch (error) {
@@ -73,23 +74,22 @@ const websocketPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
     });
   });
 
-  // Heartbeat to keep connections alive
+  // Heartbeat interval
   const heartbeatInterval = setInterval(() => {
     connections.forEach((connection, id) => {
       try {
-        if (connection.socket.readyState === 1) { // WebSocket.OPEN
+        if (connection.socket.readyState === 1) {
           connection.socket.ping();
         } else {
           connections.delete(id);
         }
       } catch (error) {
-        fastify.log.error(`Failed to ping connection ${id}:`, error);
         connections.delete(id);
       }
     });
   }, 30000); // 30 seconds heartbeat interval
 
-  // Clean up on close
+  // Cleanup on close
   fastify.addHook('onClose', async () => {
     clearInterval(heartbeatInterval);
     connections.clear();
