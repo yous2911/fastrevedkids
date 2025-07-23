@@ -1,12 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ExercicePedagogique } from '../../../types/api.types';
-import { Button } from '../../ui/Button';
 import { Card } from '../../ui/Card';
 
 export interface ExerciseCalculProps {
   exercise: ExercicePedagogique;
-  onAnswerChange: (answer: number) => void;
+  onAnswerChange: (answer: any) => void;
   disabled: boolean;
   currentAnswer: any;
   showValidation: boolean;
@@ -19,117 +18,72 @@ export const ExerciseCalcul: React.FC<ExerciseCalculProps> = ({
   currentAnswer,
   showValidation
 }) => {
+  const { question, operation, resultat, donnees } = exercise.configuration;
   const [inputValue, setInputValue] = useState<string>(currentAnswer?.toString() || '');
-  const { operation, question } = exercise.configuration;
 
-  const handleInputChange = useCallback((value: string) => {
-    // Only allow numbers and basic math characters
-    const cleanValue = value.replace(/[^0-9\-+.,]/g, '');
-    setInputValue(cleanValue);
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
     
-    const numericValue = parseFloat(cleanValue.replace(',', '.'));
-    if (!isNaN(numericValue)) {
-      onAnswerChange(numericValue);
-    }
+    // Convert to number if it's a valid number, otherwise keep as string
+    const numValue = parseFloat(value);
+    onAnswerChange(isNaN(numValue) ? value : numValue);
   }, [onAnswerChange]);
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !disabled) {
-      e.preventDefault();
-      // Trigger validation if auto-submit is enabled
-    }
-  }, [disabled]);
-
-  // Number pad for younger students
-  const handleNumberClick = useCallback((num: string) => {
-    if (disabled) return;
-    
-    if (num === 'C') {
-      setInputValue('');
-      onAnswerChange(0);
-    } else if (num === '⌫') {
-      const newValue = inputValue.slice(0, -1);
-      setInputValue(newValue);
-      const numericValue = parseFloat(newValue.replace(',', '.'));
-      onAnswerChange(isNaN(numericValue) ? 0 : numericValue);
-    } else {
-      const newValue = inputValue + num;
-      handleInputChange(newValue);
-    }
-  }, [disabled, inputValue, handleInputChange, onAnswerChange]);
-
-  const getValidationColor = () => {
+  const getValidationStyle = () => {
     if (!showValidation) return '';
-    const isCorrect = Number(currentAnswer) === Number(exercise.configuration.resultat);
-    return isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50';
+    
+    const userAnswer = parseFloat(currentAnswer?.toString() || '');
+    const correctAnswer = resultat || donnees?.resultat;
+    
+    if (!isNaN(userAnswer) && userAnswer === correctAnswer) {
+      return 'border-green-500 bg-green-50';
+    } else {
+      return 'border-red-500 bg-red-50';
+    }
   };
-
-  const numberPadButtons = [
-    ['7', '8', '9'],
-    ['4', '5', '6'],
-    ['1', '2', '3'],
-    ['C', '0', '⌫']
-  ];
 
   return (
     <div className="space-y-6">
       {/* Question */}
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          {question || 'Résous cette opération'}
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 leading-relaxed">
+          {question}
         </h2>
-        
         {operation && (
-          <div className="text-4xl font-mono font-bold text-blue-600 mb-6">
-            {operation} = ?
+          <div className="text-3xl font-mono bg-blue-50 p-4 rounded-lg inline-block">
+            {operation}
           </div>
         )}
       </div>
 
       {/* Answer Input */}
       <div className="max-w-md mx-auto">
-        <div className="relative">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative"
+        >
           <input
-            type="text"
+            type="number"
             value={inputValue}
-            onChange={(e) => handleInputChange(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onChange={handleInputChange}
             disabled={disabled}
-            placeholder="Ta réponse..."
+            placeholder="Tape ta réponse ici..."
             className={`
-              w-full text-center text-3xl font-bold py-4 px-6 rounded-xl
-              border-2 transition-all duration-200 focus:outline-none
-              disabled:bg-gray-100 disabled:cursor-not-allowed
-              ${getValidationColor() || 'border-gray-300 focus:border-blue-500'}
+              w-full text-center text-2xl font-bold p-4 rounded-xl border-2 
+              transition-all duration-200 disabled:cursor-not-allowed
+              ${getValidationStyle()}
+              ${!showValidation ? 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200' : ''}
             `}
           />
           
           {showValidation && (
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-2xl">
-              {Number(currentAnswer) === Number(exercise.configuration.resultat) ? '✅' : '❌'}
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-2xl">
+              {parseFloat(currentAnswer?.toString() || '') === (resultat || donnees?.resultat) ? '✅' : '❌'}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Number Pad */}
-      <div className="max-w-xs mx-auto">
-        <Card variant="outlined" padding="md">
-          <div className="grid grid-cols-3 gap-3">
-            {numberPadButtons.flat().map((btn, index) => (
-              <Button
-                key={index}
-                variant={btn === 'C' ? 'danger' : btn === '⌫' ? 'warning' : 'secondary'}
-                size="lg"
-                onClick={() => handleNumberClick(btn)}
-                disabled={disabled}
-                className="aspect-square text-xl font-bold"
-              >
-                {btn}
-              </Button>
-            ))}
-          </div>
-        </Card>
+        </motion.div>
       </div>
 
       {/* Feedback */}
@@ -137,21 +91,29 @@ export const ExerciseCalcul: React.FC<ExerciseCalculProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mt-6"
+          className="text-center mt-8"
         >
-          <Card variant="elevated" padding="md" className="max-w-md mx-auto">
-            {Number(currentAnswer) === Number(exercise.configuration.resultat) ? (
+          <Card className="max-w-md mx-auto p-6">
+            {parseFloat(currentAnswer?.toString() || '') === (resultat || donnees?.resultat) ? (
               <div className="text-green-600">
-                <span className="text-2xl">🎯</span>
-                <p className="font-medium mt-2">Parfait ! Tu as trouvé la bonne réponse !</p>
+                <div className="text-4xl mb-3">🎉</div>
+                <h3 className="font-bold text-lg mb-2">Bravo !</h3>
+                <p className="text-sm text-gray-600">
+                  Tu as trouvé la bonne réponse : {resultat || donnees?.resultat}
+                </p>
               </div>
             ) : (
               <div className="text-orange-600">
-                <span className="text-2xl">🤔</span>
-                <p className="font-medium mt-2">Pas tout à fait...</p>
-                <p className="text-sm mt-1">
-                  La bonne réponse était : <strong>{exercise.configuration.resultat}</strong>
+                <div className="text-4xl mb-3">🤔</div>
+                <h3 className="font-bold text-lg mb-2">Pas tout à fait...</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Continue tes efforts, tu vas y arriver !
                 </p>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-sm text-green-700">
+                    <strong>La bonne réponse était :</strong> {resultat || donnees?.resultat}
+                  </p>
+                </div>
               </div>
             )}
           </Card>
