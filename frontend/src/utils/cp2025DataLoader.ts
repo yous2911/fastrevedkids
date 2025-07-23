@@ -1048,7 +1048,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 9,
         "configuration": { 
           "question": "Cherche l'intrus.", 
-          "choix": ["courir", "maison", "chanter", "voir"], 
+          "choix": [
+            { "id": "courir", "text": "courir" },
+            { "id": "maison", "text": "maison" },
+            { "id": "chanter", "text": "chanter" },
+            { "id": "voir", "text": "voir" }
+          ], 
           "bonneReponse": "maison" 
         },
         "metadata": { "competenceCode": "FR.CE1.G1.1" }
@@ -1116,8 +1121,11 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 9,
         "configuration": { 
           "question": "Les élèves ___ dans la cour avec ___ ballon.", 
-          "choix": ["son / sont", "sont / son"], 
-          "bonneReponse": "sont / son", 
+          "choix": [
+            { "id": "son_sont", "text": "son / sont" },
+            { "id": "sont_son", "text": "sont / son" }
+          ], 
+          "bonneReponse": "sont_son", 
           "aide": "'sont' est le verbe être. 'son' montre que le ballon est à quelqu'un." 
         },
         "metadata": { "competenceCode": "FR.CE1.E2.3" }
@@ -1131,8 +1139,11 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "configuration": {
           "question": "Observe bien le papillon.",
           "image": { "url_placeholder": "/images/shapes/papillon_symetrique.png", "description": "Un papillon parfaitement symétrique dessiné autour d'un axe vertical." },
-          "choix": ["Oui", "Non"],
-          "bonneReponse": "Oui", 
+          "choix": [
+            { "id": "oui", "text": "Oui" },
+            { "id": "non", "text": "Non" }
+          ],
+          "bonneReponse": "oui", 
           "aide": "Si on plie l'image sur le trait, les deux moitiés se superposent parfaitement."
         },
         "metadata": { "competenceCode": "MA.CE1.G3.2" }
@@ -1186,8 +1197,11 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 9,
         "configuration": { 
           "question": "Nous (mangeons/mangez) et vous (chante/chantez).", 
-          "choix": ["mangeons / chantez", "mangez / chante"], 
-          "bonneReponse": "mangeons / chantez" 
+          "choix": [
+            { "id": "mangeons_chantez", "text": "mangeons / chantez" },
+            { "id": "mangez_chante", "text": "mangez / chante" }
+          ],
+          "bonneReponse": "mangeons_chantez"
         },
         "metadata": { "competenceCode": "FR.CE1.G2.2" }
       },
@@ -1213,8 +1227,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 10,
         "configuration": {
           "question": "Texte : Le film commence à 16h et il dure 2 heures. Réponse : 'À 18h.'",
-          "choix": ["À quelle heure le film commence-t-il ?", "Combien de temps dure le film ?", "À quelle heure le film se termine-t-il ?"],
-          "bonneReponse": "À quelle heure le film se termine-t-il ?"
+          "choix": [
+            { "id": "heure_debut", "text": "À quelle heure le film commence-t-il ?" },
+            { "id": "duree", "text": "Combien de temps dure le film ?" },
+            { "id": "heure_fin", "text": "À quelle heure le film se termine-t-il ?" }
+          ],
+          "bonneReponse": "heure_fin"
         },
         "metadata": { "competenceCode": "MA.CE1.P3.3" }
       },
@@ -1227,8 +1245,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "configuration": {
           "question": "Regarde bien les aiguilles.",
           "image": { "url_placeholder": "/images/clocks/horloge_04h15.png", "description": "Une horloge analogique. La petite aiguille est juste après le 4, la grande sur le 3." },
-          "choix": ["Quatre heures", "Quatre heures et quart", "Cinq heures moins le quart"],
-          "bonneReponse": "Quatre heures et quart"
+          "choix": [
+            { "id": "quatre_heures", "text": "Quatre heures" },
+            { "id": "quatre_quart", "text": "Quatre heures et quart" },
+            { "id": "cinq_moins_quart", "text": "Cinq heures moins le quart" }
+          ],
+          "bonneReponse": "quatre_quart"
         },
         "metadata": { "competenceCode": "MA.CE1.M3.1" }
       },
@@ -1240,9 +1262,12 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "moduleId": 9,
         "configuration": { 
           "question": "Les joueurs ___ gagné le match, ___ est très contents !", 
-          "choix": ["ont / on", "on / ont"], 
-          "bonneReponse": "ont / on", 
-          "aide": "'ont' est le verbe avoir (ils avaient). 'on' peut être remplacé par 'il'." 
+          "choix": [
+            { "id": "ont_on", "text": "ont / on" },
+            { "id": "on_ont", "text": "on / ont" }
+          ],
+          "bonneReponse": "ont_on",
+          "aide": "'ont' est le verbe avoir (ils avaient). 'on' peut être remplacé par 'il'."
         },
         "metadata": { "competenceCode": "FR.CE1.E2.3" }
       }

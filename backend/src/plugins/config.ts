@@ -1,13 +1,16 @@
 // src/plugins/config.ts
 import fp from 'fastify-plugin';
 import { FastifyPluginAsync } from 'fastify';
-import { validateEnvironment } from '../config/environment.js';
+import { config, dbConfig, redisConfig, jwtConfig } from '../config/environment.js';
 
 const configPlugin: FastifyPluginAsync = async (fastify) => {
-  const config = validateEnvironment();
-  
   // Decorate fastify with config
-  fastify.decorate('config', config as any);
+  fastify.decorate('config', {
+    ...config,
+    db: dbConfig,
+    redis: redisConfig,
+    jwt: jwtConfig,
+  } as any);
 };
 
 export default fp(configPlugin, {

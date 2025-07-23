@@ -1,52 +1,39 @@
 // src/plugins/validation.ts
+import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
-import { FastifyPluginAsync } from 'fastify';
-import { ValidationSchema } from '../types/fastify-extended';
+import sensible from '@fastify/sensible';
 
-const validationPlugin: FastifyPluginAsync = async (fastify) => {
-  // FIXED: Line 12:47 - Replace any with ValidationSchema
-  const defaultSchema: ValidationSchema = {
-    body: {
-      type: 'object',
-      properties: {},
-      additionalProperties: true,
-    },
-    querystring: {
-      type: 'object',
-      properties: {},
-      additionalProperties: true,
-    },
-    params: {
-      type: 'object',
-      properties: {},
-      additionalProperties: true,
-    },
-    headers: {
-      type: 'object',
-      properties: {},
-      additionalProperties: true,
-    },
-  };
+async function validationPlugin(fastify: FastifyInstance): Promise<void> {
+  await fastify.register(sensible);
 
-  // FIXED: Line 31:52 - Remove unused 'reply' parameter
-  fastify.setValidatorCompiler(({ schema }) => {
-    return (data) => {
-      // Validation logic
-      return { value: data };
-    };
+  // Global error handler for validation
+  fastify.setErrorHandler(async (error, request, reply) => {
+    // Handle validation errors
+    if (error.validation) {
+      return reply.status(400).send({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: error.validation,
+          statusCode: 400,
+        },
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // Handle other errors
+    const statusCode = (error as any).statusCode || 500;
+    return reply.status(statusCode).send({
+      success: false,
+      error: {
+        message: error.message,
+        statusCode,
+      },
+      timestamp: new Date().toISOString(),
+    });
   });
-
-  // FIXED: Line 37:36 - Replace any with ValidationSchema
-  fastify.setSchemaCompiler((schema: ValidationSchema) => {
-    return function validate(data: unknown) {
-      return { value: data };
-    };
-  });
-
-  fastify.log.info('Validation plugin registered');
-};
+}
 
 export default fp(validationPlugin, {
   name: 'validation',
-  dependencies: ['config'],
 });

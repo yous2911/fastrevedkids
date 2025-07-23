@@ -1,166 +1,128 @@
 // src/plugins/monitoring.ts
+import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import fp from 'fastify-plugin';
 
-interface RequestMetrics {
-  requestCount: number;
-  responseTime: number[];
-  errorCount: number;
-  statusCodes: Record<string, number>;
-  endpoints: Record<
-    string,
-    {
-      count: number;
-      averageTime: number;
-      errors: number;
-    }
-  >;
-}
-
-declare module 'fastify' {
-  interface FastifyRequest {
-    startTime?: number;
-  }
-}
-
-const monitoringPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-  const metrics: RequestMetrics = {
-    requestCount: 0,
-    responseTime: [],
-    errorCount: 0,
-    statusCodes: {},
-    endpoints: {},
+// Conditional Prometheus import
+let promClient: any;
+try {
+  promClient = require('prom-client');
+} catch (error) {
+  console.warn('Prometheus client not installed, metrics disabled');
+  promClient = {
+    collectDefaultMetrics: () => {},
+    register: {
+      metrics: () => Promise.resolve(''),
+      clear: () => {},
+    },
+    Counter: class MockCounter { 
+      inc() {} 
+      labels() { return this; }
+    },
+    Histogram: class MockHistogram {
+      observe() {}
+      labels() { return this; }
+      startTimer() { return () => {}; }
+    },
+    Gauge: class MockGauge {
+      set() {}
+      inc() {}
+      dec() {}
+      labels() { return this; }
+    },
   };
+}
 
-  // Request timing hook
+// Metrics
+const httpRequestDuration = new promClient.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'route', 'status_code'],
+  buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
+});
+
+const httpRequestsTotal = new promClient.Counter({
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status_code'],
+});
+
+const memoryUsage = new promClient.Gauge({
+  name: 'nodejs_memory_usage_bytes',
+  help: 'Memory usage in bytes',
+  labelNames: ['type'],
+});
+
+async function monitoringPlugin(fastify: FastifyInstance): Promise<void> {
+  // Collect default metrics
+  promClient.collectDefaultMetrics();
+
+  // Request monitoring hook
   fastify.addHook('onRequest', async (request: FastifyRequest) => {
-    request.startTime = Date.now();
+    (request as any).startTime = Date.now();
   });
 
-  // Response monitoring hook
   fastify.addHook('onResponse', async (request: FastifyRequest, reply: FastifyReply) => {
-    const responseTime = Date.now() - (request.startTime || Date.now());
-    const statusCode = reply.statusCode;
-    const endpoint = `${request.method} ${request.routerPath || request.url}`;
-
-    // Update metrics
-    metrics.requestCount++;
-    metrics.responseTime.push(responseTime);
-
-    // Keep only last 1000 response times for memory efficiency
-    if (metrics.responseTime.length > 1000) {
-      metrics.responseTime = metrics.responseTime.slice(-1000);
-    }
-
-    // Track status codes
-    metrics.statusCodes[statusCode] = (metrics.statusCodes[statusCode] || 0) + 1;
-
-    // Track errors
-    if (statusCode >= 400) {
-      metrics.errorCount++;
-    }
-
-    // Track endpoint metrics
-    if (!metrics.endpoints[endpoint]) {
-      metrics.endpoints[endpoint] = { count: 0, averageTime: 0, errors: 0 };
-    }
-
-    const endpointMetric = metrics.endpoints[endpoint];
-    endpointMetric.count++;
-    endpointMetric.averageTime =
-      (endpointMetric.averageTime * (endpointMetric.count - 1) + responseTime) /
-      endpointMetric.count;
-
-    if (statusCode >= 400) {
-      endpointMetric.errors++;
-    }
-
-    // Log slow requests
-    if (responseTime > 5000) {
-      // 5 seconds
-      fastify.log.warn({
-        msg: 'Slow request detected',
-        method: request.method,
-        url: request.url,
-        responseTime,
-        statusCode,
-      });
-    }
-
-    // Log errors
-    if (statusCode >= 500) {
-      fastify.log.error({
-        msg: 'Server error',
-        method: request.method,
-        url: request.url,
-        responseTime,
-        statusCode,
-      });
-    }
+    const responseTime = Date.now() - ((request as any).startTime || Date.now());
+    const route = request.routerPath || request.url;
+    
+    httpRequestDuration
+      .labels(request.method, route, reply.statusCode.toString())
+      .observe(responseTime / 1000);
+    
+    httpRequestsTotal
+      .labels(request.method, route, reply.statusCode.toString())
+      .inc();
   });
 
-  // Error tracking hook
-  fastify.setErrorHandler(async (error, request, reply) => {
-    metrics.errorCount++;
-
-    fastify.log.error({
-      msg: 'Request error',
-      method: request.method,
-      url: request.url,
-      error: {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-      },
-    });
-
-    // Send structured error response
-    const errorResponse = {
-      error: {
-        code: error.code || 'INTERNAL_ERROR',
-        message:
-          fastify.config.NODE_ENV === 'production' ? 'An internal error occurred' : error.message,
-      },
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      method: request.method,
-      requestId: request.id,
-    };
-
-    reply.code(error.statusCode || 500).send(errorResponse);
-  });
-
-  // Add metrics getter to fastify instance
-  fastify.decorate('getMetrics', () => {
-    const avgResponseTime =
-      metrics.responseTime.length > 0
-        ? metrics.responseTime.reduce((a, b) => a + b, 0) / metrics.responseTime.length
-        : 0;
-
-    const sortedResponseTimes = [...metrics.responseTime].sort((a, b) => a - b);
-    const p95Index = Math.floor(sortedResponseTimes.length * 0.95);
-    const p95ResponseTime =
-      sortedResponseTimes.length > 0 && p95Index < sortedResponseTimes.length
-        ? sortedResponseTimes[p95Index] || 0
-        : 0;
-
-    return {
-      ...metrics,
-      averageResponseTime: Math.round(avgResponseTime * 100) / 100,
-      p95ResponseTime: Math.round(p95ResponseTime * 100) / 100,
-      errorRate:
-        metrics.requestCount > 0
-          ? Math.round((metrics.errorCount / metrics.requestCount) * 10000) / 100
-          : 0,
-    };
-  });
-
-  // Reset metrics periodically to prevent memory leaks
+  // Memory monitoring
   setInterval(() => {
-    if (metrics.responseTime.length > 10000) {
-      metrics.responseTime = metrics.responseTime.slice(-5000);
+    const memInfo = process.memoryUsage();
+    memoryUsage.labels('rss').set(memInfo.rss);
+    memoryUsage.labels('heapUsed').set(memInfo.heapUsed);
+    memoryUsage.labels('heapTotal').set(memInfo.heapTotal);
+    memoryUsage.labels('external').set(memInfo.external);
+  }, 30000);
+
+  // Metrics endpoint
+  fastify.get('/api/monitoring/metrics', async (request, reply) => {
+    try {
+      const metrics = await promClient.register.metrics();
+      reply.type('text/plain').send(metrics);
+    } catch (error) {
+      reply.status(500).send({ error: 'Failed to collect metrics' });
     }
-  }, 60000); // Every minute
-};
+  });
+
+  // Health check endpoint
+  fastify.get('/api/monitoring/health', async () => {
+    const memInfo = process.memoryUsage();
+    return {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: {
+        used: memInfo.heapUsed,
+        total: memInfo.heapTotal,
+        external: memInfo.external,
+        rss: memInfo.rss,
+      },
+      version: process.version,
+    };
+  });
+
+  // System metrics endpoint
+  fastify.get('/api/monitoring/system', async () => {
+    return {
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      cpu: process.cpuUsage(),
+      version: process.version,
+      platform: process.platform,
+      arch: process.arch,
+    };
+  });
+}
 
 export default fp(monitoringPlugin, {
   name: 'monitoring',
