@@ -17,6 +17,9 @@ declare module 'fastify' {
     
     // Monitoring service
     monitoring: any;
+    
+    // Metrics for monitoring
+    metrics: any;
   }
 
   interface FastifyRequest {

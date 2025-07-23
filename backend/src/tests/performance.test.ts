@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { build } from '../app-test';
+import { FastifyInstance } from 'fastify';
 
 describe('Performance Tests', () => {
   let app: FastifyInstance;
@@ -30,7 +31,7 @@ describe('Performance Tests', () => {
     const endTime = Date.now();
 
     // All requests should succeed
-    responses.forEach(response => {
+    responses.forEach((response: any) => {
       expect(response.statusCode).toBe(200);
     });
 
