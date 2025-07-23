@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExercicePedagogique, TentativeExercice, TentativeResponse, ApiResponse } from '../../types/api.types';
+import { ExercicePedagogique, TentativeExercice, TentativeResponse } from '../../types/api.types';
 import { useStudentData } from '../../hooks/useStudentData';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../ui/Toast';
@@ -35,38 +35,52 @@ interface ExerciseState {
   showValidation: boolean;
 }
 
-// Mock exercise submission service
-const submitExerciseAttempt = async (exerciseId: number, tentative: TentativeExercice): Promise<ApiResponse<any>> => {
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock validation logic
-    const isCorrect = Math.random() > 0.3; // 70% success rate for demo
-    
-    return {
-      success: true,
-      data: {
-        reussi: isCorrect,
-        pointsGagnes: isCorrect ? 10 : 0,
-        nouveauStatut: isCorrect ? 'reussi' : 'echec',
-        tauxReussite: 0.7,
-        nombreTentatives: 1,
-        feedback: isCorrect ? 'Excellent travail !' : 'Essaie encore !',
-        session: {
-          exercicesReussis: isCorrect ? 1 : 0,
-          exercicesTentes: 1,
-          pointsTotal: isCorrect ? 10 : 0,
-          tauxReussite: isCorrect ? 1 : 0
-        }
-      },
-      message: isCorrect ? 'Exercice réussi !' : 'Presque ! Essaie encore.'
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'Erreur lors de la soumission'
-    };
+// Helper function to get exercise hints
+const getExerciseHints = (exercise: ExercicePedagogique): string[] => {
+  const hints: string[] = [];
+  
+  if (exercise.configuration.hint) {
+    hints.push(exercise.configuration.hint);
+  }
+  
+  // Add contextual hints based on exercise type
+  switch (exercise.type) {
+    case 'QCM':
+      hints.push('Lis bien toutes les options avant de choisir');
+      hints.push('Élimine les réponses qui ne peuvent pas être correctes');
+      break;
+    case 'CALCUL':
+      hints.push('Vérifie tes calculs étape par étape');
+      hints.push('N\'oublie pas les règles de priorité des opérations');
+      break;
+    case 'DRAG_DROP':
+      hints.push('Associe chaque élément à la bonne catégorie');
+      hints.push('Observe bien les indices visuels');
+      break;
+    default:
+      hints.push('Prends ton temps pour réfléchir');
+      break;
+  }
+  
+  return hints;
+};
+
+// Helper function to validate answers
+const validateAnswer = (exercise: ExercicePedagogique, answer: any): boolean => {
+  if (!answer) return false;
+  
+  switch (exercise.type) {
+    case 'QCM':
+      return answer === exercise.configuration.bonneReponse;
+    case 'CALCUL':
+      return Number(answer) === Number(exercise.configuration.resultat);
+    case 'DRAG_DROP':
+      // Validate drag and drop answer structure
+      if (typeof answer !== 'object') return false;
+      // Add more specific validation logic here
+      return true;
+    default:
+      return answer === exercise.configuration.bonneReponse;
   }
 };
 
@@ -79,7 +93,7 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
   showHints = true,
   timeLimit
 }) => {
-  const { addXP } = useStudentData();
+  const { submitExercise } = useStudentData(studentId);
   const { state } = useApp();
   const { success, error: showError, warning } = useToast();
   
@@ -94,7 +108,6 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
     showValidation: false
   });
 
-  // Fix useRef initialization
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Update timer every second
@@ -116,12 +129,12 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
   // Time limit check
   useEffect(() => {
     if (timeLimit && exerciseState.timeElapsed >= timeLimit && !exerciseState.isCompleted) {
-      warning('Temps écoulé !');
-      handleSubmit();
+      warning('Temps écoulé ! Soumission automatique...', { duration: 3000 });
+      setTimeout(() => handleSubmit(true), 1000);
     }
-  }, [exerciseState.timeElapsed, timeLimit, exerciseState.isCompleted]);
+  }, [timeLimit, exerciseState.timeElapsed, exerciseState.isCompleted]);
 
-  // Handle answer change
+  // Answer change handler
   const handleAnswerChange = useCallback((answer: any) => {
     setExerciseState(prev => ({
       ...prev,
@@ -130,91 +143,103 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
     }));
 
     // Auto-submit for certain exercise types
-    if (autoSubmit && answer !== null) {
+    if (autoSubmit && exercise.type === 'QCM') {
       setTimeout(() => handleSubmit(), 500);
     }
-  }, [autoSubmit]);
+  }, [autoSubmit, exercise.type]);
 
-  // Handle exercise submission - FIXED
-  const handleSubmit = useCallback(async () => {
-    if (exerciseState.isSubmitting || exerciseState.isCompleted) return;
-
-    try {
-      setExerciseState(prev => ({ 
-        ...prev, 
-        isSubmitting: true,
-        attempts: prev.attempts + 1
-      }));
-      
-      const tentative: TentativeExercice = {
-        reponse: exerciseState.currentAnswer,
-        reussi: false, // Will be determined by backend
-        tempsSecondes: exerciseState.timeElapsed,
-        aidesUtilisees: exerciseState.hintsUsed
-      };
-      
-      // Fix API call to handle ApiResponse properly
-      const response = await submitExerciseAttempt(exercise.id, tentative);
-      
-      if (response.success && response.data) {
-        setExerciseState(prev => ({ 
-          ...prev, 
-          isCompleted: true,
-          showValidation: true 
-        }));
-        
-        // Create proper TentativeResponse
-        const tentativeResponse: TentativeResponse = {
-          success: true,
-          data: response.data,
-          message: response.message || 'Exercise completed successfully'
-        };
-        
-        onComplete(tentativeResponse);
-        
-        if (response.data.reussi) {
-          success('Excellent ! Exercice réussi !');
-          addXP(response.data.pointsGagnes || 10);
-        } else {
-          warning('Presque ! Essaie encore.');
-        }
-      } else {
-        throw new Error(typeof response.error === 'string' 
-          ? response.error 
-          : response.error?.message || 'Submission failed'
-        );
-      }
-    } catch (error) {
-      console.error('Exercise submission error:', error);
-      showError(error instanceof Error ? error.message : 'Failed to submit exercise');
-      
-      setExerciseState(prev => ({ 
-        ...prev, 
-        showValidation: true 
-      }));
-    } finally {
-      setExerciseState(prev => ({ ...prev, isSubmitting: false }));
-    }
-  }, [exercise.id, exerciseState, onComplete, success, warning, showError, addXP]);
-
-  // Handle hint usage
-  const handleUseHint = useCallback(() => {
+  // Hint request handler
+  const handleHintRequest = useCallback(() => {
     if (!showHints) return;
-    
+
     setExerciseState(prev => ({
       ...prev,
       hintsUsed: prev.hintsUsed + 1
     }));
-    
-    // Show hint logic here
-    const hint = exercise.configuration.hint;
-    if (hint) {
-      warning(`💡 ${hint}`);
-    }
-  }, [showHints, exercise.configuration.hint, warning]);
 
-  // Render exercise based on type
-  const renderExercise = () => {
+    // Show contextual hint based on exercise type
+    const hints = getExerciseHints(exercise);
+    if (hints.length > exerciseState.hintsUsed) {
+      warning(hints[exerciseState.hintsUsed], { duration: 5000 });
+    } else {
+      warning('Plus d\'indices disponibles !', { duration: 3000 });
+    }
+  }, [exercise, exerciseState.hintsUsed, showHints, warning]);
+
+  // Submit exercise attempt
+  const handleSubmit = useCallback(async (timeExpired: boolean = false) => {
+    if (exerciseState.isSubmitting || exerciseState.isCompleted) return;
+    
+    if (!exerciseState.currentAnswer && !timeExpired) {
+      showError('Veuillez donner une réponse avant de valider');
+      return;
+    }
+
+    setExerciseState(prev => ({ ...prev, isSubmitting: true, showValidation: true }));
+
+    try {
+      const attempt: TentativeExercice = {
+        reponse: exerciseState.currentAnswer,
+        reussi: validateAnswer(exercise, exerciseState.currentAnswer),
+        tempsSecondes: exerciseState.timeElapsed,
+        aidesUtilisees: exerciseState.hintsUsed
+      };
+
+      const result = await submitExercise(exercise.id, attempt);
+      
+      setExerciseState(prev => ({ 
+        ...prev, 
+        isCompleted: true,
+        attempts: prev.attempts + 1
+      }));
+
+      // Show feedback
+      if (result.data.reussi) {
+        success(`Bravo ! +${result.data.pointsGagnes} points`, { duration: 4000 });
+      } else {
+        showError('Pas tout à fait... Réessaye !', { duration: 3000 });
+      }
+
+      // Call completion handler after a short delay for feedback
+      setTimeout(() => {
+        onComplete(result);
+      }, result.data.reussi ? 2000 : 1500);
+
+    } catch (err: any) {
+      showError(err.message || 'Erreur lors de la soumission');
+      setExerciseState(prev => ({ ...prev, isSubmitting: false, showValidation: false }));
+    }
+  }, [
+    exercise, 
+    exerciseState.currentAnswer, 
+    exerciseState.timeElapsed, 
+    exerciseState.hintsUsed,
+    exerciseState.isSubmitting,
+    exerciseState.isCompleted,
+    submitExercise, 
+    onComplete, 
+    success, 
+    showError
+  ]);
+
+  // Format time display
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Get time color based on remaining time
+  const getTimeColor = (): string => {
+    if (!timeLimit) return 'text-gray-600';
+    const remaining = timeLimit - exerciseState.timeElapsed;
+    if (remaining <= 30) return 'text-red-500';
+    if (remaining <= 60) return 'text-yellow-500';
+    return 'text-green-500';
+  };
+
+  // Render appropriate exercise component
+  const renderExerciseComponent = () => {
     const commonProps = {
       exercise,
       onAnswerChange: handleAnswerChange,
@@ -232,10 +257,18 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
         return <ExerciseTextLibre {...commonProps} />;
       case 'DRAG_DROP':
         return <ExerciseDragDrop {...commonProps} />;
+      case 'CONJUGAISON':
+        return <ExerciseTextLibre {...commonProps} />;
+      case 'LECTURE':
+        return <ExerciseTextLibre {...commonProps} />;
+      case 'GEOMETRIE':
+        return <ExerciseTextLibre {...commonProps} />;
+      case 'PROBLEME':
+        return <ExerciseTextLibre {...commonProps} />;
       default:
         return (
-          <div className="text-center text-gray-500">
-            Type d'exercice non supporté: {exercise.type}
+          <div className="text-center py-8">
+            <p className="text-gray-500">Type d'exercice non supporté: {exercise.type}</p>
           </div>
         );
     }
@@ -243,75 +276,144 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" onClick={onExit}>
-              ← Retour
-            </Button>
-            <div className="text-sm text-gray-600">
-              Difficulté: {exercise.difficulte}
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {timeLimit && (
-              <div className="text-sm text-gray-600">
-                ⏱️ {Math.max(0, timeLimit - exerciseState.timeElapsed)}s
-              </div>
-            )}
-            <div className="text-sm text-gray-600">
-              Tentatives: {exerciseState.attempts}
-            </div>
-            {exerciseState.hintsUsed > 0 && (
-              <div className="text-sm text-orange-600">
-                💡 {exerciseState.hintsUsed}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Exercise Content */}
-        <Card className="p-6 mb-6">
-          {renderExercise()}
-        </Card>
-
-        {/* Actions */}
-        <div className="flex justify-between items-center">
-          <div className="flex space-x-2">
-            {showHints && exercise.configuration.hint && (
+      {/* Header */}
+      <div className="max-w-4xl mx-auto mb-6">
+        <Card className="bg-white shadow-lg">
+          <div className="flex items-center justify-between p-4">
+            {/* Exercise Info */}
+            <div className="flex items-center gap-4">
               <Button
-                variant="secondary"
-                onClick={handleUseHint}
-                disabled={exerciseState.isSubmitting || exerciseState.isCompleted}
+                variant="ghost"
+                size="sm"
+                onClick={onExit}
+                className="text-gray-600 hover:text-gray-800"
               >
-                💡 Indice
+                <span className="text-xl">←</span> Retour
+              </Button>
+              <div>
+                <h1 className="text-xl font-bold text-gray-800">
+                  Exercice {exercise.type}
+                </h1>
+                <p className="text-sm text-gray-600">
+                  Difficulté: {exercise.difficulte} • {exercise.xp} XP
+                </p>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="flex items-center gap-6">
+              {/* Timer */}
+              <div className={`text-center ${getTimeColor()}`}>
+                <div className="text-lg font-mono font-bold">
+                  {formatTime(exerciseState.timeElapsed)}
+                </div>
+                <div className="text-xs">
+                  {timeLimit ? `/ ${formatTime(timeLimit)}` : 'Temps'}
+                </div>
+              </div>
+
+              {/* Hints */}
+              {showHints && (
+                <div className="text-center text-gray-600">
+                  <div className="text-lg font-bold">
+                    {exerciseState.hintsUsed}
+                  </div>
+                  <div className="text-xs">Indices</div>
+                </div>
+              )}
+
+              {/* Attempts */}
+              <div className="text-center text-gray-600">
+                <div className="text-lg font-bold">
+                  {exerciseState.attempts}
+                </div>
+                <div className="text-xs">Tentatives</div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Exercise Content */}
+      <div className="max-w-4xl mx-auto">
+        <Card className="bg-white shadow-xl border border-purple-200">
+          <div className="p-6">
+            {renderExerciseComponent()}
+          </div>
+        </Card>
+      </div>
+
+      {/* Action Bar */}
+      <div className="max-w-4xl mx-auto mt-6">
+        <Card className="bg-white shadow-lg">
+          <div className="flex items-center justify-between p-4">
+            {/* Help Button */}
+            {showHints && (
+              <Button
+                variant="outline"
+                onClick={handleHintRequest}
+                disabled={exerciseState.isCompleted}
+                className="flex items-center gap-2"
+              >
+                <span>💡</span>
+                Indice
               </Button>
             )}
-          </div>
-          
-          <div className="flex space-x-2">
+
+            <div className="flex-1" />
+
+            {/* Submit Button */}
             {!autoSubmit && (
               <Button
-                onClick={handleSubmit}
-                disabled={
-                  !exerciseState.currentAnswer || 
-                  exerciseState.isSubmitting || 
-                  exerciseState.isCompleted
-                }
-                className="min-w-32"
+                variant="primary"
+                size="lg"
+                onClick={() => handleSubmit()}
+                disabled={!exerciseState.currentAnswer || exerciseState.isSubmitting || exerciseState.isCompleted}
+                className="min-w-32 flex items-center gap-2"
               >
                 {exerciseState.isSubmitting ? (
                   <LoadingSpinner size="sm" />
+                ) : exerciseState.isCompleted ? (
+                  <>
+                    <span>✅</span>
+                    Terminé
+                  </>
                 ) : (
                   'Valider'
                 )}
               </Button>
             )}
           </div>
-        </div>
+        </Card>
       </div>
+
+      {/* Progress indicator */}
+      {!exerciseState.isCompleted && (
+        <div className="fixed bottom-4 right-4">
+          <div className="bg-white rounded-full p-3 shadow-lg">
+            <div className="w-12 h-12 relative">
+              <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
+                <path
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="#e5e7eb"
+                  strokeWidth="2"
+                />
+                <path
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="#3b82f6"
+                  strokeWidth="2"
+                  strokeDasharray={`${timeLimit ? (exerciseState.timeElapsed / timeLimit) * 100 : 0}, 100`}
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-600">
+                {timeLimit ? Math.max(0, timeLimit - exerciseState.timeElapsed) : exerciseState.timeElapsed}s
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }; 
