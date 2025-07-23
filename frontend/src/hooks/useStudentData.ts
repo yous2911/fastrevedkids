@@ -137,6 +137,7 @@ export const useStudentData = (studentId?: number) => {
     addXP,
     addAchievement,
     updatePreferences,
-    submitExercise
+    submitExercise,
+    updateProfile: updateStudentData // Alias for updateProfile
   };
 }; 

@@ -452,7 +452,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   ...props
 }) => {
   const [internalValue, setInternalValue] = useState(value || '');
-  const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;

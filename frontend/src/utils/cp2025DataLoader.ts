@@ -318,7 +318,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
       {
         "titre": "Écrire les grands nombres",
         "consigne": "Écris 'quatre-vingt-deux' en chiffres.",
-        "type": "TEXT_INPUT",
+        "type": "TEXTE_LIBRE",
         "difficulte": "entrainement",
         "moduleId": 4,
         "configuration": { 
@@ -332,7 +332,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Comprendre un texte court",
         "consigne": "Lis le texte et réponds à la question.",
         "type": "QCM",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 3,
         "configuration": {
           "question": "Texte : 'Le lion est dans la savane. Il voit une gazelle. Il a très faim.' Que voit le lion ?",
@@ -345,7 +345,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Problème de recherche de l'écart",
         "consigne": "Lis le problème et calcule l'écart.",
         "type": "CALCUL",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 4,
         "configuration": { 
           "question": "J'ai 12 billes et tu en as 8. Combien de billes ai-je de plus que toi ?", 
@@ -511,7 +511,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
       {
         "titre": "Repérer une erreur de copie",
         "consigne": "Trouve l'erreur dans la phrase copiée.",
-        "type": "TEXT_INPUT",
+        "type": "TEXTE_LIBRE",
         "difficulte": "entrainement",
         "moduleId": 5,
         "configuration": {
@@ -552,7 +552,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Comprendre l'implicite",
         "consigne": "Lis la situation et déduis la réponse.",
         "type": "QCM",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 5,
         "configuration": { 
           "question": "Léo met son manteau, son bonnet et ses gants avant de sortir. Quel temps fait-il probablement dehors ?", 
@@ -565,7 +565,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Problème d'arrangement",
         "consigne": "Lis le problème et trouve le nombre total.",
         "type": "CALCUL",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 6,
         "configuration": { 
           "question": "Dans sa boîte, un chocolatier range 3 rangées de 5 chocolats. Combien de chocolats y a-t-il dans la boîte ?", 
@@ -578,7 +578,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Rédiger un texte court",
         "consigne": "Mets les deux phrases dans le bon ordre pour raconter une petite histoire.",
         "type": "DRAG_DROP",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 5,
         "configuration": {
           "question": "Ordonne l'histoire :",
@@ -594,8 +594,8 @@ export function createCompleteCP2025Dataset(): CP2025Data {
       {
         "titre": "Compléter une suite numérique",
         "consigne": "Écris le nombre qui manque dans la suite.",
-        "type": "TEXT_INPUT",
-        "difficulte": "consolidation",
+        "type": "TEXTE_LIBRE",
+        "difficulte": "maitrise",
         "moduleId": 6,
         "configuration": { 
           "question": "88, 89, __, 91, 92", 
@@ -607,8 +607,8 @@ export function createCompleteCP2025Dataset(): CP2025Data {
       {
         "titre": "Orthographier un mot avec 'ill'",
         "consigne": "Écris le mot que tu entends : 'fille'",
-        "type": "TEXT_INPUT",
-        "difficulte": "consolidation",
+        "type": "TEXTE_LIBRE",
+        "difficulte": "maitrise",
         "moduleId": 5,
         "configuration": { 
           "question": "Écris le mot...", 
@@ -622,7 +622,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Comparer des données dans un graphique",
         "consigne": "Observe le graphique et réponds à la question.",
         "type": "CALCUL",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 6,
         "configuration": {
           "question": "Combien d'élèves de plus préfèrent la fraise à la banane ?",
@@ -636,7 +636,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Lecture fluente et compréhension fine",
         "consigne": "Lis le petit texte et réponds à la question.",
         "type": "QCM",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 5,
         "configuration": {
           "question": "Texte : 'C'est le matin. La poule rousse sort du poulailler. Elle picore des graines près de la mare.' Où la poule trouve-t-elle les graines ?",
@@ -766,7 +766,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
       {
         "titre": "Corriger l'accord",
         "consigne": "Il y a une erreur dans la phrase. Réécris le mot correct.",
-        "type": "TEXT_INPUT",
+        "type": "TEXTE_LIBRE",
         "difficulte": "entrainement",
         "moduleId": 7,
         "configuration": {
@@ -780,7 +780,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
       {
         "titre": "Suite logique de nombres",
         "consigne": "Observe bien la suite et trouve le nombre manquant.",
-        "type": "TEXT_INPUT",
+        "type": "TEXTE_LIBRE",
         "difficulte": "entrainement",
         "moduleId": 8,
         "configuration": { 
@@ -853,7 +853,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Inférence avancée",
         "consigne": "Lis la situation et choisis ce qu'il s'est probablement passé.",
         "type": "QCM",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 7,
         "configuration": { 
           "question": "Mila revient du jardin avec les mains pleines de terre et un grand sourire. Elle tient un seau rempli de fraises. Qu'a-t-elle fait ?", 
@@ -866,7 +866,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Problème à deux étapes",
         "consigne": "Lis bien le problème et calcule le résultat final.",
         "type": "CALCUL",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 8,
         "configuration": { 
           "question": "J'ai un billet de 20€. J'achète un livre à 10€ et un stylo à 2€. Combien d'argent me reste-t-il ?", 
@@ -880,7 +880,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Analyse grammaticale",
         "consigne": "Fais glisser chaque mot de la phrase dans la bonne catégorie.",
         "type": "DRAG_DROP",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 7,
         "configuration": {
           "question": "Analyse la phrase : Le chat noir dort.",
@@ -894,7 +894,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Interpréter un graphique",
         "consigne": "Observe le graphique et choisis l'affirmation qui est VRAIE.",
         "type": "QCM",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 8,
         "configuration": {
           "question": "Quelle affirmation est correcte ?",
@@ -912,7 +912,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Les homophones a / à",
         "consigne": "Complète la phrase avec le bon mot : 'a' ou 'à'.",
         "type": "QCM",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 7,
         "configuration": { 
           "question": "Lucas __ un vélo et il va __ l'école.", 
@@ -926,7 +926,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Logique spatiale complexe",
         "consigne": "Suis les instructions pour placer les objets correctement.",
         "type": "DRAG_DROP",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 8,
         "configuration": {
           "question": "Place le livre ROUGE à GAUCHE du livre BLEU.",
@@ -946,8 +946,8 @@ export function createCompleteCP2025Dataset(): CP2025Data {
       {
         "titre": "Production d'écrit guidée",
         "consigne": "Regarde l'image et écris une phrase complète pour la décrire.",
-        "type": "TEXT_INPUT",
-        "difficulte": "consolidation",
+        "type": "TEXTE_LIBRE",
+        "difficulte": "maitrise",
         "moduleId": 7,
         "configuration": {
           "question": "Écris une phrase pour dire ce que tu vois.",
@@ -1076,7 +1076,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
       {
         "titre": "Conjugaison : AVOIR au présent",
         "consigne": "Écris la bonne forme du verbe 'avoir'.",
-        "type": "TEXT_INPUT",
+        "type": "TEXTE_LIBRE",
         "difficulte": "entrainement",
         "moduleId": 9,
         "configuration": { 
@@ -1164,8 +1164,8 @@ export function createCompleteCP2025Dataset(): CP2025Data {
       {
         "titre": "Raconter une histoire en images",
         "consigne": "Regarde les 3 images et écris une petite histoire de trois phrases.",
-        "type": "TEXT_INPUT",
-        "difficulte": "consolidation",
+        "type": "TEXTE_LIBRE",
+        "difficulte": "maitrise",
         "moduleId": 9,
         "configuration": {
           "question": "Raconte ce qu'il se passe.",
@@ -1179,7 +1179,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Problème à étapes multiples",
         "consigne": "Lis bien le problème et calcule la réponse finale.",
         "type": "CALCUL",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 10,
         "configuration": { 
           "question": "J'achète 2 gâteaux à 3€ chacun. Je paie avec un billet de 10€. Combien d'argent la vendeuse doit-elle me rendre ?", 
@@ -1193,7 +1193,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Conjugaison : Verbes en -er",
         "consigne": "Choisis la bonne terminaison pour chaque verbe.",
         "type": "QCM",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 9,
         "configuration": { 
           "question": "Nous (mangeons/mangez) et vous (chante/chantez).", 
@@ -1209,7 +1209,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "La soustraction avec retenue",
         "consigne": "Résous cette soustraction posée.",
         "type": "CALCUL",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 10,
         "configuration": {
           "question": "Combien font 53 - 27 ?",
@@ -1223,7 +1223,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Trouver la question cachée",
         "consigne": "Lis le texte, puis trouve la question qui correspond à la réponse donnée.",
         "type": "QCM",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 10,
         "configuration": {
           "question": "Texte : Le film commence à 16h et il dure 2 heures. Réponse : 'À 18h.'",
@@ -1240,7 +1240,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Lire les quarts d'heure",
         "consigne": "Quelle heure est-il sur cette horloge ?",
         "type": "QCM",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 10,
         "configuration": {
           "question": "Regarde bien les aiguilles.",
@@ -1258,7 +1258,7 @@ export function createCompleteCP2025Dataset(): CP2025Data {
         "titre": "Homophones : on / ont",
         "consigne": "Complète la phrase avec 'on' ou 'ont'.",
         "type": "QCM",
-        "difficulte": "consolidation",
+        "difficulte": "maitrise",
         "moduleId": 9,
         "configuration": { 
           "question": "Les joueurs ___ gagné le match, ___ est très contents !", 

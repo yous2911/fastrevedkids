@@ -2,6 +2,19 @@
 
 import { DragItem } from './exercise.types';
 
+// API Response type
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string | {
+    message: string;
+    code?: string;
+    details?: any;
+  };
+  message?: string;
+  timestamp?: string;
+}
+
 // Types pour les créatures magiques
 export interface CreatureMagique {
   id: string;

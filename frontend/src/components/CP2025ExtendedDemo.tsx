@@ -147,7 +147,7 @@ const extendedCP2025Data: CP2025Data = {
     {
       "titre": "Écrire les grands nombres",
       "consigne": "Écris 'quatre-vingt-deux' en chiffres.",
-      "type": "TEXT_INPUT",
+      "type": "TEXTE_LIBRE",
       "difficulte": "entrainement",
       "moduleId": 4,
       "configuration": { 
@@ -161,7 +161,7 @@ const extendedCP2025Data: CP2025Data = {
       "titre": "Comprendre un texte court",
       "consigne": "Lis le texte et réponds à la question.",
       "type": "QCM",
-      "difficulte": "consolidation",
+      "difficulte": "maitrise",
       "moduleId": 3,
       "configuration": {
         "question": "Texte : 'Le lion est dans la savane. Il voit une gazelle. Il a très faim.' Que voit le lion ?",
@@ -174,7 +174,7 @@ const extendedCP2025Data: CP2025Data = {
       "titre": "Problème de recherche de l'écart",
       "consigne": "Lis le problème et calcule l'écart.",
       "type": "CALCUL",
-      "difficulte": "consolidation",
+      "difficulte": "maitrise",
       "moduleId": 4,
       "configuration": { 
         "question": "J'ai 12 billes et tu en as 8. Combien de billes ai-je de plus que toi ?", 
@@ -355,7 +355,7 @@ export const CP2025ExtendedDemo: React.FC = () => {
                               <div><strong>Solution:</strong> {Array.isArray(exercise.configuration.solution) ? exercise.configuration.solution.join(', ') : String(exercise.configuration.solution)}</div>
                             )}
                             
-                            <div><strong>Compétence:</strong> {exercise.metadata.competenceCode}</div>
+                            <div><strong>Compétence:</strong> {exercise.metadata?.competenceCode || 'N/A'}</div>
                           </div>
                         </div>
                       ))}

@@ -65,7 +65,7 @@ export const KioskModeProvider: React.FC<KioskModeProviderProps> = ({
       const timeSinceLastActivity = Date.now() - kioskMode.lastActivity;
       if (timeSinceLastActivity > sessionTimeout) {
         kioskMode.deactivateKioskMode();
-        playSound('session_timeout');
+        playSound('error');
       }
     };
 

@@ -262,11 +262,13 @@ const SparkyMascot3D: React.FC<SparkyMascot3DProps> = ({
           break;
 
         default:
-          continue;
+          return; // Skip this item if type is not recognized
       }
 
-      (itemMesh as any).userData = { isItem: true };
-      mascotGroup.add(itemMesh);
+      if (itemMesh) {
+        (itemMesh as any).userData = { isItem: true };
+        mascotGroup.add(itemMesh);
+      }
     });
   };
 

@@ -1,4 +1,5 @@
 import { apiService } from './api.service';
+import { ApiResponse } from '../types/api.types';
 
 export interface RevisionExercise {
   revisionId: number;
@@ -71,14 +72,17 @@ class RevisionService {
     message: string;
   }> {
     const params = new URLSearchParams();
-    
     if (filters?.limite) params.append('limite', filters.limite.toString());
     if (filters?.prioriteMin) params.append('prioriteMin', filters.prioriteMin.toString());
     if (filters?.matiere) params.append('matiere', filters.matiere);
 
     const url = `${this.baseUrl}/eleve/${eleveId}/a-reviser${params.toString() ? `?${params.toString()}` : ''}`;
     
-    return apiService.get(url);
+    const response = await apiService.get(url);
+    return {
+      data: response.data || { exercices: [], total: 0, affiches: 0, prochaineSuggestion: null },
+      message: response.message || 'Exercises retrieved successfully'
+    };
   }
 
   /**
@@ -93,7 +97,17 @@ class RevisionService {
 
     const url = `${this.baseUrl}/eleve/${eleveId}/statistiques${params.toString() ? `?${params.toString()}` : ''}`;
     
-    return apiService.get(url);
+    const response = await apiService.get(url);
+    return {
+      data: response.data || {
+        revisionsEnAttente: 0,
+        revisionsEffectuees: 0,
+        revisionsAnnulees: 0,
+        exercicesAReviserAujourdhui: 0,
+        totalRevisions: 0
+      },
+      message: response.message || 'Stats retrieved successfully'
+    };
   }
 
   /**
@@ -108,7 +122,11 @@ class RevisionService {
   }> {
     const url = `${this.baseUrl}/eleve/${eleveId}/enregistrer-echec`;
     
-    return apiService.post(url, data);
+    const response = await apiService.post(url, data);
+    return {
+      data: response.data || { revisionProgrammee: false, prochaineSuggestion: [] },
+      message: response.message || 'Failure recorded successfully'
+    };
   }
 
   /**
@@ -124,7 +142,11 @@ class RevisionService {
   }> {
     const url = `${this.baseUrl}/eleve/${eleveId}/enregistrer-reussite`;
     
-    return apiService.post(url, data);
+    const response = await apiService.post(url, data);
+    return {
+      data: response.data || { exerciceMaitrise: false, scoreObtenu: null, exercicesRestants: [] },
+      message: response.message || 'Success recorded successfully'
+    };
   }
 
   /**
@@ -140,7 +162,11 @@ class RevisionService {
   }> {
     const url = `${this.baseUrl}/${revisionId}/reporter`;
     
-    return apiService.put(url, { nouvelleDate, raison });
+    const response = await apiService.put(url, { nouvelleDate, raison });
+    return {
+      data: response.data || { nouvelleDate, raison, nombreReports: 0 },
+      message: response.message || 'Revision postponed successfully'
+    };
   }
 
   /**
@@ -154,7 +180,11 @@ class RevisionService {
   }> {
     const url = `${this.baseUrl}/${revisionId}/annuler`;
     
-    return apiService.delete(url, { raison });
+    const response = await apiService.delete(url, { body: { raison } });
+    return {
+      data: response.data || { raison: raison || 'No reason provided' },
+      message: response.message || 'Revision cancelled successfully'
+    };
   }
 
   /**
@@ -169,7 +199,11 @@ class RevisionService {
   }> {
     const url = `${this.baseUrl}/system/en-retard`;
     
-    return apiService.get(url);
+    const response = await apiService.get(url);
+    return {
+      data: response.data || { revisions: [], total: 0 },
+      message: response.message || 'Overdue revisions retrieved successfully'
+    };
   }
 
   /**
@@ -183,98 +217,74 @@ class RevisionService {
   }> {
     const url = `${this.baseUrl}/system/nettoyer`;
     
-    return apiService.post(url);
+    const response = await apiService.post(url);
+    return {
+      data: response.data || { nombreSupprime: 0 },
+      message: response.message || 'Cleanup completed successfully'
+    };
   }
 
-  /**
-   * Méthodes utilitaires pour la gestion des révisions
-   */
-
-  /**
-   * Calcule la priorité d'affichage d'un exercice
-   */
+  // Utility methods
   calculateDisplayPriority(exercise: RevisionExercise): number {
-    const now = new Date();
-    const dueDate = new Date(exercise.datePrevue);
-    const daysOverdue = Math.max(0, (now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+    const basePriority = exercise.priorite;
+    const failureMultiplier = Math.pow(1.5, exercise.nombreEchecs);
+    const difficultyMultiplier = exercise.niveauDifficulte / 10;
     
-    return exercise.priorite + (daysOverdue * 10);
+    return Math.round(basePriority * failureMultiplier * difficultyMultiplier);
   }
 
-  /**
-   * Vérifie si un exercice est en retard
-   */
   isOverdue(exercise: RevisionExercise): boolean {
-    const now = new Date();
     const dueDate = new Date(exercise.datePrevue);
-    return dueDate < now;
+    const today = new Date();
+    return dueDate < today;
   }
 
-  /**
-   * Formate la date de révision pour l'affichage
-   */
   formatDueDate(dateString: string): string {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = date.getTime() - now.getTime();
+    const today = new Date();
+    const diffTime = date.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) {
-      return `En retard (${Math.abs(diffDays)} jour${Math.abs(diffDays) > 1 ? 's' : ''})`;
+      return `En retard (${Math.abs(diffDays)} jours)`;
     } else if (diffDays === 0) {
       return 'Aujourd\'hui';
     } else if (diffDays === 1) {
       return 'Demain';
-    } else if (diffDays < 7) {
-      return `Dans ${diffDays} jours`;
     } else {
-      return date.toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-      });
+      return `Dans ${diffDays} jours`;
     }
   }
 
-  /**
-   * Obtient la couleur de priorité pour l'affichage
-   */
   getPriorityColor(priority: number): string {
-    if (priority >= 50) return 'red';
-    if (priority >= 30) return 'orange';
-    if (priority >= 15) return 'yellow';
-    return 'green';
+    if (priority >= 8) return 'text-red-600 bg-red-100';
+    if (priority >= 6) return 'text-orange-600 bg-orange-100';
+    if (priority >= 4) return 'text-yellow-600 bg-yellow-100';
+    return 'text-green-600 bg-green-100';
   }
 
-  /**
-   * Obtient l'icône de difficulté
-   */
   getDifficultyIcon(difficulty: number): string {
-    return '⭐'.repeat(difficulty) + '☆'.repeat(5 - difficulty);
+    if (difficulty >= 8) return '🔥';
+    if (difficulty >= 6) return '⚡';
+    if (difficulty >= 4) return '💡';
+    return '🌟';
   }
 
-  /**
-   * Filtre les exercices par matière
-   */
   filterBySubject(exercises: RevisionExercise[], subject?: string): RevisionExercise[] {
     if (!subject) return exercises;
-    return exercises.filter(ex => ex.exercice.matiere.toLowerCase() === subject.toLowerCase());
+    return exercises.filter(exercise => 
+      exercise.exercice.matiere.toLowerCase().includes(subject.toLowerCase())
+    );
   }
 
-  /**
-   * Trie les exercices par priorité
-   */
   sortByPriority(exercises: RevisionExercise[]): RevisionExercise[] {
     return [...exercises].sort((a, b) => {
       const priorityA = this.calculateDisplayPriority(a);
       const priorityB = this.calculateDisplayPriority(b);
-      return priorityB - priorityA; // Priorité décroissante
+      return priorityB - priorityA;
     });
   }
 
-  /**
-   * Groupe les exercices par matière
-   */
   groupBySubject(exercises: RevisionExercise[]): Record<string, RevisionExercise[]> {
     return exercises.reduce((groups, exercise) => {
       const subject = exercise.exercice.matiere;

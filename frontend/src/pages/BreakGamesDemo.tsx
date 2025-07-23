@@ -187,6 +187,7 @@ const SparkyDanceGame: React.FC<SparkyDanceGameProps> = ({ onComplete }) => {
         <div className="flex justify-center space-x-2 mb-6">
           {sequence.map((move, index) => {
             const dir = directions.find(d => d.id === move);
+            if (!dir) return null;
             return (
               <motion.div
                 key={index}
@@ -411,6 +412,7 @@ const MiniGamesDemo: React.FC = () => {
 
   if (currentGame) {
     const game = games.find(g => g.id === currentGame);
+    if (!game) return null;
     const GameComponent = game.component;
     return (
       <div className="max-w-2xl mx-auto p-6">

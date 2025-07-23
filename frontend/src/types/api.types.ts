@@ -1,5 +1,8 @@
 import { ChoiceOption, DragItem, DropZone } from './exercise.types';
 
+// Export DragItem and DropZone for use in other files
+export type { DragItem, DropZone };
+
 // Fix ApiResponse structure to match backend
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -38,6 +41,7 @@ export interface UseApiDataOptions {
   immediate?: boolean;
   dependencies?: any[];
   cache?: boolean;
+  transform?: (response: any) => any;
 }
 
 export interface UseApiDataReturn<T> {

@@ -58,8 +58,7 @@ const sampleCP2025Data: CP2025Data = {
       "metadata": { 
         "competenceCode": "CP.FR.L1.1",
         "cognitiveLoad": "low",
-        "engagement": "high",
-        "storyContext": "Leo the Lion needs help finding words with the [o] sound"
+        "engagement": "high"
       }
     },
 
@@ -187,7 +186,7 @@ const sampleCP2025Data: CP2025Data = {
       "titre": "L'Histoire de Tom",
       "consigne": "Lis l'histoire de Tom et réponds à la question.",
       "type": "QCM",
-      "difficulte": "consolidation",
+      "difficulte": "maitrise",
       "moduleId": 1,
       "configuration": {
         "question": "Où va Tom dans l'histoire ?",
@@ -221,7 +220,7 @@ const sampleCP2025Data: CP2025Data = {
       "titre": "Le Défi du Chef",
       "consigne": "Le chef cuisinier a besoin d'aide pour préparer sa recette.",
       "type": "CALCUL",
-      "difficulte": "approfondissement",
+      "difficulte": "maitrise",
       "moduleId": 2,
       "configuration": {
         "question": "Le chef a 12 œufs. Il en utilise 4 pour faire un gâteau. Combien d'œufs lui reste-t-il ?",
@@ -272,7 +271,7 @@ export const CP2025Demo = (): React.ReactElement => {
           <h2 className="text-xl font-semibold mb-4">Statistiques</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{statistics.totalModules}</div>
+              <div className="text-2xl font-bold text-blue-600">{modules.length}</div>
               <div className="text-sm text-gray-600">Modules</div>
             </div>
             <div className="text-center">
@@ -350,7 +349,7 @@ export const CP2025Demo = (): React.ReactElement => {
                           </div>
                           <p className="text-sm text-gray-600 mb-2">{exercise.consigne}</p>
                           <div className="text-xs text-gray-500">
-                            Compétence: {exercise.metadata.competenceCode}
+                            Compétence: {exercise.metadata?.competenceCode || 'N/A'}
                           </div>
                         </div>
                       ))}
