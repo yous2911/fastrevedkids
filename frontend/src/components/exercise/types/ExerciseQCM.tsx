@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ExercicePedagogique } from '../../../types/api.types';
+import { ChoiceOption } from '../../../types/exercise.types';
 import { Card } from '../../ui/Card';
 
 export interface ExerciseQCMProps {
@@ -18,23 +19,36 @@ export const ExerciseQCM: React.FC<ExerciseQCMProps> = ({
   currentAnswer,
   showValidation
 }) => {
-  const { question, choix = [] } = exercise.configuration;
+  const { question, choix = [], bonneReponse } = exercise.configuration;
 
-  const handleChoiceSelect = useCallback((choice: string) => {
+  // Convert string array to ChoiceOption array if needed
+  const choices: ChoiceOption[] = choix.map((choice, index) => {
+    if (typeof choice === 'string') {
+      return {
+        id: `choice-${index}`,
+        text: choice,
+        value: choice,
+        correct: choice === bonneReponse
+      };
+    }
+    return choice as ChoiceOption;
+  });
+
+  const handleChoiceSelect = useCallback((choice: ChoiceOption) => {
     if (disabled) return;
-    onAnswerChange(choice);
+    onAnswerChange(choice.value);
   }, [disabled, onAnswerChange]);
 
-  const getChoiceVariant = (choice: string, index: number) => {
+  const getChoiceVariant = (choice: ChoiceOption) => {
     if (showValidation) {
-      if (choice === exercise.configuration.bonneReponse) {
+      if (choice.correct || choice.value === bonneReponse) {
         return 'success'; // Correct answer - always green when validation shown
-      } else if (choice === currentAnswer && choice !== exercise.configuration.bonneReponse) {
+      } else if (choice.value === currentAnswer && !choice.correct) {
         return 'danger'; // Wrong selected answer - red
       }
     }
     
-    if (choice === currentAnswer) {
+    if (choice.value === currentAnswer) {
       return 'primary'; // Selected but not validated yet
     }
     
@@ -62,13 +76,13 @@ export const ExerciseQCM: React.FC<ExerciseQCMProps> = ({
 
       {/* Choices */}
       <div className="grid gap-4 max-w-2xl mx-auto">
-        {choix.map((choice, index) => {
-          const variant = getChoiceVariant(choice, index);
-          const isSelected = choice === currentAnswer;
+        {choices.map((choice, index) => {
+          const variant = getChoiceVariant(choice);
+          const isSelected = choice.value === currentAnswer;
 
           return (
             <motion.div
-              key={index}
+              key={choice.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -80,27 +94,20 @@ export const ExerciseQCM: React.FC<ExerciseQCMProps> = ({
                   w-full p-4 rounded-xl transition-all duration-200 text-left
                   font-medium disabled:cursor-not-allowed
                   ${getChoiceStyles(variant)}
-                  ${!disabled && variant === 'default' ? 'hover:scale-102' : ''}
+                  ${!disabled && variant === 'default' ? 'hover:scale-105 hover:shadow-md' : ''}
+                  ${isSelected ? 'ring-2 ring-blue-300' : ''}
                 `}
               >
-                <div className="flex items-center gap-3">
-                  <div className={`
-                    w-6 h-6 rounded-full border-2 flex items-center justify-center
-                    ${isSelected ? 'border-current' : 'border-gray-300'}
-                  `}>
-                    {isSelected && (
-                      <div className={`
-                        w-3 h-3 rounded-full
-                        ${variant === 'primary' ? 'bg-white' : 'bg-current'}
-                      `} />
-                    )}
-                  </div>
-                  <span className="flex-1">{choice}</span>
-                  {showValidation && choice === exercise.configuration.bonneReponse && (
-                    <span className="text-xl">✅</span>
-                  )}
-                  {showValidation && choice === currentAnswer && choice !== exercise.configuration.bonneReponse && (
-                    <span className="text-xl">❌</span>
+                <div className="flex items-center justify-between">
+                  <span className="flex-1">{choice.text}</span>
+                  {showValidation && (
+                    <div className="ml-2">
+                      {choice.correct || choice.value === bonneReponse ? (
+                        <span className="text-white">✓</span>
+                      ) : choice.value === currentAnswer ? (
+                        <span className="text-white">✗</span>
+                      ) : null}
+                    </div>
                   )}
                 </div>
               </button>
@@ -108,30 +115,6 @@ export const ExerciseQCM: React.FC<ExerciseQCMProps> = ({
           );
         })}
       </div>
-
-      {/* Feedback */}
-      {showValidation && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mt-6"
-        >
-          <Card variant="elevated" padding="md" className="max-w-md mx-auto">
-            {currentAnswer === exercise.configuration.bonneReponse ? (
-              <div className="text-green-600">
-                <span className="text-2xl">🎉</span>
-                <p className="font-medium mt-2">Excellente réponse !</p>
-              </div>
-            ) : (
-              <div className="text-orange-600">
-                <span className="text-2xl">🤔</span>
-                <p className="font-medium mt-2">Pas tout à fait...</p>
-                <p className="text-sm mt-1">La bonne réponse était : {exercise.configuration.bonneReponse}</p>
-              </div>
-            )}
-          </Card>
-        </motion.div>
-      )}
     </div>
   );
 }; 

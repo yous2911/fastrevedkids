@@ -62,8 +62,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   onMouseLeave,
   ...props
 }, ref) => {
-  const { playSoundEvent } = useSound();
-  const { triggerHapticEvent } = useHaptic();
+  const { playSound } = useSound();
+  const { triggerHaptic } = useHaptic();
 
   const baseClasses = 'font-magical font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magical-violet disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform-gpu';
   
@@ -84,53 +84,53 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     // Sons et haptiques
     if (soundEnabled) {
       if (variant === 'success') {
-        playSoundEvent({ type: 'button', context: 'success', customVolume: soundVolume });
+        playSound('success');
       } else if (variant === 'danger') {
-        playSoundEvent({ type: 'button', context: 'error', customVolume: soundVolume });
+        playSound('error');
       } else if (variant === 'magical') {
-        playSoundEvent({ type: 'button', context: 'magical', customVolume: soundVolume });
+        playSound('sparkle');
       } else {
-        playSoundEvent({ type: 'button', customVolume: soundVolume });
+        playSound('click');
       }
 
       // Réaction de Sparky si activée
       if (sparkyReaction) {
         setTimeout(() => {
-          playSoundEvent({ type: 'sparky', context: 'happy', customVolume: soundVolume * 0.8 });
+          playSound('reward');
         }, 200);
       }
     }
 
     if (hapticEnabled) {
       if (variant === 'success') {
-        triggerHapticEvent({ type: 'button', context: 'success', intensity: hapticIntensity });
+        triggerHaptic('success');
       } else if (variant === 'danger') {
-        triggerHapticEvent({ type: 'button', context: 'error', intensity: hapticIntensity });
+        triggerHaptic('error');
       } else if (variant === 'magical') {
-        triggerHapticEvent({ type: 'button', context: 'magical', intensity: hapticIntensity });
+        triggerHaptic('medium');
       } else {
-        triggerHapticEvent({ type: 'button', intensity: hapticIntensity });
+        triggerHaptic('light');
       }
     }
 
     onClick?.(e);
-  }, [isDisabled, soundEnabled, hapticEnabled, variant, soundVolume, hapticIntensity, sparkyReaction, playSoundEvent, triggerHapticEvent, onClick]);
+  }, [isDisabled, soundEnabled, hapticEnabled, variant, soundVolume, hapticIntensity, sparkyReaction, playSound, triggerHaptic, onClick]);
 
   const handleMouseEnter = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     if (isDisabled) return;
 
     // Son de hover si activé
     if (playHoverSound && soundEnabled) {
-      playSoundEvent({ type: 'button', context: 'hover', customVolume: soundVolume * 0.3 });
+      playSound('click');
     }
 
     // Haptique léger au hover
     if (hapticEnabled) {
-      triggerHapticEvent({ type: 'button', context: 'hover', intensity: hapticIntensity * 0.3 });
+      triggerHaptic('light');
     }
 
     onMouseEnter?.(e);
-  }, [isDisabled, playHoverSound, soundEnabled, hapticEnabled, soundVolume, hapticIntensity, playSoundEvent, triggerHapticEvent, onMouseEnter]);
+  }, [isDisabled, playHoverSound, soundEnabled, hapticEnabled, soundVolume, hapticIntensity, playSound, triggerHaptic, onMouseEnter]);
 
   const handleMouseLeave = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     onMouseLeave?.(e);

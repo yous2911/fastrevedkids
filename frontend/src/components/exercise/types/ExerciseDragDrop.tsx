@@ -1,28 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExercicePedagogique } from '../../../types/api.types';
+import { ExercicePedagogique, ExerciseDragDropProps, DragItem, DropZone } from '../../../types/api.types';
 import { Card } from '../../ui/Card';
-
-export interface ExerciseDragDropProps {
-  exercise: ExercicePedagogique;
-  onAnswerChange: (answer: any) => void;
-  disabled: boolean;
-  currentAnswer: any;
-  showValidation: boolean;
-}
-
-interface DragItem {
-  id: string;
-  content: string;
-  category?: string;
-}
-
-interface DropZone {
-  id: string;
-  label: string;
-  accepts?: string[];
-  content: DragItem | null;
-}
 
 export const ExerciseDragDrop: React.FC<ExerciseDragDropProps> = ({
   exercise,
@@ -31,33 +10,33 @@ export const ExerciseDragDrop: React.FC<ExerciseDragDropProps> = ({
   currentAnswer,
   showValidation
 }) => {
-  const config = exercise.configuration;
+  const { question, items = [], zones = [] } = exercise.configuration;
   
-  // Initialize items and zones from exercise configuration
-  const initializeState = () => {
-    const items: DragItem[] = config.items || [
-      { id: '1', content: 'Item 1', category: 'A' },
-      { id: '2', content: 'Item 2', category: 'B' },
-      { id: '3', content: 'Item 3', category: 'A' }
-    ];
-    
-    const zones: DropZone[] = config.zones || [
-      { id: 'zone1', label: 'Zone A', accepts: ['A'], content: null },
-      { id: 'zone2', label: 'Zone B', accepts: ['B'], content: null }
-    ];
+  // Convert configuration to proper types
+  const [dragItems, setDragItems] = useState<DragItem[]>(() => 
+    items.map((item, index) => ({
+      id: item.id || `item-${index}`,
+      content: item.content || String(item),
+      category: item.category || 'default'
+    }))
+  );
+  
+  const [dropZones, setDropZones] = useState<DropZone[]>(() =>
+    zones.map((zone, index) => ({
+      id: zone.id || `zone-${index}`,
+      label: zone.label || `Zone ${index + 1}`,
+      accepts: zone.accepts || [],
+      currentItem: zone.currentItem || null
+    }))
+  );
 
-    return { items, zones };
-  };
-
-  const [availableItems, setAvailableItems] = useState<DragItem[]>(() => initializeState().items);
-  const [dropZones, setDropZones] = useState<DropZone[]>(() => initializeState().zones);
   const [draggedItem, setDraggedItem] = useState<DragItem | null>(null);
 
   // Update answer when zones change
-  React.useEffect(() => {
+  useEffect(() => {
     const answer = dropZones.reduce((acc, zone) => {
-      if (zone.content) {
-        acc[zone.id] = zone.content.id;
+      if (zone.currentItem) {
+        acc[zone.id] = zone.currentItem.id;
       }
       return acc;
     }, {} as Record<string, string>);
@@ -74,72 +53,50 @@ export const ExerciseDragDrop: React.FC<ExerciseDragDropProps> = ({
     setDraggedItem(null);
   }, []);
 
-  const handleDrop = useCallback((zoneId: string) => {
+  const handleDrop = useCallback((zone: DropZone) => {
     if (!draggedItem || disabled) return;
 
-    const zone = dropZones.find(z => z.id === zoneId);
-    if (!zone) return;
-
-    // Check if item is accepted in this zone
-    if (zone.accepts && !zone.accepts.includes(draggedItem.category || '')) {
-      // Item not accepted, return to available items
+    // Check if zone accepts this item type
+    if (zone.accepts && zone.accepts.length > 0 && !zone.accepts.includes(draggedItem.category || 'default')) {
       return;
     }
 
-    // Remove item from current location
-    setAvailableItems(prev => prev.filter(item => item.id !== draggedItem.id));
-    setDropZones(prev => prev.map(z => {
-      if (z.content?.id === draggedItem.id) {
-        return { ...z, content: null };
-      }
-      return z;
+    // Remove item from its current zone if it exists
+    const updatedZones = dropZones.map(z => ({
+      ...z,
+      currentItem: z.currentItem?.id === draggedItem.id ? null : z.currentItem
     }));
 
-    // Add previous item back to available if zone was occupied
-    if (zone.content) {
-      setAvailableItems(prev => [...prev, zone.content!]);
-    }
+    // Add item to the new zone
+    const finalZones = updatedZones.map(z => 
+      z.id === zone.id ? { ...z, currentItem: draggedItem } : z
+    );
 
-    // Place item in new zone
-    setDropZones(prev => prev.map(z => 
-      z.id === zoneId ? { ...z, content: draggedItem } : z
-    ));
-
+    setDropZones(finalZones);
     setDraggedItem(null);
   }, [draggedItem, disabled, dropZones]);
 
-  const handleItemRemove = useCallback((zoneId: string) => {
+  const handleRemoveFromZone = useCallback((zoneId: string) => {
     if (disabled) return;
-
-    const zone = dropZones.find(z => z.id === zoneId);
-    if (!zone?.content) return;
-
-    // Return item to available items
-    setAvailableItems(prev => [...prev, zone.content!]);
     
-    // Clear zone
-    setDropZones(prev => prev.map(z => 
-      z.id === zoneId ? { ...z, content: null } : z
+    setDropZones(prev => prev.map(zone => 
+      zone.id === zoneId ? { ...zone, currentItem: null } : zone
     ));
-  }, [disabled, dropZones]);
+  }, [disabled]);
 
-  const getZoneStyle = (zone: DropZone) => {
-    const baseStyle = 'min-h-[120px] border-2 border-dashed rounded-xl p-4 transition-all duration-200';
+  const getValidationStyle = (zone: DropZone) => {
+    if (!showValidation) return '';
     
-    if (showValidation) {
-      const expectedItem = config.solution?.[zone.id];
-      const actualItem = zone.content?.id;
-      const isCorrect = expectedItem === actualItem;
-      
-      return `${baseStyle} ${isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`;
+    // This would need proper validation logic based on exercise configuration
+    const isCorrect = zone.currentItem && zone.currentItem.category === zone.id;
+    
+    if (isCorrect) {
+      return 'border-green-500 bg-green-50';
+    } else if (zone.currentItem) {
+      return 'border-red-500 bg-red-50';
     }
-
-    if (draggedItem) {
-      const canAccept = !zone.accepts || zone.accepts.includes(draggedItem.category || '');
-      return `${baseStyle} ${canAccept ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'}`;
-    }
-
-    return `${baseStyle} border-gray-300 bg-gray-50`;
+    
+    return 'border-yellow-500 bg-yellow-50';
   };
 
   return (
@@ -147,85 +104,112 @@ export const ExerciseDragDrop: React.FC<ExerciseDragDropProps> = ({
       {/* Question */}
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          {config.question || 'Glisse les éléments dans les bonnes zones'}
+          {question}
         </h2>
       </div>
 
-      {/* Available Items */}
-      <div className="max-w-4xl mx-auto">
-        <h3 className="text-lg font-semibold text-gray-700 mb-4">
-          Éléments disponibles
-        </h3>
-        <div className="flex flex-wrap gap-3 mb-8">
-          {availableItems.map((item) => (
-            <motion.div
-              key={item.id}
-              draggable={!disabled}
-              onDragStart={() => handleDragStart(item)}
-              onDragEnd={handleDragEnd}
-              className={`
-                px-4 py-2 bg-white border-2 border-gray-300 rounded-lg cursor-grab
-                transition-all duration-200 hover:shadow-md
-                ${disabled ? 'cursor-not-allowed opacity-50' : ''}
-              `}
-              whileHover={!disabled ? { scale: 1.05 } : undefined}
-              whileTap={!disabled ? { scale: 0.95 } : undefined}
-            >
-              {item.content}
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Drop Zones */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {dropZones.map((zone) => (
-            <div
-              key={zone.id}
-              className={getZoneStyle(zone)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => handleDrop(zone.id)}
-            >
-              <h4 className="font-medium text-gray-700 mb-2">{zone.label}</h4>
-              
-              {zone.content ? (
-                <div className="flex items-center justify-between">
-                  <span className="px-3 py-2 bg-blue-100 text-blue-800 rounded-lg">
-                    {zone.content.content}
-                  </span>
-                  {!disabled && (
-                    <button
-                      onClick={() => handleItemRemove(zone.id)}
-                      className="text-red-500 hover:text-red-700 ml-2"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm">
-                  Glisse un élément ici
-                </p>
-              )}
-            </div>
-          ))}
+      {/* Drag Items Pool */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold text-gray-700 mb-4">Éléments à placer:</h3>
+        <div className="flex flex-wrap gap-3 justify-center">
+          {dragItems
+            .filter(item => !dropZones.some(zone => zone.currentItem?.id === item.id))
+            .map((item) => (
+              <motion.div
+                key={item.id}
+                draggable={!disabled}
+                onDragStart={() => handleDragStart(item)}
+                onDragEnd={handleDragEnd}
+                whileHover={!disabled ? { scale: 1.05 } : {}}
+                whileDrag={{ scale: 1.1, zIndex: 1000 }}
+                className={`
+                  px-4 py-2 bg-blue-100 border-2 border-blue-300 rounded-lg cursor-move
+                  font-medium text-blue-800 select-none transition-all
+                  ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-200'}
+                  ${draggedItem?.id === item.id ? 'opacity-50' : ''}
+                `}
+              >
+                {item.content}
+              </motion.div>
+            ))}
         </div>
       </div>
 
-      {/* Feedback */}
-      {showValidation && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mt-6"
-        >
-          <Card variant="elevated" padding="md" className="max-w-md mx-auto">
-            <div className="text-green-600">
-              <span className="text-2xl">🎯</span>
-              <p className="font-medium mt-2">Exercice terminé !</p>
+      {/* Drop Zones */}
+      <div className="grid gap-4 max-w-4xl mx-auto">
+        {dropZones.map((zone) => (
+          <motion.div
+            key={zone.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`
+              min-h-24 p-4 border-3 border-dashed rounded-xl transition-all
+              ${zone.currentItem ? 'border-solid' : 'border-dashed'}
+              ${getValidationStyle(zone)}
+              ${!zone.currentItem && !disabled ? 'border-gray-300 hover:border-blue-400 hover:bg-blue-50' : ''}
+              ${draggedItem && !disabled ? 'border-blue-400 bg-blue-50' : ''}
+            `}
+            onDragOver={(e) => {
+              e.preventDefault();
+              if (!disabled) {
+                e.currentTarget.style.borderColor = '#3B82F6';
+                e.currentTarget.style.backgroundColor = '#EBF8FF';
+              }
+            }}
+            onDragLeave={(e) => {
+              if (!disabled) {
+                e.currentTarget.style.borderColor = '';
+                e.currentTarget.style.backgroundColor = '';
+              }
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.currentTarget.style.borderColor = '';
+              e.currentTarget.style.backgroundColor = '';
+              handleDrop(zone);
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="font-medium text-gray-700">{zone.label}</div>
+              {showValidation && zone.currentItem && (
+                <div className="text-2xl">
+                  {getValidationStyle(zone).includes('green') ? '✅' : '❌'}
+                </div>
+              )}
             </div>
-          </Card>
-        </motion.div>
-      )}
+            
+            <AnimatePresence>
+              {zone.currentItem && (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  className="mt-3"
+                >
+                  <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                    <span className="font-medium">{zone.currentItem.content}</span>
+                    {!disabled && (
+                      <button
+                        onClick={() => handleRemoveFromZone(zone.id)}
+                        className="text-red-500 hover:text-red-700 ml-2"
+                        title="Retirer"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {!zone.currentItem && (
+              <div className="mt-2 text-gray-400 text-center italic">
+                Glissez un élément ici
+              </div>
+            )}
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }; 

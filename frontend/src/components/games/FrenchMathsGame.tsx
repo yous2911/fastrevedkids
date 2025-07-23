@@ -52,7 +52,7 @@ const FrenchMathsGame: React.FC = () => {
     streak: 0
   });
 
-  const dropZoneRef = useRef<HTMLDivElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement | null>(null);
 
   // Get current challenge
   const currentDefi = defis[currentIndex];

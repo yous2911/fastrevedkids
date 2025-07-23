@@ -23,8 +23,8 @@ export const LazyImage: React.FC<LazyImageProps> = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
-  const observerRef = useRef<IntersectionObserver>();
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Intersection Observer for lazy loading
   useEffect(() => {

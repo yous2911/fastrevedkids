@@ -151,7 +151,7 @@ const COMPETENCE_EXERCISES: CompetenceExercise[] = [
 
 const PlumeEnchanteeCP2025: React.FC = () => {
   // États principaux
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const [drawing, setDrawing] = useState(false);
   const [userTrace, setUserTrace] = useState<TracePoint[]>([]);

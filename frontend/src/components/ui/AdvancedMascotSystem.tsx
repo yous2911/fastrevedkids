@@ -46,12 +46,12 @@ const AdvancedMascotSystem: React.FC<AdvancedMascotProps> = ({
   onMascotInteraction,
   onEmotionalStateChange
 }) => {
-  const mountRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<THREE.Scene>();
-  const rendererRef = useRef<THREE.WebGLRenderer>();
-  const cameraRef = useRef<THREE.PerspectiveCamera>();
-  const mascotGroupRef = useRef<THREE.Group>();
-  const animationRef = useRef<number>();
+  const mountRef = useRef<HTMLDivElement | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const mascotGroupRef = useRef<THREE.Group | null>(null);
+  const animationRef = useRef<number | null>(null);
   
   // Advanced AI State Management
   const [aiState, setAiState] = useState<MascotAIState>({
