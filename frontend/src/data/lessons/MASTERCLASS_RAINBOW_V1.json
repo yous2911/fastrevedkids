@@ -1,0 +1,155 @@
+{
+  "lessonId": "MASTERCLASS_RAINBOW_V1",
+  "title": "L'Arc-en-Ciel des Parts",
+  "description": "Découvre la magie des fractions à travers un cristal qui projette des arcs-en-ciel divisibles !",
+  "targetLevel": "CP-CE1",
+  "duration": "12 minutes",
+  "competencies": ["fractions", "parts", "tout", "demi", "quart"],
+  
+  "problem": { 
+    "type": "interactive_visual",
+    "concept": "fractions_introduction",
+    "whole": "arc-en-ciel",
+    "parts": [2, 4]
+  },
+  
+  "voiceover": {
+    "provider": "elevenlabs",
+    "voice_id": "Serena",
+    "script": [
+      { 
+        "step": 1, 
+        "text": "Observe ce cristal magique. Il contient toute la lumière pure. Regarde ce qu'il se passe quand un rayon le traverse..." 
+      },
+      { 
+        "step": 2, 
+        "text": "Un magnifique arc-en-ciel ! C'est un 'tout'. Une seule et même chose, parfaite et entière, comme un gâteau complet." 
+      },
+      { 
+        "step": 3, 
+        "text": "Et si on le partageait en deux parts parfaitement égales ? Chaque moitié est ce qu'on appelle 'un demi'. Deux demis forment un tout !" 
+      },
+      { 
+        "step": 4, 
+        "text": "Regarde la magie ! Deux demis, quand on les rassemble, reforment l'arc-en-ciel entier. Rien ne se perd, tout se transforme !" 
+      },
+      { 
+        "step": 5, 
+        "text": "Essayons avec quatre parts égales ! Chacune est 'un quart'. Quatre quarts reforment toujours le tout. C'est le secret des fractions !" 
+      }
+    ]
+  },
+
+  "animation_steps": [
+    { 
+      "type": "summon_crystal", 
+      "targets": ["crystal"],
+      "duration": 2500,
+      "explanation": "<strong>💎 Un Cristal de Lumière Pure</strong><br>Ce cristal magique contient toute la lumière du monde. Il est pur, entier, parfait. C'est notre point de départ : le TOUT.",
+      "mascot": { "emoji": "😮", "message": "Quelle beauté cristalline !" },
+      "sounds": ["crystal_summon", "magical_chime"],
+      "haptics": ["light", "medium"]
+    },
+    { 
+      "type": "project_rainbow", 
+      "from": "crystal",
+      "targets": ["rainbow-container"],
+      "duration": 3000,
+      "explanation": "<strong>🌈 Le Cristal projette un arc-en-ciel !</strong><br>Voici notre 'TOUT' dans toute sa splendeur ! Sept couleurs unies en une seule beauté. C'est notre unité complète (1).",
+      "mascot": { "emoji": "😍", "message": "C'est si beau et complet !" },
+      "sounds": ["rainbow_projection", "magic_whoosh"],
+      "haptics": ["medium", "success"]
+    },
+    { 
+      "type": "split_into_parts", 
+      "parts": 2,
+      "targets": ["rainbow-parts"],
+      "duration": 3500,
+      "explanation": "<strong>✨ Divisons-le en 2 parts égales</strong><br>Chaque morceau est 'un demi' (1/2). Regarde : ils sont parfaitement identiques ! Deux moitiés parfaites.",
+      "mascot": { "emoji": "🧐", "message": "Deux moitiés parfaites !" },
+      "sounds": ["magic_split", "crystal_division"],
+      "haptics": ["success", "light", "light"]
+    },
+    { 
+      "type": "reassemble_parts", 
+      "parts": 2,
+      "targets": ["rainbow-container"],
+      "duration": 3000,
+      "explanation": "<strong>🪄 Réassemblons les 2 demis</strong><br>Ils reforment le 'tout' à la perfection ! 1/2 + 1/2 = 1 entier. La magie des fractions : les parts font toujours le tout !",
+      "mascot": { "emoji": "✨", "message": "La magie des nombres !" },
+      "sounds": ["magic_fusion", "success_chime"],
+      "haptics": ["success", "epic"]
+    },
+    { 
+      "type": "split_into_parts", 
+      "parts": 4,
+      "targets": ["rainbow-parts"],
+      "duration": 4000,
+      "explanation": "<strong>✨ Et maintenant, en 4 parts égales !</strong><br>Chaque morceau est 'un quart' (1/4). Quatre petites merveilles identiques ! Quatre quarts dans un tout.",
+      "mascot": { "emoji": "🤓", "message": "4 quarts magiques !" },
+      "sounds": ["magic_split", "crystal_quad_division"],
+      "haptics": ["light", "light", "light", "light"]
+    },
+    {
+      "type": "celebrate",
+      "targets": ["crystal", "rainbow-container"],
+      "duration": 5000,
+      "explanation": "<strong>🏆 Tu as découvert le secret des fractions !</strong><br>🎊 Les fractions sont juste des morceaux magiques d'un tout ! Demis, quarts... tu es prêt pour le CE1 !",
+      "mascot": { "emoji": "🎓", "message": "Génie des mathématiques !" },
+      "sounds": ["epic_success", "rainbow_celebration"],
+      "haptics": ["epic", "celebration", "success"]
+    }
+  ],
+
+  "interactive_elements": {
+    "crystal_actions": ["rotation", "pulse", "glow"],
+    "rainbow_manipulations": [
+      {
+        "action": "split_in_half",
+        "feedback": "Parfait ! Tu as créé deux moitiés égales.",
+        "sound": "magic_split",
+        "haptic": "success"
+      },
+      {
+        "action": "split_in_quarters", 
+        "feedback": "Excellent ! Quatre quarts parfaitement égaux !",
+        "sound": "crystal_quad_division",
+        "haptic": "success"
+      },
+      {
+        "action": "reassemble",
+        "feedback": "Magique ! Le tout est reformé à la perfection !",
+        "sound": "magic_fusion",
+        "haptic": "epic"
+      }
+    ]
+  },
+
+  "assessment": {
+    "type": "interactive_quiz",
+    "questions": [
+      {
+        "type": "visual_fraction",
+        "question": "Combien de parts égales vois-tu ?",
+        "options": ["2", "3", "4"],
+        "correct": "2",
+        "visual": "rainbow_half_split"
+      },
+      {
+        "type": "fraction_naming",
+        "question": "Comment s'appelle chaque part quand on divise en 4 ?",
+        "options": ["un demi", "un tiers", "un quart"],
+        "correct": "un quart",
+        "visual": "rainbow_quarter_split"
+      }
+    ]
+  },
+
+  "metadata": {
+    "created": "2024-01-15",
+    "version": "1.0",
+    "tags": ["fractions", "visual_learning", "interactive", "CP-CE1"],
+    "difficulty": "beginner",
+    "estimated_completion_time": 720
+  }
+} 
