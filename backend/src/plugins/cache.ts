@@ -2,6 +2,7 @@
 import fp from 'fastify-plugin';
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import Redis from 'ioredis';
+import { config } from '../config/config';
 import { RedisConfig, CacheService } from '../types';
 
 interface CacheStats {
@@ -235,13 +236,13 @@ class RedisCache implements CacheService {
 const cachePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   let cacheService: CacheService;
 
-  if (fastify.config.REDIS_ENABLED && fastify.config.REDIS_HOST) {
+  if (config.REDIS_HOST) {
     try {
       // FIXED: Line 198:26 - Replace any with RedisConfig
       const redisConfig: RedisConfig = {
-        host: fastify.config.REDIS_HOST!,
-        port: fastify.config.REDIS_PORT || 6379,
-        db: fastify.config.REDIS_DB || 0,
+        host: config.REDIS_HOST!,
+        port: config.REDIS_PORT || 6379,
+        db: 0, // Default to database 0
         maxRetriesPerRequest: 3,
         lazyConnect: true,
         connectTimeout: 10000,
@@ -250,8 +251,8 @@ const cachePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       };
 
       // Add password if provided
-      if (fastify.config.REDIS_PASSWORD) {
-        redisConfig.password = fastify.config.REDIS_PASSWORD;
+      if (config.REDIS_PASSWORD) {
+        redisConfig.password = config.REDIS_PASSWORD;
       }
 
       const redis = new Redis(redisConfig);
