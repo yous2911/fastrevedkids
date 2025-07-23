@@ -2,335 +2,296 @@
 // Fix authentication routes to use consistent response format
 // Update src/routes/auth.ts
 
-import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { z } from 'zod';
+import { FastifyInstance, FastifyRequest, FastifyReply, RouteOptions } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { db } from '../db/connection';
-import * as schema from '../db/schema';
-import type { AuthenticatedRequest } from '../types/fastify-extended';
+import bcrypt from 'bcrypt';
+import { students } from '../db/schema';
+import { authSchemas } from '../schemas/auth.schema';
 
-// Validation schemas
-const loginSchema = z.object({
-  prenom: z.string().min(2),
-  nom: z.string().min(2),
-});
+// Fix: Properly type the Fastify instance with plugins
+interface FastifyInstanceWithPlugins extends FastifyInstance {
+  db: any;
+  cache: any;
+  authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+}
 
-const registerSchema = z.object({
-  prenom: z.string().min(2),
-  nom: z.string().min(2),
-  age: z.number().min(5).max(12),
-  niveauActuel: z.enum(['CP', 'CE1', 'CE2', 'CM1', 'CM2']),
-});
-
-const updateProfileSchema = z.object({
-  prenom: z.string().min(2).optional(),
-  nom: z.string().min(2).optional(),
-  age: z.number().min(5).max(12).optional(),
-  niveauActuel: z.enum(['CP', 'CE1', 'CE2', 'CM1', 'CM2']).optional(),
-});
-
-export default async function authRoutes(fastify: FastifyInstance): Promise<void> {
+export default async function authRoutes(fastify: FastifyInstanceWithPlugins) {
   // Login endpoint
   fastify.post('/login', {
-    schema: {
-      body: {
-        type: 'object',
-        required: ['prenom', 'nom'],
-        properties: {
-          prenom: { type: 'string', minLength: 2 },
-          nom: { type: 'string', minLength: 2 },
-        },
-      },
+    schema: authSchemas.login,
+    handler: async (request: FastifyRequest<{
+      Body: { prenom: string; nom: string; motDePasse?: string }
+    }>, reply: FastifyReply) => {
+      const { prenom, motDePasse } = request.body;
+
+      try {
+        // Find student by name
+        const student = await fastify.db
+          .select()
+          .from(students)
+          .where(eq(students.prenom, prenom))
+          .limit(1);
+
+        if (student.length === 0) {
+          return reply.status(404).send({
+            success: false,
+            error: {
+              message: 'Élève non trouvé',
+              code: 'STUDENT_NOT_FOUND',
+            },
+          });
+        }
+
+        const foundStudent = student[0];
+
+        // If password is provided, verify it
+        if (motDePasse && foundStudent.motDePasseHash) {
+          const isValidPassword = await bcrypt.compare(motDePasse, foundStudent.motDePasseHash);
+          if (!isValidPassword) {
+            return reply.status(401).send({
+              success: false,
+              error: {
+                message: 'Mot de passe incorrect',
+                code: 'INVALID_PASSWORD',
+              },
+            });
+          }
+        }
+
+        // Update last access and connection status
+        await fastify.db
+          .update(students)
+          .set({
+            dernierAcces: new Date(),
+            estConnecte: true,
+          })
+          .where(eq(students.id, foundStudent.id));
+
+        // Generate JWT token
+        const token = await reply.jwtSign({
+          id: foundStudent.id,
+          prenom: foundStudent.prenom,
+          nom: foundStudent.nom,
+          niveauActuel: foundStudent.niveauActuel,
+        });
+
+        // Cache student session if available
+        if (fastify.cache) {
+          await fastify.cache.set(
+            `session:${foundStudent.id}`,
+            JSON.stringify({
+              studentId: foundStudent.id,
+              prenom: foundStudent.prenom,
+              nom: foundStudent.nom,
+              niveau: foundStudent.niveauActuel,
+              loginTime: new Date().toISOString(),
+            }),
+            3600 // 1 hour
+          );
+        }
+
+        return reply.send({
+          success: true,
+          data: {
+            token,
+            student: {
+              id: foundStudent.id,
+              prenom: foundStudent.prenom,
+              nom: foundStudent.nom,
+              niveau: foundStudent.niveauActuel,
+              age: foundStudent.age,
+              totalPoints: foundStudent.totalPoints,
+              serieJours: foundStudent.serieJours,
+            },
+          },
+          message: 'Connexion réussie',
+        });
+      } catch (error) {
+        fastify.log.error('Login error:', error);
+        return reply.status(500).send({
+          success: false,
+          error: {
+            message: 'Erreur lors de la connexion',
+            code: 'LOGIN_ERROR',
+          },
+        });
+      }
     },
-  }, async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      const { prenom, nom } = loginSchema.parse(request.body);
-
-      // Find student by prenom and nom
-      const students = await db
-        .select()
-        .from(schema.students)
-        .where(eq(schema.students.prenom, prenom))
-        .limit(1);
-
-      const student = students[0];
-      if (!student || student.nom !== nom) {
-        return reply.status(401).send({
-          success: false,
-          error: {
-            message: 'Student not found',
-            code: 'STUDENT_NOT_FOUND',
-            statusCode: 401,
-          },
-        });
-      }
-
-      // Update last access and connection status
-      await db
-        .update(schema.students)
-        .set({
-          dernierAcces: new Date(),
-          estConnecte: true,
-        })
-        .where(eq(schema.students.id, student.id));
-
-      // Generate token
-      const token = fastify.jwt.sign({
-        id: student.id,
-        prenom: student.prenom,
-        nom: student.nom,
-        niveauActuel: student.niveauActuel,
-      });
-
-      return reply.send({
-        success: true,
-        data: {
-          token,
-          student: {
-            id: student.id,
-            prenom: student.prenom,
-            nom: student.nom,
-            niveauActuel: student.niveauActuel,
-            age: student.age,
-            totalPoints: student.totalPoints,
-            serieJours: student.serieJours,
-          },
-        },
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation failed',
-            details: error.errors,
-            statusCode: 400,
-          },
-        });
-      }
-
-      fastify.log.error('Login error:', error);
-      return reply.status(500).send({
-        success: false,
-        error: {
-          message: 'Internal server error',
-          statusCode: 500,
-        },
-      });
-    }
-  });
-
-  // Register endpoint
-  fastify.post('/register', {
-    schema: {
-      body: {
-        type: 'object',
-        required: ['prenom', 'nom', 'age', 'niveauActuel'],
-        properties: {
-          prenom: { type: 'string', minLength: 2 },
-          nom: { type: 'string', minLength: 2 },
-          age: { type: 'number', minimum: 5, maximum: 12 },
-          niveauActuel: { type: 'string', enum: ['CP', 'CE1', 'CE2', 'CM1', 'CM2'] },
-        },
-      },
-    },
-  }, async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      const { prenom, nom, age, niveauActuel } = registerSchema.parse(request.body);
-
-      // Check if student already exists
-      const existingStudents = await db
-        .select()
-        .from(schema.students)
-        .where(eq(schema.students.prenom, prenom))
-        .limit(1);
-
-      if (existingStudents[0] && existingStudents[0].nom === nom) {
-        return reply.status(409).send({
-          success: false,
-          error: {
-            message: 'Student already exists',
-            code: 'STUDENT_EXISTS',
-            statusCode: 409,
-          },
-        });
-      }
-
-      // Create new student
-      await db.insert(schema.students).values({
-        prenom,
-        nom,
-        age,
-        niveauActuel,
-        totalPoints: 0,
-        serieJours: 0,
-        estConnecte: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-
-      return reply.status(201).send({
-        success: true,
-        message: 'Student registered successfully',
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation failed',
-            details: error.errors,
-            statusCode: 400,
-          },
-        });
-      }
-
-      fastify.log.error('Registration error:', error);
-      return reply.status(500).send({
-        success: false,
-        error: {
-          message: 'Internal server error',
-          statusCode: 500,
-        },
-      });
-    }
-  });
-
-  // Get current student profile
-  fastify.get('/profile', {
-    preHandler: fastify.authenticate,
-  }, async (request: AuthenticatedRequest, reply: FastifyReply) => {
-    try {
-      const studentId = request.user.id;
-
-      const students = await db
-        .select()
-        .from(schema.students)
-        .where(eq(schema.students.id, studentId))
-        .limit(1);
-
-      const student = students[0];
-      if (!student) {
-        return reply.status(404).send({
-          success: false,
-          error: {
-            message: 'Student not found',
-            statusCode: 404,
-          },
-        });
-      }
-
-      return reply.send({
-        success: true,
-        data: {
-          student: {
-            id: student.id,
-            prenom: student.prenom,
-            nom: student.nom,
-            niveauActuel: student.niveauActuel,
-            age: student.age,
-            totalPoints: student.totalPoints,
-            serieJours: student.serieJours,
-            dernierAcces: student.dernierAcces,
-            estConnecte: student.estConnecte,
-          },
-        },
-      });
-    } catch (error) {
-      fastify.log.error('Get profile error:', error);
-      return reply.status(500).send({
-        success: false,
-        error: {
-          message: 'Internal server error',
-          statusCode: 500,
-        },
-      });
-    }
-  });
-
-  // Update student profile
-  fastify.put('/profile', {
-    preHandler: fastify.authenticate,
-    schema: {
-      body: {
-        type: 'object',
-        properties: {
-          prenom: { type: 'string', minLength: 2 },
-          nom: { type: 'string', minLength: 2 },
-          age: { type: 'number', minimum: 5, maximum: 12 },
-          niveauActuel: { type: 'string', enum: ['CP', 'CE1', 'CE2', 'CM1', 'CM2'] },
-        },
-      },
-    },
-  }, async (request: AuthenticatedRequest, reply: FastifyReply) => {
-    try {
-      const studentId = request.user.id;
-      const updates = updateProfileSchema.parse(request.body);
-
-      await db
-        .update(schema.students)
-        .set({
-          ...updates,
-          updatedAt: new Date(),
-        })
-        .where(eq(schema.students.id, studentId));
-
-      return reply.send({
-        success: true,
-        message: 'Profile updated successfully',
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation failed',
-            details: error.errors,
-            statusCode: 400,
-          },
-        });
-      }
-
-      fastify.log.error('Update profile error:', error);
-      return reply.status(500).send({
-        success: false,
-        error: {
-          message: 'Internal server error',
-          statusCode: 500,
-        },
-      });
-    }
   });
 
   // Logout endpoint
   fastify.post('/logout', {
-    preHandler: fastify.authenticate,
-  }, async (request: AuthenticatedRequest, reply: FastifyReply) => {
+    schema: authSchemas.logout,
+    preHandler: [fastify.authenticate],
+  }, async (request: FastifyRequest & { user: any }, reply: FastifyReply) => {
     try {
-      const studentId = request.user.id;
+      const { studentId } = request.user;
 
       // Update connection status
-      await db
-        .update(schema.students)
-        .set({
-          estConnecte: false,
-          updatedAt: new Date(),
-        })
-        .where(eq(schema.students.id, studentId));
+      await fastify.db
+        .update(students)
+        .set({ estConnecte: false })
+        .where(eq(students.id, studentId));
+
+      // Remove cached session if available
+      if (fastify.cache) {
+        await fastify.cache.del(`session:${studentId}`);
+      }
 
       return reply.send({
         success: true,
-        message: 'Logged out successfully',
+        message: 'Déconnexion réussie',
       });
     } catch (error) {
       fastify.log.error('Logout error:', error);
       return reply.status(500).send({
         success: false,
         error: {
-          message: 'Internal server error',
-          statusCode: 500,
+          message: 'Erreur lors de la déconnexion',
+          code: 'LOGOUT_ERROR',
         },
       });
     }
+  });
+
+  // Refresh token endpoint
+  fastify.post('/refresh', {
+    schema: authSchemas.refresh,
+    preHandler: [fastify.authenticate],
+  }, async (request: FastifyRequest & { user: any }, reply: FastifyReply) => {
+    try {
+      const { studentId, prenom, nom, niveau } = request.user;
+
+      // Check if student still exists and is active
+      const student = await fastify.db
+        .select()
+        .from(students)
+        .where(eq(students.id, studentId))
+        .limit(1);
+
+      if (student.length === 0) {
+        return reply.status(404).send({
+          success: false,
+          error: {
+            message: 'Élève non trouvé',
+            code: 'STUDENT_NOT_FOUND',
+          },
+        });
+      }
+
+      // Generate new token
+      const token = await reply.jwtSign({
+        id: studentId,
+        prenom,
+        nom,
+        niveauActuel: niveau,
+      });
+
+      return reply.send({
+        success: true,
+        data: { token },
+        message: 'Token actualisé',
+      });
+    } catch (error) {
+      fastify.log.error('Refresh token error:', error);
+      return reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Erreur lors du renouvellement du token',
+          code: 'REFRESH_ERROR',
+        },
+      });
+    }
+  });
+
+  // Verify student endpoint
+  fastify.get('/verify/:studentId', {
+    schema: authSchemas.verify,
+    handler: async (request: FastifyRequest<{
+      Params: { studentId: string }
+    }>, reply: FastifyReply) => {
+      try {
+        const { studentId } = request.params;
+        
+        const student = await fastify.db
+          .select()
+          .from(students)
+          .where(eq(students.id, parseInt(studentId)))
+          .limit(1);
+
+        if (student.length === 0) {
+          return reply.status(404).send({
+            success: false,
+            error: {
+              message: 'Élève non trouvé',
+              code: 'STUDENT_NOT_FOUND',
+            },
+          });
+        }
+
+        const foundStudent = student[0];
+
+        return reply.send({
+          success: true,
+          data: {
+            student: {
+              id: foundStudent.id,
+              prenom: foundStudent.prenom,
+              nom: foundStudent.nom,
+              niveau: foundStudent.niveauActuel,
+              age: foundStudent.age,
+              dernierAcces: foundStudent.dernierAcces,
+              estConnecte: foundStudent.estConnecte,
+            },
+            parentCode: `PAR${foundStudent.id.toString().padStart(4, '0')}`,
+          },
+          message: 'Élève vérifié avec succès',
+        });
+      } catch (error) {
+        fastify.log.error('Verify student error:', error);
+        return reply.status(500).send({
+          success: false,
+          error: {
+            message: 'Erreur lors de la vérification',
+            code: 'VERIFICATION_ERROR',
+          },
+        });
+      }
+    },
+  });
+
+  // Health check endpoint
+  fastify.get('/health', {
+    schema: authSchemas.health,
+    handler: async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        // Count total students
+        const totalStudents = await fastify.db
+          .select({ count: 'count(*)' })
+          .from(students)
+          .then((result: any) => result[0]?.count || 0);
+
+        return reply.send({
+          success: true,
+          data: {
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            database: 'connected',
+            totalStudents: parseInt(totalStudents),
+            uptime: Math.floor(process.uptime()),
+          },
+          message: 'Service d\'authentification opérationnel',
+        });
+      } catch (error) {
+        fastify.log.error('Auth health check error:', error);
+        return reply.status(500).send({
+          success: false,
+          error: {
+            message: 'Erreur lors de la vérification de l\'état du service',
+            code: 'HEALTH_CHECK_ERROR',
+          },
+        });
+      }
+    },
   });
 }
