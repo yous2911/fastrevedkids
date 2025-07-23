@@ -1,14 +1,16 @@
-// API Response types matching backend structure
+import { ChoiceOption } from './exercise.types';
+
+// Fix ApiResponse structure to match backend
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
-  error?: {
+  error?: string | {
     message: string;
     code?: string;
     details?: any;
   };
-  timestamp?: string;
   message?: string;
+  timestamp?: string;
 }
 
 export interface PaginatedResponse<T = any> extends ApiResponse<{
@@ -106,9 +108,10 @@ export interface SousChapitre {
   updatedAt: string;
 }
 
+// Fix ExerciceConfiguration to include missing properties
 export interface ExerciceConfiguration {
   question: string;
-  choix?: string[];
+  choix?: ChoiceOption[] | string[]; // Allow both formats
   bonneReponse?: string | number;
   solution?: any;
   operation?: string;
@@ -119,8 +122,17 @@ export interface ExerciceConfiguration {
   targetWord?: string;
   hint?: string;
   successMessage?: string;
-  items?: any[];
-  zones?: any[];
+  items?: DragItem[];
+  zones?: DropZone[];
+  timeLimit?: number;
+  audioRequired?: boolean;
+  image?: {
+    url_placeholder: string;
+    description: string;
+  };
+  phrase_template?: string;
+  inputType?: string;
+  dragItems?: DragItem[];
 }
 
 export interface ExercicePedagogique {

@@ -80,6 +80,8 @@ export interface DefiPhonique {
   hint?: string;
   difficulty?: string;
   period?: number;
+  timeLimit?: number;
+  successMessage?: string;
 }
 
 // Types pour les réponses API

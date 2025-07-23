@@ -104,8 +104,33 @@ export const FrenchPhonicsGame: React.FC = () => {
   const resetChallenge = useCallback(() => {
     if (!currentChallenge) return;
     
-    setDropZones(currentChallenge.dropZones || []);
-    setAvailableBlocks(currentChallenge.components || []);
+    // Convert API dropZones to local DropZone format
+    const convertedDropZones: DropZone[] = (currentChallenge.dropZones || []).map((zone: any, index: number) => ({
+      id: zone.id || `zone-${index}`,
+      position: index,
+      acceptedTypes: zone.accepts || ['phoneme', 'syllabe', 'mot'],
+      isActive: false,
+      isCorrect: false,
+      currentBlock: null,
+      magneticField: false
+    }));
+    
+    // Convert API components to local MagicBlock format
+    const convertedBlocks: MagicBlock[] = (currentChallenge.components || []).map((block: any) => ({
+      id: block.id,
+      type: block.type || 'phoneme',
+      content: block.content,
+      color: block.color || '#6366f1',
+      size: block.size || 'moyen',
+      magnetism: block.magnetism || 0.5,
+      vibration: block.vibration || false,
+      isPlaced: false,
+      audioKey: block.audioKey || 'default',
+      sparkleIntensity: block.sparkleIntensity || 0.3
+    }));
+    
+    setDropZones(convertedDropZones);
+    setAvailableBlocks(convertedBlocks);
     setIsCompleted(false);
     setStartTime(Date.now());
     setTimeElapsed(0);

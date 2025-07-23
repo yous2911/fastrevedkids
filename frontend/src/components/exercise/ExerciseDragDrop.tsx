@@ -23,7 +23,7 @@ export const ExerciseDragDrop: React.FC<ExerciseDragDropProps> = ({
     return exercise.configuration.zones || [];
   });
   
-  const dragRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<HTMLDivElement | null>(null);
   
   // Proper drag start handling
   const handleDragStart = useCallback((item: DragItem) => {

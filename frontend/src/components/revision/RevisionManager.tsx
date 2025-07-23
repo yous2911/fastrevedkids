@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, ProgressBar, LoadingSpinner, Toast } from '../ui';
+import { Card } from '../ui/Card';
+import { Button } from '../ui/Button';
+import { ProgressBar } from '../ui/ProgressBar';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { Toast } from '../ui/Toast';
 import { revisionService } from '../../services/revision.service';
 
 interface RevisionExercise {
@@ -82,21 +86,19 @@ export const RevisionManager: React.FC<RevisionManagerProps> = ({
 
     try {
       if (success) {
-        await revisionService.recordSuccess(
-          eleveId,
-          selectedExercise.exercice.id,
-          selectedExercise.questionId,
-          tempsReponse
-        );
+        await revisionService.recordSuccess(eleveId, {
+          exerciceId: selectedExercise.exercice.id,
+          questionId: selectedExercise.questionId,
+          tempsReponse: tempsReponse
+        });
         setToastMessage('Exercice réussi ! Révision mise à jour.');
         setToastType('success');
       } else {
-        await revisionService.recordFailure(
-          eleveId,
-          selectedExercise.exercice.id,
-          selectedExercise.questionId,
-          tempsReponse
-        );
+        await revisionService.recordFailure(eleveId, {
+          exerciceId: selectedExercise.exercice.id,
+          questionId: selectedExercise.questionId,
+          tempsReponse: tempsReponse
+        });
         setToastMessage('Échec enregistré. Révision reprogrammée.');
         setToastType('error');
       }
