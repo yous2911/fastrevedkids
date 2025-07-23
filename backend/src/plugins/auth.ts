@@ -1,62 +1,42 @@
-import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+// src/plugins/auth.ts
 import fp from 'fastify-plugin';
 import jwt from '@fastify/jwt';
-import { jwtConfig } from '../config/environment';
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import { config } from '../config/config';
 
-declare module 'fastify' {
-  interface FastifyInstance {
-    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
-  }
-}
-
-declare module '@fastify/jwt' {
-  interface FastifyJWT {
-    payload: {
-      id: number;
-      prenom: string;
-      nom: string;
-      niveauActuel: string;
-      iat?: number;
-      exp?: number;
-    };
-    user: {
-      id: number;
-      prenom: string;
-      nom: string;
-      niveauActuel: string;
-    };
-  }
-}
-
-async function authPlugin(fastify: FastifyInstance): Promise<void> {
-  // Register JWT
+const authPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   await fastify.register(jwt, {
-    secret: jwtConfig.secret,
+    secret: config.JWT_SECRET,
     sign: {
-      expiresIn: jwtConfig.expiresIn,
+      expiresIn: config.JWT_EXPIRES_IN,
+    },
+    verify: {
+      extractToken: (request) => {
+        const authHeader = request.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          return authHeader.slice(7);
+        }
+        return undefined;
+      },
     },
   });
 
-  // Add authenticate decorator
-  fastify.decorate('authenticate', async function (
-    request: FastifyRequest,
-    reply: FastifyReply
-  ): Promise<void> {
+  // Add authentication decorator
+  fastify.decorate('authenticate', async function (request, reply) {
     try {
       await request.jwtVerify();
     } catch (err) {
-      await reply.status(401).send({
+      reply.status(401).send({
         success: false,
         error: {
           message: 'Authentication required',
           code: 'UNAUTHORIZED',
-          statusCode: 401,
         },
       });
     }
   });
-}
 
-export default fp(authPlugin, {
-  name: 'auth',
-});
+  fastify.log.info('✅ Authentication plugin registered successfully');
+};
+
+export default fp(authPlugin, { name: 'auth' });

@@ -1,46 +1,35 @@
-import { FastifyInstance } from 'fastify';
+// src/plugins/swagger.ts
 import fp from 'fastify-plugin';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 
-async function swaggerPlugin(fastify: FastifyInstance): Promise<void> {
+const swaggerPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+  // Swagger documentation
   await fastify.register(swagger, {
-    openapi: {
-      openapi: '3.0.0',
+    swagger: {
       info: {
         title: 'RevEd Kids API',
         description: 'Educational platform API documentation',
         version: '2.0.0',
       },
-      servers: [
-        {
-          url: 'http://localhost:3000',
-          description: 'Development server',
-        },
-      ],
-      components: {
-        securitySchemes: {
-          bearerAuth: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT',
-          },
-        },
-      },
+      host: 'localhost:3001',
+      schemes: ['http'],
+      consumes: ['application/json'],
+      produces: ['application/json'],
     },
   });
 
+  // Swagger UI
   await fastify.register(swaggerUi, {
     routePrefix: '/docs',
     uiConfig: {
-      docExpansion: 'full',
-      deepLinking: false,
+      docExpansion: 'list',
+      deepLinking: true,
     },
-    staticCSP: true,
-    transformStaticCSP: (header) => header,
   });
-}
 
-export default fp(swaggerPlugin, {
-  name: 'swagger',
-});
+  fastify.log.info('✅ Swagger plugin registered successfully');
+};
+
+export default fp(swaggerPlugin, { name: 'swagger' });
