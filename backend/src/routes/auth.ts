@@ -2,20 +2,16 @@
 // Fix authentication routes to use consistent response format
 // Update src/routes/auth.ts
 
-import { FastifyInstance, FastifyRequest, FastifyReply, RouteOptions } from 'fastify';
+import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 import { students } from '../db/schema';
 import { authSchemas } from '../schemas/auth.schema';
 
-// Fix: Properly type the Fastify instance with plugins
-interface FastifyInstanceWithPlugins extends FastifyInstance {
-  db: any;
-  cache: any;
-  authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
-}
-
-export default async function authRoutes(fastify: FastifyInstanceWithPlugins) {
+// FIXED: Remove custom interface, use standard FastifyInstance
+// The decorations are handled by the type declarations in fastify-extended.ts
+export default async function authRoutes(fastify: FastifyInstance) {
+  
   // Login endpoint
   fastify.post('/login', {
     schema: authSchemas.login,
@@ -25,7 +21,7 @@ export default async function authRoutes(fastify: FastifyInstanceWithPlugins) {
       const { prenom, motDePasse } = request.body;
 
       try {
-        // Find student by name
+        // FIXED: Use fastify.db directly (typed via module augmentation)
         const student = await fastify.db
           .select()
           .from(students)
@@ -44,7 +40,7 @@ export default async function authRoutes(fastify: FastifyInstanceWithPlugins) {
 
         const foundStudent = student[0];
 
-        // If password is provided, verify it
+        // Password verification if provided
         if (motDePasse && foundStudent.motDePasseHash) {
           const isValidPassword = await bcrypt.compare(motDePasse, foundStudent.motDePasseHash);
           if (!isValidPassword) {
@@ -58,7 +54,7 @@ export default async function authRoutes(fastify: FastifyInstanceWithPlugins) {
           }
         }
 
-        // Update last access and connection status
+        // Update student status
         await fastify.db
           .update(students)
           .set({
@@ -69,13 +65,13 @@ export default async function authRoutes(fastify: FastifyInstanceWithPlugins) {
 
         // Generate JWT token
         const token = await reply.jwtSign({
-          id: foundStudent.id,
+          studentId: foundStudent.id,
           prenom: foundStudent.prenom,
           nom: foundStudent.nom,
-          niveauActuel: foundStudent.niveauActuel,
+          niveau: foundStudent.niveauActuel,
         });
 
-        // Cache student session if available
+        // FIXED: Optional cache usage with proper checking
         if (fastify.cache) {
           await fastify.cache.set(
             `session:${foundStudent.id}`,
@@ -86,7 +82,7 @@ export default async function authRoutes(fastify: FastifyInstanceWithPlugins) {
               niveau: foundStudent.niveauActuel,
               loginTime: new Date().toISOString(),
             }),
-            3600 // 1 hour
+            3600
           );
         }
 
@@ -123,86 +119,87 @@ export default async function authRoutes(fastify: FastifyInstanceWithPlugins) {
   fastify.post('/logout', {
     schema: authSchemas.logout,
     preHandler: [fastify.authenticate],
-  }, async (request, reply) => {
-    const user = (request as any).user;
-    try {
-      const { studentId } = user;
+    handler: async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        // FIXED: Type assertion for authenticated request
+        const { studentId } = (request as any).user;
 
-      // Update connection status
-      await fastify.db
-        .update(students)
-        .set({ estConnecte: false })
-        .where(eq(students.id, studentId));
+        await fastify.db
+          .update(students)
+          .set({ estConnecte: false })
+          .where(eq(students.id, studentId));
 
-      // Remove cached session if available
-      if (fastify.cache) {
-        await fastify.cache.del(`session:${studentId}`);
+        if (fastify.cache) {
+          await fastify.cache.del(`session:${studentId}`);
+        }
+
+        return reply.send({
+          success: true,
+          message: 'Déconnexion réussie',
+        });
+      } catch (error) {
+        fastify.log.error('Logout error:', error);
+        return reply.status(500).send({
+          success: false,
+          error: {
+            message: 'Erreur lors de la déconnexion',
+            code: 'LOGOUT_ERROR',
+          },
+        });
       }
-
-      return reply.send({
-        success: true,
-        message: 'Déconnexion réussie',
-      });
-    } catch (error) {
-      fastify.log.error('Logout error:', error);
-      return reply.status(500).send({
-        success: false,
-        error: {
-          message: 'Erreur lors de la déconnexion',
-          code: 'LOGOUT_ERROR',
-        },
-      });
-    }
+    },
   });
 
   // Refresh token endpoint
   fastify.post('/refresh', {
     schema: authSchemas.refresh,
     preHandler: [fastify.authenticate],
-  }, async (request: FastifyRequest & { user: any }, reply: FastifyReply) => {
-    try {
-      const { studentId, prenom, nom, niveau } = request.user;
+    handler: async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        // FIXED: Type assertion for authenticated request
+        const { studentId, prenom, nom, niveau } = (request as any).user;
 
-      // Check if student still exists and is active
-      const student = await fastify.db
-        .select()
-        .from(students)
-        .where(eq(students.id, studentId))
-        .limit(1);
+        // Check if student still exists and is active
+        const student = await fastify.db
+          .select()
+          .from(students)
+          .where(eq(students.id, studentId))
+          .limit(1);
 
-      if (student.length === 0) {
-        return reply.status(404).send({
+        if (student.length === 0) {
+          return reply.status(404).send({
+            success: false,
+            error: {
+              message: 'Élève non trouvé',
+              code: 'STUDENT_NOT_FOUND',
+            },
+          });
+        }
+
+        // Generate new token
+        const token = await reply.jwtSign({
+          studentId,
+          prenom,
+          nom,
+          niveau,
+        });
+
+        return reply.send({
+          success: true,
+          data: { token },
+          message: 'Token actualisé',
+        });
+      } catch (error) {
+        fastify.log.error('Refresh token error:', error);
+        return reply.status(500).send({
           success: false,
           error: {
-            message: 'Élève non trouvé',
-            code: 'STUDENT_NOT_FOUND',
+            message: 'Erreur lors du renouvellement du token',
+            code: 'REFRESH_ERROR',
           },
         });
       }
-
-      // Generate new token
-      const token = await reply.jwtSign({
-        id: studentId,
-        prenom,
-        nom,
-        niveauActuel: niveau,
-      });
-
-      return reply.send({
-        success: true,
-        data: { token },
-        message: 'Token actualisé',
-      });
-    } catch (error) {
-      fastify.log.error('Refresh token error:', error);
-      return reply.status(500).send({
-        success: false,
-        error: {
-          message: 'Erreur lors du renouvellement du token',
-          code: 'REFRESH_ERROR',
-        },
-      });
-    }
+    },
   });
 
   // Verify student endpoint
@@ -266,11 +263,12 @@ export default async function authRoutes(fastify: FastifyInstanceWithPlugins) {
     schema: authSchemas.health,
     handler: async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        // Count total students
-        const totalStudents = await fastify.db
-          .select({ count: 'count(*)' })
-          .from(students)
-          .then((result: any) => result[0]?.count || 0);
+        // FIXED: Simple count query without complex aggregation
+        const studentsResult = await fastify.db
+          .select()
+          .from(students);
+        
+        const totalStudents = studentsResult.length;
 
         return reply.send({
           success: true,
@@ -278,7 +276,7 @@ export default async function authRoutes(fastify: FastifyInstanceWithPlugins) {
             status: 'healthy',
             timestamp: new Date().toISOString(),
             database: 'connected',
-            totalStudents: parseInt(totalStudents),
+            totalStudents,
             uptime: Math.floor(process.uptime()),
           },
           message: 'Service d\'authentification opérationnel',

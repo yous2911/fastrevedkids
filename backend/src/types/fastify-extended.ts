@@ -1,72 +1,34 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
-import { db } from '../db/connection';
+import 'fastify';
+import { FastifyRequest as OriginalFastifyRequest, FastifyReply } from 'fastify';
 
 declare module 'fastify' {
   interface FastifyInstance {
+    // Database connection
+    db: any;
+    
+    // Cache service
+    cache: any;
+    
+    // WebSocket broadcast function
+    broadcast?: (message: any) => void;
+    
+    // Authentication decorator
     authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
-    db: typeof db;
+    
+    // Monitoring service
+    monitoring: any;
   }
 
   interface FastifyRequest {
-    user?: {
-      id: number;
-      prenom: string;
-      nom: string;
-      niveauActuel: string;
-    };
+    startTime?: number;
   }
 }
 
-declare module '@fastify/jwt' {
-  interface FastifyJWT {
-    payload: {
-      id: number;
-      prenom: string;
-      nom: string;
-      niveauActuel: string;
-      iat?: number;
-      exp?: number;
-    };
-    user: {
-      id: number;
-      prenom: string;
-      nom: string;
-      niveauActuel: string;
-    };
-  }
-}
-
-export interface AuthenticatedRequest extends FastifyRequest {
+export interface AuthenticatedRequest extends OriginalFastifyRequest {
   user: {
-    id: number;
+    studentId: number;
     prenom: string;
     nom: string;
-    niveauActuel: string;
+    niveau: string;
   };
-}
-
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: {
-    message: string;
-    code?: string;
-    statusCode?: number;
-    details?: any;
-  };
-  timestamp?: string;
-  pagination?: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
-
-export interface QueryOptions {
-  page?: number;
-  limit?: number;
-  sort?: string;
-  order?: 'ASC' | 'DESC';
-  search?: string;
 } 

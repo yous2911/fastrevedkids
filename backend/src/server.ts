@@ -1,6 +1,7 @@
 import fastify, { FastifyInstance } from 'fastify';
 import { config, validateEnvironment } from './config/config';
 import { connectDatabase, disconnectDatabase } from './db/connection';
+// Type declarations handled by plugins
 
 // Validate environment first
 validateEnvironment();
