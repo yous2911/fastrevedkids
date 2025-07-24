@@ -121,7 +121,7 @@ describe('Students Routes', () => {
         attempt: {
           reponse: 'Test answer',
           reussi: true,
-          tempsReponse: 30,
+          tempsSecondes: 30,
           aidesUtilisees: 0
         }
       };
@@ -147,7 +147,7 @@ describe('Students Routes', () => {
         attempt: {
           reponse: '',
           reussi: 'invalid',
-          tempsReponse: -1
+          tempsSecondes: -1
         }
       };
 
