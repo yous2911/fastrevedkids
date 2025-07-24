@@ -1,70 +1,17 @@
-import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
-import { connectDatabase, disconnectDatabase } from '../db/connection';
+// src/tests/setup.ts - Test setup and configuration
+import { beforeAll, afterAll, beforeEach } from 'vitest';
+import { build } from '../app-test';
+import type { FastifyInstance } from 'fastify';
 
-let dbConnected = false;
+export let app: FastifyInstance;
 
 beforeAll(async () => {
-  try {
-    if (!dbConnected) {
-      await connectDatabase();
-      dbConnected = true;
-    }
-    
-    // Setup test data if needed
-    await setupTestData();
-  } catch (error) {
-    console.error('Test setup failed:', error);
-    throw error;
-  }
+  app = await build();
+  await app.ready();
 });
 
 afterAll(async () => {
-  try {
-    if (dbConnected) {
-      await disconnectDatabase();
-      dbConnected = false;
-    }
-  } catch (error) {
-    console.error('Test teardown failed:', error);
+  if (app) {
+    await app.close();
   }
 });
-
-beforeEach(async () => {
-  // Clean slate for each test if needed
-  await cleanTestData();
-});
-
-afterEach(async () => {
-  // Cleanup after each test
-  await cleanupTestResources();
-});
-
-// Test data setup functions
-async function setupTestData() {
-  // Create test students if they don't exist
-  // This ensures tests have predictable data
-  try {
-    // Add test student data here
-    console.log('Test data setup completed');
-  } catch (error) {
-    console.warn('Test data setup failed:', error);
-  }
-}
-
-async function cleanTestData() {
-  // Reset test data to known state
-  try {
-    // Clean up any test artifacts
-  } catch (error) {
-    console.warn('Test data cleanup failed:', error);
-  }
-}
-
-async function cleanupTestResources() {
-  // Cleanup any resources created during tests
-  try {
-    // Clear caches, close connections, etc.
-  } catch (error) {
-    console.warn('Resource cleanup failed:', error);
-  }
-}
