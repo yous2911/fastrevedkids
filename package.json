@@ -29,13 +29,22 @@
     "format:backend": "cd backend && npm run format",
     "format:frontend": "cd frontend && npm run format"
   },
-  "keywords": ["education", "children", "learning", "react", "fastify"],
+  "keywords": [
+    "education",
+    "children",
+    "learning",
+    "react",
+    "fastify"
+  ],
   "author": "RevEd Kids Team",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "vitest": "^1.0.4",
+    "@playwright/test": "^1.40.0",
     "@vitest/ui": "^1.0.4",
-    "@playwright/test": "^1.40.0"
+    "concurrently": "^8.2.2",
+    "vitest": "^1.0.4"
+  },
+  "dependencies": {
+    "react-scripts": "^5.0.1"
   }
 }

@@ -294,7 +294,7 @@ export class AdaptiveLearningService {
     return 'stable';
   }
 
-  private calculateLearningVelocity(progress: StudentProgress[]): number {
+  calculateLearningVelocity(progress: StudentProgress[]): number {
     // Calculate how quickly student masters new concepts
     const masteredConcepts = progress.filter(p => p.statut === 'ACQUIS' || p.statut === 'DIFFICILE');
     const avgAttemptsToMastery = masteredConcepts.reduce((sum, p) => sum + p.nombreTentatives, 0) / 
