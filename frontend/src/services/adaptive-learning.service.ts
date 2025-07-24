@@ -1,5 +1,21 @@
 // src/services/adaptive-learning.service.ts
-import { ExercicePedagogique, StudentProgress } from '../types/api.types';
+import { ExercicePedagogique } from '../types/api.types';
+
+// Define StudentProgress interface locally since it's not exported from api.types
+export interface StudentProgress {
+  exerciceId: number;
+  statut: 'NON_COMMENCE' | 'EN_COURS' | 'TERMINE' | 'ECHEC' | 'ACQUIS' | 'DIFFICILE';
+  nombreTentatives: number;
+  tauxReussite: number;
+  historique?: Array<{
+    timestamp: string;
+    reussi: boolean;
+    tempsReponse?: number;
+    typeErreur?: string;
+    completed?: boolean;
+    exerciseType?: string;
+  }>;
+}
 
 export interface DifficultyLevel {
   level: number;

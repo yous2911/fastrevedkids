@@ -2,7 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals, { monitorWebVitals } from './reportWebVitals';
+import { initializeSentry } from './utils/sentry';
+import { customPerformanceObserver } from './utils/performanceObserver';
+
+// Initialize Sentry
+initializeSentry();
+
+// Initialize Web Vitals monitoring
+monitorWebVitals();
+
+// Initialize custom performance observer
+customPerformanceObserver;
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
