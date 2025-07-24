@@ -1,4 +1,4 @@
-// src/tests/monitoring.test.ts - Monitoring endpoints
+// src/tests/monitoring.test.ts - UPDATED MONITORING TESTS
 import { describe, it, expect } from 'vitest';
 import { app } from './setup';
 
@@ -13,8 +13,8 @@ describe('Monitoring Routes', () => {
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.body);
       expect(data.success).toBe(true);
-      expect(data.data.database).toBeDefined();
-      expect(data.data.redis).toBeDefined();
+      expect(data.data.database).toBe('up');
+      expect(data.data.redis).toBe('up');
       expect(data.data.uptime).toBeGreaterThan(0);
     });
   });
@@ -59,7 +59,7 @@ describe('Monitoring Routes', () => {
       expect(response.statusCode).toBe(200);
       const data = JSON.parse(response.body);
       expect(data.success).toBe(true);
-      expect(data.message).toContain('cleared');
+      expect(data.message).toContain('succès');
     });
   });
 }); 

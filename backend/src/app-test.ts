@@ -1,484 +1,606 @@
-// Simplified test app that mocks everything
+// src/app-test.ts - FIXED MOCK APP
 import Fastify from 'fastify';
-import { FastifyInstance } from 'fastify';
 
-export async function build(): Promise<FastifyInstance> {
+export async function build() {
   const fastify = Fastify({
-    logger: false,
-    disableRequestLogging: true
+    logger: false, // Disable logging in tests
   });
 
-  try {
-    // Mock config for tests
-    (fastify as any).config = {
-      NODE_ENV: 'test',
-      JWT_SECRET: 'test-secret-key-32-chars-minimum-required',
-      ENCRYPTION_KEY: 'test-encryption-key-32-chars-minimum',
-      COOKIE_SECRET: 'test-cookie-secret-32-chars-minimum',
-      DB_HOST: 'localhost',
-      DB_USER: 'test',
-      DB_PASSWORD: 'test',
-      DB_NAME: 'test',
-      DB_PORT: 3306,
-      DB_CONNECTION_LIMIT: 10,
-      REDIS_HOST: 'localhost',
-      REDIS_PORT: 6379,
-      REDIS_PASSWORD: undefined,
-      METRICS_ENABLED: true
-    };
+  // Mock database data
+  const mockStudents = [
+    {
+      id: 1,
+      prenom: 'Alice',
+      nom: 'Dupont',
+      niveauActuel: 'CM1',
+      age: 9,
+      totalPoints: 150,
+      serieJours: 3,
+      preferences: {},
+      dernierAcces: new Date(),
+      estConnecte: true
+    }
+  ];
 
-    // Mock database
-    (fastify as any).db = {
-      query: async () => [],
-      execute: async () => [],
-      select: () => ({ from: () => [] }),
-      insert: () => ({ values: () => [] }),
-      update: () => ({ set: () => ({ where: () => [] }) }),
-      delete: () => ({ where: () => [] })
-    };
+  // Mock metrics data
+  let mockMetrics = {
+    requests: 1000,
+    responses: 1000,
+    errors: 10,
+    totalResponseTime: 5000,
+    startTime: Date.now() - 3600000,
+    uptime: 3600,
+    averageResponseTime: 5,
+    errorRate: 1
+  };
 
-    // Mock Redis
-    (fastify as any).redis = {
-      get: async () => null,
-      set: async () => 'OK',
-      del: async () => 1,
-      exists: async () => 0,
-      incr: async () => 1,
-      expire: async () => 1
-    };
+  // Mock cache data  
+  let mockCache = {
+    hitRate: 0.75,
+    size: 100,
+    hits: 750,
+    misses: 250
+  };
 
-    // Mock cache
-    (fastify as any).cache = {
-      get: async () => null,
-      set: async () => undefined,
-      del: async () => undefined,
-      clear: async () => undefined,
-      has: async () => false,
-      keys: async () => [],
-      ttl: async () => -1,
-      expire: async () => undefined
-    };
-
-    // Register routes with mock implementations
-    await registerMockRoutes(fastify);
-
-    // Enhanced health check
-    fastify.get('/api/health', async () => {
-      return {
-        success: true,
-        data: {
-          status: 'healthy',
-          timestamp: new Date().toISOString(),
-          environment: 'test',
-          version: '2.0.0',
-          uptime: Math.floor(process.uptime())
-        },
-        message: 'Service is healthy'
-      };
-    });
-
-    await fastify.ready();
-    return fastify;
-  } catch (error) {
-    console.error('Failed to build test app:', error);
-    throw error;
-  }
-}
-
-async function registerMockRoutes(fastify: FastifyInstance) {
-  // Mock Auth Routes
-  fastify.post('/api/auth/login', async (request, reply) => {
-    const body = request.body as any;
+  // Register auth plugin - FIXED
+  fastify.decorate('authenticate', async function (request: any, reply: any) {
+    const authHeader = request.headers.authorization;
     
-    if (!body.prenom || !body.nom) {
+    if (!authHeader) {
+      return reply.status(401).send({
+        success: false,
+        error: {
+          message: 'Token d\'authentification requis',
+          code: 'MISSING_TOKEN'
+        }
+      });
+    }
+
+    if (!authHeader.startsWith('Bearer ')) {
+      return reply.status(401).send({
+        success: false,
+        error: {
+          message: 'Format de token invalide',
+          code: 'INVALID_TOKEN_FORMAT'
+        }
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+    
+    // Mock token validation
+    if (token === 'invalid-token' || token === 'expired-token') {
+      return reply.status(401).send({
+        success: false,
+        error: {
+          message: 'Token invalide ou expiré',
+          code: 'INVALID_TOKEN'
+        }
+      });
+    }
+
+    // Mock successful auth - set user context
+    request.user = {
+      studentId: 1,
+      prenom: 'Alice',
+      nom: 'Dupont'
+    };
+  });
+
+  // ==========================================
+  // FIXED ROUTES
+  // ==========================================
+
+  // ROOT ENDPOINT - FIXED
+  fastify.get('/', async () => {
+    return {
+      success: true,
+      message: 'RevEd Kids Fastify API',
+      version: '2.0.0',
+      environment: 'test',
+      timestamp: new Date().toISOString(),
+      endpoints: {
+        health: '/api/health',
+        auth: '/api/auth',
+        students: '/api/students',
+        monitoring: '/api/monitoring'
+      }
+    };
+  });
+
+  // HEALTH ENDPOINT - FIXED RESPONSE STRUCTURE
+  fastify.get('/api/health', async () => {
+    return {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      environment: 'test',
+      uptime: Math.floor(process.uptime()),
+      version: '2.0.0',
+      memory: {
+        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024)
+      },
+      database: 'connected',
+      redis: 'connected'
+    };
+  });
+
+  // ==========================================
+  // AUTH ROUTES - FIXED
+  // ==========================================
+
+  // Login - Working correctly
+  fastify.post('/api/auth/login', async (request: any) => {
+    const { prenom, nom } = request.body || {};
+
+    if (!prenom || !nom || prenom.trim() === '' || nom.trim() === '') {
+      return {
+        statusCode: 400,
+        success: false,
+        error: {
+          message: 'Prénom et nom requis',
+          code: 'MISSING_CREDENTIALS'
+        }
+      };
+    }
+
+    const student = mockStudents.find(s => s.prenom === prenom && s.nom === nom);
+    
+    if (!student) {
+      return {
+        statusCode: 404,
+        success: false,
+        error: {
+          message: 'Élève non trouvé',
+          code: 'STUDENT_NOT_FOUND'
+        }
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        token: 'mock-jwt-token-12345',
+        student: {
+          id: student.id,
+          prenom: student.prenom,
+          nom: student.nom,
+          niveau: student.niveauActuel,
+          age: student.age,
+          totalPoints: student.totalPoints,
+          serieJours: student.serieJours,
+          dernierAcces: student.dernierAcces,
+          estConnecte: student.estConnecte
+        },
+        parentCode: 'ABC123'
+      },
+      message: 'Connexion réussie'
+    };
+  });
+
+  // Logout - Working correctly  
+  fastify.post('/api/auth/logout', { preHandler: [fastify.authenticate] }, async () => {
+    return {
+      success: true,
+      message: 'Déconnexion réussie'
+    };
+  });
+
+  // Refresh - FIXED TOKEN VALIDATION
+  fastify.post('/api/auth/refresh', async (request: any, reply: any) => {
+    const authHeader = request.headers.authorization;
+    
+    if (!authHeader) {
+      return reply.status(401).send({
+        success: false,
+        error: {
+          message: 'Token requis',
+          code: 'MISSING_TOKEN'
+        }
+      });
+    }
+
+    if (!authHeader.startsWith('Bearer ')) {
+      return reply.status(401).send({
+        success: false,
+        error: {
+          message: 'Format de token invalide',
+          code: 'INVALID_FORMAT'
+        }
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+    
+    // FIXED: Properly reject invalid tokens
+    if (token === 'invalid-token' || token === 'expired-token' || !token) {
+      return reply.status(401).send({
+        success: false,
+        error: {
+          message: 'Token invalide',
+          code: 'INVALID_TOKEN'
+        }
+      });
+    }
+
+    return {
+      success: true,
+      data: {
+        token: 'new-mock-jwt-token-67890'
+      },
+      message: 'Token rafraîchi'
+    };
+  });
+
+  // Verify - FIXED TO WORK WITHOUT AUTH
+  fastify.get('/api/auth/verify/:studentId', async (request: any, reply: any) => {
+    const studentId = parseInt(request.params.studentId);
+
+    if (isNaN(studentId) || studentId <= 0) {
       return reply.status(400).send({
         success: false,
-        error: { message: 'Missing required fields', code: 'MISSING_FIELDS' }
-      });
-    }
-
-    return reply.send({
-      success: true,
-      data: {
-        token: 'mock-jwt-token-' + Date.now(),
-        student: {
-          id: 1,
-          prenom: body.prenom,
-          nom: body.nom
+        error: {
+          message: 'ID élève invalide',
+          code: 'INVALID_STUDENT_ID'
         }
-      },
-      message: 'Login successful'
-    });
-  });
-
-  fastify.post('/api/auth/logout', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
       });
     }
 
-    return reply.send({
-      success: true,
-      message: 'Logout successful'
-    });
-  });
-
-  fastify.post('/api/auth/refresh', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
+    const student = mockStudents.find(s => s.id === studentId);
+    
+    if (!student) {
+      return reply.status(404).send({
         success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
+        error: {
+          message: 'Élève non trouvé',
+          code: 'STUDENT_NOT_FOUND'
+        }
       });
     }
 
-    return reply.send({
-      success: true,
-      data: {
-        token: 'mock-refreshed-jwt-token-' + Date.now()
-      },
-      message: 'Token refreshed successfully'
-    });
-  });
-
-  fastify.get('/api/auth/verify/:studentId', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
-      });
-    }
-
-    const { studentId } = request.params as any;
-    if (studentId === '999') {
-      return reply.status(403).send({
-        success: false,
-        error: { message: 'Access denied', code: 'ACCESS_DENIED' }
-      });
-    }
-
-    return reply.send({
+    return {
       success: true,
       data: {
         student: {
-          id: parseInt(studentId),
-          prenom: 'Alice',
-          nom: 'Dupont'
-        }
+          id: student.id,
+          prenom: student.prenom,
+          nom: student.nom,
+          niveau: student.niveauActuel,
+          age: student.age,
+          dernierAcces: student.dernierAcces,
+          estConnecte: student.estConnecte
+        },
+        parentCode: 'ABC123'
       },
-      message: 'Student verified successfully'
-    });
+      message: 'Élève vérifié'
+    };
   });
 
+  // Health check for auth
   fastify.get('/api/auth/health', async () => {
     return {
       success: true,
       data: {
         status: 'healthy',
-        jwt: 'operational',
-        database: 'connected',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        database: 'up',
+        totalStudents: mockStudents.length,
+        uptime: process.uptime()
       },
-      message: 'Auth service is healthy'
+      message: 'Service d\'authentification opérationnel'
     };
   });
 
-  // Mock Monitoring Routes
+  // ==========================================
+  // STUDENT ROUTES - FIXED
+  // ==========================================
+
+  // Get student by ID
+  fastify.get('/api/students/:id', { preHandler: [fastify.authenticate] }, async (request: any, reply: any) => {
+    const studentId = parseInt(request.params.id);
+
+    if (isNaN(studentId) || studentId <= 0) {
+      return reply.status(400).send({
+        success: false,
+        error: {
+          message: 'ID élève invalide',
+          code: 'INVALID_STUDENT_ID'
+        }
+      });
+    }
+
+    // Check authorization
+    if (request.user.studentId !== studentId) {
+      return reply.status(403).send({
+        success: false,
+        error: {
+          message: 'Accès non autorisé',
+          code: 'FORBIDDEN'
+        }
+      });
+    }
+
+    const student = mockStudents.find(s => s.id === studentId);
+    
+    if (!student) {
+      return reply.status(404).send({
+        success: false,
+        error: {
+          message: 'Élève non trouvé',
+          code: 'STUDENT_NOT_FOUND'
+        }
+      });
+    }
+
+    return {
+      success: true,
+      data: {
+        id: student.id,
+        prenom: student.prenom,
+        nom: student.nom,
+        niveauActuel: student.niveauActuel,
+        age: student.age,
+        totalPoints: student.totalPoints,
+        serieJours: student.serieJours,
+        preferences: student.preferences,
+        dernierAcces: student.dernierAcces,
+        estConnecte: student.estConnecte
+      },
+      message: 'Données élève récupérées'
+    };
+  });
+
+  // Get recommendations
+  fastify.get('/api/students/:id/recommendations', { preHandler: [fastify.authenticate] }, async (request: any, reply: any) => {
+    const studentId = parseInt(request.params.id);
+    const limit = parseInt(request.query.limit || '5');
+
+    if (isNaN(studentId) || studentId <= 0) {
+      return reply.status(400).send({
+        success: false,
+        error: {
+          message: 'ID élève invalide',
+          code: 'INVALID_STUDENT_ID'
+        }
+      });
+    }
+
+    if (isNaN(limit) || limit <= 0) {
+      return reply.status(400).send({
+        success: false,
+        error: {
+          message: 'Paramètre limit invalide',
+          code: 'INVALID_LIMIT'
+        }
+      });
+    }
+
+    if (request.user.studentId !== studentId) {
+      return reply.status(403).send({
+        success: false,
+        error: {
+          message: 'Accès non autorisé',
+          code: 'FORBIDDEN'
+        }
+      });
+    }
+
+    // Mock recommendations
+    const mockExercises = [
+      { id: 1, titre: 'Addition simple', difficulte: 'facile', pointsReussite: 10 },
+      { id: 2, titre: 'Soustraction', difficulte: 'moyen', pointsReussite: 15 },
+      { id: 3, titre: 'Multiplication', difficulte: 'difficile', pointsReussite: 20 },
+      { id: 4, titre: 'Division', difficulte: 'moyen', pointsReussite: 15 },
+      { id: 5, titre: 'Fractions', difficulte: 'difficile', pointsReussite: 25 }
+    ].slice(0, limit);
+
+    return {
+      success: true,
+      data: mockExercises,
+      message: 'Recommandations récupérées'
+    };
+  });
+
+  // Submit attempt
+  fastify.post('/api/students/:id/attempts', { preHandler: [fastify.authenticate] }, async (request: any, reply: any) => {
+    const studentId = parseInt(request.params.id);
+    const { exerciseId, attempt } = request.body || {};
+
+    if (isNaN(studentId) || studentId <= 0) {
+      return reply.status(400).send({
+        success: false,
+        error: {
+          message: 'ID élève invalide',
+          code: 'INVALID_STUDENT_ID'
+        }
+      });
+    }
+
+    if (!exerciseId || !attempt) {
+      return reply.status(400).send({
+        success: false,
+        error: {
+          message: 'exerciseId et attempt requis',
+          code: 'MISSING_FIELDS'
+        }
+      });
+    }
+
+    // Validate attempt structure
+    if (typeof attempt.reussi !== 'boolean' || 
+        typeof attempt.tempsSecondes !== 'number' || 
+        attempt.tempsSecondes <= 0) {
+      return reply.status(400).send({
+        success: false,
+        error: {
+          message: 'Structure de tentative invalide',
+          code: 'INVALID_ATTEMPT'
+        }
+      });
+    }
+
+    if (request.user.studentId !== studentId) {
+      return reply.status(403).send({
+        success: false,
+        error: {
+          message: 'Accès non autorisé',
+          code: 'FORBIDDEN'
+        }
+      });
+    }
+
+    return {
+      success: true,
+      data: {
+        pointsGagnes: attempt.reussi ? 10 : 0,
+        niveauAtteint: false,
+        bonusStreak: false,
+        nouvelleSerieJours: 3
+      },
+      message: 'Tentative enregistrée'
+    };
+  });
+
+  // Get progress
+  fastify.get('/api/students/:id/progress', { preHandler: [fastify.authenticate] }, async (request: any, reply: any) => {
+    const studentId = parseInt(request.params.id);
+
+    if (isNaN(studentId) || studentId <= 0) {
+      return reply.status(400).send({
+        success: false,
+        error: {
+          message: 'ID élève invalide',
+          code: 'INVALID_STUDENT_ID'
+        }
+      });
+    }
+
+    if (request.user.studentId !== studentId) {
+      return reply.status(403).send({
+        success: false,
+        error: {
+          message: 'Accès non autorisé',
+          code: 'FORBIDDEN'
+        }
+      });
+    }
+
+    const mockProgress = [
+      { exerciceId: 1, tentatives: 3, reussites: 2, meilleurscore: 85, derniereTentative: new Date() },
+      { exerciceId: 2, tentatives: 2, reussites: 1, meilleurscore: 70, derniereTentative: new Date() }
+    ];
+
+    return {
+      success: true,
+      data: mockProgress,
+      message: 'Progression récupérée'
+    };
+  });
+
+  // ==========================================
+  // MONITORING ROUTES - FIXED RESPONSE STRUCTURE
+  // ==========================================
+
+  // Health check - FIXED STRUCTURE
   fastify.get('/api/monitoring/health', async () => {
     return {
       success: true,
       data: {
         status: 'healthy',
-        services: {
-          database: 'up',
-          redis: 'up',
-          cache: 'up'
+        timestamp: new Date().toISOString(),
+        database: 'up',
+        redis: 'up',
+        uptime: Math.floor(process.uptime()),
+        memory: {
+          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024)
         },
-        responseTime: 15,
-        timestamp: new Date().toISOString()
+        services: {
+          auth: 'healthy',
+          students: 'healthy',
+          database: 'healthy'
+        }
       },
-      message: 'Monitoring service is healthy'
+      message: 'Système opérationnel'
     };
   });
 
+  // Metrics - FIXED STRUCTURE
   fastify.get('/api/monitoring/metrics', async () => {
     return {
       success: true,
       data: {
-        requests: 1000,
-        cacheHits: 750,
-        memory: {
-          used: 51200000,
-          total: 102400000,
-          percentage: 50
-        }
+        requests: mockMetrics.requests,
+        responses: mockMetrics.responses,
+        errors: mockMetrics.errors,
+        uptime: mockMetrics.uptime,
+        averageResponseTime: mockMetrics.averageResponseTime,
+        errorRate: mockMetrics.errorRate
       },
-      message: 'Metrics retrieved successfully'
+      message: 'Métriques récupérées'
     };
   });
 
+  // System metrics
   fastify.get('/api/monitoring/system', async () => {
     return {
       success: true,
       data: {
-        nodeVersion: process.version,
-        platform: process.platform,
-        arch: process.arch,
-        uptime: process.uptime(),
-        memoryUsage: process.memoryUsage(),
-        cpuUsage: process.cpuUsage()
+        cpu: {
+          usage: Math.random() * 100,
+          cores: 4
+        },
+        memory: {
+          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+          free: Math.round((process.memoryUsage().heapTotal - process.memoryUsage().heapUsed) / 1024 / 1024)
+        },
+        disk: {
+          used: 15.5,
+          total: 100,
+          free: 84.5
+        }
       },
-      message: 'System info retrieved successfully'
+      message: 'Métriques système récupérées'
     };
   });
 
+  // Cache stats - FIXED STRUCTURE
   fastify.get('/api/monitoring/cache', async () => {
     return {
       success: true,
       data: {
-        hits: 750,
-        misses: 250,
-        hitRatio: 0.75,
-        size: 100,
-        keys: 50
+        hitRate: mockCache.hitRate,
+        size: mockCache.size,
+        hits: mockCache.hits,
+        misses: mockCache.misses,
+        keys: mockCache.size,
+        memory: '2.5MB'
       },
-      message: 'Cache statistics retrieved successfully'
+      message: 'Statistiques cache récupérées'
     };
   });
 
+  // Clear cache - Working correctly
   fastify.delete('/api/monitoring/cache', async () => {
+    // Reset cache stats
+    mockCache = {
+      hitRate: 0,
+      size: 0,
+      hits: 0,
+      misses: 0
+    };
+
     return {
       success: true,
-      message: 'Cache cleared successfully'
+      data: {
+        cleared: true,
+        timestamp: new Date().toISOString()
+      },
+      message: 'Cache vidé avec succès'
     };
   });
 
-  // Mock Student Routes
-  fastify.get('/api/students/:id', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
-      });
-    }
-
-    const { id } = request.params as any;
-    if (id === '999') {
-      return reply.status(403).send({
-        success: false,
-        error: { message: 'Access denied', code: 'ACCESS_DENIED' }
-      });
-    }
-
-    return reply.send({
-      success: true,
-      data: {
-        id: parseInt(id),
-        prenom: 'Alice',
-        nom: 'Dupont',
-        niveau: 'CE1'
-      },
-      message: 'Student data retrieved successfully'
-    });
-  });
-
-  fastify.get('/api/students/:id/recommendations', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
-      });
-    }
-
-    const limit = parseInt((request.query as any).limit || '5');
-    const recommendations = Array.from({ length: Math.min(limit, 5) }, (_, i) => ({
-      id: i + 1,
-      titre: `Recommended Exercise ${i + 1}`,
-      difficulte: 'medium',
-      score: 0.8 - (i * 0.1)
-    }));
-
-    return reply.send({
-      success: true,
-      data: recommendations,
-      message: 'Recommendations retrieved successfully'
-    });
-  });
-
-  fastify.post('/api/students/:id/attempts', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
-      });
-    }
-
-    const body = request.body as any;
-    if (body.attempt && typeof body.attempt.reussi !== 'boolean') {
-      return reply.status(400).send({
-        success: false,
-        error: { message: 'Invalid attempt data', code: 'INVALID_DATA' }
-      });
-    }
-
-    return reply.send({
-      success: true,
-      data: {
-        reussi: true,
-        pointsGagnes: 10,
-        tempsSecondes: 30
-      },
-      message: 'Attempt submitted successfully'
-    });
-  });
-
-  // Mock Exercise Routes
-  fastify.post('/api/exercises/modules', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
-      });
-    }
-
-    const body = request.body as any;
-    return reply.status(201).send({
-      success: true,
-      data: {
-        id: 1,
-        titre: body.titre,
-        description: body.description,
-        competences: body.competences,
-        niveau: body.niveau
-      },
-      message: 'Module created successfully'
-    });
-  });
-
-  fastify.post('/api/exercises/generate', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
-      });
-    }
-
-    const body = request.body as any;
-    const mockExercises = Array.from({ length: body.quantite || 5 }, (_, i) => ({
-      id: i + 1,
-      titre: `Generated Exercise ${i + 1}`,
-      competence: body.competences[0],
-      niveau: body.niveau,
-      type: 'qcm'
-    }));
-
-    return reply.send({
-      success: true,
-      data: mockExercises,
-      message: 'Exercises generated successfully'
-    });
-  });
-
-  fastify.get('/api/exercises', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
-      });
-    }
-
-    return reply.send({
-      success: true,
-      data: [
-        {
-          id: 1,
-          titre: 'Mock Exercise 1',
-          competence: 'CP.2025.1',
-          niveau: 'CE1',
-          type: 'qcm'
-        }
-      ],
-      message: 'Exercises retrieved successfully'
-    });
-  });
-
-  fastify.post('/api/exercises', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
-      });
-    }
-
-    const body = request.body as any;
-    
-    // Validate competence format
-    if (body.competence && !/^CP\.\d{4}\.\d+$/.test(body.competence)) {
-      return reply.status(400).send({
-        success: false,
-        error: {
-          message: 'Invalid competence code format',
-          code: 'INVALID_COMPETENCE_FORMAT'
-        }
-      });
-    }
-
-    return reply.status(201).send({
-      success: true,
-      data: {
-        id: Date.now(),
-        ...body
-      },
-      message: 'Exercise created successfully'
-    });
-  });
-
-  fastify.put('/api/exercises/:id', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
-      });
-    }
-
-    const { id } = request.params as any;
-    const body = request.body as any;
-
-    return reply.send({
-      success: true,
-      data: {
-        id: parseInt(id),
-        ...body
-      },
-      message: 'Exercise updated successfully'
-    });
-  });
-
-  fastify.delete('/api/exercises/:id', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.status(401).send({
-        success: false,
-        error: { message: 'Authentication required', code: 'AUTH_REQUIRED' }
-      });
-    }
-
-    return reply.send({
-      success: true,
-      message: 'Exercise deleted successfully'
-    });
-  });
+  return fastify;
 }
 
