@@ -21,7 +21,7 @@
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "setup": "npm run install:all && npm run setup:db",
     "setup:db": "cd backend && npm run db:setup",
-    "start": "cd backend && npm start",
+    "start": "cd backend && npm run dev",
     "lint": "npm run lint:backend && npm run lint:frontend",
     "lint:backend": "cd backend && npm run lint",
     "lint:frontend": "cd frontend && npm run lint",
@@ -40,11 +40,13 @@
   "license": "MIT",
   "devDependencies": {
     "@playwright/test": "^1.40.0",
+    "@types/node": "^18.19.0",
     "@vitest/ui": "^1.0.4",
     "concurrently": "^8.2.2",
     "vitest": "^1.0.4"
   },
   "dependencies": {
+    "@fastify/compress": "^8.1.0",
     "react-scripts": "^5.0.1"
   }
 }

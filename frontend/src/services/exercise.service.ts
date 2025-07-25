@@ -277,6 +277,103 @@ export class ExerciseService {
     
     return weakConcepts.slice(0, 3);
   }
+
+  /**
+   * Get exercises by subject
+   */
+  async getExercisesBySubject(subjectId: number): Promise<ApiResponse<Exercise[]>> {
+    try {
+      const response = await apiService.get(`/exercises/subject/${subjectId}`);
+      return response;
+    } catch (error) {
+      console.error('Error getting exercises by subject:', error);
+      return {
+        success: false,
+        data: [],
+        message: 'Failed to get exercises by subject'
+      };
+    }
+  }
+
+  /**
+   * Get random exercise
+   */
+  async getRandomExercise(options: { niveau?: string; matiere?: string; type?: string; difficulte?: string } = {}): Promise<ApiResponse<Exercise[]>> {
+    try {
+      const params = new URLSearchParams();
+      if (options.niveau) params.append('niveau', options.niveau);
+      if (options.matiere) params.append('matiere', options.matiere);
+      if (options.type) params.append('type', options.type);
+      if (options.difficulte) params.append('difficulte', options.difficulte);
+      
+      const response = await apiService.get(`/exercises/random?${params.toString()}`);
+      return response;
+    } catch (error) {
+      console.error('Error getting random exercise:', error);
+      return {
+        success: false,
+        data: [],
+        message: 'Failed to get random exercise'
+      };
+    }
+  }
+
+  /**
+   * Search exercises
+   */
+  async searchExercises(query: string, options: { matiere?: string; niveau?: string; type?: string; limit?: number } = {}): Promise<ApiResponse<Exercise[]>> {
+    try {
+      const params = new URLSearchParams({ query });
+      if (options.matiere) params.append('matiere', options.matiere);
+      if (options.niveau) params.append('niveau', options.niveau);
+      if (options.type) params.append('type', options.type);
+      if (options.limit) params.append('limit', options.limit.toString());
+      
+      const response = await apiService.get(`/exercises/search?${params.toString()}`);
+      return response;
+    } catch (error) {
+      console.error('Error searching exercises:', error);
+      return {
+        success: false,
+        data: [],
+        message: 'Failed to search exercises'
+      };
+    }
+  }
+
+  /**
+   * Validate answer
+   */
+  async validateAnswer(exerciseId: number, answer: any): Promise<ApiResponse<any>> {
+    try {
+      const response = await apiService.post<ApiResponse<any>>(`/exercises/${exerciseId}/validate`, { answer });
+      return response;
+    } catch (error) {
+      console.error('Error validating answer:', error);
+      return {
+        success: false,
+        data: null,
+        message: 'Failed to validate answer'
+      };
+    }
+  }
+
+  /**
+   * Get hints for exercise
+   */
+  async getHints(exerciseId: number): Promise<ApiResponse<string[]>> {
+    try {
+      const response = await apiService.get(`/exercises/${exerciseId}/hints`);
+      return response;
+    } catch (error) {
+      console.error('Error getting hints:', error);
+      return {
+        success: false,
+        data: [],
+        message: 'Failed to get hints'
+      };
+    }
+  }
 }
 
 export const exerciseService = new ExerciseService(); 

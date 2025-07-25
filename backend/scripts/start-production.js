@@ -35,7 +35,7 @@ async function startProduction() {
     // Health check
     console.log('🔍 Running health checks...');
     try {
-      execSync('curl -f http://localhost:3000/api/health', { stdio: 'ignore' });
+      execSync('curl -f http://localhost:3001/api/health', { stdio: 'ignore' });
       console.log('✅ Application health check passed');
     } catch {
       console.log('⚠️ Application health check failed - check logs');
@@ -43,10 +43,10 @@ async function startProduction() {
 
     console.log('\n🎉 Production deployment completed!');
     console.log('📊 Service URLs:');
-    console.log('   - API: http://localhost:3000/api');
-    console.log('   - Health: http://localhost:3000/api/health');
-    console.log('   - Docs: http://localhost:3000/docs');
-    console.log('   - Monitoring: http://localhost:3000/api/monitoring/health');
+    console.log('   - API: http://localhost:3001/api');
+    console.log('   - Health: http://localhost:3001/api/health');
+    console.log('   - Docs: http://localhost:3001/docs');
+    console.log('   - Monitoring: http://localhost:3001/api/monitoring/health');
     
     console.log('\n📝 Useful commands:');
     console.log('   - View logs: docker-compose -f docker-compose.prod.yml logs -f');

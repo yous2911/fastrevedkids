@@ -33,6 +33,44 @@ export async function testConnection(): Promise<boolean> {
   }
 }
 
+// Enhanced health check function
+export async function checkDatabaseHealth(): Promise<{
+  status: 'healthy' | 'unhealthy';
+  responseTime?: number;
+  connections?: any;
+  error?: string;
+}> {
+  const start = Date.now();
+  try {
+    const connection = await pool.getConnection();
+    await connection.ping();
+    
+    // Get connection pool stats
+    const poolStats = {
+      threadId: connection.threadId,
+      connectionLimit: pool.config.connectionLimit,
+      queueLimit: pool.config.queueLimit,
+    };
+    
+    connection.release();
+    
+    const responseTime = Date.now() - start;
+    
+    return {
+      status: 'healthy',
+      responseTime,
+      connections: poolStats,
+    };
+  } catch (error) {
+    const responseTime = Date.now() - start;
+    return {
+      status: 'unhealthy',
+      responseTime,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
 // Legacy exports for backward compatibility
 export async function connectDatabase(): Promise<void> {
   // Database is already connected via pool

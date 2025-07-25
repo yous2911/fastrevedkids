@@ -26,7 +26,7 @@
     "baseUrl": "src",
     "noImplicitAny": false,
     "strictPropertyInitialization": false,
-    "types": ["react", "react-dom", "node", "jest"],
+    "types": ["react", "react-dom", "jest"],
     "paths": {
       "@/*": ["*"],
       "@/components/*": ["components/*"],

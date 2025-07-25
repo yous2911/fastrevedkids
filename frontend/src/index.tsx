@@ -13,7 +13,7 @@ initializeSentry();
 monitorWebVitals();
 
 // Initialize custom performance observer
-customPerformanceObserver;
+// customPerformanceObserver is already instantiated as a singleton
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

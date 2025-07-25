@@ -7,17 +7,17 @@
 cd backend
 npm run dev
 ```
-**Expected:** Server starts on `http://localhost:3000`
+**Expected:** Server starts on `http://localhost:3001`
 
 ### 2. Start Frontend Development Server
 ```bash
 cd frontend
 npm start
 ```
-**Expected:** React app starts on `http://localhost:3001`
+**Expected:** React app starts on `http://localhost:3000`
 
 ### 3. Test Authentication
-1. Open browser to `http://localhost:3001`
+1. Open browser to `http://localhost:3000`
 2. You should see the login screen
 3. Use test credentials:
    - **Prénom:** `Alice`
@@ -36,7 +36,7 @@ npm start
 - [ ] Session persists on page refresh
 
 ### ✅ API Connection
-- [ ] Backend health check: `http://localhost:3000/api/health`
+- [ ] Backend health check: `http://localhost:3001/api/health`
 - [ ] Login API call in browser Network tab
 - [ ] Student data API call after login
 - [ ] Recommendations API call
@@ -53,12 +53,12 @@ npm start
 ### CORS Issues
 If you see CORS errors in console:
 1. Check backend `src/plugins/cors.ts`
-2. Ensure `origin` includes `http://localhost:3001`
+2. Ensure `origin` includes `http://localhost:3000`
 3. Restart backend server
 
 ### Authentication Issues
 If login fails:
-1. Check backend is running on port 3000
+1. Check backend is running on port 3001
 2. Verify test user exists in database
 3. Check browser console for API errors
 4. Verify environment variables are set

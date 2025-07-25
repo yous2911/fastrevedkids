@@ -4,10 +4,10 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - "3001:3001"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=3001
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
       - REDIS_PASSWORD=${REDIS_PASSWORD}

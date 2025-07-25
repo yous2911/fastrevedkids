@@ -54,7 +54,7 @@ export const ProgressPage: React.FC<ProgressPageProps> = ({ onBack }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/students/progress', {
+      const response = await fetch('http://localhost:3001/api/students/progress', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

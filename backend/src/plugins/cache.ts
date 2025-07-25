@@ -27,24 +27,48 @@ const cachePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
         port: config.REDIS_PORT || 6379,
         password: config.REDIS_PASSWORD,
         db: 0, // Default to database 0
-        maxRetriesPerRequest: 3,
+        maxRetriesPerRequest: 1, // Only retry once
         lazyConnect: true,
-        connectTimeout: 10000,
-        commandTimeout: 5000,
+        connectTimeout: 5000, // Reduced timeout
+        commandTimeout: 3000, // Reduced timeout
       });
 
-      redis.on('connect', () => {
-        fastify.log.info('Redis connected successfully');
+      // Test connection with timeout
+      const connectionPromise = new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Redis connection timeout'));
+        }, 3000);
+
+        redis.once('connect', () => {
+          clearTimeout(timeout);
+          fastify.log.info('Redis connected successfully');
+          resolve(true);
+        });
+
+        redis.once('error', (error: Error) => {
+          clearTimeout(timeout);
+          reject(error);
+        });
       });
+
+      await connectionPromise;
 
       redis.on('error', (error: Error) => {
-        fastify.log.error('Redis connection error:', error);
+        fastify.log.warn('Redis connection error, falling back to memory cache:', error.message);
         redis = null; // Fall back to memory cache
       });
+
+      redis.on('close', () => {
+        fastify.log.warn('Redis connection closed, using memory cache');
+        redis = null;
+      });
+
     } catch (error) {
-      fastify.log.warn('Redis not available, using memory cache:', error);
+      fastify.log.warn('Redis not available, using memory cache:', error instanceof Error ? error.message : String(error));
       redis = null;
     }
+  } else {
+    fastify.log.info('Redis not configured, using memory-only caching');
   }
 
   // FIXED: Cache service implementation
@@ -61,7 +85,7 @@ const cachePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
             return null;
           }
         } catch (error) {
-          fastify.log.error('Redis get error:', error);
+          fastify.log.debug('Redis get error, falling back to memory cache:', error instanceof Error ? error.message : String(error));
           // Fall through to memory cache
         }
       }
@@ -84,7 +108,7 @@ const cachePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
           await redis.setex(key, ttl, value);
           return;
         } catch (error) {
-          fastify.log.error('Redis set error:', error);
+          fastify.log.debug('Redis set error, falling back to memory cache:', error instanceof Error ? error.message : String(error));
           // Fall through to memory cache
         }
       }
@@ -102,7 +126,7 @@ const cachePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
           await redis.del(key);
           return;
         } catch (error) {
-          fastify.log.error('Redis del error:', error);
+          fastify.log.debug('Redis del error:', error instanceof Error ? error.message : String(error));
         }
       }
 
@@ -116,7 +140,7 @@ const cachePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
           await redis.flushdb();
           return;
         } catch (error) {
-          fastify.log.error('Redis flush error:', error);
+          fastify.log.debug('Redis flush error:', error instanceof Error ? error.message : String(error));
         }
       }
 
@@ -135,7 +159,7 @@ const cachePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
           const keys = await redis.dbsize();
           return { ...stats, keys };
         } catch (error) {
-          fastify.log.error('Redis stats error:', error);
+          fastify.log.debug('Redis stats error:', error instanceof Error ? error.message : String(error));
         }
       }
 
@@ -150,8 +174,12 @@ const cachePlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   // Graceful shutdown
   fastify.addHook('onClose', async () => {
     if (redis) {
-      await redis.quit();
-      fastify.log.info('Redis connection closed');
+      try {
+        await redis.quit();
+        fastify.log.info('Redis connection closed');
+      } catch (error) {
+        fastify.log.warn('Error closing Redis connection:', error instanceof Error ? error.message : String(error));
+      }
     }
   });
 

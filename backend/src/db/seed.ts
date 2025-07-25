@@ -10,27 +10,95 @@ export async function seed() {
     console.log('📚 Seeding students...');
     const students = await db.insert(schema.students).values([
       {
-        prenom: 'Alice',
-        nom: 'Dupont',
-        age: 8,
-        niveauActuel: 'CP',
-        totalPoints: 0,
-        serieJours: 0,
-        preferences: {},
+        prenom: 'Lucas',
+        nom: 'Martin',
+        age: 9,
+        niveauActuel: 'CE2',
+        totalPoints: 150,
+        serieJours: 3,
+        preferences: {
+          matiereFavorite: 'MATHEMATIQUES',
+          tempsPrefere: 'matin',
+          difficultePreferee: 'consolidation'
+        },
+        metadata: {
+          preferences: {
+            theme: 'light',
+            language: 'fr',
+            notifications: true,
+            soundEnabled: true,
+            difficultyPreference: 'medium'
+          },
+          settings: {
+            sessionTimeout: 30,
+            autoSave: true,
+            hintsEnabled: true
+          }
+        },
+        estConnecte: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        prenom: 'Emma',
+        nom: 'Durand',
+        age: 10,
+        niveauActuel: 'CM1',
+        totalPoints: 200,
+        serieJours: 5,
+        preferences: {
+          matiereFavorite: 'FRANCAIS',
+          tempsPrefere: 'apres-midi',
+          difficultePreferee: 'maitrise'
+        },
         metadata: {},
         estConnecte: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        prenom: 'Bob',
-        nom: 'Martin',
-        age: 9,
+        prenom: 'Noah',
+        nom: 'Lefebvre',
+        age: 8,
         niveauActuel: 'CE1',
-        totalPoints: 0,
-        serieJours: 0,
-        preferences: {},
+        totalPoints: 75,
+        serieJours: 1,
+        preferences: {
+          matiereFavorite: 'SCIENCES',
+          tempsPrefere: 'soir',
+          difficultePreferee: 'decouverte'
+        },
         metadata: {},
+        estConnecte: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        prenom: 'Alice',
+        nom: 'Dupont',
+        age: 8,
+        niveauActuel: 'CE1',
+        totalPoints: 120,
+        serieJours: 2,
+        preferences: {
+          matiereFavorite: 'MATHEMATIQUES',
+          tempsPrefere: 'matin',
+          difficultePreferee: 'consolidation'
+        },
+        metadata: {
+          preferences: {
+            theme: 'dark',
+            language: 'fr',
+            notifications: true,
+            soundEnabled: false,
+            difficultyPreference: 'easy'
+          },
+          settings: {
+            sessionTimeout: 45,
+            autoSave: true,
+            hintsEnabled: true
+          }
+        },
         estConnecte: false,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -41,9 +109,9 @@ export async function seed() {
     console.log('📖 Seeding modules...');
     const modules = await db.insert(schema.modules).values([
       {
-        nom: 'Mathématiques CP',
-        description: 'Module de mathématiques pour le CP',
-        niveau: 'CP',
+        nom: 'Les nombres jusqu\'à 100',
+        description: 'Découverte et manipulation des nombres de 0 à 100',
+        niveau: 'CE1',
         matiere: 'MATHEMATIQUES',
         ordre: 1,
         estActif: true,
@@ -51,11 +119,21 @@ export async function seed() {
         updatedAt: new Date(),
       },
       {
-        nom: 'Français CP',
-        description: 'Module de français pour le CP',
-        niveau: 'CP',
+        nom: 'Les verbes du premier groupe',
+        description: 'Conjugaison des verbes en -er au présent',
+        niveau: 'CE2',
         matiere: 'FRANCAIS',
-        ordre: 2,
+        ordre: 1,
+        estActif: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        nom: 'Le système solaire',
+        description: 'Découverte des planètes et du soleil',
+        niveau: 'CM1',
+        matiere: 'SCIENCES',
+        ordre: 1,
         estActif: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -66,17 +144,17 @@ export async function seed() {
     console.log('🎯 Seeding exercises...');
     const exercise1: NewExercise = {
       moduleId: 1,
-      titre: 'Addition simple',
+      titre: 'Compter de 10 en 10',
       contenu: {
-        question: 'Combien font 2 + 3 ?',
-        options: ['4', '5', '6', '7'],
-        correctAnswer: '5',
+        question: 'Complète la suite : 10, 20, ___, 40, 50',
+        options: ['25', '30', '35', '45'],
+        correctAnswer: '30',
         type: 'multiple-choice',
-        explanation: '2 + 3 = 5',
+        explanation: 'En comptant de 10 en 10, après 20 vient 30',
       },
       difficulte: 'FACILE',
       matiere: 'MATHEMATIQUES',
-      niveau: 'CP',
+      niveau: 'CE1',
       ordre: 1,
       tempsEstime: 60,
       pointsMax: 10,
@@ -89,19 +167,19 @@ export async function seed() {
 
     const exercise2: NewExercise = {
       moduleId: 2,
-      titre: 'Lecture de syllabes',
+      titre: 'Conjuguer CHANTER',
       contenu: {
-        question: 'Lis cette syllabe: MA',
-        correctAnswer: 'MA',
+        question: 'Conjugue "chanter" à la première personne du singulier',
+        correctAnswer: 'chante',
         type: 'fill-in-blank',
-        explanation: 'La syllabe MA se prononce "ma"',
+        explanation: 'Je chante - première personne du singulier du verbe chanter',
       },
-      difficulte: 'FACILE',
+      difficulte: 'MOYEN',
       matiere: 'FRANCAIS',
-      niveau: 'CP',
+      niveau: 'CE2',
       ordre: 1,
       tempsEstime: 45,
-      pointsMax: 10,
+      pointsMax: 15,
       estActif: true,
       metadata: {},
       donneesSupplementaires: {},
@@ -109,7 +187,30 @@ export async function seed() {
       updatedAt: new Date(),
     };
 
-    await db.insert(schema.exercises).values([exercise1, exercise2]);
+    const exercise3: NewExercise = {
+      moduleId: 3,
+      titre: 'Les planètes rocheuses',
+      contenu: {
+        question: 'Quelles sont les planètes rocheuses du système solaire ?',
+        options: ['Mercure, Vénus, Terre, Mars', 'Jupiter, Saturne, Uranus, Neptune', 'Toutes les planètes', 'Aucune'],
+        correctAnswer: 'Mercure, Vénus, Terre, Mars',
+        type: 'multiple-choice',
+        explanation: 'Les planètes rocheuses sont les 4 plus proches du Soleil',
+      },
+      difficulte: 'DIFFICILE',
+      matiere: 'SCIENCES',
+      niveau: 'CM1',
+      ordre: 1,
+      tempsEstime: 90,
+      pointsMax: 20,
+      estActif: true,
+      metadata: {},
+      donneesSupplementaires: {},
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    await db.insert(schema.exercises).values([exercise1, exercise2, exercise3]);
 
     console.log('✅ Database seeding completed successfully!');
   } catch (error) {

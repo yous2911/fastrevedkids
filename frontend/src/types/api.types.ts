@@ -29,7 +29,7 @@ export interface PaginatedResponse<T = any> extends ApiResponse<{
 
 // Request configuration types
 export interface RequestConfig {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   headers?: Record<string, string>;
   body?: any;
   timeout?: number;
