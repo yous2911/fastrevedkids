@@ -2,20 +2,31 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-// Fix: Move React import and create proper mock factory
+// Fix: Create proper mocks for framer-motion
 jest.mock('framer-motion', () => ({
   motion: {
-    button: React.forwardRef((props: any, ref: any) => {
-      const { children, ...otherProps } = props;
-      return React.createElement('button', { ...otherProps, ref }, children);
-    }),
+    button: ({ children, ...props }: any) => {
+      // Remove framer-motion specific props
+      const { whileHover, whileTap, initial, animate, transition, ...restProps } = props;
+      return require('react').createElement('button', restProps, children);
+    },
+    div: ({ children, ...props }: any) => {
+      const { initial, animate, transition, ...restProps } = props;
+      return require('react').createElement('div', restProps, children);
+    },
+    span: ({ children, ...props }: any) => {
+      const { whileHover, transition, ...restProps } = props;
+      return require('react').createElement('span', restProps, children);
+    },
   },
 }));
 
 // Mock hooks with virtual flag to avoid module resolution issues
 jest.mock('../../../hooks/useSound', () => ({
   useSound: () => ({
-    playSoundEvent: jest.fn(),
+    playSound: jest.fn(),
+    playMelody: jest.fn(),
+    initAudio: jest.fn(),
   }),
 }), { virtual: true });
 
@@ -27,7 +38,7 @@ jest.mock('../../../hooks/useHaptic', () => ({
 
 // Mock LoadingSpinner component
 jest.mock('../LoadingSpinner', () => ({
-  LoadingSpinner: () => React.createElement('div', { 'data-testid': 'loading-spinner' }, 'Loading...'),
+  LoadingSpinner: () => 'div',
 }), { virtual: true });
 
 // Import Button after mocks are set up

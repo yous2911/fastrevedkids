@@ -64,7 +64,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
       }
 
       // Get current student from token or make API call
-      const response = await fetch('/api/students/me', {
+      const response = await fetch('http://localhost:3001/api/students/me', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -90,7 +90,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
   const loadRecommendations = async (studentId: number) => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/students/${studentId}/recommendations?limit=5`, {
+      const response = await fetch(`http://localhost:3001/api/students/${studentId}/recommendations?limit=5`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

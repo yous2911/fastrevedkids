@@ -1,16 +1,16 @@
 import type { Config } from 'drizzle-kit';
-import { validateEnvironment } from './src/config/environment.js';
+import { config } from './src/config/config';
 
-const config = validateEnvironment();
+const dbConfig = config;
 
 export default {
   schema: './src/db/schema.ts',
   out: './drizzle',
   dbCredentials: {
-    host: config.DB_HOST,
-    port: config.DB_PORT,
-    user: config.DB_USER,
-    password: config.DB_PASSWORD,
-    database: config.DB_NAME,
+    host: dbConfig.DB_HOST,
+    port: dbConfig.DB_PORT,
+    user: dbConfig.DB_USER,
+    password: dbConfig.DB_PASSWORD,
+    database: dbConfig.DB_NAME,
   },
 } satisfies Config;

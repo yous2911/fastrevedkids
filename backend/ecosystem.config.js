@@ -14,7 +14,7 @@ module.exports = {
       // Environment
       env: {
         NODE_ENV: 'production',
-        PORT: 3000,
+        PORT: 3001,
       },
 
       // Resource limits
@@ -40,7 +40,7 @@ module.exports = {
       listen_timeout: 10000,
 
       // Health monitoring
-      health_check_url: 'http://localhost:3000/api/health',
+      health_check_url: 'http://localhost:3001/api/health',
       health_check_grace_period: 3000,
 
       // Source maps support
@@ -49,13 +49,13 @@ module.exports = {
       // Additional environment variables
       env_production: {
         NODE_ENV: 'production',
-        PORT: 3000,
+        PORT: 3001,
         LOG_LEVEL: 'info',
       },
 
       env_staging: {
         NODE_ENV: 'staging',
-        PORT: 3000,
+        PORT: 3001,
         LOG_LEVEL: 'debug',
       },
     },

@@ -1,31 +1,49 @@
 // src/plugins/rate-limit.ts
 import fp from 'fastify-plugin';
 import rateLimit from '@fastify/rate-limit';
-import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import { rateLimitConfig } from '../config/config';
 
-const rateLimitPlugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+const rateLimitPlugin = async (fastify: any) => {
+  // ✨ AMÉLIORATION: Rate limiting plus intelligent
   await fastify.register(rateLimit, {
-    max: rateLimitConfig.max,
-    timeWindow: rateLimitConfig.timeWindow,
+    ...rateLimitConfig,
+    // ⚡ Utilise Redis si disponible pour le partage entre instances
+    redis: fastify.redis || undefined,
+    // ✨ Skip conditions intelligentes
+    skip: (request: any) => {
+      // Skip pour les health checks
+      if (request.url === '/api/health' || request.url === '/health') {
+        return true;
+      }
+      
+      // Skip pour les IPs autorisées
+      const clientIP = request.ip;
+      return rateLimitConfig.allowList?.includes(clientIP) || false;
+    },
+    // ✨ Messages d'erreur personnalisés selon la route
+    errorResponseBuilder: (request: any, context: any) => {
+      const isAuthRoute = request.url.startsWith('/api/auth/');
+      
+      return {
+        success: false,
+        error: {
+          message: isAuthRoute 
+            ? 'Trop de tentatives de connexion' 
+            : 'Trop de requêtes',
+          code: 'RATE_LIMIT_EXCEEDED',
+          retryAfter: context.ttl,
+        },
+      };
+    },
+    // ⚡ Headers de rate limit informatifs
     addHeaders: {
       'x-ratelimit-limit': true,
       'x-ratelimit-remaining': true,
       'x-ratelimit-reset': true,
     },
-    skipOnError: true, // Don't count failed requests
-    errorResponseBuilder: (request, context) => {
-      return {
-        code: 429,
-        error: 'Too Many Requests',
-        message: `Rate limit exceeded, retry in ${Math.ceil(context.ttl / 1000)} seconds`,
-        date: Date.now(),
-        expiresIn: Math.ceil(context.ttl / 1000),
-      };
-    },
   });
 
-  fastify.log.info('✅ Rate limiting plugin registered successfully');
+  fastify.log.info('✅ Rate limit plugin registered');
 };
 
-export default fp(rateLimitPlugin, { name: 'rate-limit' });
+export default fp(rateLimitPlugin, { name: 'rateLimit' });

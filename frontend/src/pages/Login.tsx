@@ -22,7 +22,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   const loadStudents = async () => {
     try {
-      const response = await fetch('/api/auth/students');
+      const response = await fetch('http://localhost:3001/api/students');
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
@@ -47,7 +47,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const handleStudentSelect = async (student: any) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

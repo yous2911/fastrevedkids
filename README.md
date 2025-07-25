@@ -2,6 +2,8 @@
 
 A full-stack educational application designed for children's learning with gamification and cognitive science principles.
 
+*Last updated: Testing file editing capabilities*
+
 ## 🏗️ Architecture
 
 This project consists of:

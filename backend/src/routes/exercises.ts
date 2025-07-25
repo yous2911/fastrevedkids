@@ -142,7 +142,7 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
             statut: attemptData.completed === 'true' ? 'TERMINE' : 'EN_COURS',
             nombreTentatives: 1,
             nombreReussites: attemptData.completed === 'true' ? 1 : 0,
-            tauxReussite: parseFloat(attemptData.score),
+            tauxReussite: parseFloat(attemptData.score).toFixed(2),
             pointsGagnes: Math.floor(parseFloat(attemptData.score)),
             derniereTentative: new Date(),
           });

@@ -3,9 +3,6 @@ import { FastifyRequest as OriginalFastifyRequest, FastifyReply } from 'fastify'
 
 declare module 'fastify' {
   interface FastifyInstance {
-    // Database connection
-    db: any;
-    
     // Cache service
     cache: any;
     

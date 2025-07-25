@@ -5,7 +5,7 @@ describe('🚀 Quick Integration Tests', () => {
   
   describe('Exercise Generator Service', () => {
     it('should generate CP mathematics exercises', () => {
-      const exercises = exerciseGeneratorService.generateExercisesBatch(
+      const exercises = exerciseGeneratorService.generateExercisesBatchForTests(
         'cp',
         'mathematiques',
         'decouverte',
@@ -22,7 +22,7 @@ describe('🚀 Quick Integration Tests', () => {
     });
 
     it('should generate CE1 French exercises', () => {
-      const exercises = exerciseGeneratorService.generateExercisesBatch(
+      const exercises = exerciseGeneratorService.generateExercisesBatchForTests(
         'ce1',
         'francais',
         'entrainement',
@@ -52,7 +52,7 @@ describe('🚀 Quick Integration Tests', () => {
     });
 
     it('should have valid exercise configurations', () => {
-      const exercises = exerciseGeneratorService.generateExercisesBatch(
+      const exercises = exerciseGeneratorService.generateExercisesBatchForTests(
         'cp',
         'mathematiques',
         'decouverte',
@@ -83,7 +83,7 @@ describe('🚀 Quick Integration Tests', () => {
 
   describe('Exercise Types Validation', () => {
     it('should generate QCM exercises correctly', () => {
-      const exercises = exerciseGeneratorService.generateExercisesBatch(
+      const exercises = exerciseGeneratorService.generateExercisesBatchForTests(
         'ce1',
         'mathematiques',
         'maitrise',
@@ -99,7 +99,7 @@ describe('🚀 Quick Integration Tests', () => {
     });
 
     it('should generate calculation exercises correctly', () => {
-      const exercises = exerciseGeneratorService.generateExercisesBatch(
+      const exercises = exerciseGeneratorService.generateExercisesBatchForTests(
         'cp',
         'mathematiques',
         'decouverte',
@@ -117,10 +117,10 @@ describe('🚀 Quick Integration Tests', () => {
 
   describe('Difficulty Progression', () => {
     it('should have different point values for different difficulties', () => {
-      const decouverte = exerciseGeneratorService.generateExercisesBatch('cp', 'mathematiques', 'decouverte', 1);
-      const entrainement = exerciseGeneratorService.generateExercisesBatch('cp', 'mathematiques', 'entrainement', 1);
-      const maitrise = exerciseGeneratorService.generateExercisesBatch('cp', 'mathematiques', 'maitrise', 1);
-      const expert = exerciseGeneratorService.generateExercisesBatch('cp', 'mathematiques', 'expert', 1);
+      const decouverte = exerciseGeneratorService.generateExercisesBatchForTests('cp', 'mathematiques', 'decouverte', 1);
+      const entrainement = exerciseGeneratorService.generateExercisesBatchForTests('cp', 'mathematiques', 'entrainement', 1);
+      const maitrise = exerciseGeneratorService.generateExercisesBatchForTests('cp', 'mathematiques', 'maitrise', 1);
+      const expert = exerciseGeneratorService.generateExercisesBatchForTests('cp', 'mathematiques', 'expert', 1);
 
       expect(decouverte[0].pointsMax || 0).toBeLessThanOrEqual(entrainement[0].pointsMax || 0);
       expect(entrainement[0].pointsMax || 0).toBeLessThanOrEqual(maitrise[0].pointsMax || 0);
@@ -128,7 +128,7 @@ describe('🚀 Quick Integration Tests', () => {
     });
 
     it('should have appropriate time estimates', () => {
-      const exercise = exerciseGeneratorService.generateExercisesBatch('cp', 'mathematiques', 'decouverte', 1)[0];
+      const exercise = exerciseGeneratorService.generateExercisesBatchForTests('cp', 'mathematiques', 'decouverte', 1)[0];
       
       expect(exercise.tempsEstime).toBeGreaterThan(0);
       expect(exercise.tempsEstime).toBeLessThan(600); // Less than 10 minutes
@@ -140,7 +140,7 @@ describe('🚀 Quick Integration Tests', () => {
       const subjects = ['mathematiques', 'francais', 'sciences', 'histoire_geographie'];
       
       subjects.forEach(subject => {
-        const exercises = exerciseGeneratorService.generateExercisesBatch('cp', subject as any, 'decouverte', 1);
+        const exercises = exerciseGeneratorService.generateExercisesBatchForTests('cp', subject as any, 'decouverte', 1);
         expect(exercises.length).toBeGreaterThan(0);
         expect(exercises[0].matiere).toBe(subject);
       });
@@ -150,7 +150,7 @@ describe('🚀 Quick Integration Tests', () => {
       const levels = ['cp', 'ce1', 'ce2', 'cm1', 'cm2'];
       
       levels.forEach(level => {
-        const exercises = exerciseGeneratorService.generateExercisesBatch(level as any, 'mathematiques', 'decouverte', 1);
+        const exercises = exerciseGeneratorService.generateExercisesBatchForTests(level as any, 'mathematiques', 'decouverte', 1);
         expect(exercises.length).toBeGreaterThan(0);
         expect(exercises[0].niveau).toBe(level);
       });
@@ -159,7 +159,7 @@ describe('🚀 Quick Integration Tests', () => {
 
   describe('Exercise Content Quality', () => {
     it('should have meaningful questions', () => {
-      const exercises = exerciseGeneratorService.generateExercisesBatch('ce1', 'mathematiques', 'entrainement', 3);
+      const exercises = exerciseGeneratorService.generateExercisesBatchForTests('ce1', 'mathematiques', 'entrainement', 3);
       
       exercises.forEach(exercise => {
         expect(exercise.contenu.question).toBeDefined();
@@ -169,7 +169,7 @@ describe('🚀 Quick Integration Tests', () => {
     });
 
     it('should have helpful feedback', () => {
-      const exercises = exerciseGeneratorService.generateExercisesBatch('cp', 'mathematiques', 'decouverte', 2);
+      const exercises = exerciseGeneratorService.generateExercisesBatchForTests('cp', 'mathematiques', 'decouverte', 2);
       
       exercises.forEach(exercise => {
         if ((exercise.contenu as any).feedback_succes) {
@@ -182,7 +182,7 @@ describe('🚀 Quick Integration Tests', () => {
     });
 
     it('should have appropriate help text', () => {
-      const exercises = exerciseGeneratorService.generateExercisesBatch('cp', 'mathematiques', 'decouverte', 2);
+      const exercises = exerciseGeneratorService.generateExercisesBatchForTests('cp', 'mathematiques', 'decouverte', 2);
       
       exercises.forEach(exercise => {
         if ((exercise.contenu as any).aide) {

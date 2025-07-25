@@ -17,7 +17,7 @@ export interface CP2025ProgressData {
 export const useCP2025Backend = () => {
   const submitCompetenceResult = async (progressData: CP2025ProgressData) => {
     try {
-      const response = await fetch('/api/competences/cp2025/progress', {
+      const response = await fetch('http://localhost:3001/api/competences/cp2025/progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(progressData)
@@ -35,7 +35,7 @@ export const useCP2025Backend = () => {
 
   const getStudentCompetences = async (studentId: string) => {
     try {
-      const response = await fetch(`/api/competences/cp2025/student/${studentId}`);
+      const response = await fetch(`http://localhost:3001/api/competences/cp2025/student/${studentId}`);
       const data = await response.json();
       return data.competences || {};
     } catch (error) {
@@ -46,7 +46,7 @@ export const useCP2025Backend = () => {
 
   const getRecommendedExercises = async (studentId: string) => {
     try {
-      const response = await fetch(`/api/competences/cp2025/recommendations/${studentId}`);
+      const response = await fetch(`http://localhost:3001/api/competences/cp2025/recommendations/${studentId}`);
       const data = await response.json();
       return data.exercises || [];
     } catch (error) {

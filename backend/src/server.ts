@@ -1,216 +1,219 @@
-import fastify, { FastifyInstance } from 'fastify';
+import Fastify from 'fastify';
 import { config, validateEnvironment } from './config/config';
+import { logger } from './utils/logger';
 import { connectDatabase, disconnectDatabase } from './db/connection';
-// Type declarations handled by plugins
 
-// Validate environment first
-validateEnvironment();
+// Validate environment on startup
+try {
+  validateEnvironment();
+} catch (error) {
+  console.error('❌ Environment validation failed:', error);
+  process.exit(1);
+}
 
-// Create Fastify instance
-const app: FastifyInstance = fastify({
-  logger: {
-    level: config.LOG_LEVEL,
-    transport: config.NODE_ENV === 'development' ? {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: 'HH:MM:ss Z',
-        ignore: 'pid,hostname',
-      },
-    } : undefined,
-  },
+// Build Fastify instance with enhanced configuration
+const fastify = Fastify({
+  logger: logger,
+  trustProxy: true,
   bodyLimit: config.BODY_LIMIT,
+  keepAliveTimeout: 5000,
+  requestIdHeader: 'x-request-id',
   connectionTimeout: config.REQUEST_TIMEOUT,
-  keepAliveTimeout: 30000,
-  maxParamLength: 500,
+  pluginTimeout: 30000,
+  disableRequestLogging: false,
+  genReqId: () => {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  }
 });
 
-// Register plugins function
-async function registerPlugins(): Promise<void> {
-  try {
-    // Core plugins
-    await app.register(import('./plugins/cors'));
-    app.log.info('✅ CORS plugin registered');
-    
-    await app.register(import('./plugins/helmet'));
-    app.log.info('✅ Helmet plugin registered');
-    
-
-    
-    await app.register(import('./plugins/rate-limit'));
-    app.log.info('✅ Rate limit plugin registered');
-    
-    // Infrastructure plugins
-    await app.register(import('./plugins/redis'));
-    app.log.info('✅ Redis plugin registered');
-    
-    await app.register(import('./plugins/database'));
-    app.log.info('✅ Database plugin registered');
-    
-    // Authentication
-    await app.register(import('./plugins/auth'));
-    app.log.info('✅ Auth plugin registered');
-    
-    // Validation and documentation
-    await app.register(import('./plugins/validation'));
-    app.log.info('✅ Validation plugin registered');
-    
-    await app.register(import('./plugins/swagger'));
-    app.log.info('✅ Swagger plugin registered');
-    
-    // Monitoring
-    await app.register(import('./plugins/monitoring'));
-    app.log.info('✅ Monitoring plugin registered');
-    
-    // WebSocket support
-    await app.register(import('./plugins/websocket'));
-    app.log.info('✅ WebSocket plugin registered');
-    
-    // Routes
-    await app.register(import('./routes/health'), { prefix: '/api' });
-    app.log.info('✅ Health routes registered');
-    
-    await app.register(import('./routes/auth'), { prefix: '/api/auth' });
-    app.log.info('✅ Auth routes registered');
-    
-    await app.register(import('./routes/students'), { prefix: '/api/students' });
-    app.log.info('✅ Students routes registered');
-    
-    await app.register(import('./routes/exercises'), { prefix: '/api' });
-    app.log.info('✅ Exercises routes registered');
-    
-    await app.register(import('./routes/curriculum'), { prefix: '/api/curriculum' });
-    app.log.info('✅ Curriculum routes registered');
-    
-    await app.register(import('./routes/monitoring'), { prefix: '/api/monitoring' });
-    app.log.info('✅ Monitoring routes registered');
-    
-    // await app.register(import('./routes/cp2025'), { prefix: '/api/cp2025' });
-    // app.log.info('✅ CP2025 routes registered');
-    
-  } catch (error) {
-    app.log.error('❌ Error registering plugins:', {
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined
-    });
-    throw error;
-  }
+// Enhanced port management to avoid EADDRINUSE
+async function findAvailablePort(startPort: number): Promise<number> {
+  const net = await import('net');
   
-  // Global error handler
-  app.setErrorHandler(async (error, request, reply) => {
-    const statusCode = (error as any).statusCode || 500;
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
     
-    request.log.error({
-      error: {
-        message: error.message,
-        stack: error.stack,
-        statusCode,
-      },
-      request: {
-        method: request.method,
-        url: request.url,
-      },
+    server.listen(startPort, () => {
+      const port = (server.address() as any)?.port;
+      server.close(() => resolve(port));
     });
-
-    await reply.status(statusCode).send({
-      success: false,
-      error: {
-        message: statusCode >= 500 ? 'Internal Server Error' : error.message,
-        statusCode,
-      },
-      timestamp: new Date().toISOString(),
+    
+    server.on('error', (err: any) => {
+      if (err.code === 'EADDRINUSE') {
+        // Try next port
+        resolve(findAvailablePort(startPort + 1));
+      } else {
+        reject(err);
+      }
     });
-  });
-
-
-
-  // Root endpoint
-  app.get('/', async () => {
-    return {
-      success: true,
-      message: 'RevEd Kids Fastify API',
-      version: '2.0.0',
-      environment: config.NODE_ENV,
-      timestamp: new Date().toISOString(),
-      endpoints: {
-        health: '/api/health',
-        auth: '/api/auth',
-        exercises: '/api/exercises',
-        cp2025: '/api/cp2025',
-        docs: '/docs',
-      },
-    };
   });
 }
 
-// Graceful shutdown
-async function gracefulShutdown(): Promise<void> {
+// Register plugins in correct order
+async function registerPlugins() {
   try {
-    app.log.info('Starting graceful shutdown...');
+    // Essential plugins first
+    await fastify.register(import('./plugins/cors'));
+    await fastify.register(import('./plugins/helmet'));
+    await fastify.register(import('./plugins/compress'));
     
-    // Close Fastify server
-    await app.close();
+    // Database and cache
+    await fastify.register(import('./plugins/database'));
+    await fastify.register(import('./plugins/redis'));
+    
+    // Auth and validation
+    await fastify.register(import('./plugins/auth'));
+    await fastify.register(import('./plugins/validation'));
+    
+    // Rate limiting and monitoring
+    await fastify.register(import('./plugins/rate-limit'));
+    await fastify.register(import('./plugins/monitoring'));
+    
+    // Optional plugins
+    await fastify.register(import('./plugins/websocket'));
+    await fastify.register(import('./plugins/swagger'));
+
+    // Routes with proper prefixes
+    await fastify.register(import('./routes/auth'), { prefix: '/api/auth' });
+    await fastify.register(import('./routes/students'), { prefix: '/api/students' });
+    await fastify.register(import('./routes/exercises'), { prefix: '/api' });
+    await fastify.register(import('./routes/curriculum'), { prefix: '/api/curriculum' });
+    await fastify.register(import('./routes/cp2025'), { prefix: '/api/cp2025' });
+    await fastify.register(import('./routes/monitoring'), { prefix: '/api/monitoring' });
+    
+    // Health check route
+    fastify.get('/api/health', async () => {
+      const uptime = process.uptime();
+      const memory = process.memoryUsage();
+      
+      return {
+        success: true,
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: Math.floor(uptime),
+        environment: config.NODE_ENV,
+        version: '2.0.0',
+        memory: {
+          used: Math.round(memory.heapUsed / 1024 / 1024),
+          total: Math.round(memory.heapTotal / 1024 / 1024),
+          external: Math.round(memory.external / 1024 / 1024)
+        },
+        database: 'connected',
+        redis: (fastify as any).redis ? 'connected' : 'disconnected'
+      };
+    });
+
+    // Root endpoint
+    fastify.get('/', async () => {
+      return {
+        success: true,
+        message: 'RevEd Kids Fastify API',
+        version: '2.0.0',
+        environment: config.NODE_ENV,
+        timestamp: new Date().toISOString(),
+        endpoints: {
+          health: '/api/health',
+          auth: '/api/auth',
+          students: '/api/students',
+          exercises: '/api/exercises',
+          curriculum: '/api/curriculum',
+          cp2025: '/api/cp2025',
+          monitoring: '/api/monitoring',
+          docs: '/docs'
+        }
+      };
+    });
+
+    fastify.log.info('✅ All plugins registered successfully');
+  } catch (error) {
+    fastify.log.error('❌ Plugin registration failed:', error);
+    throw error;
+  }
+}
+
+// Graceful shutdown with proper cleanup
+async function gracefulShutdown(signal: string) {
+  try {
+    fastify.log.info(`Received ${signal}, starting graceful shutdown...`);
+    
+    // Stop accepting new connections
+    await fastify.close();
     
     // Close database connections
     await disconnectDatabase();
     
-    app.log.info('Graceful shutdown completed');
+    fastify.log.info('✅ Graceful shutdown completed');
     process.exit(0);
   } catch (error) {
-    app.log.error('Error during graceful shutdown:', error);
+    fastify.log.error('❌ Error during graceful shutdown:', error);
     process.exit(1);
   }
 }
 
-// Start server
-async function start(): Promise<void> {
+// Enhanced server startup
+async function start() {
   try {
-    // Test database connection
+    // Test database connection first
     await connectDatabase();
-    app.log.info('Database connected successfully');
+    fastify.log.info('✅ Database connected successfully');
 
     // Register all plugins and routes
     await registerPlugins();
     
+    // Find available port if default is busy
+    let serverPort = config.PORT;
+    try {
+      serverPort = await findAvailablePort(config.PORT);
+      if (serverPort !== config.PORT) {
+        fastify.log.warn(`Port ${config.PORT} busy, using port ${serverPort} instead`);
+      }
+    } catch (error) {
+      fastify.log.error('Port detection failed, using default:', error);
+    }
+    
     // Start the server
-    const address = await app.listen({
-      port: config.PORT,
-      host: config.HOST,
+    const address = await fastify.listen({
+      port: serverPort,
+      host: config.HOST
     });
 
-    app.log.info(`🚀 RevEd Kids Fastify server started!`);
-    app.log.info(`📍 Server: ${address}`);
-    app.log.info(`🌍 Environment: ${config.NODE_ENV}`);
-    app.log.info(`📊 Health: ${address}/api/health`);
-    app.log.info(`📚 Docs: ${address}/docs`);
+    fastify.log.info(`🚀 RevEd Kids Fastify server started successfully!`);
+    fastify.log.info(`📍 Server listening on: ${address}`);
+    fastify.log.info(`🌍 Environment: ${config.NODE_ENV}`);
+    fastify.log.info(`📊 Health Check: ${address}/api/health`);
+    fastify.log.info(`📚 API Documentation: ${address}/docs`);
+    fastify.log.info(`🔌 Port: ${serverPort} (requested: ${config.PORT})`);
 
   } catch (error) {
-    app.log.error('Error starting server:', {
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      error: error
-    });
+    fastify.log.error('❌ Server startup failed:', error);
+    
+    // Check for common port issues
+    if ((error as any)?.code === 'EADDRINUSE') {
+      fastify.log.error(`❌ Port ${config.PORT} is already in use. Please check if another process is running on this port.`);
+      fastify.log.info('💡 Try: lsof -ti:3000 | xargs kill -9 (to kill processes on port 3000)');
+    }
+    
     process.exit(1);
   }
 }
 
-// Handle process signals
-process.on('SIGTERM', gracefulShutdown);
-process.on('SIGINT', gracefulShutdown);
+// Handle process signals properly
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  app.log.error('Uncaught Exception:', error);
-  gracefulShutdown();
+  fastify.log.error('Uncaught Exception:', error);
+  gracefulShutdown('UNCAUGHT_EXCEPTION');
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
-  app.log.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  gracefulShutdown();
+  fastify.log.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  gracefulShutdown('UNHANDLED_REJECTION');
 });
 
 // Start the server
 start();
 
-export default app;
+export default fastify;
