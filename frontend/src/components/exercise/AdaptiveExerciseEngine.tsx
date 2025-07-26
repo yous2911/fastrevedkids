@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, memo, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExerciseEngine } from './ExerciseEngine';
 import { useAdaptiveLearning } from '../../hooks/useAdaptiveLearning';
@@ -19,7 +19,7 @@ export interface AdaptiveExerciseEngineProps {
   autoAdvance?: boolean;
 }
 
-export const AdaptiveExerciseEngine: React.FC<AdaptiveExerciseEngineProps> = ({
+export const AdaptiveExerciseEngine: React.FC<AdaptiveExerciseEngineProps> = memo(({
   studentId,
   targetConcept,
   onComplete,

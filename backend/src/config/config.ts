@@ -82,6 +82,24 @@ const configSchema = z.object({
   // WebSocket
   WS_HEARTBEAT_INTERVAL: z.coerce.number().default(30000),
   WS_MAX_CONNECTIONS: z.coerce.number().default(1000),
+  
+  // GDPR Configuration
+  GDPR_ENABLED: z.coerce.boolean().default(true),
+  PARENTAL_CONSENT_REQUIRED: z.coerce.boolean().default(true),
+  CONSENT_TOKEN_EXPIRY_HOURS: z.coerce.number().default(168), // 7 days
+  DATA_RETENTION_DAYS: z.coerce.number().default(1095), // 3 years
+  AUDIT_LOG_RETENTION_DAYS: z.coerce.number().default(2190), // 6 years
+  ANONYMIZATION_AFTER_INACTIVITY_DAYS: z.coerce.number().default(730), // 2 years
+  ENCRYPTION_KEY_ROTATION_DAYS: z.coerce.number().default(90),
+  GDPR_REQUEST_DEADLINE_DAYS: z.coerce.number().default(30),
+  
+  // Email Configuration for GDPR
+  SMTP_HOST: z.string().default('localhost'),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_USER: z.string().default(''),
+  SMTP_PASS: z.string().default(''),
+  SMTP_FROM: z.string().default('noreply@revedkids.com'),
+  SUPPORT_EMAIL: z.string().default('support@revedkids.com'),
 });
 
 // Safe parsing with detailed error handling
@@ -225,6 +243,28 @@ export const corsConfig = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   exposedHeaders: ['X-Total-Count', 'X-Request-ID'],
+};
+
+// GDPR configuration
+export const gdprConfig = {
+  enabled: config.GDPR_ENABLED,
+  parentalConsentRequired: config.PARENTAL_CONSENT_REQUIRED,
+  consentTokenExpiryHours: config.CONSENT_TOKEN_EXPIRY_HOURS,
+  dataRetentionDays: config.DATA_RETENTION_DAYS,
+  auditLogRetentionDays: config.AUDIT_LOG_RETENTION_DAYS,
+  anonymizationAfterInactivityDays: config.ANONYMIZATION_AFTER_INACTIVITY_DAYS,
+  encryptionKeyRotationDays: config.ENCRYPTION_KEY_ROTATION_DAYS,
+  gdprRequestDeadlineDays: config.GDPR_REQUEST_DEADLINE_DAYS,
+};
+
+// Email configuration
+export const emailConfig = {
+  host: config.SMTP_HOST,
+  port: config.SMTP_PORT,
+  user: config.SMTP_USER,
+  pass: config.SMTP_PASS,
+  from: config.SMTP_FROM,
+  supportEmail: config.SUPPORT_EMAIL,
 };
 
 // Enhanced validation with helpful messages

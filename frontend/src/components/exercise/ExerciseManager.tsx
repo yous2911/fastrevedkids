@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExerciseCard } from './ExerciseCard';
 import { ExercicePedagogique } from '../../types/api.types';
@@ -31,7 +31,7 @@ interface ExerciseResult {
   isCorrect: boolean;
 }
 
-export const ExerciseManager: React.FC<ExerciseManagerProps> = ({
+export const ExerciseManager: React.FC<ExerciseManagerProps> = memo(({
   session,
   onSessionComplete,
   onSessionSkip,
@@ -46,10 +46,11 @@ export const ExerciseManager: React.FC<ExerciseManagerProps> = ({
   const { playSound } = useSound();
   const { triggerHaptic } = useHaptic();
 
-  const currentExercise = session.exercises[currentExerciseIndex];
-  const progress = ((currentExerciseIndex + 1) / session.exercises.length) * 100;
-  const totalScore = results.reduce((sum, result) => sum + result.score, 0);
-  const correctAnswers = results.filter(result => result.isCorrect).length;
+  // Memoized computed values
+  const currentExercise = useMemo(() => session.exercises[currentExerciseIndex], [session.exercises, currentExerciseIndex]);
+  const progress = useMemo(() => ((currentExerciseIndex + 1) / session.exercises.length) * 100, [currentExerciseIndex, session.exercises.length]);
+  const totalScore = useMemo(() => results.reduce((sum, result) => sum + result.score, 0), [results]);
+  const correctAnswers = useMemo(() => results.filter(result => result.isCorrect).length, [results]);
 
   useEffect(() => {
     if (isSessionComplete) {
@@ -64,7 +65,7 @@ export const ExerciseManager: React.FC<ExerciseManagerProps> = ({
     }
   }, [isSessionComplete, session.id, totalScore, sessionStartTime, onSessionComplete, playSound, triggerHaptic]);
 
-  const handleExerciseComplete = (exerciseId: string, score: number, timeSpent: number) => {
+  const handleExerciseComplete = useCallback((exerciseId: string, score: number, timeSpent: number) => {
     const isCorrect = score > 0;
     const result: ExerciseResult = {
       exerciseId,
@@ -84,21 +85,21 @@ export const ExerciseManager: React.FC<ExerciseManagerProps> = ({
         setIsSessionComplete(true);
       }, 2000);
     }
-  };
+  }, [currentExerciseIndex, session.exercises.length]);
 
-  const handleExerciseSkip = () => {
+  const handleExerciseSkip = useCallback(() => {
     if (currentExerciseIndex < session.exercises.length - 1) {
       setCurrentExerciseIndex(prev => prev + 1);
     }
-  };
+  }, [currentExerciseIndex, session.exercises.length]);
 
-  const handleSessionSkip = () => {
+  const handleSessionSkip = useCallback(() => {
     if (onSessionSkip) {
       playSound('click');
       triggerHaptic('light');
       onSessionSkip();
     }
-  };
+  }, [onSessionSkip, playSound, triggerHaptic]);
 
   if (isSessionComplete) {
     return (
@@ -215,4 +216,12 @@ export const ExerciseManager: React.FC<ExerciseManagerProps> = ({
       </AnimatePresence>
     </div>
   );
-}; 
+}, (prevProps, nextProps) => {
+  // Custom comparison for React.memo
+  return (
+    prevProps.session.id === nextProps.session.id &&
+    prevProps.className === nextProps.className &&
+    prevProps.onSessionComplete === nextProps.onSessionComplete &&
+    prevProps.onSessionSkip === nextProps.onSessionSkip
+  );
+}); 

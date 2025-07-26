@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExercicePedagogique, TentativeExercice, TentativeResponse } from '../../types/api.types';
 import { useStudentData } from '../../hooks/useStudentData';
@@ -35,8 +35,8 @@ interface ExerciseState {
   showValidation: boolean;
 }
 
-// Helper function to get exercise hints
-const getExerciseHints = (exercise: ExercicePedagogique): string[] => {
+// Memoized helper function to get exercise hints
+const getExerciseHints = memo((exercise: ExercicePedagogique): string[] => {
   const hints: string[] = [];
   
   if (exercise.configuration.hint) {
@@ -63,7 +63,7 @@ const getExerciseHints = (exercise: ExercicePedagogique): string[] => {
   }
   
   return hints;
-};
+});
 
 // Helper function to validate answers
 const validateAnswer = (exercise: ExercicePedagogique, answer: any): boolean => {
@@ -84,7 +84,7 @@ const validateAnswer = (exercise: ExercicePedagogique, answer: any): boolean => 
   }
 };
 
-export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
+export const ExerciseEngine: React.FC<ExerciseEngineProps> = memo(({
   exercise,
   studentId,
   onComplete,
@@ -222,49 +222,53 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
     showError
   ]);
 
-  // Format time display
-  const formatTime = (seconds: number): string => {
+  // Memoized format time display
+  const formatTime = useCallback((seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  }, []);
 
-  // Get time color based on remaining time
-  const getTimeColor = (): string => {
+  // Memoized time color based on remaining time
+  const timeColor = useMemo((): string => {
     if (!timeLimit) return 'text-gray-600';
     const remaining = timeLimit - exerciseState.timeElapsed;
     if (remaining <= 30) return 'text-red-500';
     if (remaining <= 60) return 'text-yellow-500';
     return 'text-green-500';
-  };
+  }, [timeLimit, exerciseState.timeElapsed]);
 
-  // Render appropriate exercise component
-  const renderExerciseComponent = () => {
-    const commonProps = {
-      exercise,
-      onAnswerChange: handleAnswerChange,
-      disabled: exerciseState.isSubmitting || exerciseState.isCompleted,
-      currentAnswer: exerciseState.currentAnswer,
-      showValidation: exerciseState.showValidation
-    };
+  // Memoized exercise hints
+  const exerciseHints = useMemo(() => getExerciseHints(exercise), [exercise]);
 
+  // Memoized common props for exercise components
+  const exerciseComponentProps = useMemo(() => ({
+    exercise,
+    onAnswerChange: handleAnswerChange,
+    disabled: exerciseState.isSubmitting || exerciseState.isCompleted,
+    currentAnswer: exerciseState.currentAnswer,
+    showValidation: exerciseState.showValidation
+  }), [exercise, handleAnswerChange, exerciseState.isSubmitting, exerciseState.isCompleted, exerciseState.currentAnswer, exerciseState.showValidation]);
+
+  // Memoized render appropriate exercise component
+  const renderExerciseComponent = useMemo(() => {
     switch (exercise.type) {
       case 'QCM':
-        return <ExerciseQCM {...commonProps} />;
+        return <ExerciseQCM {...exerciseComponentProps} />;
       case 'CALCUL':
-        return <ExerciseCalcul {...commonProps} />;
+        return <ExerciseCalcul {...exerciseComponentProps} />;
       case 'TEXTE_LIBRE':
-        return <ExerciseTextLibre {...commonProps} />;
+        return <ExerciseTextLibre {...exerciseComponentProps} />;
       case 'DRAG_DROP':
-        return <ExerciseDragDrop {...commonProps} />;
+        return <ExerciseDragDrop {...exerciseComponentProps} />;
       case 'CONJUGAISON':
-        return <ExerciseTextLibre {...commonProps} />;
+        return <ExerciseTextLibre {...exerciseComponentProps} />;
       case 'LECTURE':
-        return <ExerciseTextLibre {...commonProps} />;
+        return <ExerciseTextLibre {...exerciseComponentProps} />;
       case 'GEOMETRIE':
-        return <ExerciseTextLibre {...commonProps} />;
+        return <ExerciseTextLibre {...exerciseComponentProps} />;
       case 'PROBLEME':
-        return <ExerciseTextLibre {...commonProps} />;
+        return <ExerciseTextLibre {...exerciseComponentProps} />;
       default:
         return (
           <div className="text-center py-8">
@@ -272,7 +276,7 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
           </div>
         );
     }
-  };
+  }, [exercise.type, exerciseComponentProps]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
@@ -301,7 +305,7 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
             {/* Stats */}
             <div className="flex items-center gap-6">
               {/* Timer */}
-              <div className={`text-center ${getTimeColor()}`}>
+              <div className={`text-center ${timeColor}`}>
                 <div className="text-lg font-mono font-bold">
                   {formatTime(exerciseState.timeElapsed)}
                 </div>
@@ -335,7 +339,7 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
       {/* Exercise Content */}
       <div className="max-w-4xl mx-auto">
         <div className="bg-white shadow-xl border border-purple-200 rounded-lg p-6">
-          {renderExerciseComponent()}
+          {renderExerciseComponent}
         </div>
       </div>
 
@@ -381,4 +385,13 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = ({
       </div>
     </div>
   );
-}; 
+}, (prevProps, nextProps) => {
+  // Custom comparison for React.memo
+  return (
+    prevProps.exercise.id === nextProps.exercise.id &&
+    prevProps.studentId === nextProps.studentId &&
+    prevProps.autoSubmit === nextProps.autoSubmit &&
+    prevProps.showHints === nextProps.showHints &&
+    prevProps.timeLimit === nextProps.timeLimit
+  );
+}); 
