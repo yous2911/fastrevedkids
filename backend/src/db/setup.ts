@@ -1,6 +1,17 @@
 import { db } from './connection';
-import { students, exercises, studentProgress } from './schema';
+import { 
+  students, 
+  exercises, 
+  studentProgress,
+  parentalConsent,
+  gdprRequests,
+  auditLogs,
+  encryptionKeys,
+  retentionPolicies,
+  consentPreferences
+} from './schema';
 import { sql } from 'drizzle-orm';
+import { config } from '../config/config';
 
 export async function setupDatabase() {
   try {
@@ -54,6 +65,141 @@ export async function setupDatabase() {
         FOREIGN KEY (exercise_id) REFERENCES exercises (id)
       )
     `);
+
+    // Create GDPR tables if GDPR is enabled
+    if (config.GDPR_ENABLED) {
+      console.log('🔄 Creating GDPR compliance tables...');
+      
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS parental_consent (
+          id TEXT PRIMARY KEY,
+          parent_email TEXT NOT NULL,
+          parent_name TEXT NOT NULL,
+          child_name TEXT NOT NULL,
+          child_age INTEGER NOT NULL,
+          consent_types TEXT NOT NULL,
+          status TEXT NOT NULL,
+          first_consent_token TEXT NOT NULL,
+          second_consent_token TEXT,
+          first_consent_date TEXT,
+          second_consent_date TEXT,
+          verification_date TEXT,
+          expiry_date TEXT NOT NULL,
+          ip_address TEXT NOT NULL,
+          user_agent TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        )
+      `);
+
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS gdpr_requests (
+          id TEXT PRIMARY KEY,
+          request_type TEXT NOT NULL,
+          requester_type TEXT NOT NULL,
+          requester_email TEXT NOT NULL,
+          requester_name TEXT NOT NULL,
+          student_id INTEGER,
+          student_name TEXT,
+          parent_email TEXT,
+          request_details TEXT NOT NULL,
+          urgent_request INTEGER DEFAULT 0,
+          status TEXT NOT NULL,
+          priority TEXT NOT NULL,
+          submitted_at TEXT NOT NULL,
+          due_date TEXT NOT NULL,
+          verification_token TEXT,
+          verified_at TEXT,
+          assigned_to TEXT,
+          processed_at TEXT,
+          completed_at TEXT,
+          ip_address TEXT NOT NULL,
+          user_agent TEXT NOT NULL,
+          verification_method TEXT NOT NULL,
+          legal_basis TEXT,
+          response_details TEXT,
+          actions_taken TEXT,
+          exported_data TEXT,
+          FOREIGN KEY (student_id) REFERENCES students (id)
+        )
+      `);
+
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS audit_logs (
+          id TEXT PRIMARY KEY,
+          entity_type TEXT NOT NULL,
+          entity_id TEXT NOT NULL,
+          action TEXT NOT NULL,
+          user_id TEXT,
+          parent_id TEXT,
+          student_id INTEGER,
+          details TEXT NOT NULL,
+          ip_address TEXT,
+          user_agent TEXT,
+          timestamp TEXT NOT NULL,
+          severity TEXT NOT NULL,
+          category TEXT,
+          session_id TEXT,
+          correlation_id TEXT,
+          checksum TEXT NOT NULL,
+          encrypted INTEGER DEFAULT 0,
+          FOREIGN KEY (student_id) REFERENCES students (id)
+        )
+      `);
+
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS encryption_keys (
+          id TEXT PRIMARY KEY,
+          key_data TEXT NOT NULL,
+          algorithm TEXT NOT NULL,
+          version INTEGER NOT NULL,
+          usage TEXT NOT NULL,
+          status TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          expires_at TEXT NOT NULL
+        )
+      `);
+
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS retention_policies (
+          id TEXT PRIMARY KEY,
+          policy_name TEXT NOT NULL,
+          entity_type TEXT NOT NULL,
+          retention_period_days INTEGER NOT NULL,
+          trigger_condition TEXT NOT NULL,
+          action TEXT NOT NULL,
+          priority TEXT NOT NULL,
+          active INTEGER DEFAULT 1,
+          legal_basis TEXT,
+          exceptions TEXT,
+          notification_days INTEGER DEFAULT 30,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          last_executed TEXT,
+          records_processed INTEGER DEFAULT 0
+        )
+      `);
+
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS consent_preferences (
+          id TEXT PRIMARY KEY,
+          user_id TEXT,
+          student_id INTEGER,
+          essential INTEGER DEFAULT 1,
+          functional INTEGER DEFAULT 0,
+          analytics INTEGER DEFAULT 0,
+          marketing INTEGER DEFAULT 0,
+          personalization INTEGER DEFAULT 0,
+          version TEXT NOT NULL,
+          timestamp TEXT NOT NULL,
+          ip_address TEXT,
+          user_agent TEXT,
+          FOREIGN KEY (student_id) REFERENCES students (id)
+        )
+      `);
+
+      console.log('✅ GDPR compliance tables created');
+    }
 
     console.log('✅ Database tables created');
 

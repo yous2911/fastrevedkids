@@ -69,6 +69,11 @@ async function registerPlugins() {
     await fastify.register(import('./plugins/rate-limit'));
     await fastify.register(import('./plugins/monitoring'));
     
+    // GDPR plugin (conditional registration)
+    if (config.GDPR_ENABLED) {
+      await fastify.register(import('./plugins/gdpr'));
+    }
+    
     // Optional plugins
     await fastify.register(import('./plugins/websocket'));
     await fastify.register(import('./plugins/swagger'));
@@ -80,6 +85,12 @@ async function registerPlugins() {
     await fastify.register(import('./routes/curriculum'), { prefix: '/api/curriculum' });
     await fastify.register(import('./routes/cp2025'), { prefix: '/api/cp2025' });
     await fastify.register(import('./routes/monitoring'), { prefix: '/api/monitoring' });
+    
+    // GDPR Compliance Routes
+    if (config.GDPR_ENABLED) {
+      await fastify.register(import('./routes/gdpr'), { prefix: '/api/gdpr' });
+      fastify.log.info('✅ GDPR routes enabled');
+    }
     
     // Health check route
     fastify.get('/api/health', async () => {
@@ -119,6 +130,7 @@ async function registerPlugins() {
           curriculum: '/api/curriculum',
           cp2025: '/api/cp2025',
           monitoring: '/api/monitoring',
+          gdpr: config.GDPR_ENABLED ? '/api/gdpr' : 'disabled',
           docs: '/docs'
         }
       };
@@ -160,6 +172,29 @@ async function start() {
     // Setup database tables and seed data
     await setupDatabase();
     fastify.log.info('✅ Database setup completed');
+
+    // Initialize GDPR services if enabled
+    if (config.GDPR_ENABLED) {
+      // Initialize GDPR services
+      const { AuditTrailService } = await import('./services/audit-trail.service');
+      const { EncryptionService } = await import('./services/encryption.service');
+      const { EmailService } = await import('./services/email.service');
+      const { GDPRRightsService } = await import('./services/gdpr-rights.service');
+      const { ParentalConsentService } = await import('./services/parental-consent.service');
+      const { DataRetentionService } = await import('./services/data-retention.service');
+      const { DataAnonymizationService } = await import('./services/data-anonymization.service');
+
+      // Add services to fastify instance for route access
+      fastify.decorate('auditService', new AuditTrailService());
+      fastify.decorate('encryptionService', new EncryptionService());
+      fastify.decorate('emailService', new EmailService());
+      fastify.decorate('gdprService', new GDPRRightsService());
+      fastify.decorate('consentService', new ParentalConsentService());
+      fastify.decorate('retentionService', new DataRetentionService());
+      fastify.decorate('anonymizationService', new DataAnonymizationService());
+
+      fastify.log.info('✅ GDPR services initialized');
+    }
 
     // Register all plugins and routes
     await registerPlugins();

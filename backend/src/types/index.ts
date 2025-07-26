@@ -1,4 +1,5 @@
 export * from './fastify-extended';
+export * from './gdpr.types';
 
 // Core type definitions for the RevEd Kids application
 
