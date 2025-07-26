@@ -1,32 +1,22 @@
-import { drizzle } from 'drizzle-orm/mysql2';
-import mysql from 'mysql2/promise';
+import { drizzle } from 'drizzle-orm/better-sqlite3';
+import Database from 'better-sqlite3';
 import { config } from '../config/config';
 
 // Re-export config for other modules
 export { config } from '../config/config';
 
-// Create connection pool
-const pool = mysql.createPool({
-  host: config.DB_HOST,
-  port: config.DB_PORT,
-  user: config.DB_USER,
-  password: config.DB_PASSWORD,
-  database: config.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-});
+// Create SQLite database
+const sqlite = new Database('reved_kids.db');
 
 // Create Drizzle instance
-export const db = drizzle(pool);
+export const db = drizzle(sqlite);
 
 // Test connection function
 export async function testConnection(): Promise<boolean> {
   try {
-    const connection = await pool.getConnection();
-    await connection.ping();
-    connection.release();
-    return true;
+    // Test with a simple query
+    const result = sqlite.prepare('SELECT 1 as test').get();
+    return result !== null;
   } catch (error) {
     console.error('Database connection failed:', error);
     return false;
@@ -42,24 +32,14 @@ export async function checkDatabaseHealth(): Promise<{
 }> {
   const start = Date.now();
   try {
-    const connection = await pool.getConnection();
-    await connection.ping();
-    
-    // Get connection pool stats
-    const poolStats = {
-      threadId: connection.threadId,
-      connectionLimit: pool.config.connectionLimit,
-      queueLimit: pool.config.queueLimit,
-    };
-    
-    connection.release();
+    const result = sqlite.prepare('SELECT 1 as test').get();
     
     const responseTime = Date.now() - start;
     
     return {
       status: 'healthy',
       responseTime,
-      connections: poolStats,
+      connections: { type: 'sqlite', database: 'reved_kids.db' },
     };
   } catch (error) {
     const responseTime = Date.now() - start;
@@ -73,8 +53,8 @@ export async function checkDatabaseHealth(): Promise<{
 
 // Legacy exports for backward compatibility
 export async function connectDatabase(): Promise<void> {
-  // Database is already connected via pool
-  console.log('Database connection pool ready');
+  // Database is already connected via SQLite
+  console.log('Database connection ready');
 }
 
 export function getDatabase() {
@@ -82,6 +62,6 @@ export function getDatabase() {
 }
 
 export async function disconnectDatabase(): Promise<void> {
-  await pool.end();
-  console.log('Database connection pool closed');
+  sqlite.close();
+  console.log('Database connection closed');
 }

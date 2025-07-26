@@ -28,7 +28,7 @@ loadEnvFiles();
 const configSchema = z.object({
   // Server Configuration
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.coerce.number().min(1000).max(65535).default(3000),
+  PORT: z.coerce.number().min(1000).max(65535).default(3003),
   HOST: z.string().default('0.0.0.0'),
   
   // Database Configuration (flexible for development)

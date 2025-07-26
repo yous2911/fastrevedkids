@@ -25,7 +25,7 @@ interface DatabaseConfig {
 // Environment schema
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.string().transform(Number).default('3000'),
+  PORT: z.string().transform(Number).default('3003'),
   
   // Database
   DB_HOST: z.string().default('localhost'),

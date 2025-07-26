@@ -3,6 +3,62 @@ import { FastifyInstance } from 'fastify';
 import { databaseService } from '../services/database.service.js';
 
 export default async function studentRoutes(fastify: FastifyInstance) {
+  // Get all students (for login selection)
+  fastify.get('/', async (request, reply) => {
+    try {
+      // For now, return mock data since database service might not be fully implemented
+      const mockStudents = [
+        {
+          id: 1,
+          prenom: 'Alice',
+          nom: 'Dupont',
+          niveauActuel: 'CP',
+          totalPoints: 150,
+          serieJours: 5,
+          mascotteType: 'dragon',
+          dernierAcces: new Date().toISOString(),
+          estConnecte: false
+        },
+        {
+          id: 2,
+          prenom: 'Lucas',
+          nom: 'Martin',
+          niveauActuel: 'CE1',
+          totalPoints: 320,
+          serieJours: 12,
+          mascotteType: 'robot',
+          dernierAcces: new Date().toISOString(),
+          estConnecte: false
+        },
+        {
+          id: 3,
+          prenom: 'Emma',
+          nom: 'Bernard',
+          niveauActuel: 'CP',
+          totalPoints: 85,
+          serieJours: 3,
+          mascotteType: 'fairy',
+          dernierAcces: new Date().toISOString(),
+          estConnecte: false
+        }
+      ];
+
+      return {
+        success: true,
+        data: mockStudents
+      };
+    } catch (error) {
+      fastify.log.error('Get all students error:', error);
+      return reply.status(500).send({
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'Failed to get students list'
+        }
+      });
+    }
+  });
+
   // Get student profile
   fastify.get('/profile', {
     preHandler: fastify.authenticate
