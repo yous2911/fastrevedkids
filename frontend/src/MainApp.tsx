@@ -1,10 +1,12 @@
 import React from 'react';
 import { useAuth } from './hooks/useAuth';
-import { LoginScreen } from './components/auth/LoginScreen';
+import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 
 export function MainApp() {
-  const { student, loading, logout } = useAuth();
+  const { student, loading, logout, isAuthenticated } = useAuth();
+
+  console.log('MainApp render:', { student, loading, isAuthenticated });
 
   if (loading) {
     return (
@@ -16,7 +18,7 @@ export function MainApp() {
     );
   }
 
-  return student ? (
+  return (student || isAuthenticated) ? (
     <Dashboard 
       onNavigate={(path) => {
         // Handle navigation - could be enhanced with React Router
@@ -29,6 +31,11 @@ export function MainApp() {
       onLogout={logout}
     />
   ) : (
-    <LoginScreen />
+    <Login onLoginSuccess={() => {
+      // Force a re-render when login succeeds
+      // The useAuth hook should handle the state update automatically
+      // This callback is called after successful login to trigger UI update
+      console.log('Login success callback triggered');
+    }} />
   );
 } 

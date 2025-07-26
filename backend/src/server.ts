@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import { config, validateEnvironment } from './config/config';
 import { logger } from './utils/logger';
 import { connectDatabase, disconnectDatabase } from './db/connection';
+import { setupDatabase } from './db/setup';
 
 // Validate environment on startup
 try {
@@ -55,11 +56,10 @@ async function registerPlugins() {
     // Essential plugins first
     await fastify.register(import('./plugins/cors'));
     await fastify.register(import('./plugins/helmet'));
-    await fastify.register(import('./plugins/compress'));
     
     // Database and cache
     await fastify.register(import('./plugins/database'));
-    await fastify.register(import('./plugins/redis'));
+    // await fastify.register(import('./plugins/redis'));
     
     // Auth and validation
     await fastify.register(import('./plugins/auth'));
@@ -156,6 +156,10 @@ async function start() {
     // Test database connection first
     await connectDatabase();
     fastify.log.info('✅ Database connected successfully');
+
+    // Setup database tables and seed data
+    await setupDatabase();
+    fastify.log.info('✅ Database setup completed');
 
     // Register all plugins and routes
     await registerPlugins();

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../hooks/useAuth';
 
 interface LoginProps {
   onLoginSuccess: () => void;
 }
 
 export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
+  const { login, error: authError, loading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     prenom: '',
     nom: ''
@@ -22,7 +24,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   const loadStudents = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/students');
+      const response = await fetch('http://localhost:3002/api/students');
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
@@ -47,28 +49,11 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:3001/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prenom: formData.prenom.trim(),
-          nom: formData.nom.trim()
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        const { student, token } = data.data;
-        
-        // Store token in localStorage
-        localStorage.setItem('auth_token', token);
-        
+      const success = await login(formData.prenom.trim(), formData.nom.trim());
+      if (success) {
         onLoginSuccess();
       } else {
-        setError(data.error?.message || 'Erreur de connexion');
+        setError('Erreur de connexion. Veuillez réessayer.');
       }
     } catch (err: any) {
       setError('Erreur de connexion. Veuillez réessayer.');
@@ -80,21 +65,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const handleStudentSelect = async (student: any) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:3001/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prenom: student.prenom,
-          nom: student.nom
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        localStorage.setItem('auth_token', data.data.token);
+      const success = await login(student.prenom, student.nom);
+      if (success) {
         onLoginSuccess();
       } else {
         setError('Erreur de connexion');
@@ -148,13 +120,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   </h2>
                 </div>
 
-                {error && (
+                {(error || authError) && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="bg-red-500/20 border border-red-500/30 rounded-xl p-3 text-red-200 text-sm text-center"
                   >
-                    {error}
+                    {error || authError}
                   </motion.div>
                 )}
 
@@ -192,10 +164,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 {/* Submit Button */}
                 <button
                   onClick={handleLogin}
-                  disabled={isSubmitting || !formData.prenom.trim() || !formData.nom.trim()}
+                  disabled={isSubmitting || authLoading || !formData.prenom.trim() || !formData.nom.trim()}
                   className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? (
+                  {(isSubmitting || authLoading) ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       Connexion...
@@ -247,7 +219,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     >
                       <button
                         onClick={() => handleStudentSelect(student)}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || authLoading}
                         className="w-full p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition-all text-left group disabled:opacity-50"
                       >
                         <div className="flex items-center gap-3">

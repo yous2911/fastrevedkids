@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useAuth } from '../hooks/useAuth';
 
 interface Student {
   id: number;
@@ -44,67 +45,92 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercise, onLogout }) => {
-  const [student, setStudent] = useState<Student | null>(null);
   const [recommendations, setRecommendations] = useState<Exercise[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [greeting, setGreeting] = useState('');
   const [error, setError] = useState('');
 
+  // Get student from auth context instead of fetching
+  const { currentStudent: student } = useAuth();
+
   useEffect(() => {
-    loadStudentData();
-    generateGreeting();
-  }, []);
-
-  const loadStudentData = async () => {
-    try {
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        onLogout();
-        return;
-      }
-
-      // Get current student from token or make API call
-      const response = await fetch('http://localhost:3001/api/students/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setStudent(data.data);
-          loadRecommendations(data.data.id);
-        }
-      } else if (response.status === 401) {
-        localStorage.removeItem('auth_token');
-        onLogout();
-      }
-    } catch (err) {
-      setError('Erreur lors du chargement des données');
-    } finally {
-      setLoading(false);
+    if (student) {
+      generateGreeting();
+      loadRecommendations(student.id);
     }
+  }, [student]);
+
+  // Mock stats for now since they're not in the database
+  const mockStats = {
+    totalExercises: 25,
+    completedExercises: 18,
+    successRate: 85,
+    totalTime: 120
   };
 
   const loadRecommendations = async (studentId: number) => {
-    try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:3001/api/students/${studentId}/recommendations?limit=5`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+    // Mock recommendations for now
+    const mockRecommendations: Exercise[] = [
+      {
+        id: 1,
+        type: 'CALCUL',
+        configuration: {
+          question: 'Combien font 5 + 7 ?',
+          difficulte: 'FACILE'
+        },
+        xp: 10,
+        difficulte: 'FACILE',
+        sousChapitre: {
+          titre: 'Addition',
+          chapitre: {
+            titre: 'Opérations de base',
+            matiere: {
+              nom: 'Mathématiques'
+            }
+          }
         }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setRecommendations(data.data || []);
+      },
+      {
+        id: 2,
+        type: 'LECTURE',
+        configuration: {
+          question: 'Lis le mot : "maison"',
+          difficulte: 'FACILE'
+        },
+        xp: 15,
+        difficulte: 'FACILE',
+        sousChapitre: {
+          titre: 'Lecture de mots',
+          chapitre: {
+            titre: 'Lecture',
+            matiere: {
+              nom: 'Français'
+            }
+          }
+        }
+      },
+      {
+        id: 3,
+        type: 'GEOMETRIE',
+        configuration: {
+          question: 'Quelle forme a 3 côtés ?',
+          difficulte: 'MOYEN'
+        },
+        xp: 20,
+        difficulte: 'MOYEN',
+        sousChapitre: {
+          titre: 'Formes géométriques',
+          chapitre: {
+            titre: 'Géométrie',
+            matiere: {
+              nom: 'Mathématiques'
+            }
+          }
         }
       }
-    } catch (err) {
-      // Handle recommendation loading error silently
-    }
+    ];
+    
+    setRecommendations(mockRecommendations);
   };
 
   const generateGreeting = () => {
@@ -143,9 +169,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
   };
 
   const getProgressPercentage = () => {
-    if (!student?.stats) return 0;
-    const { totalExercises, completedExercises } = student.stats;
-    return totalExercises > 0 ? Math.round((completedExercises / totalExercises) * 100) : 0;
+    if (!student) return 0;
+    return Math.round((mockStats.completedExercises / mockStats.totalExercises) * 100);
   };
 
   const getStreakMessage = () => {
@@ -265,7 +290,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
                     <div className="text-blue-100 text-sm">Jours</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{student.stats.successRate}%</div>
+                    <div className="text-2xl font-bold">{mockStats.successRate}%</div>
                     <div className="text-blue-100 text-sm">Réussite</div>
                   </div>
                 </div>
@@ -434,15 +459,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Exercices terminés</span>
-                    <span className="font-bold text-gray-800">{student.stats.completedExercises}</span>
+                    <span className="font-bold text-gray-800">{mockStats.completedExercises}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Taux de réussite</span>
-                    <span className="font-bold text-green-600">{student.stats.successRate}%</span>
+                    <span className="font-bold text-green-600">{mockStats.successRate}%</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Temps d'étude</span>
-                    <span className="font-bold text-blue-600">{Math.round(student.stats.totalTime / 60)}min</span>
+                    <span className="font-bold text-blue-600">{Math.round(mockStats.totalTime / 60)}min</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Niveau actuel</span>
