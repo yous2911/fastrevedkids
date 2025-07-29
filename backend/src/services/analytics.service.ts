@@ -20,34 +20,33 @@ export class AnalyticsService {
       const progressData = await db
         .select({
           exerciseId: schema.progress.exerciseId,
-          score: schema.progress.pointsGagnes,
-          completed: schema.progress.statut,
+          score: schema.progress.score,
+          completed: schema.progress.completed,
         })
         .from(schema.progress)
         .where(eq(schema.progress.studentId, studentId));
 
-      const completedExercises = progressData.filter(p => p.completed === 'TERMINE');
+      const completedExercises = progressData.filter(p => p.completed === true);
       const totalExercises = progressData.length;
       const averageScore = completedExercises.length > 0 
         ? completedExercises.reduce((sum, p) => sum + (p.score || 0), 0) / completedExercises.length 
         : 0;
 
-      // Get progress by module
+      // Get progress by module - since exercises don't have moduleId, we'll group by exercise type
       const progressByModule = await db
         .select({
-          moduleId: schema.exercises.moduleId,
-          moduleName: schema.modules.nom,
+          moduleId: sql<number>`1`, // Default module ID since we don't have modules linked
+          moduleName: schema.exercises.type,
           completed: count(schema.progress.id),
           total: count(schema.exercises.id),
         })
         .from(schema.progress)
         .innerJoin(schema.exercises, eq(schema.progress.exerciseId, schema.exercises.id))
-        .innerJoin(schema.modules, eq(schema.exercises.moduleId, schema.modules.id))
         .where(and(
           eq(schema.progress.studentId, studentId),
-          eq(schema.progress.statut, 'TERMINE')
+          eq(schema.progress.completed, true)
         ))
-        .groupBy(schema.exercises.moduleId, schema.modules.nom);
+        .groupBy(schema.exercises.type);
 
       return {
         totalExercises,
@@ -84,22 +83,34 @@ export class AnalyticsService {
 
       const sessions = await db
         .select({
-          dureeSecondes: schema.sessions.dureeSecondes,
-          pointsGagnes: schema.sessions.pointsGagnes,
-          exercicesCompletes: schema.sessions.exercicesCompletes,
+          id: schema.sessions.id,
+          createdAt: schema.sessions.createdAt,
         })
         .from(schema.sessions)
         .where(and(
           eq(schema.sessions.studentId, studentId),
-          gte(schema.sessions.dateDebut, startDate)
+          gte(schema.sessions.createdAt, startDate.toISOString())
+        ));
+
+      // Get student progress for points calculation
+      const recentProgress = await db
+        .select({
+          score: schema.progress.score,
+          timeSpent: schema.progress.timeSpent,
+          completed: schema.progress.completed,
+        })
+        .from(schema.progress)
+        .where(and(
+          eq(schema.progress.studentId, studentId),
+          gte(schema.progress.createdAt, startDate.toISOString())
         ));
 
       const totalSessions = sessions.length;
-      const averageSessionDuration = totalSessions > 0 
-        ? sessions.reduce((sum, s) => sum + s.dureeSecondes, 0) / totalSessions 
+      const averageSessionDuration = recentProgress.length > 0 
+        ? recentProgress.reduce((sum, p) => sum + (p.timeSpent || 0), 0) / recentProgress.length 
         : 0;
-      const totalPoints = sessions.reduce((sum, s) => sum + s.pointsGagnes, 0);
-      const exercisesCompleted = sessions.reduce((sum, s) => sum + s.exercicesCompletes, 0);
+      const totalPoints = recentProgress.reduce((sum, p) => sum + (p.score || 0), 0);
+      const exercisesCompleted = recentProgress.filter(p => p.completed).length;
 
       return {
         totalSessions,
@@ -127,19 +138,19 @@ export class AnalyticsService {
     try {
       const progress = await db
         .select({
-          statut: schema.progress.statut,
-          pointsGagnes: schema.progress.pointsGagnes,
+          completed: schema.progress.completed,
+          score: schema.progress.score,
         })
         .from(schema.progress)
         .where(eq(schema.progress.exerciseId, exerciseId));
 
       const totalAttempts = progress.length;
-      const successfulAttempts = progress.filter(p => p.statut === 'TERMINE').length;
+      const successfulAttempts = progress.filter(p => p.completed === true).length;
       const completionRate = totalAttempts > 0 ? (successfulAttempts / totalAttempts) * 100 : 0;
       const averageScore = successfulAttempts > 0 
         ? progress
-            .filter(p => p.statut === 'TERMINE')
-            .reduce((sum, p) => sum + (p.pointsGagnes || 0), 0) / successfulAttempts 
+            .filter(p => p.completed === true)
+            .reduce((sum, p) => sum + (p.score || 0), 0) / successfulAttempts 
         : 0;
 
       return {

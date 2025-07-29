@@ -17,7 +17,12 @@ const AuditActionSchema = z.object({
     'key_rotation',
     'key_revocation',
     'user_session',
-    'admin_action'
+    'admin_action',
+    'anonymization_job',
+    'retention_policy',
+    'retention_execution',
+    'retention_schedule',
+    'retention_report'
   ]),
   entityId: z.string(),
   action: z.enum([
@@ -41,7 +46,10 @@ const AuditActionSchema = z.object({
     'first_consent',
     'second_consent',
     'verified',
-    'completed'
+    'completed',
+    'failed',
+    'created',
+    'revoked'
   ]),
   userId: z.string().nullable(),
   parentId: z.string().optional(),
@@ -160,8 +168,7 @@ export class AuditTrailService {
 
       if (shouldEncrypt) {
         encryptedDetails = await this.encryptionService.encryptStudentData(
-          validatedData.details,
-          'audit_logs'
+          validatedData.details
         );
         encrypted = true;
       }
@@ -235,7 +242,7 @@ export class AuditTrailService {
         for (const entry of entries) {
           if (entry.encrypted) {
             try {
-              entry.details = await this.encryptionService.decryptStudentData(entry.details);
+              entry.details = await this.encryptionService.decryptStudentData(entry.details as any);
               entry.encrypted = false;
             } catch (error) {
               logger.warn(`Failed to decrypt audit details for entry ${entry.id}:`, error);
@@ -422,9 +429,8 @@ export class AuditTrailService {
 
       const originalChecksum = entry.checksum;
       const calculatedChecksum = this.calculateChecksum({
-        ...entry,
-        checksum: '' // Exclude checksum from calculation
-      });
+        ...entry
+      } as any);
 
       const valid = originalChecksum === calculatedChecksum;
       

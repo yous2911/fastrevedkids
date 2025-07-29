@@ -416,4 +416,6 @@ export const ProgressPage: React.FC<ProgressPageProps> = ({ onBack }) => {
       </div>
     </div>
   );
-}; 
+};
+
+export default ProgressPage; 

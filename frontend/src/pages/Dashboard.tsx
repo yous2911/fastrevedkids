@@ -502,4 +502,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
       </div>
     </div>
   );
-}; 
+};
+
+export default Dashboard; 

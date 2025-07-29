@@ -26,12 +26,19 @@ export {
 } from '../hooks/useGDPRUtils';
 
 // Contexte et Provider
-export {
+import {
   GDPRProvider,
   useGDPRContext,
   useGDPRPermissions,
   withGDPR
 } from '../contexts/GDPRContext';
+
+export {
+  GDPRProvider,
+  useGDPRContext,
+  useGDPRPermissions,
+  withGDPR
+};
 
 // Composants UI (à importer depuis les composants existants)
 export { default as ConsentBanner } from '../components/gdpr/ConsentBanner';
@@ -39,7 +46,8 @@ export { default as GDPRDashboard } from '../components/gdpr/GDPRDashboard';
 export { default as GDPRTestIntegration } from '../components/gdpr/GDPRTestIntegration';
 
 // Services API (extensions RGPD)
-export { apiService } from '../services/api.service';
+import { apiService } from '../services/api.service';
+export { apiService };
 
 // Configuration par défaut RGPD
 export const defaultGDPRConfig = {

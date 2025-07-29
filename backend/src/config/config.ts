@@ -1,28 +1,36 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
 import path from 'path';
+import fs from 'fs';
 
-// Load environment variables with fallback paths
-const loadEnvFiles = () => {
-  const envPaths = [
-    '.env.local',
-    '.env',
-    path.join(process.cwd(), '.env'),
-    path.join(__dirname, '../../.env'),
-  ];
+// FORCE load ONLY env.backend - ignore all other .env files
+const envPath = path.join(process.cwd(), 'env.backend');
 
-  for (const envPath of envPaths) {
-    try {
-      dotenv.config({ path: envPath });
-      console.log(`✅ Loaded environment from: ${envPath}`);
-      break;
-    } catch (error) {
-      // Continue to next path
-    }
-  }
-};
+// Verify the file exists
+if (!fs.existsSync(envPath)) {
+  console.error('❌ env.backend file not found at:', envPath);
+  process.exit(1);
+}
 
-loadEnvFiles();
+// Clear any existing environment variables that might interfere
+delete process.env.NODE_ENV;
+delete process.env.PORT;
+delete process.env.REDIS_ENABLED;
+
+// Load ONLY from env.backend
+const result = dotenv.config({ 
+  path: envPath,
+  override: true  // Override any existing env vars
+});
+
+if (result.error) {
+  console.error('❌ Failed to load env.backend:', result.error.message);
+  process.exit(1);
+}
+
+console.log('✅ Loaded environment from:', envPath);
+console.log('✅ PORT from env.backend:', process.env.PORT);
+console.log('✅ REDIS_ENABLED from env.backend:', process.env.REDIS_ENABLED);
 
 // Flexible configuration schema with sensible defaults
 const configSchema = z.object({

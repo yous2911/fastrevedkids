@@ -264,22 +264,12 @@ export class ExerciseGeneratorService {
         const configuration = template.generator();
         exercises.push({
           titre: configuration.titre || `Exercice ${template.type}`,
-          contenu: configuration,
-          difficulte: DIFFICULTE_MAP[template.difficulte], // Map to schema difficulty
-          matiere: template.matiere,
-          niveau: template.niveau,
-          ordre: i + 1,
-          moduleId: 1, // Will be set properly when you have modules
-          tempsEstime: this.calculateDuration(template.type, template.difficulte),
-          pointsMax: this.calculatePoints(template.difficulte),
-          estActif: true,
-          metadata: {
-            concepts: template.concepts,
-            generatedAt: new Date().toISOString()
-          },
-          donneesSupplementaires: configuration.donnees || {},
-          createdAt: new Date(),
-          updatedAt: new Date()
+          type: template.matiere,
+          difficulte: DIFFICULTE_MAP[template.difficulte],
+          configuration: JSON.stringify(configuration),
+          xp: this.calculatePoints(template.difficulte),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         });
       }
     }
@@ -732,7 +722,7 @@ export class ExerciseGeneratorService {
         const configuration = template.generator();
         exercises.push({
           titre: configuration.titre || `Exercice ${template.type}`,
-          contenu: configuration,
+          configuration: JSON.stringify(configuration),
           difficulte: template.difficulte, // Keep original difficulty for tests
           matiere: template.matiere,
           niveau: template.niveau,
@@ -746,8 +736,8 @@ export class ExerciseGeneratorService {
             generatedAt: new Date().toISOString()
           },
           donneesSupplementaires: configuration.donnees || {},
-          createdAt: new Date(),
-          updatedAt: new Date()
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         });
       }
     }

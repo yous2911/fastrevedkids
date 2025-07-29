@@ -99,7 +99,7 @@ const gdprReducer = (state: GDPRState, action: GDPRActionType): GDPRState => {
       return {
         ...state,
         activeConsent: action.payload,
-        showConsentBanner: !action.payload && state.config?.consentBannerEnabled,
+        showConsentBanner: !action.payload && (state.config?.consentBannerEnabled ?? false),
         lastConsentCheck: new Date()
       };
       

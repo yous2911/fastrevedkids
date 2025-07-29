@@ -229,7 +229,7 @@ export const AdaptiveExerciseEngine: React.FC<AdaptiveExerciseEngineProps> = mem
           <ProgressBar 
             progress={insights.masteryLevel} 
             className="w-20 h-2"
-            variant={insights.masteryLevel > 80 ? 'gradient' : insights.masteryLevel > 60 ? 'default' : 'sparkle'}
+            variant={insights.masteryLevel > 60 ? 'sparkle' : 'default'}
           />
           <span className="font-medium">{insights.masteryLevel.toFixed(0)}%</span>
         </div>
@@ -301,6 +301,4 @@ export const AdaptiveExerciseEngine: React.FC<AdaptiveExerciseEngineProps> = mem
       </AnimatePresence>
     </div>
   );
-};
-
-export default AdaptiveExerciseEngine; 
+}); 

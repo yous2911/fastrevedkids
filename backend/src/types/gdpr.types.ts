@@ -284,7 +284,7 @@ export interface AuditLogRequest {
   action: AuditAction;
   userId?: string;
   parentId?: string;
-  studentId?: number;
+  studentId?: string;
   details: Record<string, any>;
   ipAddress?: string;
   userAgent?: string;

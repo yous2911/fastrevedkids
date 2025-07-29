@@ -1,7 +1,7 @@
 // src/plugins/config.ts
 import fp from 'fastify-plugin';
 import { FastifyPluginAsync } from 'fastify';
-import { config, dbConfig, redisConfig, jwtConfig } from '../config/environment.js';
+import { config, dbConfig, redisConfig, jwtConfig } from '../config/config';
 
 const configPlugin: FastifyPluginAsync = async (fastify) => {
   // Decorate fastify with config

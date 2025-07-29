@@ -1,7 +1,18 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
+import path from 'path';
 
-dotenv.config();
+// Load environment variables from env.backend specifically
+const envPath = path.join(process.cwd(), 'env.backend');
+const result = dotenv.config({ path: envPath });
+
+if (result.error) {
+  console.error('❌ Failed to load env.backend:', result.error.message);
+  console.log('Looking for environment file at:', envPath);
+  process.exit(1);
+} else {
+  console.log('✅ Loaded environment from:', envPath);
+}
 
 // Define interfaces with proper optional handling
 interface RedisConfig {

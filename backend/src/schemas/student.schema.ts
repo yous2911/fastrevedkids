@@ -2,39 +2,120 @@ import { FastifySchema } from 'fastify';
 
 export const studentSchemas = {
   getStudent: {
-    description: 'Get student information',
-    tags: ['students'],
+    description: 'Get detailed student information including profile, progress, and statistics',
+    summary: 'Get Student Profile',
+    tags: ['Students'],
+    operationId: 'getStudentProfile',
     security: [{ bearerAuth: [] }],
     params: {
       type: 'object',
       required: ['id'],
       properties: {
-        id: { type: 'string', pattern: '^\\d+$' },
+        id: { 
+          type: 'string', 
+          pattern: '^\\d+$',
+          description: 'Student unique identifier',
+          example: '1'
+        },
       },
     },
     response: {
       200: {
+        description: 'Student profile information retrieved successfully',
         type: 'object',
         properties: {
-          success: { type: 'boolean' },
+          success: { type: 'boolean', example: true },
           data: {
             type: 'object',
             properties: {
-              id: { type: 'number' },
-              prenom: { type: 'string' },
-              nom: { type: 'string' },
-              niveauActuel: { type: 'string' },
-              age: { type: 'number' },
-              totalPoints: { type: 'number' },
-              serieJours: { type: 'number' },
-              preferences: { type: 'object' },
-              dernierAcces: { type: 'string', format: 'date-time' },
-              estConnecte: { type: 'boolean' },
+              id: { type: 'number', example: 1 },
+              prenom: { type: 'string', example: 'Alice' },
+              nom: { type: 'string', example: 'Dupont' },
+              dateNaissance: { type: 'string', format: 'date', example: '2015-06-15' },
+              niveauActuel: { type: 'string', enum: ['CP', 'CE1', 'CE2', 'CM1', 'CM2'], example: 'CP' },
+              age: { type: 'number', example: 7 },
+              totalPoints: { type: 'number', example: 350 },
+              serieJours: { type: 'number', example: 7 },
+              mascotteType: { type: 'string', example: 'dragon' },
+              preferences: { 
+                type: 'object',
+                properties: {
+                  theme: { type: 'string', example: 'colorful' },
+                  difficulty: { type: 'string', example: 'adaptive' },
+                  notifications: { type: 'boolean', example: true }
+                },
+                example: {
+                  theme: 'colorful',
+                  difficulty: 'adaptive',
+                  notifications: true
+                }
+              },
+              dernierAcces: { type: 'string', format: 'date-time', example: '2024-01-15T10:30:00Z' },
+              estConnecte: { type: 'boolean', example: false },
+              createdAt: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00Z' },
+              updatedAt: { type: 'string', format: 'date-time', example: '2024-01-15T10:30:00Z' }
             },
           },
-          message: { type: 'string' },
+          message: { type: 'string', example: 'Profil étudiant récupéré avec succès' },
         },
+        example: {
+          success: true,
+          data: {
+            id: 1,
+            prenom: 'Alice',
+            nom: 'Dupont',
+            dateNaissance: '2015-06-15',
+            niveauActuel: 'CP',
+            age: 7,
+            totalPoints: 350,
+            serieJours: 7,
+            mascotteType: 'dragon',
+            preferences: {
+              theme: 'colorful',
+              difficulty: 'adaptive',
+              notifications: true
+            },
+            dernierAcces: '2024-01-15T10:30:00Z',
+            estConnecte: false
+          },
+          message: 'Profil étudiant récupéré avec succès'
+        }
       },
+      404: {
+        description: 'Student not found',
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: false },
+          error: {
+            type: 'object',
+            properties: {
+              code: { type: 'string', example: 'STUDENT_NOT_FOUND' },
+              message: { type: 'string', example: 'Étudiant non trouvé' }
+            }
+          }
+        },
+        example: {
+          success: false,
+          error: {
+            code: 'STUDENT_NOT_FOUND',
+            message: 'Étudiant non trouvé'
+          }
+        }
+      },
+      401: {
+        description: 'Authentication required',
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: false },
+          error: {
+            type: 'object',
+            properties: {
+              code: { type: 'string', example: 'UNAUTHORIZED' },
+              message: { type: 'string', example: 'Token d\'authentification requis' }
+            }
+          }
+        }
+      }
     },
   } as FastifySchema,
 

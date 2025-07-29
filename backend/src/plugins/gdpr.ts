@@ -49,11 +49,7 @@ const gdprPlugin = async (fastify: FastifyInstance, options: GDPRPluginOptions =
   try {
     // Initialisation des services RGPD
     const auditService = new AuditTrailService();
-    const encryptionService = new EncryptionService({
-      rotationIntervalDays: gdprConfig.encryptionKeyRotationDays,
-      keyRetentionDays: gdprConfig.dataRetentionDays,
-      autoRotation: true
-    });
+    const encryptionService = new EncryptionService();
     const emailService = new EmailService();
     const gdprService = new GDPRRightsService();
     const consentService = new ParentalConsentService();
@@ -122,7 +118,7 @@ const gdprPlugin = async (fastify: FastifyInstance, options: GDPRPluginOptions =
 
     // Helpers pour chiffrement/déchiffrement
     fastify.decorate('gdprDataEncryption', async (data: any, usage: string = 'student_data') => {
-      return await encryptionService.encryptStudentData(data, usage as any);
+      return await encryptionService.encryptStudentData(data);
     });
 
     fastify.decorate('gdprDataDecryption', async (encryptedData: any) => {
@@ -131,14 +127,14 @@ const gdprPlugin = async (fastify: FastifyInstance, options: GDPRPluginOptions =
 
     // Hook pour la vérification du consentement parental sur les routes étudiants
     if (gdprConfig.parentalConsentRequired) {
-      fastify.addHook('preHandler', async (request, reply) => {
+      fastify.addHook('preHandler', async (request, reply): Promise<void> => {
         // Vérifier le consentement uniquement pour les routes d'étudiants
         if (request.url.startsWith('/api/students') && request.method !== 'GET') {
-          const studentId = request.params?.id || request.user?.studentId;
+          const studentId = (request.params as any)?.id || (request.user as any)?.studentId;
           
           if (studentId) {
             try {
-              const hasConsent = await consentService.verifyActiveConsent(studentId.toString());
+              const hasConsent = await consentService.isConsentValidForProcessing(studentId.toString(), 'data_processing');
               
               if (!hasConsent) {
                 return reply.status(403).send({
@@ -156,7 +152,7 @@ const gdprPlugin = async (fastify: FastifyInstance, options: GDPRPluginOptions =
                 entityType: 'parental_consent',
                 entityId: studentId.toString(),
                 action: 'read',
-                userId: request.user?.studentId?.toString() || null,
+                userId: null, // request.user not available in this context
                 details: {
                   error: 'consent_verification_failed',
                   route: request.url
@@ -169,6 +165,8 @@ const gdprPlugin = async (fastify: FastifyInstance, options: GDPRPluginOptions =
             }
           }
         }
+        // Explicit return for all code paths
+        return;
       });
     }
 
@@ -177,10 +175,8 @@ const gdprPlugin = async (fastify: FastifyInstance, options: GDPRPluginOptions =
       // Nettoyage automatique des clés expirées (toutes les 24h)
       setInterval(async () => {
         try {
-          const cleanedKeys = await encryptionService.cleanupExpiredKeys();
-          if (cleanedKeys > 0) {
-            fastify.log.info(`🧹 Cleaned up ${cleanedKeys} expired encryption keys`);
-          }
+          await encryptionService.cleanupExpiredKeys();
+          fastify.log.info('🧹 Cleaned up expired encryption keys');
         } catch (error) {
           fastify.log.error('Error cleaning up expired keys:', error);
         }
@@ -189,7 +185,7 @@ const gdprPlugin = async (fastify: FastifyInstance, options: GDPRPluginOptions =
       // Application des politiques de rétention (toutes les 6h)
       setInterval(async () => {
         try {
-          await retentionService.applyRetentionPolicies();
+          await retentionService.executeRetentionPolicies();
           fastify.log.debug('✅ Retention policies applied');
         } catch (error) {
           fastify.log.error('Error applying retention policies:', error);
@@ -200,9 +196,10 @@ const gdprPlugin = async (fastify: FastifyInstance, options: GDPRPluginOptions =
     }
 
     // Hook de fermeture pour nettoyage propre
-    fastify.addHook('onClose', async () => {
+    fastify.addHook('onClose', async (): Promise<void> => {
       fastify.log.info('🔄 Shutting down GDPR services...');
       // Ici on pourrait ajouter du nettoyage si nécessaire
+      return; // Explicit return for all code paths
     });
 
     fastify.log.info('✅ GDPR plugin initialized successfully');

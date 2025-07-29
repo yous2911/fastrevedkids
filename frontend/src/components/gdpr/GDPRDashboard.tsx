@@ -610,7 +610,9 @@ export const GDPRDashboard: React.FC<GDPRDashboardProps> = memo(({
             >
               {submitting ? (
                 <>
-                  <LoadingSpinner size="small" className="mr-2" />
+                  <span className="mr-2">
+                    <LoadingSpinner size="sm" />
+                  </span>
                   Soumission...
                 </>
               ) : (
@@ -650,3 +652,5 @@ export const GDPRDashboard: React.FC<GDPRDashboardProps> = memo(({
 });
 
 GDPRDashboard.displayName = 'GDPRDashboard';
+
+export default GDPRDashboard;

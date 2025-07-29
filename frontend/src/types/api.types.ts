@@ -137,6 +137,28 @@ export interface ExercicePedagogique {
   updatedAt: string;
 }
 
+// Unified Exercise type that supports both difficulty systems
+export interface Exercise {
+  id: number;
+  type: 'QCM' | 'CALCUL' | 'TEXTE_LIBRE' | 'DRAG_DROP' | 'CONJUGAISON' | 'LECTURE' | 'GEOMETRIE' | 'PROBLEME';
+  configuration: ExerciceConfiguration;
+  xp: number;
+  // Support both difficulty systems
+  difficulte: 'FACILE' | 'MOYEN' | 'DIFFICILE' | 'decouverte' | 'entrainement' | 'maitrise' | 'consolidation' | 'approfondissement';
+  sousChapitre?: SousChapitre;
+  createdAt: string;
+  updatedAt: string;
+  
+  // Additional properties that components need
+  titre?: string;
+  consigne?: string;
+  pointsReussite?: number;
+  dureeEstimee?: number;
+  ordre?: number;
+  moduleTitle?: string;
+  moduleMatiere?: string;
+}
+
 export interface Eleve {
   id: number;
   prenom: string;

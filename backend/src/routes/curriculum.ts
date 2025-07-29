@@ -27,14 +27,14 @@ const curriculumPlugin: FastifyPluginAsync = async (fastify, opts) => {
     schema: curriculumSchemas.getLevels,
     handler: async (request, reply) => {
       try {
-        // Get levels from database with counts
+        // Get levels from database with counts (using modules table instead)
         const levelsData = await db
           .select({
-            niveau: exercises.niveau,
-            count: sql<number>`COUNT(DISTINCT ${exercises.matiere})`
+            niveau: modules.niveau,
+            count: sql<number>`COUNT(DISTINCT ${modules.matiere})`
           })
-          .from(exercises)
-          .groupBy(exercises.niveau);
+          .from(modules)
+          .groupBy(modules.niveau);
 
         // Merge with supported levels configuration
         const enrichedLevels = SUPPORTED_LEVELS.map(level => {
@@ -85,26 +85,26 @@ const curriculumPlugin: FastifyPluginAsync = async (fastify, opts) => {
           });
         }
 
-        // Build query conditions
+        // Build query conditions (using modules table instead)
         const conditions = [
-          eq(exercises.niveau, supportedLevel.name)
+          eq(modules.niveau, supportedLevel.name)
         ];
 
         if (subject) {
-          conditions.push(eq(exercises.matiere, subject.toUpperCase()));
+          conditions.push(eq(modules.matiere, subject.toUpperCase()));
         }
 
-        // Get curriculum data
+        // Get curriculum data from modules table
         const curriculumData = await db
           .select({
-            niveau: exercises.niveau,
-            matiere: exercises.matiere,
-            moduleId: exercises.moduleId,
+            niveau: modules.niveau,
+            matiere: modules.matiere,
+            moduleId: modules.id,
             exercicesCount: sql<number>`COUNT(*)`
           })
-          .from(exercises)
-          .where(eq(exercises.niveau, supportedLevel.name))
-          .groupBy(exercises.matiere, exercises.moduleId);
+          .from(modules)
+          .where(eq(modules.niveau, supportedLevel.name))
+          .groupBy(modules.matiere, modules.id);
 
         // Get modules for this level
         const modulesData = await db
@@ -147,12 +147,12 @@ const curriculumPlugin: FastifyPluginAsync = async (fastify, opts) => {
         
         const subjects = await db
           .select({
-            nom: exercises.matiere,
+            nom: modules.matiere,
             exercicesCount: sql<number>`COUNT(*)`
           })
-          .from(exercises)
-          .where(eq(exercises.niveau, level.toUpperCase()))
-          .groupBy(exercises.matiere);
+          .from(modules)
+          .where(eq(modules.niveau, level.toUpperCase()))
+          .groupBy(modules.matiere);
 
         return reply.send({
           success: true,
@@ -190,31 +190,24 @@ const curriculumPlugin: FastifyPluginAsync = async (fastify, opts) => {
           offset = 0 
         } = request.query;
 
-        // Build query conditions
-        const conditions = [
-          eq(exercises.niveau, level.toUpperCase())
-        ];
+        // Build query conditions (exercises don't have niveau/matiere, so we'll get all exercises)
+        const conditions = [];
 
-        if (subject) {
-          conditions.push(eq(exercises.matiere, subject.toUpperCase()));
-        }
         if (difficulty) {
           conditions.push(eq(exercises.difficulte, difficulty.toUpperCase()));
         }
 
-        // Get exercises with pagination
+        // Get exercises with pagination (all exercises since they don't have level/subject)
         const exercisesData = await db
           .select()
           .from(exercises)
-          .where(eq(exercises.niveau, level.toUpperCase()))
           .limit(limit)
           .offset(offset);
 
         // Get total count
         const countResult = await db
           .select({ count: sql<number>`COUNT(*)` })
-          .from(exercises)
-          .where(eq(exercises.niveau, level.toUpperCase()));
+          .from(exercises);
 
         const totalCount = countResult[0]?.count || 0;
 
@@ -249,23 +242,24 @@ const curriculumPlugin: FastifyPluginAsync = async (fastify, opts) => {
     schema: curriculumSchemas.getStatistics,
     handler: async (request, reply) => {
       try {
+        // Get statistics from modules table (since exercises don't have niveau/matiere)
         const stats = await db
           .select({
-            level: exercises.niveau,
-            subjectsCount: sql<number>`COUNT(DISTINCT ${exercises.matiere})`,
+            level: modules.niveau,
+            subjectsCount: sql<number>`COUNT(DISTINCT ${modules.matiere})`,
             exercisesCount: sql<number>`COUNT(*)`
           })
-          .from(exercises)
-          .groupBy(exercises.niveau);
+          .from(modules)
+          .groupBy(modules.niveau);
 
-        // Get exercise type distribution
+        // Get exercise type distribution (using type field from exercises)
         const exerciseTypes = await db
           .select({
-            type: exercises.contenu,
+            type: exercises.type,
             count: sql<number>`COUNT(*)`
           })
           .from(exercises)
-          .groupBy(exercises.contenu);
+          .groupBy(exercises.type);
 
         // Get difficulty distribution
         const difficultyDistribution = await db

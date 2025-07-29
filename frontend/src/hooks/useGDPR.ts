@@ -15,6 +15,13 @@ import {
   GDPRRequestStatusResponse
 } from '../types/gdpr.types';
 
+// Helper function to safely extract error messages
+const getErrorMessage = (error: string | { message: string; code?: string; details?: any } | undefined): string => {
+  if (!error) return 'Erreur inconnue';
+  if (typeof error === 'string') return error;
+  return error.message || 'Erreur inconnue';
+};
+
 /**
  * Hook pour gérer le consentement parental
  */
@@ -35,7 +42,7 @@ export const useParentalConsent = (): UseConsentState => {
         // Optionnel: récupérer le statut du consentement
         // await checkConsentStatus(response.data.consentId);
       } else {
-        throw new Error(response.error?.message || 'Erreur lors de la soumission');
+        throw new Error(getErrorMessage(response.error));
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors de la soumission du consentement';
@@ -56,7 +63,7 @@ export const useParentalConsent = (): UseConsentState => {
       if (response.success) {
         console.log('✅ Consentement vérifié:', response.data);
       } else {
-        throw new Error(response.error?.message || 'Erreur lors de la vérification');
+        throw new Error(getErrorMessage(response.error));
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors de la vérification du consentement';
@@ -77,7 +84,7 @@ export const useParentalConsent = (): UseConsentState => {
       if (response.success && response.data) {
         setConsent(response.data);
       } else {
-        throw new Error(response.error?.message || 'Erreur lors de la récupération du statut');
+        throw new Error(getErrorMessage(response.error));
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors de la récupération du statut';
@@ -113,11 +120,11 @@ export const useGDPRRequests = (): UseGDPRRequestsState => {
     try {
       const response = await apiService.submitGDPRRequest(data);
       
-      if (response.success) {
+      if (response.success && response.data) {
         console.log('✅ Demande RGPD soumise:', response.data);
         return response.data.requestId;
       } else {
-        throw new Error(response.error?.message || 'Erreur lors de la soumission');
+        throw new Error(getErrorMessage(response.error));
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors de la soumission de la demande RGPD';
@@ -136,10 +143,10 @@ export const useGDPRRequests = (): UseGDPRRequestsState => {
     try {
       const response = await apiService.getGDPRRequestStatus(requestId);
       
-      if (response.success) {
+      if (response.success && response.data) {
         return response.data;
       } else {
-        throw new Error(response.error?.message || 'Erreur lors de la récupération du statut');
+        throw new Error(getErrorMessage(response.error));
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors de la récupération du statut';
@@ -161,7 +168,7 @@ export const useGDPRRequests = (): UseGDPRRequestsState => {
       if (response.success) {
         console.log('✅ Demande RGPD vérifiée:', response.data);
       } else {
-        throw new Error(response.error?.message || 'Erreur lors de la vérification');
+        throw new Error(getErrorMessage(response.error));
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors de la vérification de la demande';
@@ -180,9 +187,9 @@ export const useGDPRRequests = (): UseGDPRRequestsState => {
       const response = await apiService.getUserGDPRRequests(email);
       
       if (response.success) {
-        setRequests(response.data);
+        setRequests(response.data || []);
       } else {
-        throw new Error(response.error?.message || 'Erreur lors du chargement des demandes');
+        throw new Error(getErrorMessage(response.error));
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors du chargement des demandes';
@@ -225,7 +232,7 @@ export const useConsentPreferences = (studentId?: number): UseConsentPreferences
         // Recharger les préférences après mise à jour
         await getPreferences();
       } else {
-        throw new Error(response.error?.message || 'Erreur lors de la mise à jour');
+        throw new Error(getErrorMessage(response.error));
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors de la mise à jour des préférences';
@@ -244,9 +251,9 @@ export const useConsentPreferences = (studentId?: number): UseConsentPreferences
       const response = await apiService.getConsentPreferences(studentId);
       
       if (response.success) {
-        setPreferences(response.data);
+        setPreferences(response.data || null);
       } else {
-        throw new Error(response.error?.message || 'Erreur lors du chargement des préférences');
+        throw new Error(getErrorMessage(response.error));
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors du chargement des préférences';
@@ -414,7 +421,7 @@ export const useConsentCheck = (studentId?: number) => {
       setLoading(true);
       try {
         const response = await apiService.checkActiveConsent(studentId);
-        if (response.success) {
+        if (response.success && response.data) {
           setHasActiveConsent(response.data.hasActiveConsent);
           setConsentRecord(response.data.consent || null);
         }

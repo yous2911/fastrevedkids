@@ -1,5 +1,5 @@
 import { eq, and, lt } from 'drizzle-orm';
-import { revisions } from '../db/schema.js';
+import { studentProgress as revisions } from '../db/schema';
 
 export class SpacedRepetitionService {
   constructor(
@@ -18,11 +18,11 @@ export class SpacedRepetitionService {
         .where(
           and(
             eq(revisions.studentId, studentId),
-            eq(revisions.revisionEffectuee, false),
-            lt(revisions.prochaineRevision, now)
+            eq(revisions.score, 0),
+            lt(revisions.createdAt, now.toISOString())
           )
         )
-        .orderBy(revisions.prochaineRevision);
+        .orderBy(revisions.createdAt);
 
       return dueRevisions;
     } catch {

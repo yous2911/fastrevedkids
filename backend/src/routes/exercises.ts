@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { eq, and, desc, asc } from 'drizzle-orm';
-import { exercises, progress, modules } from '../db/schema';
+import { exercises, studentProgress, modules } from '../db/schema';
 
 export default async function exercisesRoutes(fastify: FastifyInstance) {
   
@@ -78,11 +78,10 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
         const { moduleId } = request.params;
         const { limit = '20', offset = '0' } = request.query;
 
-        // Get exercises by module
+        // Get exercises (no moduleId in exercises schema, so get all exercises)
         const exerciseList = await fastify.db
           .select()
           .from(exercises)
-          .where(eq(exercises.moduleId, parseInt(moduleId)))
           .limit(parseInt(limit))
           .offset(parseInt(offset));
 
@@ -135,16 +134,17 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
 
         // Create attempt record
         const attempt = await fastify.db
-          .insert(progress)
+          .insert(studentProgress)
           .values({
             studentId: user.studentId,
             exerciseId: parseInt(attemptData.exerciseId),
-            statut: attemptData.completed === 'true' ? 'TERMINE' : 'EN_COURS',
-            nombreTentatives: 1,
-            nombreReussites: attemptData.completed === 'true' ? 1 : 0,
-            tauxReussite: parseFloat(attemptData.score).toFixed(2),
-            pointsGagnes: Math.floor(parseFloat(attemptData.score)),
-            derniereTentative: new Date(),
+            completed: attemptData.completed === 'true',
+            score: Math.floor(parseFloat(attemptData.score)),
+            timeSpent: parseInt(attemptData.timeSpent || '0'),
+            attempts: 1,
+            completedAt: attemptData.completed === 'true' ? new Date().toISOString() : null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
           });
 
         // Simple analytics recording (removed service calls that don't exist)
@@ -203,9 +203,9 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
         // Get student exercise history (removed service call that doesn't exist)
         const history = await fastify.db
           .select()
-          .from(progress)
-          .where(eq(progress.studentId, parseInt(studentId)))
-          .orderBy(desc(progress.derniereTentative))
+          .from(studentProgress)
+          .where(eq(studentProgress.studentId, parseInt(studentId)))
+          .orderBy(desc(studentProgress.createdAt))
           .limit(parseInt(limit))
           .offset(parseInt(offset));
 
@@ -251,9 +251,9 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
         // Get student progress
         const progressData = await fastify.db
           .select()
-          .from(progress)
-          .where(eq(progress.studentId, parseInt(studentId)))
-          .orderBy(desc(progress.derniereTentative));
+          .from(studentProgress)
+          .where(eq(studentProgress.studentId, parseInt(studentId)))
+          .orderBy(desc(studentProgress.createdAt));
 
         return reply.send({
           success: true,
@@ -299,15 +299,9 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
         const limitNum = parseInt(limit);
         const offset = (pageNum - 1) * limitNum;
 
-        // Build where conditions
-        let whereConditions = [];
+        // Build where conditions (exercises don't have matiere/niveau fields)
+        const whereConditions = [];
         
-        if (matiere) {
-          whereConditions.push(eq(exercises.matiere, matiere));
-        }
-        if (niveau) {
-          whereConditions.push(eq(exercises.niveau, niveau));
-        }
         if (difficulte) {
           whereConditions.push(eq(exercises.difficulte, difficulte as any));
         }

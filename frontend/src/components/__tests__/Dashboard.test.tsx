@@ -5,20 +5,34 @@ import '@testing-library/jest-dom';
 // Mock all external dependencies first
 jest.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => React.createElement('div', props, children),
-    h1: ({ children, ...props }: any) => React.createElement('h1', props, children),
+    div: ({ children, ...props }: any) => {
+      const React = require('react');
+      return React.createElement('div', props, children);
+    },
+    h1: ({ children, ...props }: any) => {
+      const React = require('react');
+      return React.createElement('h1', props, children);
+    },
   },
-  AnimatePresence: ({ children }: any) => React.createElement(React.Fragment, {}, children),
+  AnimatePresence: ({ children }: any) => {
+    const React = require('react');
+    return React.createElement(React.Fragment, {}, children);
+  },
 }));
 
 // Mock UI components that might not exist
 jest.mock('../../components/ui/Card', () => ({
-  Card: ({ children, ...props }: any) => React.createElement('div', { 'data-testid': 'card', ...props }, children),
+  Card: ({ children, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('div', { 'data-testid': 'card', ...props }, children);
+  },
 }), { virtual: true });
 
 jest.mock('../../components/ui/Button', () => ({
-  Button: ({ children, onClick, ...props }: any) => 
-    React.createElement('button', { onClick, ...props }, children),
+  Button: ({ children, onClick, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('button', { onClick, ...props }, children);
+  },
 }), { virtual: true });
 
 // Mock any context providers

@@ -34,7 +34,7 @@ export class CP2025DatabaseService {
       const exercises = await db
         .select()
         .from(schema.exercises)
-        .where(eq(schema.exercises.moduleId, moduleId));
+        .where(eq(schema.exercises.type, moduleId.toString()));
       
       return exercises || [];
     } catch (error) {
@@ -49,8 +49,8 @@ export class CP2025DatabaseService {
         .insert(schema.exercises)
         .values({
           ...exerciseData,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         });
 
       // Get the created exercise by searching for it
@@ -112,7 +112,7 @@ export class CP2025DatabaseService {
       const exercises = await db
         .select()
         .from(schema.exercises)
-        .where(eq(schema.exercises.niveau, niveau));
+        .where(eq(schema.exercises.difficulte, niveau));
       
       return exercises || [];
     } catch (error) {
@@ -140,7 +140,7 @@ export class CP2025DatabaseService {
       const exercises = await db
         .select()
         .from(schema.exercises)
-        .where(eq(schema.exercises.matiere, matiere));
+        .where(eq(schema.exercises.type, matiere));
       
       return exercises || [];
     } catch (error) {

@@ -12,96 +12,54 @@ export async function seed() {
       {
         prenom: 'Lucas',
         nom: 'Martin',
-        age: 9,
+        dateNaissance: '2014-05-15',
         niveauActuel: 'CE2',
         totalPoints: 150,
         serieJours: 3,
-        preferences: {
-          matiereFavorite: 'MATHEMATIQUES',
-          tempsPrefere: 'matin',
-          difficultePreferee: 'consolidation'
-        },
-        metadata: {
-          preferences: {
-            theme: 'light',
-            language: 'fr',
-            notifications: true,
-            soundEnabled: true,
-            difficultyPreference: 'medium'
-          },
-          settings: {
-            sessionTimeout: 30,
-            autoSave: true,
-            hintsEnabled: true
-          }
-        },
+        mascotteType: 'dragon',
+        dernierAcces: null,
         estConnecte: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
       {
         prenom: 'Emma',
         nom: 'Durand',
-        age: 10,
+        dateNaissance: '2013-08-22',
         niveauActuel: 'CM1',
         totalPoints: 200,
         serieJours: 5,
-        preferences: {
-          matiereFavorite: 'FRANCAIS',
-          tempsPrefere: 'apres-midi',
-          difficultePreferee: 'maitrise'
-        },
-        metadata: {},
+        mascotteType: 'unicorn',
+        dernierAcces: null,
         estConnecte: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
       {
         prenom: 'Noah',
         nom: 'Lefebvre',
-        age: 8,
+        dateNaissance: '2015-03-10',
         niveauActuel: 'CE1',
         totalPoints: 75,
         serieJours: 1,
-        preferences: {
-          matiereFavorite: 'SCIENCES',
-          tempsPrefere: 'soir',
-          difficultePreferee: 'decouverte'
-        },
-        metadata: {},
+        mascotteType: 'robot',
+        dernierAcces: null,
         estConnecte: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
       {
         prenom: 'Alice',
         nom: 'Dupont',
-        age: 8,
+        dateNaissance: '2015-11-05',
         niveauActuel: 'CE1',
         totalPoints: 120,
         serieJours: 2,
-        preferences: {
-          matiereFavorite: 'MATHEMATIQUES',
-          tempsPrefere: 'matin',
-          difficultePreferee: 'consolidation'
-        },
-        metadata: {
-          preferences: {
-            theme: 'dark',
-            language: 'fr',
-            notifications: true,
-            soundEnabled: false,
-            difficultyPreference: 'easy'
-          },
-          settings: {
-            sessionTimeout: 45,
-            autoSave: true,
-            hintsEnabled: true
-          }
-        },
+        mascotteType: 'cat',
+        dernierAcces: null,
         estConnecte: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
     ]);
 
@@ -109,105 +67,84 @@ export async function seed() {
     console.log('📖 Seeding modules...');
     const modules = await db.insert(schema.modules).values([
       {
-        nom: 'Les nombres jusqu\'à 100',
+        titre: 'Les nombres jusqu\'à 100',
         description: 'Découverte et manipulation des nombres de 0 à 100',
         niveau: 'CE1',
         matiere: 'MATHEMATIQUES',
         ordre: 1,
         estActif: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
       {
-        nom: 'Les verbes du premier groupe',
+        titre: 'Les verbes du premier groupe',
         description: 'Conjugaison des verbes en -er au présent',
         niveau: 'CE2',
         matiere: 'FRANCAIS',
         ordre: 1,
         estActif: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
       {
-        nom: 'Le système solaire',
+        titre: 'Le système solaire',
         description: 'Découverte des planètes et du soleil',
         niveau: 'CM1',
         matiere: 'SCIENCES',
         ordre: 1,
         estActif: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
     ]);
 
     // Seed exercises
     console.log('🎯 Seeding exercises...');
     const exercise1: NewExercise = {
-      moduleId: 1,
       titre: 'Compter de 10 en 10',
-      contenu: {
+      description: 'Complète la suite : 10, 20, ___, 40, 50',
+      type: 'multiple-choice',
+      difficulte: 'FACILE',
+      xp: 10,
+      configuration: JSON.stringify({
         question: 'Complète la suite : 10, 20, ___, 40, 50',
         options: ['25', '30', '35', '45'],
         correctAnswer: '30',
-        type: 'multiple-choice',
         explanation: 'En comptant de 10 en 10, après 20 vient 30',
-      },
-      difficulte: 'FACILE',
-      matiere: 'MATHEMATIQUES',
-      niveau: 'CE1',
-      ordre: 1,
-      tempsEstime: 60,
-      pointsMax: 10,
-      estActif: true,
-      metadata: {},
-      donneesSupplementaires: {},
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      }),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     const exercise2: NewExercise = {
-      moduleId: 2,
       titre: 'Conjuguer CHANTER',
-      contenu: {
+      description: 'Conjugue "chanter" à la première personne du singulier',
+      type: 'fill-in-blank',
+      difficulte: 'MOYEN',
+      xp: 15,
+      configuration: JSON.stringify({
         question: 'Conjugue "chanter" à la première personne du singulier',
         correctAnswer: 'chante',
-        type: 'fill-in-blank',
         explanation: 'Je chante - première personne du singulier du verbe chanter',
-      },
-      difficulte: 'MOYEN',
-      matiere: 'FRANCAIS',
-      niveau: 'CE2',
-      ordre: 1,
-      tempsEstime: 45,
-      pointsMax: 15,
-      estActif: true,
-      metadata: {},
-      donneesSupplementaires: {},
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      }),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     const exercise3: NewExercise = {
-      moduleId: 3,
       titre: 'Les planètes rocheuses',
-      contenu: {
+      description: 'Quelles sont les planètes rocheuses du système solaire ?',
+      type: 'multiple-choice',
+      difficulte: 'DIFFICILE',
+      xp: 20,
+      configuration: JSON.stringify({
         question: 'Quelles sont les planètes rocheuses du système solaire ?',
         options: ['Mercure, Vénus, Terre, Mars', 'Jupiter, Saturne, Uranus, Neptune', 'Toutes les planètes', 'Aucune'],
         correctAnswer: 'Mercure, Vénus, Terre, Mars',
-        type: 'multiple-choice',
         explanation: 'Les planètes rocheuses sont les 4 plus proches du Soleil',
-      },
-      difficulte: 'DIFFICILE',
-      matiere: 'SCIENCES',
-      niveau: 'CM1',
-      ordre: 1,
-      tempsEstime: 90,
-      pointsMax: 20,
-      estActif: true,
-      metadata: {},
-      donneesSupplementaires: {},
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      }),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     await db.insert(schema.exercises).values([exercise1, exercise2, exercise3]);

@@ -1,25 +1,36 @@
 # Dependencies
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+*/node_modules/
+**/node_modules/
+**/node_modules/**
+node_modules/**
+*/node_modules/**
 
 # Production build
 dist/
 build/
+out/
 
 # Environment variables
 .env
 .env.local
 .env.production
+.env.development
+.env.test
 
 # Database
 *.db
 *.sqlite
+*.sqlite3
 
 # Logs
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
 
 # Runtime data
 pids/
@@ -29,6 +40,7 @@ pids/
 
 # Coverage directory used by tools like istanbul
 coverage/
+*.lcov
 
 # nyc test coverage
 .nyc_output
@@ -53,6 +65,7 @@ jspm_packages/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS generated files
 .DS_Store
@@ -69,9 +82,35 @@ temp/
 
 # Cache
 .cache/
+.vitest/
 
 # Testing
 .vitest/
+test-results/
+playwright-report/
+playwright/.cache/
 
 # Drizzle
-drizzle/ 
+drizzle/
+
+# Optional REPL history
+.node_repl_history
+
+# Bundle analyzer
+bundle-analyzer-report.html
+
+# Lighthouse
+lighthouse-report/
+
+# Sentry
+.sentryclirc
+
+# Vercel
+.vercel
+
+# Netlify
+.netlify
+
+# Misc
+*.tgz
+*.tar.gz 

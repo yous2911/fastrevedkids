@@ -1,6 +1,7 @@
 
 import { FastifyInstance } from 'fastify';
 import { databaseService } from '../services/database.service.js';
+import crypto from 'crypto';
 
 export default async function studentRoutes(fastify: FastifyInstance) {
   // Get all students (for login selection)
@@ -85,11 +86,11 @@ export default async function studentRoutes(fastify: FastifyInstance) {
             id: student.id,
             prenom: student.prenom,
             nom: student.nom,
-            age: student.age,
+            dateNaissance: student.dateNaissance,
             niveauActuel: student.niveauActuel,
             totalPoints: student.totalPoints,
             serieJours: student.serieJours,
-            preferences: student.preferences,
+            mascotteType: student.mascotteType,
             dernierAcces: student.dernierAcces,
             estConnecte: student.estConnecte
           }
@@ -135,11 +136,11 @@ export default async function studentRoutes(fastify: FastifyInstance) {
             id: updatedStudent.id,
             prenom: updatedStudent.prenom,
             nom: updatedStudent.nom,
-            age: updatedStudent.age,
+            dateNaissance: updatedStudent.dateNaissance,
             niveauActuel: updatedStudent.niveauActuel,
             totalPoints: updatedStudent.totalPoints,
             serieJours: updatedStudent.serieJours,
-            preferences: updatedStudent.preferences
+            mascotteType: updatedStudent.mascotteType
           }
         }
       };
@@ -277,15 +278,18 @@ export default async function studentRoutes(fastify: FastifyInstance) {
       const sessionData = request.body as any;
       
       const session = await databaseService.createSession({
+        id: crypto.randomUUID(),
         studentId,
-        dateDebut: new Date(sessionData.dateDebut),
-        dureeSecondes: sessionData.dureeSecondes || 0,
-        exercicesCompletes: sessionData.exercicesCompletes || 0,
-        pointsGagnes: sessionData.pointsGagnes || 0,
-        actionsUtilisateur: [],
-        metadata: {},
-        createdAt: new Date(),
-        updatedAt: new Date()
+        data: JSON.stringify({
+          dateDebut: sessionData.dateDebut,
+          dureeSecondes: sessionData.dureeSecondes || 0,
+          exercicesCompletes: sessionData.exercicesCompletes || 0,
+          pointsGagnes: sessionData.pointsGagnes || 0,
+          actionsUtilisateur: [],
+          metadata: {}
+        }),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+        createdAt: new Date().toISOString()
       });
 
       return {
@@ -332,8 +336,8 @@ export default async function studentRoutes(fastify: FastifyInstance) {
       const updates = request.body as any;
       
       // Verify session belongs to student
-      const session = await databaseService.getStudentSessions(studentId, 100);
-      const studentSession = session.find(s => s.id === sessionId);
+      const sessions = await databaseService.getStudentSessions(studentId, 100);
+      const studentSession = sessions.find(s => s.id === sessionId.toString());
       
       if (!studentSession) {
         return reply.status(404).send({
@@ -345,10 +349,17 @@ export default async function studentRoutes(fastify: FastifyInstance) {
         });
       }
 
-      const updatedSession = await databaseService.updateSession(sessionId, {
+      // Parse existing data and merge with updates
+      const existingData = JSON.parse(studentSession.data);
+      const updatedData = {
+        ...existingData,
         ...updates,
-        dateFin: updates.dateFin ? new Date(updates.dateFin) : undefined,
-        updatedAt: new Date()
+        dateFin: updates.dateFin || existingData.dateFin,
+        updatedAt: new Date().toISOString()
+      };
+
+      const updatedSession = await databaseService.updateSession(sessionId.toString(), {
+        data: JSON.stringify(updatedData)
       });
 
       return {
@@ -383,7 +394,7 @@ export default async function studentRoutes(fastify: FastifyInstance) {
       const studentId = (request.user as any).studentId;
       const { limit } = request.query as { limit?: number };
       
-      const recommendations = await databaseService.getRecommendedExercises(studentId, limit);
+      const recommendations = await databaseService.getRecommendedExercises(studentId, limit || 5);
 
       return {
         success: true,
