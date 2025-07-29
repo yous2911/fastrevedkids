@@ -35,8 +35,8 @@ interface ExerciseState {
   showValidation: boolean;
 }
 
-// Memoized helper function to get exercise hints
-const getExerciseHints = memo((exercise: ExercicePedagogique): string[] => {
+// Helper function to get exercise hints
+const getExerciseHints = (exercise: ExercicePedagogique): string[] => {
   const hints: string[] = [];
   
   if (exercise.configuration.hint) {
@@ -63,7 +63,7 @@ const getExerciseHints = memo((exercise: ExercicePedagogique): string[] => {
   }
   
   return hints;
-});
+};
 
 // Helper function to validate answers
 const validateAnswer = (exercise: ExercicePedagogique, answer: any): boolean => {

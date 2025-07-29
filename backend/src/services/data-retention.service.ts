@@ -281,7 +281,7 @@ export class DataRetentionService {
 
           // Log individual retention action
           await this.auditService.logAction({
-            entityType: policy.entityType,
+            entityType: 'retention_execution' as const,
             entityId: entity.id,
             action: 'data_retention_applied',
             userId: null,

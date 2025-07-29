@@ -196,26 +196,29 @@ export class DataAnonymizationService {
       let preservedFields: string[] = [];
 
       switch (job.entityType) {
-        case 'student':
+        case 'student': {
           const studentResult = await this.anonymizeStudentData(job.entityId, rules, job.reason);
           affectedRecords = studentResult.recordsProcessed;
           anonymizedFields = studentResult.anonymizedFields;
           preservedFields = studentResult.preservedFields;
           break;
+        }
 
-        case 'parent':
+        case 'parent': {
           const parentResult = await this.anonymizeParentData(job.entityId, rules, job.reason);
           affectedRecords = parentResult.recordsProcessed;
           anonymizedFields = parentResult.anonymizedFields;
           preservedFields = parentResult.preservedFields;
           break;
+        }
 
-        case 'session':
+        case 'session': {
           const sessionResult = await this.anonymizeSessionData(job.entityId, rules);
           affectedRecords = sessionResult.recordsProcessed;
           anonymizedFields = sessionResult.anonymizedFields;
           preservedFields = sessionResult.preservedFields;
           break;
+        }
 
         default:
           throw new Error(`Unsupported entity type for anonymization: ${job.entityType}`);

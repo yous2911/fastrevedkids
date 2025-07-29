@@ -1,4 +1,5 @@
 // Fix: Declare mock object first to avoid initialization order issues
+export {};
 const mockApiService = {
   get: jest.fn(),
   post: jest.fn(),

@@ -35,8 +35,8 @@ export class AuditMiddleware {
   /**
    * Middleware principal d'audit pour Fastify
    */
-  createMiddleware() {
-    return async (request: FastifyRequest, reply: FastifyReply) => {
+  createMiddleware(): (request: FastifyRequest, reply: FastifyReply) => Promise<void> {
+    return async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
       try {
         // Vérifier si cette route doit être exclue
         if (this.shouldExcludeRoute(request)) {
@@ -71,8 +71,8 @@ export class AuditMiddleware {
   /**
    * Middleware spécialisé pour les routes sensibles
    */
-  createSensitiveRouteMiddleware() {
-    return async (request: FastifyRequest, reply: FastifyReply) => {
+  createSensitiveRouteMiddleware(): (request: FastifyRequest, reply: FastifyReply) => Promise<void> {
+    return async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
       try {
         const auditData = this.prepareSensitiveAuditData(request);
         
@@ -96,14 +96,15 @@ export class AuditMiddleware {
           });
         }
       }
+      return; // Explicit return for all code paths
     };
   }
 
   /**
    * Middleware pour capturer les réponses d'erreur
    */
-  createErrorAuditMiddleware() {
-    return async (request: FastifyRequest, reply: FastifyReply, error: Error) => {
+  createErrorAuditMiddleware(): (request: FastifyRequest, reply: FastifyReply, error: Error) => Promise<void> {
+    return async (request: FastifyRequest, reply: FastifyReply, error: Error): Promise<void> => {
       try {
         const auditData: AuditLogRequest = {
           entityType: 'user_session',
@@ -128,6 +129,7 @@ export class AuditMiddleware {
       } catch (auditError) {
         console.warn('Error audit logging failed:', auditError);
       }
+      return; // Explicit return for all code paths
     };
   }
 
@@ -263,12 +265,12 @@ export class AuditMiddleware {
   /**
    * Extraire l'ID de l'étudiant
    */
-  private extractStudentId(request: FastifyRequest): number | undefined {
+  private extractStudentId(request: FastifyRequest): string | undefined {
     const params = request.params as any;
     const user = (request as any).user;
     
     const studentId = params?.id || params?.studentId || user?.studentId;
-    return studentId ? parseInt(studentId) : undefined;
+    return studentId ? studentId.toString() : undefined;
   }
 
   /**

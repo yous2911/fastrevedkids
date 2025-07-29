@@ -105,13 +105,13 @@ const customMetrics = new Map<string, prometheus.Counter | prometheus.Gauge | pr
 // Initialize monitoring
 export const initializeMonitoring = (app: FastifyInstance) => {
   // Register metrics endpoint
-  app.get('/metrics', async (request: FastifyRequest, reply: FastifyReply) => {
+  app.get('/metrics', async (request: FastifyRequest, reply: FastifyReply): Promise<string | void> => {
     try {
       reply.header('Content-Type', register.contentType);
       return await register.metrics();
     } catch (error) {
       logger.error('Error generating metrics', { error });
-      reply.status(500).send({ error: 'Failed to generate metrics' });
+      return reply.status(500).send({ error: 'Failed to generate metrics' });
     }
   });
 

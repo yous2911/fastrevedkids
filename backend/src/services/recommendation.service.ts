@@ -1,10 +1,10 @@
 import { db } from '../db/connection';
 import * as schema from '../db/schema';
 import { eq, and, sql, not, desc } from 'drizzle-orm';
-import type { Exercise, Student, NewProgress } from '../db/schema';
+import type { exercises, students, studentProgress, Exercise, NewProgress } from '../db/schema';
 
 export class RecommendationService {
-  async getRecommendedExercises(studentId: number, limit: number = 5): Promise<Exercise[]> {
+  async getRecommendedExercises(studentId: number, limit: number = 5): Promise<any[]> {
     try {
       const student = await db
         .select()
@@ -22,15 +22,15 @@ export class RecommendationService {
         .from(schema.progress)
         .where(and(
           eq(schema.progress.studentId, studentId),
-          eq(schema.progress.statut, 'TERMINE')
+          eq(schema.progress.completed, true)
         ));
 
       const completedIds = completedExercises.map(p => p.exerciseId);
 
       // Get recommended exercises based on student's niveau
       const whereConditions = [
-        eq(schema.exercises.niveau, student[0].niveauActuel),
-        eq(schema.exercises.estActif, true)
+        eq(schema.exercises.difficulte, student[0].niveauActuel),
+        // exercises are active by default - removed estActif check
       ];
 
       // Exclude completed exercises if any exist
@@ -70,20 +70,20 @@ export class RecommendationService {
         .from(schema.progress)
         .where(and(
           eq(schema.progress.studentId, studentId),
-          eq(schema.progress.statut, 'TERMINE')
+          eq(schema.progress.completed, true)
         ));
 
       const completedIds = completedExercises.map(p => p.exerciseId);
 
       // Build where conditions
       const whereConditions = [
-        eq(schema.exercises.niveau, student[0].niveauActuel),
-        eq(schema.exercises.estActif, true)
+        eq(schema.exercises.difficulte, student[0].niveauActuel),
+        // exercises are active by default - removed estActif check
       ];
 
       // Add module filter if specified
       if (moduleId) {
-        whereConditions.push(eq(schema.exercises.moduleId, moduleId));
+        whereConditions.push(eq(schema.exercises.type, moduleId.toString()));
       }
 
       // Exclude completed exercises if any exist
@@ -95,7 +95,7 @@ export class RecommendationService {
         .select()
         .from(schema.exercises)
         .where(and(...whereConditions))
-        .orderBy(schema.exercises.ordre)
+        .orderBy(schema.exercises.id)
         .limit(1);
 
       return nextExercise[0] || null;
@@ -131,14 +131,12 @@ export class RecommendationService {
         await db
           .update(schema.progress)
           .set({
-            statut,
-            nombreTentatives: sql`nombre_tentatives + 1`,
-            nombreReussites: data.completed ? sql`nombre_reussites + 1` : sql`nombre_reussites`,
-            tauxReussite: sql`(nombre_reussites + ${data.completed ? 1 : 0}) * 100.0 / (nombre_tentatives + 1)`,
-            pointsGagnes: sql`points_gagnes + ${pointsGagnes}`,
-            derniereTentative: new Date(),
-            premiereReussite: data.completed && !existingProgress[0].premiereReussite ? new Date() : existingProgress[0].premiereReussite,
-            updatedAt: new Date(),
+            completed: data.completed,
+            attempts: sql`attempts + 1`,
+            score: sql`score + ${pointsGagnes}`,
+            timeSpent: sql`time_spent + ${data.timeSpent || 0}`,
+            completedAt: data.completed && !existingProgress[0].completedAt ? new Date().toISOString() : existingProgress[0].completedAt,
+            updatedAt: new Date().toISOString(),
           })
           .where(and(
             eq(schema.progress.studentId, data.studentId),
@@ -149,16 +147,13 @@ export class RecommendationService {
         const newProgress: NewProgress = {
           studentId: data.studentId,
           exerciseId: data.exerciseId,
-          statut,
-          nombreTentatives: 1,
-          nombreReussites: data.completed ? 1 : 0,
-          tauxReussite: data.completed ? '100.00' : '0.00',
-          pointsGagnes,
-          derniereTentative: new Date(),
-          premiereReussite: data.completed ? new Date() : null,
-          historique: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          completed: data.completed,
+          score: pointsGagnes,
+          timeSpent: data.timeSpent || 0,
+          attempts: 1,
+          completedAt: data.completed ? new Date().toISOString() : null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         };
 
         await db.insert(schema.progress).values(newProgress);
@@ -170,7 +165,7 @@ export class RecommendationService {
           .update(schema.students)
           .set({
             totalPoints: sql`total_points + ${pointsGagnes}`,
-            updatedAt: new Date(),
+            updatedAt: new Date().toISOString(),
           })
           .where(eq(schema.students.id, data.studentId));
       }
@@ -198,11 +193,11 @@ export class RecommendationService {
         .select()
         .from(schema.exercises)
         .where(and(
-          eq(schema.exercises.niveau, student[0].niveauActuel),
+          eq(schema.exercises.difficulte, student[0].niveauActuel),
           eq(schema.exercises.difficulte, difficulte),
-          eq(schema.exercises.estActif, true)
+          // exercises are active by default - removed estActif check
         ))
-        .orderBy(schema.exercises.ordre);
+        .orderBy(schema.exercises.id);
 
       return exercises;
     } catch (error) {
@@ -227,11 +222,11 @@ export class RecommendationService {
         .select()
         .from(schema.exercises)
         .where(and(
-          eq(schema.exercises.niveau, student[0].niveauActuel),
-          eq(schema.exercises.matiere, matiere),
-          eq(schema.exercises.estActif, true)
+          eq(schema.exercises.difficulte, student[0].niveauActuel),
+          eq(schema.exercises.type, matiere),
+          // exercises are active by default - removed estActif check
         ))
-        .orderBy(schema.exercises.ordre);
+        .orderBy(schema.exercises.id);
 
       return exercises;
     } catch (error) {
@@ -249,7 +244,7 @@ export class RecommendationService {
       // Get exercises where student failed or struggled
       const weakAreas = await db
         .select({
-          matiere: schema.exercises.matiere,
+          matiere: schema.exercises.type,
           difficulte: schema.exercises.difficulte,
           count: sql<number>`count(*)`,
         })
@@ -257,9 +252,9 @@ export class RecommendationService {
         .innerJoin(schema.exercises, eq(schema.progress.exerciseId, schema.exercises.id))
         .where(and(
           eq(schema.progress.studentId, studentId),
-          eq(schema.progress.statut, 'ECHEC')
+          eq(schema.progress.completed, false)
         ))
-        .groupBy(schema.exercises.matiere, schema.exercises.difficulte)
+        .groupBy(schema.exercises.type, schema.exercises.difficulte)
         .orderBy(desc(sql`count(*)`));
 
       return weakAreas.map(area => ({
@@ -290,9 +285,9 @@ export class RecommendationService {
           .select()
           .from(schema.exercises)
           .where(and(
-            eq(schema.exercises.matiere, weakness.matiere),
+            eq(schema.exercises.type, weakness.matiere),
             eq(schema.exercises.difficulte, weakness.difficulte as 'FACILE' | 'MOYEN' | 'DIFFICILE'),
-            eq(schema.exercises.estActif, true)
+            // exercises are active by default - removed estActif check
           ))
           .orderBy(sql`RAND()`)
           .limit(Math.ceil(limit / 3));

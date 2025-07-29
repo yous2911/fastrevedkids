@@ -497,3 +497,5 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = memo(({
 });
 
 ConsentBanner.displayName = 'ConsentBanner';
+
+export default ConsentBanner;

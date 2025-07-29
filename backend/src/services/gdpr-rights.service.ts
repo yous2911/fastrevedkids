@@ -303,8 +303,7 @@ export class GDPRRightsService {
 
       // Encrypt sensitive data for export
       const encryptedPortfolio = await this.encryptionService.encryptStudentData(
-        portfolio,
-        'exports'
+        portfolio
       );
 
       // Update request with exported data

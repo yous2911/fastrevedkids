@@ -333,4 +333,6 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
       </div>
     </div>
   );
-}; 
+};
+
+export default ExercisesPage; 

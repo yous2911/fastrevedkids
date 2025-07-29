@@ -198,6 +198,152 @@ export async function setupDatabase() {
         )
       `);
 
+      // Create files table for file upload functionality
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS files (
+          id TEXT PRIMARY KEY,
+          original_name TEXT NOT NULL,
+          filename TEXT NOT NULL,
+          mimetype TEXT NOT NULL,
+          size INTEGER NOT NULL,
+          path TEXT NOT NULL,
+          url TEXT NOT NULL,
+          thumbnail_url TEXT,
+          metadata TEXT,
+          uploaded_by TEXT NOT NULL,
+          uploaded_at TEXT NOT NULL,
+          category TEXT NOT NULL,
+          is_public INTEGER DEFAULT 0,
+          status TEXT NOT NULL,
+          checksum TEXT NOT NULL,
+          deleted_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        )
+      `);
+
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS file_variants (
+          id TEXT PRIMARY KEY,
+          file_id TEXT NOT NULL,
+          type TEXT NOT NULL,
+          filename TEXT NOT NULL,
+          path TEXT NOT NULL,
+          url TEXT NOT NULL,
+          size INTEGER NOT NULL,
+          mimetype TEXT NOT NULL,
+          metadata TEXT,
+          created_at TEXT NOT NULL,
+          deleted_at TEXT,
+          FOREIGN KEY (file_id) REFERENCES files (id)
+        )
+      `);
+
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS file_access_logs (
+          id TEXT PRIMARY KEY,
+          file_id TEXT NOT NULL,
+          user_id TEXT,
+          student_id INTEGER,
+          action TEXT NOT NULL,
+          ip_address TEXT,
+          user_agent TEXT,
+          timestamp TEXT NOT NULL,
+          details TEXT,
+          FOREIGN KEY (file_id) REFERENCES files (id),
+          FOREIGN KEY (student_id) REFERENCES students (id)
+        )
+      `);
+
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS security_scans (
+          id TEXT PRIMARY KEY,
+          file_id TEXT NOT NULL,
+          scan_engine TEXT NOT NULL,
+          scan_date TEXT NOT NULL,
+          is_clean INTEGER NOT NULL,
+          threats TEXT,
+          quarantined INTEGER DEFAULT 0,
+          details TEXT,
+          FOREIGN KEY (file_id) REFERENCES files (id)
+        )
+      `);
+
+      // Create additional GDPR tables
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS gdpr_consent_requests (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          student_id INTEGER NOT NULL,
+          request_type TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'PENDING',
+          request_token TEXT NOT NULL UNIQUE,
+          parent_email TEXT NOT NULL,
+          request_details TEXT NOT NULL DEFAULT '{}',
+          processed_at TEXT,
+          processed_by TEXT,
+          expires_at TEXT NOT NULL,
+          metadata TEXT NOT NULL DEFAULT '{}',
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          FOREIGN KEY (student_id) REFERENCES students(id)
+        )
+      `);
+
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS gdpr_data_processing_log (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          student_id INTEGER,
+          action TEXT NOT NULL,
+          data_type TEXT NOT NULL,
+          description TEXT NOT NULL,
+          ip_address TEXT,
+          user_agent TEXT,
+          request_id TEXT,
+          metadata TEXT NOT NULL DEFAULT '{}',
+          created_at TEXT NOT NULL,
+          FOREIGN KEY (student_id) REFERENCES students(id)
+        )
+      `);
+
+      // Create session and other required tables for compatibility
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS sessions (
+          id TEXT PRIMARY KEY,
+          student_id INTEGER,
+          data TEXT NOT NULL,
+          expires_at TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          FOREIGN KEY (student_id) REFERENCES students(id)
+        )
+      `);
+
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS revisions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          student_id INTEGER,
+          exercise_id INTEGER,
+          revision_date TEXT NOT NULL,
+          score INTEGER DEFAULT 0,
+          created_at TEXT NOT NULL,
+          FOREIGN KEY (student_id) REFERENCES students(id),
+          FOREIGN KEY (exercise_id) REFERENCES exercises(id)
+        )
+      `);
+
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS modules (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          titre TEXT NOT NULL,
+          description TEXT,
+          matiere TEXT NOT NULL,
+          niveau TEXT NOT NULL,
+          ordre INTEGER DEFAULT 0,
+          est_actif INTEGER DEFAULT 1,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        )
+      `);
+
       console.log('✅ GDPR compliance tables created');
     }
 
