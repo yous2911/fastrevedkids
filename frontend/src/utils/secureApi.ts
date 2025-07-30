@@ -124,4 +124,4 @@ class SecureApi {
 }
 
 // Create secure API instance
-export const secureApi = new SecureApi(process.env.REACT_APP_API_URL || 'http://localhost:3001/api'); 
+export const secureApi = new SecureApi(process.env.REACT_APP_API_URL || 'http://localhost:3003/api'); 

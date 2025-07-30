@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  backend-dev:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+      target: development
+    ports:
+      - "3003:3003"
+      - "9229:9229"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=file:./reved_kids.db
+      - REDIS_URL=redis://redis-dev:6379
+      - JWT_SECRET=dev-secret-change-in-production
+      - CORS_ORIGIN=http://localhost:3000
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      - redis-dev
+    networks:
+      - dev-network
+    restart: unless-stopped
+    command: npm run dev
+
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+      target: development
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3003
+      - REACT_APP_ENVIRONMENT=development
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend-dev
+    networks:
+      - dev-network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  redis-dev:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    networks:
+      - dev-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+volumes:
+  redis-dev-data:
+
+networks:
+  dev-network:
+    driver: bridge

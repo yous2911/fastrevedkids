@@ -4,6 +4,9 @@
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { authSchemas } from '../schemas/auth.schema';
+import { db } from '../db/connection';
+import { students } from '../db/schema';
+import { eq, and } from 'drizzle-orm';
 
 // Type definitions for request bodies
 interface LoginRequestBody {
@@ -23,26 +26,32 @@ export default async function authRoutes(fastify: FastifyInstance) {
       const { prenom, nom } = request.body;
 
       try {
-        // Mock successful login for testing
-        const mockStudent = {
-          id: 1,
-          prenom: prenom,
-          nom: nom,
-          dateNaissance: '2015-01-01',
-          niveauActuel: 'CP',
-          totalPoints: 0,
-          serieJours: 0,
-          mascotteType: 'dragon',
-          createdAt: '2024-01-01',
-          updatedAt: '2024-01-01'
-        };
+        // Look up student in database
+        const student = await db.select().from(students).where(
+          and(
+            eq(students.prenom, prenom),
+            eq(students.nom, nom)
+          )
+        ).limit(1);
 
-        // Generate mock JWT token
+        if (student.length === 0) {
+          return reply.status(401).send({
+            success: false,
+            error: {
+              message: 'Identifiants incorrects',
+              code: 'INVALID_CREDENTIALS',
+            },
+          });
+        }
+
+        const foundStudent = student[0];
+
+        // Generate JWT token
         const tokenPayload = {
-          studentId: mockStudent.id,
-          prenom: mockStudent.prenom,
-          nom: mockStudent.nom,
-          niveau: mockStudent.niveauActuel,
+          studentId: foundStudent.id,
+          prenom: foundStudent.prenom,
+          nom: foundStudent.nom,
+          niveau: foundStudent.niveauActuel,
         };
 
         const token = await reply.jwtSign(tokenPayload, {
@@ -53,7 +62,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
           success: true,
           data: {
             token,
-            student: mockStudent,
+            student: foundStudent,
           },
           message: 'Connexion réussie',
         });
@@ -98,18 +107,30 @@ export default async function authRoutes(fastify: FastifyInstance) {
     schema: authSchemas.refresh,
     handler: async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        const mockStudent = {
-          id: 1,
-          prenom: 'Alice',
-          nom: 'Dupont',
-          niveauActuel: 'CP',
-        };
+        // Get student from JWT token
+        const decoded = await request.jwtVerify() as any;
+        const studentId = decoded.studentId;
+
+        // Get student from database
+        const student = await db.select().from(students).where(eq(students.id, studentId)).limit(1);
+
+        if (student.length === 0) {
+          return reply.status(401).send({
+            success: false,
+            error: {
+              message: 'Étudiant non trouvé',
+              code: 'STUDENT_NOT_FOUND',
+            },
+          });
+        }
+
+        const foundStudent = student[0];
 
         const newTokenPayload = {
-          studentId: mockStudent.id,
-          prenom: mockStudent.prenom,
-          nom: mockStudent.nom,
-          niveau: mockStudent.niveauActuel,
+          studentId: foundStudent.id,
+          prenom: foundStudent.prenom,
+          nom: foundStudent.nom,
+          niveau: foundStudent.niveauActuel,
         };
 
         const newToken = await reply.jwtSign(newTokenPayload, {
@@ -120,7 +141,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
           success: true,
           data: {
             token: newToken,
-            student: mockStudent,
+            student: foundStudent,
           },
           message: 'Token rafraîchi',
         });

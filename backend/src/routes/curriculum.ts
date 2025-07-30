@@ -22,6 +22,45 @@ const SUPPORTED_LEVELS: CurriculumLevel[] = [
 ];
 
 const curriculumPlugin: FastifyPluginAsync = async (fastify, opts) => {
+  // Get exercises by subject (for frontend compatibility)
+  fastify.get('/subjects/exercises', {
+    handler: async (request, reply) => {
+      try {
+        // Get all exercises grouped by type (since we don't have matiere field)
+        const exercisesData = await db
+          .select({
+            id: exercises.id,
+            titre: exercises.titre,
+            description: exercises.description,
+            type: exercises.type,
+            difficulte: exercises.difficulte,
+            xp: exercises.xp,
+            configuration: exercises.configuration,
+            createdAt: exercises.createdAt,
+            updatedAt: exercises.updatedAt
+          })
+          .from(exercises)
+          .orderBy(exercises.type, exercises.difficulte);
+
+        // Return flat array of exercises for frontend compatibility
+        return reply.send({
+          success: true,
+          data: exercisesData,
+          message: 'Exercices par matière récupérés avec succès'
+        });
+      } catch (error) {
+        fastify.log.error('Get exercises by subject error:', error);
+        return reply.status(500).send({
+          success: false,
+          error: {
+            message: 'Erreur lors de la récupération des exercices par matière',
+            code: 'GET_EXERCISES_BY_SUBJECT_ERROR'
+          }
+        });
+      }
+    }
+  });
+
   // Get all supported levels
   fastify.get('/levels', {
     schema: curriculumSchemas.getLevels,

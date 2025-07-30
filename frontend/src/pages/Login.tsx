@@ -24,7 +24,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   const loadStudents = async () => {
     try {
-      const response = await fetch('http://localhost:3002/api/students');
+      const response = await fetch('http://localhost:3003/api/students');
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {

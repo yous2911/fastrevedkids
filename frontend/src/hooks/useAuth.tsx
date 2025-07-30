@@ -48,7 +48,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      const response = await fetch('http://localhost:3002/api/auth/login', {
+      console.log('Sending login request with:', { prenom: prenom.trim(), nom: nom.trim() });
+      
+      const response = await fetch('http://localhost:3003/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,9 +61,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         })
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
       const data = await response.json();
       
       console.log('Login response:', data);
+      console.log('Response success:', data.success);
+      console.log('Response data:', data.data);
 
       if (response.ok && data.success) {
         const { student, token } = data.data;

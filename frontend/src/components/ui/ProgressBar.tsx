@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface ProgressBarProps {
+interface ProgressBarProps extends React.HTMLAttributes<HTMLDivElement> {
   progress: number;
   variant?: 'default' | 'sparkle';
   size?: 'sm' | 'md' | 'lg';
@@ -13,7 +13,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   variant = 'default', 
   size = 'md',
   showPercentage = false,
-  className = '' 
+  className = '',
+  ...props
 }) => {
   const clampedProgress = Math.min(Math.max(progress, 0), 100);
   
@@ -29,7 +30,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   };
 
   return (
-    <div className={`w-full rounded-full overflow-hidden ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}>
+    <div className={`w-full rounded-full overflow-hidden ${variantClasses[variant]} ${sizeClasses[size]} ${className}`} {...props}>
       <div 
         className={`h-full transition-all duration-300 ease-out ${
           variant === 'sparkle' 

@@ -44,7 +44,8 @@ export const Card: React.FC<CardProps> = ({
   rounded = 'lg',
   animated = false,
   hoverable = false,
-  onClick
+  onClick,
+  ...props
 }) => {
   const baseClasses = 'transition-all duration-200';
   const hoverClasses = hoverable ? 'hover:shadow-lg cursor-pointer' : '';
@@ -68,6 +69,7 @@ export const Card: React.FC<CardProps> = ({
         transition={{ duration: 0.3 }}
         whileHover={hoverable ? { y: -2, scale: 1.02 } : undefined}
         whileTap={onClick ? { scale: 0.98 } : undefined}
+        {...props}
       >
         {children}
       </motion.div>
@@ -75,7 +77,7 @@ export const Card: React.FC<CardProps> = ({
   }
 
   return (
-    <div className={classes} onClick={onClick}>
+    <div className={classes} onClick={onClick} {...props}>
       {children}
     </div>
   );

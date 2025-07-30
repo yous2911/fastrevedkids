@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { Button } from './Button';
 
-export interface ModalProps {
+export interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
@@ -32,7 +32,8 @@ export const Modal: React.FC<ModalProps> = ({
   showCloseButton = true,
   closeOnOverlayClick = true,
   preventBodyScroll = true,
-  className = ''
+  className = '',
+  ...props
 }) => {
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -59,7 +60,7 @@ export const Modal: React.FC<ModalProps> = ({
   const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" {...props}>
           {/* Backdrop */}
           <motion.div
             className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
