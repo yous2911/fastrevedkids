@@ -11,12 +11,16 @@ import {
 } from '../../pages/lazy';
 import { preloadRouteComponents } from '../../utils/lazyLoading';
 import { Exercise } from '../../types/api.types';
+import { ExerciseEngine } from '../exercise/ExerciseEngine';
+import { ExercicePedagogique } from '../../types/api.types';
+import { SimpleExerciseComponent } from '../exercise/SimpleExerciseComponent';
 
-type RouteType = 'dashboard' | 'exercises' | 'profile' | 'progress' | 'admin';
+type RouteType = 'dashboard' | 'exercises' | 'profile' | 'progress' | 'admin' | 'exercise';
 
 export const AppRouter: React.FC = () => {
   const { student, loading, logout, isAuthenticated } = useAuth();
   const [currentRoute, setCurrentRoute] = useState<RouteType>('dashboard');
+  const [currentExercise, setCurrentExercise] = useState<Exercise | null>(null);
 
   // Preload components after initial load
   useEffect(() => {
@@ -55,9 +59,19 @@ export const AppRouter: React.FC = () => {
     };
   };
 
+  const getDifficultyColor = (difficulte: string) => {
+    const colors = {
+      'FACILE': 'bg-green-100 text-green-800',
+      'MOYEN': 'bg-yellow-100 text-yellow-800',
+      'DIFFICILE': 'bg-red-100 text-red-800'
+    };
+    return colors[difficulte as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+  };
+
   const handleStartExercise = (exercise: Exercise) => {
     console.log('Starting exercise:', exercise);
-    // TODO: Implement exercise start logic
+    setCurrentExercise(exercise);
+    setCurrentRoute('exercise');
   };
 
   const renderCurrentRoute = () => {
@@ -108,6 +122,64 @@ export const AppRouter: React.FC = () => {
           <LazyComponentLoader>
             <AdminPanelLazy onBack={() => handleNavigation('dashboard')} />
           </LazyComponentLoader>
+        );
+
+      case 'exercise':
+        return (
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+            <div className="max-w-4xl mx-auto">
+              {/* Header */}
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => {
+                        setCurrentExercise(null);
+                        setCurrentRoute('exercises');
+                      }}
+                      className="mr-4 p-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900">{currentExercise?.titre}</h1>
+                      <p className="text-gray-600">{currentExercise?.consigne}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getDifficultyColor(currentExercise?.difficulte || 'FACILE')}`}>
+                      {currentExercise?.difficulte}
+                    </span>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                      {currentExercise?.xp} XP
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Exercise Content */}
+              {currentExercise && (
+                <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+                  <SimpleExerciseComponent
+                    exercise={currentExercise}
+                    onComplete={(result) => {
+                      console.log('Exercise completed:', result);
+                      // Handle completion - could show results, award XP, etc.
+                      alert(`Félicitations! Vous avez gagné ${currentExercise.xp} XP!`);
+                      setCurrentExercise(null);
+                      setCurrentRoute('exercises');
+                    }}
+                    onExit={() => {
+                      setCurrentExercise(null);
+                      setCurrentRoute('exercises');
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         );
 
       default:

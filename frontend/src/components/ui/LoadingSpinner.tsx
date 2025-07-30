@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-interface LoadingSpinnerProps {
+interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'large';
   variant?: 'primary' | 'secondary' | 'white';
   message?: string;
@@ -26,7 +26,8 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'md',
   variant = 'primary',
   message,
-  fullScreen = false
+  fullScreen = false,
+  ...props
 }) => {
   const spinner = (
     <motion.div
@@ -44,10 +45,10 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50" {...props}>
         <div className="text-center">
           {spinner}
-          {message && (
+          {message && message.trim() && (
             <p className="mt-4 text-gray-600 font-medium">{message}</p>
           )}
         </div>
@@ -56,9 +57,9 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" {...props}>
       {spinner}
-      {message && <span className="text-gray-600">{message}</span>}
+      {message && message.trim() && <span className="text-gray-600">{message}</span>}
     </div>
   );
 }; 

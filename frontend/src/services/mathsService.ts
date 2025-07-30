@@ -1,6 +1,6 @@
 import { DefiMath, ApiResponse, Stats } from '../types/shared';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3003/api';
 
 // Using shared types from shared.ts
 

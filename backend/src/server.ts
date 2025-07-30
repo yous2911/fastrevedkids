@@ -67,6 +67,15 @@ async function registerPlugins() {
     console.log('🛣️ Registering students routes...');
     await fastify.register(import('./routes/students'), { prefix: '/api/students' });
     
+    console.log('🛣️ Registering exercises routes...');
+    await fastify.register(import('./routes/exercises'), { prefix: '/api/exercises' });
+    
+    console.log('🛣️ Registering curriculum routes...');
+    await fastify.register(import('./routes/curriculum'), { prefix: '/api' });
+    
+    console.log('🛣️ Registering analytics routes...');
+    await fastify.register(import('./routes/analytics'), { prefix: '/api/analytics' });
+    
     console.log('🛣️ Registering monitoring routes...');
     await fastify.register(import('./routes/monitoring'), { prefix: '/api/monitoring' });
     

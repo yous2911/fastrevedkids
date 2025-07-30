@@ -3,26 +3,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface Exercise {
   id: number;
-  type: 'QCM' | 'CALCUL' | 'TEXTE_LIBRE' | 'DRAG_DROP' | 'CONJUGAISON';
-  configuration: {
+  titre: string;
+  description: string;
+  type: string;
+  configuration: string | {
     question: string;
     choix?: string[];
     bonneReponse?: string | number;
     operation?: string;
     resultat?: number;
+    correctAnswer?: string;
+    options?: string[];
+    explanation?: string;
   };
   xp: number;
   difficulte: 'FACILE' | 'MOYEN' | 'DIFFICILE';
-  sousChapitre?: {
-    titre: string;
-    chapitre: {
-      titre: string;
-      matiere: {
-        nom: string;
-        id: number;
-      };
-    };
-  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ExercisesPageProps {
@@ -59,7 +56,11 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
     CALCUL: { name: 'Calcul', emoji: '🧮', color: 'bg-purple-100 text-purple-800' },
     TEXTE_LIBRE: { name: 'Texte libre', emoji: '✏️', color: 'bg-green-100 text-green-800' },
     DRAG_DROP: { name: 'Glisser-déposer', emoji: '🎯', color: 'bg-orange-100 text-orange-800' },
-    CONJUGAISON: { name: 'Conjugaison', emoji: '📖', color: 'bg-pink-100 text-pink-800' }
+    CONJUGAISON: { name: 'Conjugaison', emoji: '📖', color: 'bg-pink-100 text-pink-800' },
+    GEOMETRIE: { name: 'Géométrie', emoji: '📐', color: 'bg-indigo-100 text-indigo-800' },
+    LECTURE: { name: 'Lecture', emoji: '📚', color: 'bg-yellow-100 text-yellow-800' },
+    'fill-in-blank': { name: 'Conjugaison', emoji: '📖', color: 'bg-pink-100 text-pink-800' },
+    'multiple-choice': { name: 'Choix multiple', emoji: '📋', color: 'bg-teal-100 text-teal-800' }
   };
 
   useEffect(() => {
@@ -70,7 +71,7 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
     setLoading(true);
     try {
       const token = localStorage.getItem('auth_token');
-      let url = '/api/subjects/exercises';
+      let url = 'http://localhost:3003/api/subjects/exercises';
       
       const params = new URLSearchParams();
       if (selectedSubject !== 'all') params.append('matiere', selectedSubject);
@@ -83,12 +84,14 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
 
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Exercises loaded successfully:', data);
         if (data.success) {
           setExercises(data.data || []);
         }
@@ -96,8 +99,12 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
         // Handle unauthorized
         localStorage.removeItem('auth_token');
         window.location.reload();
+      } else {
+        console.error('Failed to load exercises:', response.status, response.statusText);
+        setError(`Erreur ${response.status}: ${response.statusText}`);
       }
     } catch (err) {
+      console.error('Error loading exercises:', err);
       setError('Erreur lors du chargement des exercices');
     } finally {
       setLoading(false);
@@ -107,11 +114,19 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
   const filteredExercises = exercises.filter(exercise => {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      return (
-        exercise.configuration.question.toLowerCase().includes(query) ||
-        exercise.sousChapitre?.titre.toLowerCase().includes(query) ||
-        exercise.sousChapitre?.chapitre.titre.toLowerCase().includes(query)
-      );
+      try {
+        const config = typeof exercise.configuration === 'string' 
+          ? JSON.parse(exercise.configuration) 
+          : exercise.configuration;
+        return (
+          exercise.titre.toLowerCase().includes(query) ||
+          exercise.description.toLowerCase().includes(query) ||
+          (config.question && config.question.toLowerCase().includes(query))
+        );
+      } catch (e) {
+        return exercise.titre.toLowerCase().includes(query) ||
+               exercise.description.toLowerCase().includes(query);
+      }
     }
     return true;
   });
@@ -290,26 +305,27 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
                         </div>
 
                         <h3 className="font-medium text-gray-800 mb-2 text-lg">
-                          {exercise.configuration.question}
+                          {exercise.titre}
                         </h3>
 
-                        {exercise.configuration.operation && (
-                          <div className="text-2xl font-mono text-blue-600 mb-2">
-                            {exercise.configuration.operation}
-                          </div>
-                        )}
+                        <p className="text-gray-600 mb-2">
+                          {exercise.description}
+                        </p>
 
-                        {exercise.sousChapitre && (
-                          <div className="text-sm text-gray-600">
-                            <span className="font-medium">
-                              {exercise.sousChapitre.chapitre.matiere.nom}
-                            </span>
-                            <span className="mx-2">•</span>
-                            <span>{exercise.sousChapitre.chapitre.titre}</span>
-                            <span className="mx-2">•</span>
-                            <span>{exercise.sousChapitre.titre}</span>
-                          </div>
-                        )}
+                        {(() => {
+                          try {
+                            const config = typeof exercise.configuration === 'string' 
+                              ? JSON.parse(exercise.configuration) 
+                              : exercise.configuration;
+                            return config.question ? (
+                              <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
+                                <strong>Question:</strong> {config.question}
+                              </div>
+                            ) : null;
+                          } catch (e) {
+                            return null;
+                          }
+                        })()}
                       </div>
 
                       <div className="flex items-center gap-3 ml-4">

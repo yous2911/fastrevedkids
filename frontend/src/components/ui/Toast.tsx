@@ -20,7 +20,8 @@ export const Toast: React.FC<ToastProps> = ({
   message,
   duration = 5000,
   position = 'top-right',
-  onClose
+  onClose,
+  ...props
 }) => {
   useEffect(() => {
     if (duration > 0) {
@@ -59,6 +60,7 @@ export const Toast: React.FC<ToastProps> = ({
       animate={{ opacity: 1, x: 0, y: 0 }}
       exit={{ opacity: 0, x: position.includes('right') ? 100 : -100 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      {...props}
     >
       <div className={`${typeStyles[type]} text-white p-4 rounded-xl shadow-lg border-l-4 flex items-center gap-3`}>
         <span className="text-lg">{typeIcons[type]}</span>

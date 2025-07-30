@@ -149,6 +149,7 @@ export class CorsConfigurationService {
         'X-CSRF-Token',
         'X-Session-ID',
         'X-Request-ID',
+        'X-Client',
         'Cache-Control',
         'Pragma'
       ],
