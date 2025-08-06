@@ -525,8 +525,7 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
         const medalGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.05);
         const medalMaterial = new THREE.MeshPhongMaterial({ 
           color: medalColor,
-          shininess: 100,
-          metalness: 0.8
+          shininess: 100
         });
         const medal = new THREE.Mesh(medalGeometry, medalMaterial);
         medal.position.set(0, 0.8, 0.5);
