@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MentalMathExerciseProps {
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: 0 | 1 | 2 | 3 | 4 | 5; // SuperMemo quality levels
   onComplete: (isCorrect: boolean, timeSpent: number) => void;
 }
 
@@ -26,28 +26,52 @@ const MentalMathExercise: React.FC<MentalMathExerciseProps> = ({
     let options: number[];
 
     switch (difficulty) {
-      case 'easy':
-        const a = Math.floor(Math.random() * 10) + 1;
-        const b = Math.floor(Math.random() * 10) + 1;
-        question = `${a} + ${b} = ?`;
-        answer = a + b;
+      case 0: // BLACKOUT - Complete forgetfulness
+        const a0 = Math.floor(Math.random() * 5) + 1;
+        const b0 = Math.floor(Math.random() * 5) + 1;
+        question = `${a0} + ${b0} = ?`;
+        answer = a0 + b0;
         options = [answer, answer + 1, answer - 1, answer + 2].sort(() => Math.random() - 0.5);
         break;
 
-      case 'medium':
-        const c = Math.floor(Math.random() * 20) + 1;
-        const d = Math.floor(Math.random() * 10) + 1;
-        question = `${c} - ${d} = ?`;
-        answer = c - d;
+      case 1: // HARD - Incorrect but remembered something
+        const a1 = Math.floor(Math.random() * 8) + 1;
+        const b1 = Math.floor(Math.random() * 8) + 1;
+        question = `${a1} + ${b1} = ?`;
+        answer = a1 + b1;
         options = [answer, answer + 1, answer - 1, answer + 2].sort(() => Math.random() - 0.5);
         break;
 
-      case 'hard':
-        const e = Math.floor(Math.random() * 12) + 1;
-        const f = Math.floor(Math.random() * 12) + 1;
-        question = `${e} × ${f} = ?`;
-        answer = e * f;
-        options = [answer, answer + e, answer - f, answer + 1].sort(() => Math.random() - 0.5);
+      case 2: // DIFFICULT - Incorrect with effort
+        const a2 = Math.floor(Math.random() * 10) + 1;
+        const b2 = Math.floor(Math.random() * 10) + 1;
+        question = `${a2} + ${b2} = ?`;
+        answer = a2 + b2;
+        options = [answer, answer + 1, answer - 1, answer + 2].sort(() => Math.random() - 0.5);
+        break;
+
+      case 3: // GOOD - Correct with difficulty
+        const a3 = Math.floor(Math.random() * 15) + 1;
+        const b3 = Math.floor(Math.random() * 15) + 1;
+        question = `${a3} - ${b3} = ?`;
+        answer = a3 - b3;
+        options = [answer, answer + 1, answer - 1, answer + 2].sort(() => Math.random() - 0.5);
+        break;
+
+      case 4: // EASY - Correct with hesitation
+        const a4 = Math.floor(Math.random() * 20) + 1;
+        const b4 = Math.floor(Math.random() * 20) + 1;
+        question = `${a4} - ${b4} = ?`;
+        answer = a4 - b4;
+        options = [answer, answer + 1, answer - 1, answer + 2].sort(() => Math.random() - 0.5);
+        break;
+
+      case 5: // PERFECT - Perfect response
+        const a5 = Math.floor(Math.random() * 12) + 1;
+        const b5 = Math.floor(Math.random() * 12) + 1;
+        question = `${a5} × ${b5} = ?`;
+        answer = a5 * b5;
+        options = [answer, answer + a5, answer - b5, answer + 1].sort(() => Math.random() - 0.5);
         break;
 
       default:
@@ -94,7 +118,10 @@ const MentalMathExercise: React.FC<MentalMathExerciseProps> = ({
           Calcul Mental
         </h3>
         <div className="text-sm text-gray-600 mb-6">
-          Niveau: {difficulty === 'easy' ? 'Facile' : difficulty === 'medium' ? 'Moyen' : 'Difficile'}
+          Niveau: {difficulty === 0 ? 'BLACKOUT' : difficulty === 1 ? 'HARD' : difficulty === 2 ? 'DIFFICULT' : difficulty === 3 ? 'GOOD' : difficulty === 4 ? 'EASY' : 'PERFECT'}
+          <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+            SuperMemo: {difficulty === 0 ? 'BLACKOUT' : difficulty === 1 ? 'HARD' : difficulty === 2 ? 'DIFFICULT' : difficulty === 3 ? 'GOOD' : difficulty === 4 ? 'EASY' : 'PERFECT'}
+          </span>
         </div>
       </motion.div>
 

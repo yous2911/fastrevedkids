@@ -34,7 +34,7 @@ interface AdvancedParticleEngineProps {
   particleCount?: number;
   particleType: 'fire' | 'water' | 'magic' | 'crystal' | 'lightning' | 'smoke' | 'sparkle' | 'heart' | 'star';
   behavior?: 'normal' | 'spiral' | 'orbit' | 'explosion' | 'attract' | 'repel';
-  intensity: 'low' | 'medium' | 'high' | 'extreme' | 'nuclear';
+  intensity: 0 | 1 | 2 | 3 | 4 | 5; // SuperMemo quality levels
   isActive: boolean;
   emitterPosition?: { x: number; y: number };
   attractorPosition?: { x: number; y: number };
@@ -67,37 +67,43 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
   const lastTimeRef = useRef<number>(0);
   const mousePositionRef = useRef({ x: 0, y: 0 });
 
-  // Intensity configurations
+  // SuperMemo Intensity configurations
   const intensityConfig = {
-    low: { 
+    0: { // BLACKOUT - Minimal particles
+      maxParticles: Math.min(20, particleCount),
+      spawnRate: 1,
+      lifespan: 40,
+      size: { min: 1, max: 3 }
+    },
+    1: { // HARD - Low particles
       maxParticles: Math.min(50, particleCount),
       spawnRate: 2,
       lifespan: 60,
       size: { min: 2, max: 4 }
     },
-    medium: { 
+    2: { // DIFFICULT - Moderate particles
+      maxParticles: Math.min(100, particleCount),
+      spawnRate: 4,
+      lifespan: 80,
+      size: { min: 2, max: 5 }
+    },
+    3: { // GOOD - Balanced particles
       maxParticles: Math.min(150, particleCount),
       spawnRate: 5,
       lifespan: 90,
       size: { min: 3, max: 6 }
     },
-    high: { 
+    4: { // EASY - High particles
       maxParticles: Math.min(300, particleCount),
       spawnRate: 8,
       lifespan: 120,
       size: { min: 4, max: 8 }
     },
-    extreme: { 
+    5: { // PERFECT - Maximum particles
       maxParticles: Math.min(500, particleCount),
       spawnRate: 12,
       lifespan: 180,
       size: { min: 5, max: 12 }
-    },
-    nuclear: { 
-      maxParticles: Math.min(1000, particleCount),
-      spawnRate: 20,
-      lifespan: 300,
-      size: { min: 8, max: 20 }
     }
   };
 

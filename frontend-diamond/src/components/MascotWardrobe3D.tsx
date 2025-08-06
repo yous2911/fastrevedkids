@@ -6,16 +6,19 @@ interface MascotWardrobe3DProps {
   emotion: 'idle' | 'happy' | 'thinking' | 'celebrating' | 'oops';
   equippedItems: string[]; // Array of equipped wardrobe item IDs
   xpLevel: number;
-  size?: 'small' | 'medium' | 'large';
+  size?: 0 | 1 | 2 | 3 | 4 | 5; // SuperMemo quality levels
   enableInteraction?: boolean;
   onMascotClick?: () => void;
 }
 
-// Size configurations
+// SuperMemo Size configurations
 const sizeConfig = {
-  small: { scale: 0.8, containerSize: 120 },
-  medium: { scale: 1.0, containerSize: 150 },
-  large: { scale: 1.2, containerSize: 200 }
+  0: { scale: 0.6, containerSize: 80 },   // BLACKOUT - Smallest
+  1: { scale: 0.7, containerSize: 90 },   // HARD - Small
+  2: { scale: 0.8, containerSize: 100 },  // DIFFICULT - Medium-small
+  3: { scale: 1.0, containerSize: 150 },  // GOOD - Medium
+  4: { scale: 1.1, containerSize: 170 },  // EASY - Medium-large
+  5: { scale: 1.2, containerSize: 200 }   // PERFECT - Largest
 };
 
 // Mascot colors and characteristics
@@ -57,7 +60,7 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
   emotion,
   equippedItems,
   xpLevel,
-  size = 'medium',
+  size = 3, // GOOD level
   enableInteraction = true,
   onMascotClick
 }) => {

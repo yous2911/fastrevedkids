@@ -104,7 +104,7 @@ interface Particle {
 
 const ParticleEngine: React.FC<{
   isActive: boolean;
-  intensity: 'low' | 'medium' | 'high' | 'epic';
+  intensity: 0 | 1 | 2 | 3 | 4 | 5; // SuperMemo quality levels
   type: 'success' | 'levelup' | 'magic';
   position?: { x: number; y: number };
 }> = ({ isActive, intensity, type, position = { x: 50, y: 50 } }) => {
@@ -249,7 +249,12 @@ const ParticleEngine: React.FC<{
     if (isActive) {
       const intensityConfig = {
         low: { count: 15, interval: 80 },
-        medium: { count: 30, interval: 50 },
+        0: { count: 10, interval: 100 }, // BLACKOUT
+    1: { count: 15, interval: 80 },  // HARD
+    2: { count: 20, interval: 70 },  // DIFFICULT
+    3: { count: 30, interval: 50 },  // GOOD
+    4: { count: 40, interval: 40 },  // EASY
+    5: { count: 50, interval: 30 },  // PERFECT
         high: { count: 60, interval: 30 },
         epic: { count: 120, interval: 15 }
       };
@@ -698,7 +703,7 @@ const DiamondCPCE2Interface = () => {
         {
           id: 2,
           type: 'MENTAL_MATH',
-          difficulty: 'easy',
+          difficulty: 3, // GOOD level
           xp: 20
         },
         {
@@ -707,13 +712,13 @@ const DiamondCPCE2Interface = () => {
           question: 'Classe les nombres par ordre croissant',
           items: [
             { id: '1', content: '3', category: 'small' },
-            { id: '2', content: '7', category: 'medium' },
+            { id: '2', content: '7', category: 'GOOD' },
             { id: '3', content: '1', category: 'small' },
             { id: '4', content: '9', category: 'large' }
           ],
           zones: [
             { id: 'zone1', label: 'Petits nombres', accepts: ['small'] },
-            { id: 'zone2', label: 'Moyens nombres', accepts: ['medium'] },
+            { id: 'zone2', label: 'Nombres moyens', accepts: ['GOOD'] },
             { id: 'zone3', label: 'Grands nombres', accepts: ['large'] }
           ],
           xp: 25
