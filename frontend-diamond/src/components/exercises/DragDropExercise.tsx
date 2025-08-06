@@ -104,20 +104,14 @@ const DragDropExercise: React.FC<DragDropExerciseProps> = ({
         <div className="grid grid-cols-2 gap-3">
           <AnimatePresence>
             {availableItems.map((item, index) => (
-              <motion.div
+              <div
                 key={item.id}
+                className="bg-gradient-to-r from-blue-400 to-purple-500 text-white p-3 rounded-lg cursor-move shadow-lg border-2 border-white/50 hover:scale-105 transition-transform"
                 draggable
                 onDragStart={(e: React.DragEvent) => handleDragStart(e, item)}
-                className="bg-gradient-to-r from-blue-400 to-purple-500 text-white p-3 rounded-lg cursor-move shadow-lg border-2 border-white/50"
-                whileHover={{ scale: 1.05, rotate: 2 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ delay: index * 0.1 }}
               >
                 {item.content}
-              </motion.div>
+              </div>
             ))}
           </AnimatePresence>
         </div>
@@ -126,10 +120,10 @@ const DragDropExercise: React.FC<DragDropExerciseProps> = ({
       {/* Zones de drop */}
       <div className="grid grid-cols-2 gap-4">
         {dropZones.map((zone) => (
-          <motion.div
+          <div
             key={zone.id}
             className={`
-              min-h-32 p-4 rounded-xl border-2 border-dashed transition-all duration-300
+              min-h-32 p-4 rounded-xl border-2 border-dashed transition-all duration-300 hover:scale-105
               ${dragOverZone === zone.id 
                 ? 'border-purple-500 bg-purple-100/50' 
                 : 'border-gray-300 bg-white/60'
@@ -138,7 +132,6 @@ const DragDropExercise: React.FC<DragDropExerciseProps> = ({
             onDragOver={(e: React.DragEvent) => handleDragOver(e, zone.id)}
             onDragLeave={handleDragLeave}
             onDrop={(e: React.DragEvent) => handleDrop(e, zone.id)}
-            whileHover={{ scale: 1.02 }}
           >
             <h5 className="font-semibold text-gray-700 mb-2">{zone.label}</h5>
             
@@ -156,7 +149,7 @@ const DragDropExercise: React.FC<DragDropExerciseProps> = ({
                 </motion.div>
               ))}
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
 

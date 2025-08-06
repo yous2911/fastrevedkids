@@ -103,8 +103,16 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
 
   const config = intensityConfig[intensity];
 
+  // Particle configuration interface
+  interface ParticleConfig {
+    colors: Array<{ r: number; g: number; b: number; a: number }>;
+    physics: { gravity: number; friction: number; elasticity: number };
+    behavior: 'normal' | 'spiral' | 'orbit' | 'explosion' | 'attract' | 'repel';
+    glow: boolean;
+  }
+
   // Particle type configurations
-  const getParticleConfig = (type: string) => {
+  const getParticleConfig = (type: string): ParticleConfig => {
     switch (type) {
       case 'fire':
         return {
