@@ -6,7 +6,7 @@ const ParticleDemo: React.FC = () => {
   const [isActive, setIsActive] = useState(true);
   const [particleType, setParticleType] = useState<'fire' | 'water' | 'magic' | 'crystal' | 'lightning' | 'smoke' | 'sparkle' | 'heart' | 'star'>('magic');
   const [behavior, setBehavior] = useState<'normal' | 'spiral' | 'orbit' | 'explosion' | 'attract' | 'repel'>('normal');
-  const [intensity, setIntensity] = useState<'low' | 'medium' | 'high' | 'extreme' | 'nuclear'>('high');
+  const [intensity, setIntensity] = useState<0 | 1 | 2 | 3 | 4 | 5>(3); // SuperMemo quality levels
   const [enablePhysics, setEnablePhysics] = useState(true);
   const [enableTrails, setEnableTrails] = useState(true);
   const [enableCollisions, setEnableCollisions] = useState(false);
@@ -35,11 +35,12 @@ const ParticleDemo: React.FC = () => {
   ];
 
   const intensityOptions = [
-    { id: 'low', name: 'Low', description: '50 particles, gentle effects' },
-    { id: 'medium', name: 'Medium', description: '150 particles, balanced' },
-    { id: 'high', name: 'High', description: '300 particles, dynamic' },
-    { id: 'extreme', name: 'Extreme', description: '500 particles, intense' },
-    { id: 'nuclear', name: 'Nuclear', description: '1000 particles, maximum chaos' }
+    { id: 0, name: 'BLACKOUT', description: '20 particles, minimal' },
+    { id: 1, name: 'HARD', description: '50 particles, low' },
+    { id: 2, name: 'DIFFICULT', description: '100 particles, moderate' },
+    { id: 3, name: 'GOOD', description: '150 particles, balanced' },
+    { id: 4, name: 'EASY', description: '300 particles, high' },
+    { id: 5, name: 'PERFECT', description: '500 particles, maximum' }
   ];
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {

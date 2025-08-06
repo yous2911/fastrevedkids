@@ -10,7 +10,7 @@ const EnhancedMascotDemo: React.FC = () => {
   const [equippedItems, setEquippedItems] = useState<string[]>([]);
   const [xpLevel, setXpLevel] = useState(5);
   const [showWardrobe, setShowWardrobe] = useState(false);
-  const [size, setSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [size, setSize] = useState<0 | 1 | 2 | 3 | 4 | 5>(3); // SuperMemo quality levels
 
   const studentStats = {
     xp: 750,
@@ -57,9 +57,12 @@ const EnhancedMascotDemo: React.FC = () => {
   ];
 
   const sizes = [
-    { id: 'small', name: 'Small', size: '120px' },
-    { id: 'medium', name: 'Medium', size: '150px' },
-    { id: 'large', name: 'Large', size: '200px' }
+    { id: 0, name: 'BLACKOUT', size: '80px' },
+    { id: 1, name: 'HARD', size: '90px' },
+    { id: 2, name: 'DIFFICULT', size: '100px' },
+    { id: 3, name: 'GOOD', size: '150px' },
+    { id: 4, name: 'EASY', size: '170px' },
+    { id: 5, name: 'PERFECT', size: '200px' }
   ];
 
   return (
