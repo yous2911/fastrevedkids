@@ -1064,7 +1064,7 @@ const DiamondCPCE2Interface = () => {
       {/* Particules */}
       <ParticleEngine
         isActive={showParticles}
-        intensity="high"
+        intensity={4}
         type={particleType}
         position={{ x: 50, y: 50 }}
       />
