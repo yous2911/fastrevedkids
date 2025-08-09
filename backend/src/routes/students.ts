@@ -1,6 +1,6 @@
 
 import { FastifyInstance } from 'fastify';
-import { databaseService } from '../services/database.service.js';
+import { enhancedDatabaseService as databaseService } from '../services/enhanced-database.service.js';
 import crypto from 'crypto';
 
 export default async function studentRoutes(fastify: FastifyInstance) {
@@ -460,6 +460,274 @@ export default async function studentRoutes(fastify: FastifyInstance) {
         error: {
           code: 'INTERNAL_ERROR',
           message: 'Failed to get subject progress'
+        }
+      });
+    }
+  });
+
+  // GET /api/students/:id/competence-progress - Get detailed competence progress
+  fastify.get('/:id/competence-progress', {
+    schema: {
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'number' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          matiere: { type: 'string', enum: ['FRANCAIS', 'MATHEMATIQUES', 'SCIENCES', 'HISTOIRE_GEOGRAPHIE', 'ANGLAIS'] },
+          niveau: { type: 'string', enum: ['CP', 'CE1', 'CE2', 'CM1', 'CM2', 'CP-CE1'] },
+          masteryLevel: { type: 'string', enum: ['not_started', 'discovering', 'practicing', 'mastering', 'mastered'] },
+          limit: { type: 'number', default: 100 },
+          offset: { type: 'number', default: 0 }
+        }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { id: studentId } = request.params as { id: number };
+      const { matiere, niveau, masteryLevel, limit = 100, offset = 0 } = request.query as any;
+
+      // Get student competence progress
+      const competenceProgress = await databaseService.getStudentCompetenceProgress(studentId, {
+        matiere,
+        niveau,
+        masteryLevel,
+        limit,
+        offset
+      });
+
+      // Get summary statistics
+      const summary = {
+        totalCompetences: competenceProgress.length,
+        masteredCount: competenceProgress.filter(cp => cp.masteryLevel === 'mastered').length,
+        inProgressCount: competenceProgress.filter(cp => ['practicing', 'mastering'].includes(cp.masteryLevel)).length,
+        averageScore: competenceProgress.length > 0 ? 
+          competenceProgress.reduce((sum, cp) => sum + parseFloat(cp.averageScore.toString()), 0) / competenceProgress.length : 0,
+        totalTimeSpent: competenceProgress.reduce((sum, cp) => sum + cp.totalTimeSpent, 0)
+      };
+
+      return {
+        success: true,
+        data: {
+          competenceProgress: competenceProgress.map(cp => ({
+            id: cp.id,
+            competenceCode: cp.competenceCode,
+            niveau: cp.niveau,
+            matiere: cp.matiere,
+            domaine: cp.domaine,
+            masteryLevel: cp.masteryLevel,
+            progressPercent: cp.progressPercent,
+            totalAttempts: cp.totalAttempts,
+            successfulAttempts: cp.successfulAttempts,
+            averageScore: parseFloat(cp.averageScore.toString()),
+            totalTimeSpent: cp.totalTimeSpent,
+            averageTimePerAttempt: cp.averageTimePerAttempt,
+            difficultyLevel: parseFloat(cp.difficultyLevel.toString()),
+            consecutiveSuccesses: cp.consecutiveSuccesses,
+            consecutiveFailures: cp.consecutiveFailures,
+            firstAttemptAt: cp.firstAttemptAt,
+            lastAttemptAt: cp.lastAttemptAt,
+            masteredAt: cp.masteredAt,
+            updatedAt: cp.updatedAt
+          })),
+          summary,
+          filters: { matiere, niveau, masteryLevel },
+          pagination: { limit, offset, total: competenceProgress.length }
+        }
+      };
+    } catch (error) {
+      fastify.log.error('Get competence progress error:', error);
+      return reply.status(500).send({
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'Failed to get competence progress'
+        }
+      });
+    }
+  });
+
+  // POST /api/students/:id/record-progress - Record new progress for a competence
+  fastify.post('/:id/record-progress', {
+    schema: {
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'number' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['competenceCode', 'exerciseResult'],
+        properties: {
+          competenceCode: { type: 'string' },
+          exerciseResult: {
+            type: 'object',
+            required: ['score', 'timeSpent', 'completed'],
+            properties: {
+              score: { type: 'number', minimum: 0, maximum: 100 },
+              timeSpent: { type: 'number', minimum: 0 },
+              completed: { type: 'boolean' },
+              attempts: { type: 'number', default: 1 },
+              exerciseId: { type: 'number' },
+              difficultyLevel: { type: 'number', minimum: 0.5, maximum: 2.0, default: 1.0 }
+            }
+          },
+          sessionData: {
+            type: 'object',
+            properties: {
+              sessionId: { type: 'string' },
+              deviceType: { type: 'string', enum: ['mobile', 'tablet', 'desktop'] },
+              focusScore: { type: 'number', minimum: 0, maximum: 100 }
+            }
+          }
+        }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { id: studentId } = request.params as { id: number };
+      const { competenceCode, exerciseResult, sessionData } = request.body as any;
+
+      // Record the progress
+      const progressResult = await databaseService.recordStudentProgress(studentId, {
+        competenceCode,
+        score: exerciseResult.score,
+        timeSpent: exerciseResult.timeSpent,
+        completed: exerciseResult.completed,
+        attempts: exerciseResult.attempts || 1,
+        exerciseId: exerciseResult.exerciseId,
+        difficultyLevel: exerciseResult.difficultyLevel || 1.0,
+        sessionData
+      });
+
+      // Update learning path if needed
+      await databaseService.updateLearningPath(studentId, competenceCode, progressResult.masteryLevel);
+
+      // Check for achievements
+      const newAchievements = await databaseService.checkAndUnlockAchievements(studentId, {
+        competenceCode,
+        masteryLevel: progressResult.masteryLevel,
+        score: exerciseResult.score,
+        consecutiveSuccesses: progressResult.consecutiveSuccesses
+      });
+
+      return {
+        success: true,
+        data: {
+          progress: progressResult,
+          newAchievements,
+          xpEarned: exerciseResult.completed ? (exerciseResult.score >= 80 ? 15 : 10) : 5,
+          masteryLevelChanged: progressResult.masteryLevelChanged || false
+        }
+      };
+    } catch (error) {
+      fastify.log.error('Record progress error:', error);
+      return reply.status(500).send({
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'Failed to record progress'
+        }
+      });
+    }
+  });
+
+  // GET /api/students/:id/achievements - Get student achievements
+  fastify.get('/:id/achievements', {
+    schema: {
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'number' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          category: { type: 'string', enum: ['academic', 'engagement', 'progress', 'social', 'special'] },
+          difficulty: { type: 'string', enum: ['bronze', 'silver', 'gold', 'platinum', 'diamond'] },
+          completed: { type: 'boolean' },
+          visible: { type: 'boolean', default: true },
+          limit: { type: 'number', default: 50 },
+          offset: { type: 'number', default: 0 }
+        }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { id: studentId } = request.params as { id: number };
+      const { category, difficulty, completed, visible = true, limit = 50, offset = 0 } = request.query as any;
+
+      const achievements = await databaseService.getStudentAchievements(studentId, {
+        category,
+        difficulty,
+        completed,
+        visible,
+        limit,
+        offset
+      });
+
+      // Calculate summary stats
+      const summary = {
+        totalAchievements: achievements.length,
+        completedCount: achievements.filter(a => a.isCompleted).length,
+        totalXpEarned: achievements
+          .filter(a => a.isCompleted)
+          .reduce((sum, a) => sum + a.xpReward, 0),
+        byCategory: {
+          academic: achievements.filter(a => a.category === 'academic').length,
+          engagement: achievements.filter(a => a.category === 'engagement').length,
+          progress: achievements.filter(a => a.category === 'progress').length,
+          social: achievements.filter(a => a.category === 'social').length,
+          special: achievements.filter(a => a.category === 'special').length
+        },
+        byDifficulty: {
+          bronze: achievements.filter(a => a.difficulty === 'bronze' && a.isCompleted).length,
+          silver: achievements.filter(a => a.difficulty === 'silver' && a.isCompleted).length,
+          gold: achievements.filter(a => a.difficulty === 'gold' && a.isCompleted).length,
+          platinum: achievements.filter(a => a.difficulty === 'platinum' && a.isCompleted).length,
+          diamond: achievements.filter(a => a.difficulty === 'diamond' && a.isCompleted).length
+        }
+      };
+
+      return {
+        success: true,
+        data: {
+          achievements: achievements.map(a => ({
+            id: a.id,
+            achievementCode: a.achievementCode,
+            title: a.title,
+            description: a.description,
+            category: a.category,
+            difficulty: a.difficulty,
+            xpReward: a.xpReward,
+            badgeIconUrl: a.badgeIconUrl,
+            currentProgress: a.currentProgress,
+            maxProgress: a.maxProgress,
+            progressPercentage: a.maxProgress > 0 ? Math.round((a.currentProgress / a.maxProgress) * 100) : 0,
+            isCompleted: a.isCompleted,
+            completedAt: a.completedAt,
+            displayOrder: a.displayOrder
+          })),
+          summary,
+          filters: { category, difficulty, completed, visible },
+          pagination: { limit, offset, total: achievements.length }
+        }
+      };
+    } catch (error) {
+      fastify.log.error('Get achievements error:', error);
+      return reply.status(500).send({
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'Failed to get achievements'
         }
       });
     }

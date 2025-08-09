@@ -121,13 +121,28 @@ export const initializeMonitoring = (app: FastifyInstance) => {
       const health = await performHealthCheck();
       const statusCode = health.status === 'healthy' ? 200 : 503;
       
-      reply.status(statusCode).send(health);
+      // Add frontend information
+      const enhancedHealth = {
+        ...health,
+        frontends: {
+          'CM1/CM2': 'http://localhost:3000',
+          'CP/CE1/CE2': 'http://localhost:3001'
+        },
+        version: '2.0.0',
+        environment: process.env.NODE_ENV || 'development'
+      };
+      
+      reply.status(statusCode).send(enhancedHealth);
     } catch (error) {
       logger.error('Health check failed', { error });
       reply.status(503).send({
         status: 'unhealthy',
         error: 'Health check failed',
         timestamp: new Date().toISOString(),
+        frontends: {
+          'CM1/CM2': 'http://localhost:3000',
+          'CP/CE1/CE2': 'http://localhost:3001'
+        }
       });
     }
   });

@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
+import { enhancedApiService } from '../services/enhanced-api.service';
+import MasteryLevelsCard from '../components/dashboard/MasteryLevelsCard';
+import PrerequisiteVisualization from '../components/dashboard/PrerequisiteVisualization';
+import AchievementBadges from '../components/dashboard/AchievementBadges';
+import AnalyticsCharts from '../components/dashboard/AnalyticsCharts';
 
 interface Student {
   id: number;
@@ -16,6 +21,40 @@ interface Student {
     successRate: number;
     totalTime: number;
   };
+}
+
+interface CompetenceProgress {
+  id: number;
+  competenceCode: string;
+  niveau: string;
+  matiere: string;
+  domaine: string;
+  masteryLevel: string;
+  progressPercent: number;
+  totalAttempts: number;
+  successfulAttempts: number;
+  averageScore: number;
+  totalTimeSpent: number;
+  consecutiveSuccesses: number;
+  lastAttemptAt: string;
+  masteredAt?: string;
+}
+
+interface Achievement {
+  id: number;
+  achievementCode: string;
+  title: string;
+  description: string;
+  category: string;
+  difficulty: string;
+  xpReward: number;
+  badgeIconUrl: string;
+  currentProgress: number;
+  maxProgress: number;
+  progressPercentage: number;
+  isCompleted: boolean;
+  completedAt?: string;
+  displayOrder: number;
 }
 
 interface Exercise {
@@ -46,7 +85,11 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercise, onLogout }) => {
   const [recommendations, setRecommendations] = useState<Exercise[]>([]);
+  const [competenceProgress, setCompetenceProgress] = useState<CompetenceProgress[]>([]);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
   const [greeting, setGreeting] = useState('');
   const [error, setError] = useState('');
 
@@ -56,9 +99,65 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
   useEffect(() => {
     if (student) {
       generateGreeting();
-      loadRecommendations(student.id);
+      loadDashboardData(student.id);
     }
   }, [student]);
+
+  const loadDashboardData = async (studentId: number) => {
+    setDataLoading(true);
+    try {
+      // Load all dashboard data in parallel
+      await Promise.all([
+        loadRecommendations(studentId),
+        loadCompetenceProgress(studentId),
+        loadAchievements(studentId),
+        loadAnalyticsData(studentId)
+      ]);
+    } catch (err) {
+      console.error('Error loading dashboard data:', err);
+      setError('Erreur lors du chargement des données');
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  const loadCompetenceProgress = async (studentId: number) => {
+    try {
+      const data = await enhancedApiService.getStudentCompetenceProgress(studentId, { limit: 20 });
+      setCompetenceProgress(data.competenceProgress || []);
+    } catch (error) {
+      console.error('Error loading competence progress:', error);
+    }
+  };
+
+  const loadAchievements = async (studentId: number) => {
+    try {
+      const data = await enhancedApiService.getStudentAchievements(studentId, { 
+        limit: 10, 
+        visible: true 
+      });
+      setAchievements(data.achievements || []);
+    } catch (error) {
+      console.error('Error loading achievements:', error);
+    }
+  };
+
+  const loadAnalyticsData = async (studentId: number) => {
+    try {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 30);
+      
+      const data = await enhancedApiService.getDailyLearningAnalytics({
+        studentId,
+        dateStart: startDate.toISOString().split('T')[0],
+        dateEnd: endDate.toISOString().split('T')[0]
+      });
+      setAnalyticsData(data || null);
+    } catch (error) {
+      console.error('Error loading analytics data:', error);
+    }
+  };
 
   // Mock stats for now since they're not in the database
   const mockStats = {
@@ -297,38 +396,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
               </div>
             </motion.div>
 
-            {/* Progress Card */}
+            {/* Mastery Levels Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  📊 Ta progression
-                </h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-700">Progression globale</span>
-                      <span className="text-sm text-gray-500">{getProgressPercentage()}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div 
-                        className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500"
-                        style={{ width: `${getProgressPercentage()}%` }}
-                      />
-                    </div>
-                  </div>
+              <MasteryLevelsCard 
+                competenceProgress={competenceProgress}
+                loading={dataLoading}
+                studentLevel={student.niveauActuel}
+              />
+            </motion.div>
 
-                  <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                    <p className="text-center font-medium text-orange-800">
-                      {getStreakMessage()}
-                    </p>
-                  </div>
-                </div>
-              </div>
+            {/* Analytics Charts */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
+              <AnalyticsCharts 
+                analyticsData={analyticsData}
+                loading={dataLoading}
+              />
             </motion.div>
 
             {/* Recommended Exercises */}
@@ -400,6 +490,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
 
           {/* Right Column */}
           <div className="space-y-6">
+            {/* Achievement Badges */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <AchievementBadges 
+                achievements={achievements}
+                loading={dataLoading}
+                onViewAll={() => onNavigate('/achievements')}
+              />
+            </motion.div>
+
+            {/* Prerequisite Visualization */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.35 }}
+            >
+              <PrerequisiteVisualization 
+                studentId={student?.id || 0}
+                currentLevel={student?.niveauActuel || 'CP'}
+                loading={dataLoading}
+              />
+            </motion.div>
+
             {/* Quick Actions */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -417,6 +533,54 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
                   >
                     <span>📚</span>
                     Faire un exercice
+                  </button>
+                  
+                  <button
+                    onClick={() => onNavigate('/exercise-test')}
+                    className="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white p-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                  >
+                    <span>🧪</span>
+                    Test Exercise Engine
+                  </button>
+                  
+                  <button
+                    onClick={() => onNavigate('/xp-theme-test')}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white p-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                  >
+                    <span>🎨</span>
+                    Test XP System Themes
+                  </button>
+                  
+                  <button
+                    onClick={() => onNavigate('/wardrobe-test')}
+                    className="w-full bg-gradient-to-r from-indigo-500 to-cyan-600 hover:from-indigo-600 hover:to-cyan-700 text-white p-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                  >
+                    <span>👕</span>
+                    Test Wardrobe System
+                  </button>
+                  
+                  <button
+                    onClick={() => onNavigate('/comprehensive-test')}
+                    className="w-full bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white p-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                  >
+                    <span>🧪</span>
+                    Comprehensive Test Suite
+                  </button>
+                  
+                  <button
+                    onClick={() => onNavigate('/cross-browser-test')}
+                    className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white p-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                  >
+                    <span>🔧</span>
+                    Cross-Browser Tests
+                  </button>
+                  
+                  <button
+                    onClick={() => onNavigate('/error-handling-test')}
+                    className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-medium"
+                  >
+                    <span>🛡️</span>
+                    Error Handling Tests
                   </button>
                   
                   <button

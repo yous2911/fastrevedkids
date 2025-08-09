@@ -224,6 +224,16 @@ class RevisionService {
     };
   }
 
+  // SuperMemo SM-2 Integration
+  private readonly SUPERMEMO_QUALITY_LEVELS = {
+    0: { name: 'BLACKOUT', priority: 10, color: 'text-red-600 bg-red-100' },
+    1: { name: 'HARD', priority: 8, color: 'text-orange-600 bg-orange-100' },
+    2: { name: 'DIFFICULT', priority: 6, color: 'text-yellow-600 bg-yellow-100' },
+    3: { name: 'GOOD', priority: 4, color: 'text-blue-600 bg-blue-100' },
+    4: { name: 'EASY', priority: 2, color: 'text-green-600 bg-green-100' },
+    5: { name: 'PERFECT', priority: 1, color: 'text-purple-600 bg-purple-100' }
+  };
+
   // Utility methods
   calculateDisplayPriority(exercise: RevisionExercise): number {
     const basePriority = exercise.priorite;
@@ -231,6 +241,33 @@ class RevisionService {
     const difficultyMultiplier = exercise.niveauDifficulte / 10;
     
     return Math.round(basePriority * failureMultiplier * difficultyMultiplier);
+  }
+
+  /**
+   * Calculate SuperMemo priority based on quality and repetition
+   */
+  calculateSuperMemoPriority(
+    quality: number,
+    repetitionNumber: number,
+    daysOverdue: number
+  ): number {
+    const qualityData = this.SUPERMEMO_QUALITY_LEVELS[quality];
+    const basePriority = qualityData.priority;
+    
+    // Increase priority for overdue items
+    const overdueMultiplier = Math.max(1, daysOverdue * 0.5);
+    
+    // Decrease priority for higher repetition numbers (more mastered)
+    const repetitionPenalty = Math.max(0.5, 1 - (repetitionNumber * 0.1));
+    
+    return Math.round(basePriority * overdueMultiplier * repetitionPenalty);
+  }
+
+  /**
+   * Get SuperMemo quality level display info
+   */
+  getSuperMemoQualityInfo(quality: number) {
+    return this.SUPERMEMO_QUALITY_LEVELS[quality] || this.SUPERMEMO_QUALITY_LEVELS[3];
   }
 
   isOverdue(exercise: RevisionExercise): boolean {

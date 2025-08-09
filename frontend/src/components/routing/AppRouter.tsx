@@ -14,8 +14,14 @@ import { Exercise } from '../../types/api.types';
 import { ExerciseEngine } from '../exercise/ExerciseEngine';
 import { ExercicePedagogique } from '../../types/api.types';
 import { SimpleExerciseComponent } from '../exercise/SimpleExerciseComponent';
+import ExerciseEngineTest from '../../pages/ExerciseEngineTest';
+import XPSystemThemeTest from '../../pages/XPSystemThemeTest';
+import WardrobeSystemTest from '../../pages/WardrobeSystemTest';
+import ComprehensiveTestSuite from '../../pages/ComprehensiveTestSuite';
+import CrossBrowserTestSuite from '../../pages/CrossBrowserTestSuite';
+import ErrorHandlingTestSuite from '../../pages/ErrorHandlingTestSuite';
 
-type RouteType = 'dashboard' | 'exercises' | 'profile' | 'progress' | 'admin' | 'exercise';
+type RouteType = 'dashboard' | 'exercises' | 'profile' | 'progress' | 'admin' | 'exercise' | 'exercise-test' | 'xp-theme-test' | 'wardrobe-test' | 'comprehensive-test' | 'cross-browser-test' | 'error-handling-test';
 
 export const AppRouter: React.FC = () => {
   const { student, loading, logout, isAuthenticated } = useAuth();
@@ -86,6 +92,12 @@ export const AppRouter: React.FC = () => {
                 else if (path.includes('profile')) handleNavigation('profile');
                 else if (path.includes('progress')) handleNavigation('progress');
                 else if (path.includes('admin')) handleNavigation('admin');
+                else if (path.includes('exercise-test')) handleNavigation('exercise-test');
+                else if (path.includes('xp-theme-test')) handleNavigation('xp-theme-test');
+                else if (path.includes('wardrobe-test')) handleNavigation('wardrobe-test');
+                else if (path.includes('comprehensive-test')) handleNavigation('comprehensive-test');
+                else if (path.includes('cross-browser-test')) handleNavigation('cross-browser-test');
+                else if (path.includes('error-handling-test')) handleNavigation('error-handling-test');
               }}
               onStartExercise={handleStartExercise as any}
               onLogout={logout}
@@ -181,6 +193,24 @@ export const AppRouter: React.FC = () => {
             </div>
           </div>
         );
+
+      case 'exercise-test':
+        return <ExerciseEngineTest />;
+        
+      case 'xp-theme-test':
+        return <XPSystemThemeTest />;
+        
+      case 'wardrobe-test':
+        return <WardrobeSystemTest />;
+        
+      case 'comprehensive-test':
+        return <ComprehensiveTestSuite />;
+        
+      case 'cross-browser-test':
+        return <CrossBrowserTestSuite />;
+        
+      case 'error-handling-test':
+        return <ErrorHandlingTestSuite />;
 
       default:
         return (

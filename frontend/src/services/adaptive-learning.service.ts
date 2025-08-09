@@ -45,6 +45,21 @@ export interface AdaptiveMetrics {
 }
 
 export class AdaptiveLearningService {
+  // SuperMemo SM-2 Difficulty Levels
+  private readonly SUPERMEMO_LEVELS = {
+    QUALITY_SCALE: {
+      0: { name: 'BLACKOUT', description: 'Complete forgetfulness', interval: 1, efChange: -0.3 },
+      1: { name: 'HARD', description: 'Incorrect but remembered something', interval: 1, efChange: -0.2 },
+      2: { name: 'DIFFICULT', description: 'Incorrect with effort', interval: 1, efChange: -0.15 },
+      3: { name: 'GOOD', description: 'Correct with difficulty', interval: 6, efChange: 0.0 },
+      4: { name: 'EASY', description: 'Correct with hesitation', interval: 6, efChange: 0.1 },
+      5: { name: 'PERFECT', description: 'Perfect response', interval: 6, efChange: 0.15 }
+    },
+    INITIAL_EF: 2.5,
+    MIN_EF: 1.3,
+    MAX_EF: 2.5
+  };
+
   private readonly DIFFICULTY_LEVELS: DifficultyLevel[] = [
     { level: 1, name: 'DECOUVERTE', successRateThreshold: 0.9, minAttempts: 3, errorTolerance: 0.8 },
     { level: 2, name: 'PRATIQUE', successRateThreshold: 0.8, minAttempts: 5, errorTolerance: 0.6 },
@@ -304,13 +319,88 @@ export class AdaptiveLearningService {
     return Math.max(0.5, Math.min(2, 10 / avgAttemptsToMastery));
   }
 
-  private mapExerciseDifficulty(difficulty: string): number {
+  /**
+   * SuperMemo SM-2 Algorithm Implementation
+   */
+  calculateSuperMemoNextReview(
+    currentEF: number,
+    quality: number,
+    repetitionNumber: number,
+    previousInterval: number
+  ): {
+    nextInterval: number;
+    newEF: number;
+    nextReviewDate: Date;
+    qualityLevel: string;
+  } {
+    const qualityData = this.SUPERMEMO_LEVELS.QUALITY_SCALE[quality];
+    
+    // Calculate new Easiness Factor
+    let newEF = currentEF + qualityData.efChange;
+    newEF = Math.max(this.SUPERMEMO_LEVELS.MIN_EF, 
+                     Math.min(this.SUPERMEMO_LEVELS.MAX_EF, newEF));
+    
+    // Calculate next interval
+    let nextInterval: number;
+    
+    if (repetitionNumber === 1) {
+      nextInterval = 1; // First repetition: 1 day
+    } else if (repetitionNumber === 2) {
+      nextInterval = 6; // Second repetition: 6 days
+    } else {
+      nextInterval = Math.round(previousInterval * newEF);
+    }
+    
+    // Ensure minimum interval of 1 day
+    nextInterval = Math.max(1, nextInterval);
+    
+    // Calculate next review date
+    const nextReviewDate = new Date();
+    nextReviewDate.setDate(nextReviewDate.getDate() + nextInterval);
+    
+    return {
+      nextInterval,
+      newEF,
+      nextReviewDate,
+      qualityLevel: qualityData.name
+    };
+  }
+
+  /**
+   * Map exercise difficulty to SuperMemo quality scale
+   */
+  mapExerciseDifficulty(difficulty: string): number {
     const mapping: Record<string, number> = {
       'FACILE': 1,
       'MOYEN': 3,
       'DIFFICILE': 5
     };
     return mapping[difficulty] || 3;
+  }
+
+  /**
+   * Convert performance to SuperMemo quality (0-5)
+   */
+  convertPerformanceToQuality(
+    isCorrect: boolean,
+    responseTime: number,
+    expectedTime: number,
+    hintsUsed: number
+  ): number {
+    if (!isCorrect) {
+      // Determine if they remembered something
+      if (responseTime > expectedTime * 0.5) return 1; // HARD
+      return 0; // BLACKOUT
+    }
+    
+    // Correct responses
+    const timeRatio = responseTime / expectedTime;
+    const hintPenalty = hintsUsed * 0.5;
+    
+    if (timeRatio < 0.7 && hintPenalty === 0) return 5; // PERFECT
+    if (timeRatio < 1.0 && hintPenalty < 0.5) return 4; // EASY
+    if (timeRatio < 1.5 && hintPenalty < 1.0) return 3; // GOOD
+    return 2; // DIFFICULT
   }
 
   private getRecommendedAdjustment(

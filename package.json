@@ -48,8 +48,13 @@
   },
   "dependencies": {
     "@fastify/compress": "^8.1.0",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/better-sqlite3": "^7.6.13",
     "better-sqlite3": "^12.2.0",
-    "react-scripts": "^5.0.1"
+    "framer-motion": "^12.23.12",
+    "lucide-react": "^0.536.0",
+    "react-scripts": "^5.0.1",
+    "tailwindcss": "^4.1.11"
   }
 }

@@ -161,9 +161,9 @@ if (-not (Test-Path ".env.local") -and (Test-Path "env.example")) {
 }
 
 Set-Location ../backend
-if (-not (Test-Path ".env") -and (Test-Path "env.example")) {
-    Write-Warning "⚠️  Backend .env not found, copying from example..."
-    Copy-Item env.example .env
+if (-not (Test-Path "env.backend") -and (Test-Path "env.example")) {
+    Write-Warning "⚠️  Backend env.backend not found, copying from example..."
+    Copy-Item env.example env.backend
     Write-Success "✅ Backend environment file created"
 }
 
@@ -227,7 +227,7 @@ Write-Status "Testing server connectivity..."
 
 # Test frontend
 try {
-    $response = Invoke-WebRequest -Uri "http://localhost:3000" -TimeoutSec 5 -UseBasicParsing
+    Invoke-WebRequest -Uri "http://localhost:3000" -TimeoutSec 5 -UseBasicParsing | Out-Null
     Write-Success "✅ Frontend server is responding on http://localhost:3000"
 } catch {
     Write-Warning "⚠️  Frontend server not responding yet (may still be starting)"
@@ -235,7 +235,7 @@ try {
 
 # Test backend
 try {
-    $response = Invoke-WebRequest -Uri "http://localhost:3001" -TimeoutSec 5 -UseBasicParsing
+    Invoke-WebRequest -Uri "http://localhost:3001" -TimeoutSec 5 -UseBasicParsing | Out-Null
     Write-Success "✅ Backend server is responding on http://localhost:3001"
 } catch {
     Write-Warning "⚠️  Backend server not responding yet (may still be starting)"

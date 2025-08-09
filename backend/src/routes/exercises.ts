@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { eq, and, desc, asc } from 'drizzle-orm';
+import { eq, and, desc, asc, sql } from 'drizzle-orm';
 import { exercises, studentProgress, modules } from '../db/schema';
 
 export default async function exercisesRoutes(fastify: FastifyInstance) {
@@ -383,5 +383,245 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
         });
       }
     },
+  });
+
+  // 🎯 NEW CP/CE1/CE2 SPECIFIC ROUTES
+  
+  // Get exercises by level (CP/CE1/CE2)
+  fastify.get('/by-level/:level', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          level: { 
+            type: 'string', 
+            enum: ['CP', 'CE1', 'CE2', 'CM1', 'CM2'] 
+          }
+        },
+        required: ['level']
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          matiere: { 
+            type: 'string',
+            enum: ['MATHEMATIQUES', 'FRANCAIS', 'SCIENCES', 'HISTOIRE_GEOGRAPHIE', 'ANGLAIS']
+          },
+          type: {
+            type: 'string',
+            enum: ['QCM', 'CALCUL', 'TEXTE_LIBRE', 'DRAG_DROP', 'CONJUGAISON', 'LECTURE', 'GEOMETRIE', 'PROBLEME']
+          },
+          difficulte: {
+            type: 'string',
+            enum: ['FACILE', 'MOYEN', 'DIFFICILE']
+          },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 }
+        }
+      }
+    },
+    handler: async (request: FastifyRequest<{
+      Params: { level: string };
+      Querystring: { matiere?: string; type?: string; difficulte?: string; limit?: number };
+    }>, reply: FastifyReply) => {
+      try {
+        const { level } = request.params;
+        const { matiere, type, difficulte, limit = 20 } = request.query;
+
+        // Build query with filters
+        const conditions = [];
+        
+        if (type) {
+          conditions.push(eq(exercises.type, type));
+        }
+        
+        if (difficulte) {
+          conditions.push(eq(exercises.difficulte, difficulte));
+        }
+
+        const results = await fastify.db
+          .select({
+            id: exercises.id,
+            type: exercises.type,
+            configuration: exercises.configuration,
+            xp: exercises.xp,
+            difficulte: exercises.difficulte,
+            titre: exercises.titre,
+            description: exercises.description,
+            createdAt: exercises.createdAt,
+            updatedAt: exercises.updatedAt
+          })
+          .from(exercises)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .limit(limit);
+
+        return reply.send({
+          success: true,
+          data: results,
+          message: `Exercices ${level} récupérés avec succès`,
+          meta: {
+            level,
+            count: results.length,
+            filters: { matiere, type, difficulte }
+          }
+        });
+
+      } catch (error) {
+        fastify.log.error('Get exercises by level error:', error);
+        return reply.status(500).send({
+          success: false,
+          error: {
+            message: 'Erreur lors de la récupération des exercices',
+            code: 'GET_EXERCISES_ERROR'
+          }
+        });
+      }
+    }
+  });
+
+  // Get random exercises for quick practice
+  fastify.get('/random/:level', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          level: { 
+            type: 'string', 
+            enum: ['CP', 'CE1', 'CE2', 'CM1', 'CM2'] 
+          }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          count: { type: 'integer', minimum: 1, maximum: 10, default: 5 },
+          exclude_types: { 
+            type: 'array',
+            items: { type: 'string' }
+          }
+        }
+      }
+    },
+    handler: async (request: FastifyRequest<{
+      Params: { level: string };
+      Querystring: { count?: number; exclude_types?: string[] };
+    }>, reply: FastifyReply) => {
+      try {
+        const { level } = request.params;
+        const { count = 5, exclude_types = [] } = request.query;
+
+        // Get all exercises for the level
+        let allExercises;
+        
+        if (exclude_types.length > 0) {
+          allExercises = await fastify.db
+            .select()
+            .from(exercises)
+            .where(eq(exercises.type, exclude_types[0]));
+        } else {
+          allExercises = await fastify.db
+            .select()
+            .from(exercises);
+        }
+        
+        // Randomly select exercises
+        const shuffled = allExercises.sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, count);
+
+        return reply.send({
+          success: true,
+          data: selected,
+          message: `${count} exercices aléatoires ${level} sélectionnés`,
+          meta: {
+            level,
+            requested_count: count,
+            actual_count: selected.length,
+            total_available: allExercises.length
+          }
+        });
+
+      } catch (error) {
+        fastify.log.error('Get random exercises error:', error);
+        return reply.status(500).send({
+          success: false,
+          error: {
+            message: 'Erreur lors de la sélection d\'exercices aléatoires',
+            code: 'GET_RANDOM_EXERCISES_ERROR'
+          }
+        });
+      }
+    }
+  });
+
+  // Get exercise statistics for dashboard
+  fastify.get('/stats/:level', {
+    schema: {
+      params: {
+        type: 'object',
+        properties: {
+          level: { type: 'string' }
+        }
+      }
+    },
+    handler: async (request: FastifyRequest<{
+      Params: { level: string };
+    }>, reply: FastifyReply) => {
+      try {
+        const { level } = request.params;
+
+        // Get exercise counts by type and difficulty
+        const stats = await fastify.db
+          .select({
+            type: exercises.type,
+            difficulte: exercises.difficulte,
+            count: sql`count(*)`
+          })
+          .from(exercises)
+          .groupBy(exercises.type, exercises.difficulte);
+
+        // Process stats into a more useful format
+        const processedStats = {
+          total: stats.reduce((sum, stat) => sum + (stat.count as number), 0),
+          by_type: {},
+          by_difficulty: {},
+          by_type_and_difficulty: {}
+        };
+
+        stats.forEach(stat => {
+          const count = stat.count as number;
+          // By type
+          if (!processedStats.by_type[stat.type]) {
+            processedStats.by_type[stat.type] = 0;
+          }
+          processedStats.by_type[stat.type] += count;
+
+          // By difficulty
+          if (!processedStats.by_difficulty[stat.difficulte]) {
+            processedStats.by_difficulty[stat.difficulte] = 0;
+          }
+          processedStats.by_difficulty[stat.difficulte] += count;
+
+          // By type and difficulty
+          const key = `${stat.type}_${stat.difficulte}`;
+          processedStats.by_type_and_difficulty[key] = count;
+        });
+
+        return reply.send({
+          success: true,
+          data: processedStats,
+          message: `Statistiques des exercices ${level} récupérées`,
+          meta: { level }
+        });
+
+      } catch (error) {
+        fastify.log.error('Get exercise stats error:', error);
+        return reply.status(500).send({
+          success: false,
+          error: {
+            message: 'Erreur lors de la récupération des statistiques',
+            code: 'GET_EXERCISE_STATS_ERROR'
+          }
+        });
+      }
+    }
   });
 } 

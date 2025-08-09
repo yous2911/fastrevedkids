@@ -50,9 +50,9 @@ if (-not (Test-Path ".env.local") -and (Test-Path "env.example")) {
 }
 
 Set-Location ../backend
-if (-not (Test-Path ".env") -and (Test-Path "env.example")) {
-    Copy-Item env.example .env
-    Write-Host "[SUCCESS] Backend .env created!" -ForegroundColor Green
+if (-not (Test-Path "env.backend") -and (Test-Path "env.example")) {
+    Copy-Item env.example env.backend
+    Write-Host "[SUCCESS] Backend env.backend created!" -ForegroundColor Green
 }
 
 # Launch servers
@@ -73,14 +73,14 @@ Start-Sleep -Seconds 5
 Write-Host "[INFO] Testing server connectivity..." -ForegroundColor Blue
 
 try {
-    $response = Invoke-WebRequest -Uri "http://localhost:3000" -TimeoutSec 5 -UseBasicParsing
+    Invoke-WebRequest -Uri "http://localhost:3000" -TimeoutSec 5 -UseBasicParsing | Out-Null
     Write-Host "[SUCCESS] Frontend responding on http://localhost:3000" -ForegroundColor Green
 } catch {
     Write-Host "[WARNING] Frontend not responding yet..." -ForegroundColor Yellow
 }
 
 try {
-    $response = Invoke-WebRequest -Uri "http://localhost:3001" -TimeoutSec 5 -UseBasicParsing
+    Invoke-WebRequest -Uri "http://localhost:3001" -TimeoutSec 5 -UseBasicParsing | Out-Null
     Write-Host "[SUCCESS] Backend responding on http://localhost:3001" -ForegroundColor Green
 } catch {
     Write-Host "[WARNING] Backend not responding yet..." -ForegroundColor Yellow

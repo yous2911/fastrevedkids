@@ -73,6 +73,9 @@ async function registerPlugins() {
     console.log('🛣️ Registering curriculum routes...');
     await fastify.register(import('./routes/curriculum'), { prefix: '/api' });
     
+    console.log('🛣️ Registering competences routes...');
+    await fastify.register(import('./routes/competences'), { prefix: '/api/competences' });
+    
     console.log('🛣️ Registering analytics routes...');
     await fastify.register(import('./routes/analytics'), { prefix: '/api/analytics' });
     
@@ -122,9 +125,18 @@ async function registerPlugins() {
           health: '/api/health',
           auth: '/api/auth',
           students: '/api/students',
+          competences: '/api/competences',
+          analytics: '/api/analytics',
           monitoring: '/api/monitoring',
           gdpr: '/api/gdpr',  // Nouveau endpoint GDPR
-          docs: '/docs'
+          docs: '/docs',
+          enhanced: {
+            competenceProgress: '/api/students/:id/competence-progress',
+            recordProgress: '/api/students/:id/record-progress',
+            prerequisites: '/api/competences/:code/prerequisites',
+            achievements: '/api/students/:id/achievements',
+            dailyProgress: '/api/analytics/daily-progress'
+          }
         },
         compliance: {
           gdpr: config.GDPR_ENABLED ? 'active' : 'disabled',

@@ -1,318 +1,448 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+import { mysqlTable, text, int, decimal, boolean, timestamp, date, varchar, json } from 'drizzle-orm/mysql-core';
 import { InferInsertModel, InferSelectModel, relations } from 'drizzle-orm';
 
+// =============================================================================
+// CORE TABLES
+// =============================================================================
+
 // Students table
-export const students = sqliteTable('students', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  prenom: text('prenom').notNull(),
-  nom: text('nom').notNull(),
-  dateNaissance: text('date_naissance').notNull(),
-  niveauActuel: text('niveau_actuel').notNull(),
-  totalPoints: integer('total_points').default(0),
-  serieJours: integer('serie_jours').default(0),
-  mascotteType: text('mascotte_type').default('dragon'),
-  dernierAcces: text('dernier_acces'),
-  estConnecte: integer('est_connecte', { mode: 'boolean' }).default(false),
-  createdAt: text('created_at').notNull(),
-  updatedAt: text('updated_at').notNull(),
+export const students = mysqlTable('students', {
+  id: int('id').primaryKey().autoincrement(),
+  prenom: varchar('prenom', { length: 100 }).notNull(),
+  nom: varchar('nom', { length: 100 }).notNull(),
+  dateNaissance: date('date_naissance').notNull(),
+  niveauActuel: varchar('niveau_actuel', { length: 20 }).notNull(),
+  totalPoints: int('total_points').default(0),
+  serieJours: int('serie_jours').default(0),
+  mascotteType: varchar('mascotte_type', { length: 50 }).default('dragon'),
+  dernierAcces: timestamp('dernier_acces'),
+  estConnecte: boolean('est_connecte').default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
 });
 
 // Exercises table
-export const exercises = sqliteTable('exercises', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  titre: text('titre').notNull(),
+export const exercises = mysqlTable('exercises', {
+  id: int('id').primaryKey().autoincrement(),
+  titre: varchar('titre', { length: 200 }).notNull(),
   description: text('description'),
-  type: text('type').notNull(),
-  difficulte: text('difficulte').notNull(),
-  xp: integer('xp').default(10),
-  configuration: text('configuration'), // JSON string
-  createdAt: text('created_at').notNull(),
-  updatedAt: text('updated_at').notNull(),
+  type: varchar('type', { length: 50 }).notNull(),
+  difficulte: varchar('difficulte', { length: 50 }).notNull(),
+  xp: int('xp').default(10),
+  configuration: json('configuration'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
 });
 
-// Student progress table
-export const studentProgress = sqliteTable('student_progress', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  studentId: integer('student_id').notNull().references(() => students.id),
-  exerciseId: integer('exercise_id').notNull().references(() => exercises.id),
-  completed: integer('completed', { mode: 'boolean' }).default(false),
-  score: integer('score').default(0),
-  timeSpent: integer('time_spent').default(0), // in seconds
-  attempts: integer('attempts').default(0),
-  completedAt: text('completed_at'),
-  createdAt: text('created_at').notNull(),
-  updatedAt: text('updated_at').notNull(),
-});
-
-// GDPR Tables
-
-// Parental consent table
-export const parentalConsent = sqliteTable('parental_consent', {
-  id: text('id').primaryKey(),
-  parentEmail: text('parent_email').notNull(),
-  parentName: text('parent_name').notNull(),
-  childName: text('child_name').notNull(),
-  childAge: integer('child_age').notNull(),
-  consentTypes: text('consent_types').notNull(), // JSON array
-  status: text('status').notNull(), // pending, verified, expired, revoked
-  firstConsentToken: text('first_consent_token').notNull(),
-  secondConsentToken: text('second_consent_token'),
-  firstConsentDate: text('first_consent_date'),
-  secondConsentDate: text('second_consent_date'),
-  verificationDate: text('verification_date'),
-  expiryDate: text('expiry_date').notNull(),
-  ipAddress: text('ip_address').notNull(),
-  userAgent: text('user_agent').notNull(),
-  createdAt: text('created_at').notNull(),
-  updatedAt: text('updated_at').notNull(),
-});
-
-// GDPR requests table
-export const gdprRequests = sqliteTable('gdpr_requests', {
-  id: text('id').primaryKey(),
-  requestType: text('request_type').notNull(), // access, rectification, erasure, etc.
-  requesterType: text('requester_type').notNull(), // parent, student, etc.
-  requesterEmail: text('requester_email').notNull(),
-  requesterName: text('requester_name').notNull(),
-  studentId: integer('student_id').references(() => students.id),
-  studentName: text('student_name'),
-  parentEmail: text('parent_email'),
-  requestDetails: text('request_details').notNull(),
-  urgentRequest: integer('urgent_request', { mode: 'boolean' }).default(false),
-  status: text('status').notNull(), // pending, under_review, approved, etc.
-  priority: text('priority').notNull(), // low, medium, high, urgent
-  submittedAt: text('submitted_at').notNull(),
-  dueDate: text('due_date').notNull(),
-  verificationToken: text('verification_token'),
-  verifiedAt: text('verified_at'),
-  assignedTo: text('assigned_to'),
-  processedAt: text('processed_at'),
-  completedAt: text('completed_at'),
-  ipAddress: text('ip_address').notNull(),
-  userAgent: text('user_agent').notNull(),
-  verificationMethod: text('verification_method').notNull(),
-  legalBasis: text('legal_basis'),
-  responseDetails: text('response_details'),
-  actionsTaken: text('actions_taken'), // JSON array
-  exportedData: text('exported_data'), // JSON
-});
-
-// Audit trail table
-export const auditLogs = sqliteTable('audit_logs', {
-  id: text('id').primaryKey(),
-  entityType: text('entity_type').notNull(),
-  entityId: text('entity_id').notNull(),
-  action: text('action').notNull(),
-  userId: text('user_id'),
-  parentId: text('parent_id'),
-  studentId: integer('student_id').references(() => students.id),
-  details: text('details').notNull(), // JSON
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
-  timestamp: text('timestamp').notNull(),
-  severity: text('severity').notNull(), // low, medium, high, critical
-  category: text('category'), // data_access, data_modification, etc.
-  sessionId: text('session_id'),
-  correlationId: text('correlation_id'),
-  checksum: text('checksum').notNull(),
-  encrypted: integer('encrypted', { mode: 'boolean' }).default(false),
-});
-
-// Encryption keys table
-export const encryptionKeys = sqliteTable('encryption_keys', {
-  id: text('id').primaryKey(),
-  keyData: text('key_data').notNull(), // Encrypted key
-  algorithm: text('algorithm').notNull(),
-  version: integer('version').notNull(),
-  usage: text('usage').notNull(), // student_data, sensitive_fields, etc.
-  status: text('status').notNull(), // active, deprecated, revoked
-  createdAt: text('created_at').notNull(),
-  expiresAt: text('expires_at').notNull(),
-});
-
-// Data retention policies table
-export const retentionPolicies = sqliteTable('retention_policies', {
-  id: text('id').primaryKey(),
-  policyName: text('policy_name').notNull(),
-  entityType: text('entity_type').notNull(),
-  retentionPeriodDays: integer('retention_period_days').notNull(),
-  triggerCondition: text('trigger_condition').notNull(),
-  action: text('action').notNull(), // delete, anonymize, archive
-  priority: text('priority').notNull(),
-  active: integer('active', { mode: 'boolean' }).default(true),
-  legalBasis: text('legal_basis'),
-  exceptions: text('exceptions'), // JSON array
-  notificationDays: integer('notification_days').default(30),
-  createdAt: text('created_at').notNull(),
-  updatedAt: text('updated_at').notNull(),
-  lastExecuted: text('last_executed'),
-  recordsProcessed: integer('records_processed').default(0),
-});
-
-// Consent preferences table  
-export const consentPreferences = sqliteTable('consent_preferences', {
-  id: text('id').primaryKey(),
-  userId: text('user_id'),
-  studentId: integer('student_id').references(() => students.id),
-  essential: integer('essential', { mode: 'boolean' }).default(true),
-  functional: integer('functional', { mode: 'boolean' }).default(false),
-  analytics: integer('analytics', { mode: 'boolean' }).default(false),
-  marketing: integer('marketing', { mode: 'boolean' }).default(false),
-  personalization: integer('personalization', { mode: 'boolean' }).default(false),
-  version: text('version').notNull(),
-  timestamp: text('timestamp').notNull(),
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
-});
-
-// File Upload Tables
-
-// Files table
-export const files = sqliteTable('files', {
-  id: text('id').primaryKey(),
-  originalName: text('original_name').notNull(),
-  filename: text('filename').notNull(),
-  mimetype: text('mimetype').notNull(),
-  size: integer('size').notNull(),
-  path: text('path').notNull(),
-  url: text('url').notNull(),
-  thumbnailUrl: text('thumbnail_url'),
-  metadata: text('metadata'), // JSON
-  uploadedBy: text('uploaded_by').notNull(),
-  uploadedAt: text('uploaded_at').notNull(),
-  category: text('category').notNull(), // image, video, audio, document, etc.
-  isPublic: integer('is_public', { mode: 'boolean' }).default(false),
-  status: text('status').notNull(), // uploading, processing, ready, failed, deleted, quarantined
-  checksum: text('checksum').notNull(),
-  deletedAt: text('deleted_at'),
-  createdAt: text('created_at').notNull(),
-  updatedAt: text('updated_at').notNull(),
-});
-
-// File variants table (thumbnails, compressed versions, etc.)
-export const fileVariants = sqliteTable('file_variants', {
-  id: text('id').primaryKey(),
-  fileId: text('file_id').notNull().references(() => files.id),
-  type: text('type').notNull(), // thumbnail, small, medium, large, compressed, watermarked
-  filename: text('filename').notNull(),
-  path: text('path').notNull(),
-  url: text('url').notNull(),
-  size: integer('size').notNull(),
-  mimetype: text('mimetype').notNull(),
-  metadata: text('metadata'), // JSON
-  createdAt: text('created_at').notNull(),
-  deletedAt: text('deleted_at'),
-});
-
-// File access logs table
-export const fileAccessLogs = sqliteTable('file_access_logs', {
-  id: text('id').primaryKey(),
-  fileId: text('file_id').notNull().references(() => files.id),
-  userId: text('user_id'),
-  studentId: integer('student_id').references(() => students.id),
-  action: text('action').notNull(), // view, download, share, delete
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
-  timestamp: text('timestamp').notNull(),
-  details: text('details'), // JSON
-});
-
-// Security scan results table
-export const securityScans = sqliteTable('security_scans', {
-  id: text('id').primaryKey(),
-  fileId: text('file_id').notNull().references(() => files.id),
-  scanEngine: text('scan_engine').notNull(),
-  scanDate: text('scan_date').notNull(),
-  isClean: integer('is_clean', { mode: 'boolean' }).notNull(),
-  threats: text('threats'), // JSON array
-  quarantined: integer('quarantined', { mode: 'boolean' }).default(false),
-  details: text('details'), // JSON
+// Student progress table (legacy - kept for compatibility)
+export const studentProgress = mysqlTable('student_progress', {
+  id: int('id').primaryKey().autoincrement(),
+  studentId: int('student_id').notNull().references(() => students.id),
+  exerciseId: int('exercise_id').notNull().references(() => exercises.id),
+  completed: boolean('completed').default(false),
+  score: int('score').default(0),
+  timeSpent: int('time_spent').default(0),
+  attempts: int('attempts').default(0),
+  completedAt: timestamp('completed_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
 });
 
 // =============================================================================
-// TYPE EXPORTS - Add all the missing type definitions
+// CP2025 ENHANCED PROGRESS TRACKING TABLES
 // =============================================================================
 
-// Student types
+// Detailed student competence progress
+export const studentCompetenceProgress = mysqlTable('student_competence_progress', {
+  id: int('id').primaryKey().autoincrement(),
+  studentId: int('student_id').notNull().references(() => students.id),
+  competenceCode: varchar('competence_code', { length: 20 }).notNull(),
+  niveau: varchar('niveau', { length: 10 }).notNull(),
+  matiere: varchar('matiere', { length: 30 }).notNull(),
+  domaine: varchar('domaine', { length: 10 }).notNull(),
+  
+  // Progress tracking fields
+  masteryLevel: varchar('mastery_level', { length: 20 }).notNull().default('not_started'),
+  progressPercent: int('progress_percent').default(0),
+  totalAttempts: int('total_attempts').default(0),
+  successfulAttempts: int('successful_attempts').default(0),
+  averageScore: decimal('average_score', { precision: 5, scale: 2 }).default('0.00'),
+  
+  // Time tracking
+  totalTimeSpent: int('total_time_spent').default(0),
+  averageTimePerAttempt: int('average_time_per_attempt').default(0),
+  
+  // Adaptive learning data
+  difficultyLevel: decimal('difficulty_level', { precision: 3, scale: 1 }).default('1.0'),
+  consecutiveSuccesses: int('consecutive_successes').default(0),
+  consecutiveFailures: int('consecutive_failures').default(0),
+  
+  // Timestamps
+  firstAttemptAt: timestamp('first_attempt_at'),
+  lastAttemptAt: timestamp('last_attempt_at'),
+  masteredAt: timestamp('mastered_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+});
+
+// Competence prerequisites and dependencies
+export const competencePrerequisites = mysqlTable('competence_prerequisites', {
+  id: int('id').primaryKey().autoincrement(),
+  competenceCode: varchar('competence_code', { length: 20 }).notNull(),
+  prerequisiteCode: varchar('prerequisite_code', { length: 20 }).notNull(),
+  
+  // Prerequisite type and strength
+  prerequisiteType: varchar('prerequisite_type', { length: 20 }).notNull().default('required'),
+  masteryThreshold: int('mastery_threshold').default(80),
+  
+  // Learning path metadata
+  weight: decimal('weight', { precision: 3, scale: 1 }).default('1.0'),
+  description: text('description'),
+  
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+});
+
+// Student learning path and recommendations
+export const studentLearningPath = mysqlTable('student_learning_path', {
+  id: int('id').primaryKey().autoincrement(),
+  studentId: int('student_id').notNull().references(() => students.id),
+  competenceCode: varchar('competence_code', { length: 20 }).notNull(),
+  
+  // Path status
+  status: varchar('status', { length: 20 }).notNull().default('available'),
+  priority: varchar('priority', { length: 20 }).notNull().default('normal'),
+  
+  // Adaptive recommendations
+  recommendedDifficulty: varchar('recommended_difficulty', { length: 30 }).notNull().default('decouverte'),
+  estimatedCompletionTime: int('estimated_completion_time'),
+  personalizedOrder: int('personalized_order').default(0),
+  
+  // Blocking and unlocking
+  isBlocked: boolean('is_blocked').default(false),
+  blockingReasons: json('blocking_reasons'),
+  unlockedAt: timestamp('unlocked_at'),
+  
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+});
+
+// =============================================================================
+// ANALYTICS AND REPORTING TABLES
+// =============================================================================
+
+// Daily learning analytics
+export const dailyLearningAnalytics = mysqlTable('daily_learning_analytics', {
+  id: int('id').primaryKey().autoincrement(),
+  studentId: int('student_id').notNull().references(() => students.id),
+  analyticsDate: date('analytics_date').notNull(),
+  
+  // Activity metrics
+  totalSessionTime: int('total_session_time').default(0),
+  exercisesAttempted: int('exercises_attempted').default(0),
+  exercisesCompleted: int('exercises_completed').default(0),
+  averageScore: decimal('average_score', { precision: 5, scale: 2 }).default('0.00'),
+  
+  // Subject breakdown
+  francaisTime: int('francais_time').default(0),
+  mathematiquesTime: int('mathematiques_time').default(0),
+  sciencesTime: int('sciences_time').default(0),
+  histoireGeographieTime: int('histoire_geographie_time').default(0),
+  anglaisTime: int('anglais_time').default(0),
+  
+  // Competence progress
+  competencesMastered: int('competences_mastered').default(0),
+  competencesProgressed: int('competences_progressed').default(0),
+  
+  // Engagement metrics
+  streakDays: int('streak_days').default(0),
+  xpEarned: int('xp_earned').default(0),
+  
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Weekly progress summaries
+export const weeklyProgressSummary = mysqlTable('weekly_progress_summary', {
+  id: int('id').primaryKey().autoincrement(),
+  studentId: int('student_id').notNull().references(() => students.id),
+  weekStartDate: date('week_start_date').notNull(),
+  weekEndDate: date('week_end_date').notNull(),
+  weekOfYear: int('week_of_year').notNull(),
+  yearNumber: int('year_number').notNull(),
+  
+  // Weekly totals
+  totalLearningTime: int('total_learning_time').default(0),
+  totalExercises: int('total_exercises').default(0),
+  totalXpEarned: int('total_xp_earned').default(0),
+  
+  // Progress metrics
+  competencesMastered: int('competences_mastered').default(0),
+  averageScore: decimal('average_score', { precision: 5, scale: 2 }).default('0.00'),
+  improvementRate: decimal('improvement_rate', { precision: 5, scale: 2 }).default('0.00'),
+  
+  // Subject performance
+  francaisProgress: decimal('francais_progress', { precision: 5, scale: 2 }).default('0.00'),
+  mathematiquesProgress: decimal('mathematiques_progress', { precision: 5, scale: 2 }).default('0.00'),
+  sciencesProgress: decimal('sciences_progress', { precision: 5, scale: 2 }).default('0.00'),
+  histoireGeographieProgress: decimal('histoire_geographie_progress', { precision: 5, scale: 2 }).default('0.00'),
+  anglaisProgress: decimal('anglais_progress', { precision: 5, scale: 2 }).default('0.00'),
+  
+  // Goals and achievements
+  weeklyGoalMet: boolean('weekly_goal_met').default(false),
+  achievementsUnlocked: int('achievements_unlocked').default(0),
+  
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Learning session tracking
+export const learningSessionTracking = mysqlTable('learning_session_tracking', {
+  id: varchar('id', { length: 36 }).primaryKey(),
+  studentId: int('student_id').notNull().references(() => students.id),
+  
+  // Session metadata
+  sessionStart: timestamp('session_start').notNull(),
+  sessionEnd: timestamp('session_end'),
+  totalDuration: int('total_duration').default(0),
+  
+  // Activity tracking
+  exercisesAttempted: int('exercises_attempted').default(0),
+  exercisesCompleted: int('exercises_completed').default(0),
+  competencesWorked: json('competences_worked'),
+  
+  // Performance metrics
+  averageScore: decimal('average_score', { precision: 5, scale: 2 }).default('0.00'),
+  xpEarned: int('xp_earned').default(0),
+  streakIncrement: int('streak_increment').default(0),
+  
+  // Engagement metrics
+  focusScore: decimal('focus_score', { precision: 5, scale: 2 }).default('0.00'),
+  motivationLevel: varchar('motivation_level', { length: 20 }).default('neutral'),
+  
+  // Device and context
+  deviceType: varchar('device_type', { length: 20 }),
+  ipAddress: varchar('ip_address', { length: 45 }),
+  userAgent: text('user_agent'),
+  
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Exercise performance analytics
+export const exercisePerformanceAnalytics = mysqlTable('exercise_performance_analytics', {
+  id: int('id').primaryKey().autoincrement(),
+  exerciseId: int('exercise_id').notNull().references(() => exercises.id),
+  competenceCode: varchar('competence_code', { length: 20 }).notNull(),
+  weekOfYear: int('week_of_year').notNull(),
+  yearNumber: int('year_number').notNull(),
+  
+  // Performance aggregates
+  totalAttempts: int('total_attempts').default(0),
+  successfulAttempts: int('successful_attempts').default(0),
+  averageScore: decimal('average_score', { precision: 5, scale: 2 }).default('0.00'),
+  averageCompletionTime: int('average_completion_time').default(0),
+  
+  // Difficulty analysis
+  perceivedDifficulty: decimal('perceived_difficulty', { precision: 3, scale: 1 }).default('0.0'),
+  dropoffRate: decimal('dropoff_rate', { precision: 5, scale: 2 }).default('0.00'),
+  retryRate: decimal('retry_rate', { precision: 5, scale: 2 }).default('0.00'),
+  
+  // Adaptive metrics
+  optimalDifficultyLevel: decimal('optimal_difficulty_level', { precision: 3, scale: 1 }).default('1.0'),
+  recommendedPrerequisites: json('recommended_prerequisites'),
+  
+  lastUpdated: timestamp('last_updated').notNull().defaultNow().onUpdateNow(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Student achievement tracking
+export const studentAchievements = mysqlTable('student_achievements', {
+  id: int('id').primaryKey().autoincrement(),
+  studentId: int('student_id').notNull().references(() => students.id),
+  
+  // Achievement metadata
+  achievementType: varchar('achievement_type', { length: 30 }).notNull(),
+  achievementCode: varchar('achievement_code', { length: 50 }).notNull(),
+  title: varchar('title', { length: 200 }).notNull(),
+  description: text('description'),
+  
+  // Achievement data
+  category: varchar('category', { length: 20 }).notNull(),
+  difficulty: varchar('difficulty', { length: 20 }).notNull().default('bronze'),
+  xpReward: int('xp_reward').default(0),
+  badgeIconUrl: varchar('badge_icon_url', { length: 500 }),
+  
+  // Tracking
+  currentProgress: int('current_progress').default(0),
+  maxProgress: int('max_progress').default(100),
+  isCompleted: boolean('is_completed').default(false),
+  completedAt: timestamp('completed_at'),
+  
+  // Visibility
+  isVisible: boolean('is_visible').default(true),
+  displayOrder: int('display_order').default(0),
+  
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+});
+
+// =============================================================================
+// LEGACY COMPATIBILITY TABLES
+// =============================================================================
+
+export const sessions = mysqlTable('sessions', {
+  id: varchar('id', { length: 36 }).primaryKey(),
+  studentId: int('student_id').references(() => students.id),
+  data: text('data').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const revisions = mysqlTable('revisions', {
+  id: int('id').primaryKey().autoincrement(),
+  studentId: int('student_id').references(() => students.id),
+  exerciseId: int('exercise_id').references(() => exercises.id),
+  revisionDate: date('revision_date').notNull(),
+  score: int('score').default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const modules = mysqlTable('modules', {
+  id: int('id').primaryKey().autoincrement(),
+  titre: varchar('titre', { length: 200 }).notNull(),
+  description: text('description'),
+  matiere: varchar('matiere', { length: 50 }).notNull(),
+  niveau: varchar('niveau', { length: 20 }).notNull(),
+  ordre: int('ordre').default(0),
+  estActif: boolean('est_actif').default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+});
+
+// Legacy alias
+export const progress = studentProgress;
+
+// =============================================================================
+// RELATIONS
+// =============================================================================
+
+// Student competence progress relations
+export const studentCompetenceProgressRelations = relations(studentCompetenceProgress, ({ one }) => ({
+  student: one(students, {
+    fields: [studentCompetenceProgress.studentId],
+    references: [students.id],
+  }),
+}));
+
+// Student learning path relations
+export const studentLearningPathRelations = relations(studentLearningPath, ({ one }) => ({
+  student: one(students, {
+    fields: [studentLearningPath.studentId],
+    references: [students.id],
+  }),
+}));
+
+// Daily learning analytics relations
+export const dailyLearningAnalyticsRelations = relations(dailyLearningAnalytics, ({ one }) => ({
+  student: one(students, {
+    fields: [dailyLearningAnalytics.studentId],
+    references: [students.id],
+  }),
+}));
+
+// Weekly progress summary relations
+export const weeklyProgressSummaryRelations = relations(weeklyProgressSummary, ({ one }) => ({
+  student: one(students, {
+    fields: [weeklyProgressSummary.studentId],
+    references: [students.id],
+  }),
+}));
+
+// Learning session tracking relations
+export const learningSessionTrackingRelations = relations(learningSessionTracking, ({ one }) => ({
+  student: one(students, {
+    fields: [learningSessionTracking.studentId],
+    references: [students.id],
+  }),
+}));
+
+// Exercise performance analytics relations
+export const exercisePerformanceAnalyticsRelations = relations(exercisePerformanceAnalytics, ({ one }) => ({
+  exercise: one(exercises, {
+    fields: [exercisePerformanceAnalytics.exerciseId],
+    references: [exercises.id],
+  }),
+}));
+
+// Student achievements relations
+export const studentAchievementsRelations = relations(studentAchievements, ({ one }) => ({
+  student: one(students, {
+    fields: [studentAchievements.studentId],
+    references: [students.id],
+  }),
+}));
+
+// Updated students relations to include new tables
+export const studentsRelations = relations(students, ({ many }) => ({
+  // Legacy tables
+  progress: many(studentProgress),
+  sessions: many(sessions),
+  revisions: many(revisions),
+  
+  // Enhanced CP2025 tables
+  competenceProgress: many(studentCompetenceProgress),
+  learningPath: many(studentLearningPath),
+  dailyAnalytics: many(dailyLearningAnalytics),
+  weeklyProgress: many(weeklyProgressSummary),
+  learningSessions: many(learningSessionTracking),
+  achievements: many(studentAchievements),
+}));
+
+// Exercise relations
+export const exercisesRelations = relations(exercises, ({ many }) => ({
+  progress: many(studentProgress),
+  performanceAnalytics: many(exercisePerformanceAnalytics),
+}));
+
+// =============================================================================
+// TYPESCRIPT TYPE EXPORTS
+// =============================================================================
+
+// Core table types
 export type Student = InferSelectModel<typeof students>;
 export type NewStudent = InferInsertModel<typeof students>;
 
-// Exercise types
 export type Exercise = InferSelectModel<typeof exercises>;
 export type NewExercise = InferInsertModel<typeof exercises>;
 
-// Progress types
 export type Progress = InferSelectModel<typeof studentProgress>;
 export type NewProgress = InferInsertModel<typeof studentProgress>;
 
-// GDPR types
-export type ParentalConsent = InferSelectModel<typeof parentalConsent>;
-export type NewParentalConsent = InferInsertModel<typeof parentalConsent>;
+// Enhanced CP2025 table types
+export type StudentCompetenceProgress = InferSelectModel<typeof studentCompetenceProgress>;
+export type NewStudentCompetenceProgress = InferInsertModel<typeof studentCompetenceProgress>;
 
-export type GDPRRequest = InferSelectModel<typeof gdprRequests>;
-export type NewGDPRRequest = InferInsertModel<typeof gdprRequests>;
+export type CompetencePrerequisite = InferSelectModel<typeof competencePrerequisites>;
+export type NewCompetencePrerequisite = InferInsertModel<typeof competencePrerequisites>;
 
-// Audit types
-export type AuditLog = InferSelectModel<typeof auditLogs>;
-export type NewAuditLog = InferInsertModel<typeof auditLogs>;
+export type StudentLearningPath = InferSelectModel<typeof studentLearningPath>;
+export type NewStudentLearningPath = InferInsertModel<typeof studentLearningPath>;
 
-// Encryption types
-export type EncryptionKey = InferSelectModel<typeof encryptionKeys>;
-export type NewEncryptionKey = InferInsertModel<typeof encryptionKeys>;
+// Analytics types
+export type DailyLearningAnalytics = InferSelectModel<typeof dailyLearningAnalytics>;
+export type NewDailyLearningAnalytics = InferInsertModel<typeof dailyLearningAnalytics>;
 
-// Retention types
-export type RetentionPolicy = InferSelectModel<typeof retentionPolicies>;
-export type NewRetentionPolicy = InferInsertModel<typeof retentionPolicies>;
+export type WeeklyProgressSummary = InferSelectModel<typeof weeklyProgressSummary>;
+export type NewWeeklyProgressSummary = InferInsertModel<typeof weeklyProgressSummary>;
 
-// Consent preferences types
-export type ConsentPreference = InferSelectModel<typeof consentPreferences>;
-export type NewConsentPreference = InferInsertModel<typeof consentPreferences>;
+export type LearningSessionTracking = InferSelectModel<typeof learningSessionTracking>;
+export type NewLearningSessionTracking = InferInsertModel<typeof learningSessionTracking>;
 
-// File types
-export type File = InferSelectModel<typeof files>;
-export type NewFile = InferInsertModel<typeof files>;
+export type ExercisePerformanceAnalytics = InferSelectModel<typeof exercisePerformanceAnalytics>;
+export type NewExercisePerformanceAnalytics = InferInsertModel<typeof exercisePerformanceAnalytics>;
 
-export type FileVariant = InferSelectModel<typeof fileVariants>;
-export type NewFileVariant = InferInsertModel<typeof fileVariants>;
+export type StudentAchievement = InferSelectModel<typeof studentAchievements>;
+export type NewStudentAchievement = InferInsertModel<typeof studentAchievements>;
 
-export type FileAccessLog = InferSelectModel<typeof fileAccessLogs>;
-export type NewFileAccessLog = InferInsertModel<typeof fileAccessLogs>;
-
-export type SecurityScan = InferSelectModel<typeof securityScans>;
-export type NewSecurityScan = InferInsertModel<typeof securityScans>;
-
-// Legacy compatibility exports (for services that expect these names)
-export const progress = studentProgress;
-export const sessions = sqliteTable('sessions', {
-  id: text('id').primaryKey(),
-  studentId: integer('student_id').references(() => students.id),
-  data: text('data').notNull(),
-  expiresAt: text('expires_at').notNull(),
-  createdAt: text('created_at').notNull(),
-});
-
-export const revisions = sqliteTable('revisions', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  studentId: integer('student_id').references(() => students.id),
-  exerciseId: integer('exercise_id').references(() => exercises.id),
-  revisionDate: text('revision_date').notNull(),
-  score: integer('score').default(0),
-  createdAt: text('created_at').notNull(),
-});
-
-export const modules = sqliteTable('modules', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  titre: text('titre').notNull(),
-  description: text('description'),
-  matiere: text('matiere').notNull(),
-  niveau: text('niveau').notNull(),
-  ordre: integer('ordre').default(0),
-  estActif: integer('est_actif', { mode: 'boolean' }).default(true),
-  createdAt: text('created_at').notNull(),
-  updatedAt: text('updated_at').notNull(),
-});
-
-// Additional type exports for legacy compatibility
+// Legacy compatibility types
 export type Session = InferSelectModel<typeof sessions>;
 export type NewSession = InferInsertModel<typeof sessions>;
 
@@ -323,93 +453,88 @@ export type Module = InferSelectModel<typeof modules>;
 export type NewModule = InferInsertModel<typeof modules>;
 
 // =============================================================================
-// GDPR COMPLIANCE TABLES - Additional tables for full GDPR compliance
+// ENUMS AND CONSTANTS FOR TYPE SAFETY
 // =============================================================================
 
-// Files table for GDPR compliance and file uploads
-export const gdprFiles = sqliteTable('files', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  filename: text('filename').notNull(),
-  originalName: text('original_name').notNull(),
-  mimetype: text('mimetype').notNull(),
-  size: integer('size').notNull(),
-  studentId: integer('student_id').references(() => students.id),
-  path: text('path').notNull(),
-  uploadedAt: text('uploaded_at').notNull(),
-  isGdprProtected: integer('is_gdpr_protected', { mode: 'boolean' }).default(true).notNull(),
-  retentionDate: text('retention_date'), // Date limite de conservation
-  metadata: text('metadata').notNull().default('{}'), // JSON string
-  createdAt: text('created_at').notNull(),
-  updatedAt: text('updated_at').notNull(),
-});
+// Mastery levels for competence progress
+export const MasteryLevels = {
+  NOT_STARTED: 'not_started',
+  DISCOVERING: 'discovering',
+  PRACTICING: 'practicing',
+  MASTERING: 'mastering',
+  MASTERED: 'mastered',
+} as const;
 
-// GDPR Consent Requests table
-export const gdprConsentRequests = sqliteTable('gdpr_consent_requests', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  studentId: integer('student_id').notNull().references(() => students.id),
-  requestType: text('request_type').notNull(), // DATA_ACCESS, DATA_DELETION, DATA_PORTABILITY, CONSENT_WITHDRAWAL
-  status: text('status').notNull().default('PENDING'), // PENDING, APPROVED, REJECTED, COMPLETED
-  requestToken: text('request_token').notNull().unique(),
-  parentEmail: text('parent_email').notNull(),
-  requestDetails: text('request_details').notNull().default('{}'), // JSON string
-  processedAt: text('processed_at'),
-  processedBy: text('processed_by'),
-  expiresAt: text('expires_at').notNull(),
-  metadata: text('metadata').notNull().default('{}'), // JSON string
-  createdAt: text('created_at').notNull(),
-  updatedAt: text('updated_at').notNull(),
-});
+export type MasteryLevel = typeof MasteryLevels[keyof typeof MasteryLevels];
 
-// Data Processing Log table for GDPR audit trail
-export const gdprDataProcessingLog = sqliteTable('gdpr_data_processing_log', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  studentId: integer('student_id').references(() => students.id),
-  action: text('action').notNull(), // CREATE, READ, UPDATE, DELETE, EXPORT, ANONYMIZE
-  dataType: text('data_type').notNull(),
-  description: text('description').notNull(),
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
-  requestId: text('request_id'),
-  metadata: text('metadata').notNull().default('{}'), // JSON string
-  createdAt: text('created_at').notNull(),
-});
+// Learning path status
+export const PathStatus = {
+  LOCKED: 'locked',
+  AVAILABLE: 'available',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  SKIPPED: 'skipped',
+} as const;
 
-// Relations pour les nouvelles tables
-export const gdprFilesRelations = relations(gdprFiles, ({ one }) => ({
-  student: one(students, {
-    fields: [gdprFiles.studentId],
-    references: [students.id],
-  }),
-}));
+export type PathStatusType = typeof PathStatus[keyof typeof PathStatus];
 
-export const gdprConsentRequestsRelations = relations(gdprConsentRequests, ({ one }) => ({
-  student: one(students, {
-    fields: [gdprConsentRequests.studentId],
-    references: [students.id],
-  }),
-}));
+// Priority levels
+export const PriorityLevels = {
+  LOW: 'low',
+  NORMAL: 'normal',
+  HIGH: 'high',
+  URGENT: 'urgent',
+} as const;
 
-export const gdprDataProcessingLogRelations = relations(gdprDataProcessingLog, ({ one }) => ({
-  student: one(students, {
-    fields: [gdprDataProcessingLog.studentId],
-    references: [students.id],
-  }),
-}));
+export type PriorityLevel = typeof PriorityLevels[keyof typeof PriorityLevels];
 
-// Mise à jour des relations students
-export const studentsRelations = relations(students, ({ many }) => ({
-  progress: many(studentProgress),
-  sessions: many(sessions),
-  revisions: many(revisions),
-  files: many(gdprFiles),
-  gdprConsentRequests: many(gdprConsentRequests),
-  gdprDataProcessingLog: many(gdprDataProcessingLog),
-}));
+// Achievement types
+export const AchievementTypes = {
+  COMPETENCE_MASTERY: 'competence_mastery',
+  STREAK: 'streak',
+  SCORE_MILESTONE: 'score_milestone',
+  TIME_GOAL: 'time_goal',
+  SPECIAL_EVENT: 'special_event',
+} as const;
 
-// Export des nouveaux types
-export type GdprFile = typeof gdprFiles.$inferSelect;
-export type NewGdprFile = typeof gdprFiles.$inferInsert;
-export type GdprConsentRequest = typeof gdprConsentRequests.$inferSelect;
-export type NewGdprConsentRequest = typeof gdprConsentRequests.$inferInsert;
-export type GdprDataProcessingLog = typeof gdprDataProcessingLog.$inferSelect;
-export type NewGdprDataProcessingLog = typeof gdprDataProcessingLog.$inferInsert;
+export type AchievementType = typeof AchievementTypes[keyof typeof AchievementTypes];
+
+// Achievement categories
+export const AchievementCategories = {
+  ACADEMIC: 'academic',
+  ENGAGEMENT: 'engagement',
+  PROGRESS: 'progress',
+  SOCIAL: 'social',
+  SPECIAL: 'special',
+} as const;
+
+export type AchievementCategory = typeof AchievementCategories[keyof typeof AchievementCategories];
+
+// Achievement difficulty levels
+export const AchievementDifficulties = {
+  BRONZE: 'bronze',
+  SILVER: 'silver',
+  GOLD: 'gold',
+  PLATINUM: 'platinum',
+  DIAMOND: 'diamond',
+} as const;
+
+export type AchievementDifficulty = typeof AchievementDifficulties[keyof typeof AchievementDifficulties];
+
+// Motivation levels
+export const MotivationLevels = {
+  LOW: 'low',
+  NEUTRAL: 'neutral',
+  HIGH: 'high',
+} as const;
+
+export type MotivationLevel = typeof MotivationLevels[keyof typeof MotivationLevels];
+
+// Device types
+export const DeviceTypes = {
+  MOBILE: 'mobile',
+  TABLET: 'tablet',
+  DESKTOP: 'desktop',
+} as const;
+
+export type DeviceType = typeof DeviceTypes[keyof typeof DeviceTypes];
