@@ -47,10 +47,10 @@ const AdvancedMascotSystem: React.FC<AdvancedMascotProps> = ({
   onEmotionalStateChange
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<THREE.Scene>();
-  const rendererRef = useRef<THREE.WebGLRenderer>();
-  const cameraRef = useRef<THREE.PerspectiveCamera>();
-  const mascotGroupRef = useRef<THREE.Group>();
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const mascotGroupRef = useRef<THREE.Group | null>(null);
   const animationRef = useRef<number>();
   
   // Advanced AI State Management
@@ -116,13 +116,16 @@ const AdvancedMascotSystem: React.FC<AdvancedMascotProps> = ({
       case 'achievement':
         newMood = 'excited';
         energyChange += 15;
+        relationshipChange += 3;
         break;
       case 'mistake':
         newMood = 'encouraging';
+        relationshipChange += 1; // Still supportive
         break;
       case 'exercise':
         newMood = 'focused';
         energyChange -= 5;
+        relationshipChange += 1;
         break;
     }
 

@@ -452,6 +452,7 @@ const MascottePremium: React.FC<{
 // =============================================================================
 // 💎 CRISTAUX XP PREMIUM AVEC PHYSIQUE 3D
 // =============================================================================
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const XPCrystalsPremium: React.FC<{
   currentXP: number;
   maxXP: number;

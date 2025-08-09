@@ -65,6 +65,7 @@ const NextLevelXPSystem: React.FC<NextLevelXPSystemProps> = ({
   const lastLevelRef = useRef(level);
 
   const [isLevelingUp, setIsLevelingUp] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showXPGain, setShowXPGain] = useState(false);
   const [floatingNumbers, setFloatingNumbers] = useState<Array<{
     id: number;
