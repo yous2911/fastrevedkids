@@ -42,16 +42,16 @@ export const ExerciseQCM: React.FC<ExerciseQCMProps> = ({
   };
 
   const getChoiceStyles = (variant: string) => {
-    const baseStyles = "w-full p-4 rounded-xl transition-all duration-200 text-left font-medium disabled:cursor-not-allowed border-2";
+    const BASE_STYLES = "w-full p-4 rounded-xl transition-all duration-200 text-left font-medium disabled:cursor-not-allowed border-2";
     
-    const variantStyles = {
+    const VARIANT_STYLES = {
       default: 'bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:scale-102 text-gray-800',
       primary: 'bg-blue-500 border-blue-500 text-white shadow-lg scale-105',
       success: 'bg-green-500 border-green-500 text-white shadow-lg scale-105',
       danger: 'bg-red-500 border-red-500 text-white shadow-lg scale-105'
     };
     
-    return `${baseStyles} ${variantStyles[variant as keyof typeof variantStyles] || variantStyles.default}`;
+    return `${BASE_STYLES} ${VARIANT_STYLES[variant as keyof typeof VARIANT_STYLES] || VARIANT_STYLES.default}`;
   };
 
   return (

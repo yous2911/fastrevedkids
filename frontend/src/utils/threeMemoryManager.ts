@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export interface ThreeMemoryManager {
+interface ThreeMemoryManager {
   trackGeometry: (geometry: THREE.BufferGeometry) => THREE.BufferGeometry;
   trackMaterial: (material: THREE.Material) => THREE.Material;
   trackTexture: (texture: THREE.Texture) => THREE.Texture;

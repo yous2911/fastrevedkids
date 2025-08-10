@@ -1,6 +1,6 @@
-// Sentry error reporting utility
 import * as Sentry from '@sentry/react';
 
+// Sentry error reporting utility
 // Initialize Sentry if DSN is available
 export const initializeSentry = () => {
   const dsn = process.env.REACT_APP_SENTRY_DSN;
@@ -51,12 +51,10 @@ export const reportError = (
 // Report message to Sentry
 export const reportMessage = (
   message: string,
-  level: Sentry.SeverityLevel = 'info',
   context?: Record<string, any>
 ) => {
   if (process.env.REACT_APP_SENTRY_DSN) {
     Sentry.captureMessage(message, {
-      level,
       tags: {
         environment: process.env.NODE_ENV,
         version: process.env.REACT_APP_VERSION || 'unknown',
@@ -70,9 +68,9 @@ export const reportMessage = (
 
 // Set user context for Sentry
 export const setUserContext = (user: {
-  id: string;
+  id?: string;
   email?: string;
-  username?: string;
+  name?: string;
 }) => {
   if (process.env.REACT_APP_SENTRY_DSN) {
     Sentry.setUser(user);

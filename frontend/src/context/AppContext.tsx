@@ -221,12 +221,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addPendingOperation = useCallback((operation: any) => {
-    const operationWithId = {
+    const OPERATION_WITH_ID = {
       ...operation,
       id: Date.now().toString(),
       timestamp: new Date()
     };
-    dispatch({ type: 'ADD_PENDING_OPERATION', payload: operationWithId });
+    dispatch({ type: 'ADD_PENDING_OPERATION', payload: OPERATION_WITH_ID });
   }, []);
 
   const syncPendingOperations = useCallback(async () => {

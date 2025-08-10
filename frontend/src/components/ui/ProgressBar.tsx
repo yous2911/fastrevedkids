@@ -18,19 +18,19 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 }) => {
   const clampedProgress = Math.min(Math.max(progress, 0), 100);
   
-  const sizeClasses = {
+  const SIZE_CLASSES = {
     sm: 'h-2',
     md: 'h-3',
     lg: 'h-4'
   };
 
-  const variantClasses = {
+  const VARIANT_CLASSES = {
     default: 'bg-gray-200',
     sparkle: 'bg-gradient-to-r from-blue-200 to-purple-200'
   };
 
   return (
-    <div className={`w-full rounded-full overflow-hidden ${variantClasses[variant]} ${sizeClasses[size]} ${className}`} {...props}>
+    <div className={`w-full rounded-full overflow-hidden ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`} {...props}>
       <div 
         className={`h-full transition-all duration-300 ease-out ${
           variant === 'sparkle' 

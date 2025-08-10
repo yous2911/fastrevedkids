@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ExerciseEngine } from '../components/exercise/ExerciseEngine';
 import { AdaptiveExerciseEngine } from '../components/exercise/AdaptiveExerciseEngine';
 import { SimpleExerciseComponent } from '../components/exercise/SimpleExerciseComponent';
@@ -9,11 +9,10 @@ import { ExercicePedagogique, Exercise } from '../types/api.types';
 
 // Import des composants visuels avancés
 import NextLevelXPSystem from '../components/ui/NextLevelXPSystem';
-import AdvancedMascotSystem from '../components/ui/AdvancedMascotSystem';
+import CrossBrowserMascot3D from '../components/CrossBrowserMascot3D';
 import AdvancedParticleEngine from '../components/ui/AdvancedParticleEngine';
-import SparkyMascot3D from '../components/ui/SparkyMascot3D';
 
-// Local interface for backend data
+// Local interface IFor backend data
 interface BackendExercise {
   id: number;
   titre: string;
@@ -225,7 +224,7 @@ export const ExerciseEngineTest: React.FC = () => {
   };
 
   const getExerciseTypeInfo = (type: string) => {
-    const types = {
+    const TYPES = {
       QCM: { name: 'Choix multiples', emoji: '☑️', color: 'bg-blue-100 text-blue-800' },
       CALCUL: { name: 'Calcul', emoji: '🧮', color: 'bg-purple-100 text-purple-800' },
       TEXTE_LIBRE: { name: 'Texte libre', emoji: '✏️', color: 'bg-green-100 text-green-800' },
@@ -234,16 +233,16 @@ export const ExerciseEngineTest: React.FC = () => {
       GEOMETRIE: { name: 'Géométrie', emoji: '📐', color: 'bg-indigo-100 text-indigo-800' },
       LECTURE: { name: 'Lecture', emoji: '📚', color: 'bg-yellow-100 text-yellow-800' }
     };
-    return types[type as keyof typeof types] || { name: type, emoji: '❓', color: 'bg-gray-100 text-gray-800' };
+    return TYPES[type as keyof typeof TYPES] || { name: type, emoji: '❓', color: 'bg-gray-100 text-gray-800' };
   };
 
   const getDifficultyColor = (difficulty: string) => {
-    const colors = {
+    const COLORS = {
       'FACILE': 'bg-green-100 text-green-800',
       'MOYEN': 'bg-yellow-100 text-yellow-800',
       'DIFFICILE': 'bg-red-100 text-red-800'
     };
-    return colors[difficulty as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return COLORS[difficulty as keyof typeof COLORS] || 'bg-gray-100 text-gray-800';
   };
 
   const renderExerciseEngine = () => {
@@ -251,7 +250,7 @@ export const ExerciseEngineTest: React.FC = () => {
 
     const convertedExercise = convertToComponentExercise(currentExercise);
 
-    const commonProps = {
+    const COMMON_PROPS = {
       exercise: convertedExercise,
       studentId: student.id,
       onComplete: handleExerciseComplete,
@@ -260,7 +259,7 @@ export const ExerciseEngineTest: React.FC = () => {
 
     switch (selectedEngine) {
       case 'simple':
-        return <SimpleExerciseComponent {...commonProps} />;
+        return <SimpleExerciseComponent {...COMMON_PROPS} />;
       case 'adaptive':
         return (
           <AdaptiveExerciseEngine
@@ -273,7 +272,7 @@ export const ExerciseEngineTest: React.FC = () => {
         );
       case 'full':
       default:
-        return <ExerciseEngine {...commonProps} />;
+        return <ExerciseEngine {...COMMON_PROPS} />;
     }
   };
 
@@ -381,7 +380,7 @@ export const ExerciseEngineTest: React.FC = () => {
                 onChange={(e) => setShowVisualEffects(e.target.checked)}
                 className="sr-only"
               />
-              <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-COLORS ${
                 showVisualEffects ? 'bg-purple-600' : 'bg-gray-300'
               }`}>
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -415,7 +414,7 @@ export const ExerciseEngineTest: React.FC = () => {
             <div className="bg-white rounded-lg shadow-lg p-4">
               <h4 className="text-lg font-bold text-gray-800 mb-3">🐉 3D Mascot</h4>
               <div className="flex justify-center">
-                <SparkyMascot3D
+                <CrossBrowserMascot3D
                   mascotType="dragon"
                   emotion={mascotEmotion}
                   items={["crystal", "wand", "hat"]}

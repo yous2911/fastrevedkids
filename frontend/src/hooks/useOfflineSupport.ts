@@ -54,7 +54,7 @@ export function useOfflineSupport() {
 
   // Simulate exercise submission offline
   const submitExerciseOffline = useCallback((exerciseId: number, attempt: any) => {
-    const offlineResult = {
+    const OFFLINE_RESULT = {
       success: true,
       data: {
         reussi: true, // Optimistic update
@@ -80,7 +80,7 @@ export function useOfflineSupport() {
       studentId: state.currentStudent?.id
     });
 
-    return Promise.resolve(offlineResult);
+    return Promise.resolve(OFFLINE_RESULT);
   }, [state.currentStudent, queueOfflineOperation]);
 
   // Load cached data on mount

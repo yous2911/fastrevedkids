@@ -1,5 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { browserCompat } from '../../utils/browserCompatibility';
 
 interface Props {
@@ -176,7 +176,7 @@ export class ThreeDErrorBoundary extends Component<Props, State> {
 
   private reportError(error: Error, errorInfo: ErrorInfo, analysis: ErrorAnalysis) {
     // Here you could integrate with error reporting services like Sentry
-    const errorReport = {
+    const ERROR_REPORT = {
       timestamp: new Date().toISOString(),
       error: {
         message: error.message,
@@ -194,11 +194,11 @@ export class ThreeDErrorBoundary extends Component<Props, State> {
 
     // Log to console in development
     if (this.errorReportingEnabled) {
-      console.warn('Error report generated:', errorReport);
+      console.warn('Error report generated:', ERROR_REPORT);
     }
 
     // In production, you would send this to your error tracking service
-    // Example: Sentry.captureException(error, { extra: errorReport });
+    // Example: Sentry.captureException(error, { extra: ERROR_REPORT });
   }
 
   private handleRetry = () => {

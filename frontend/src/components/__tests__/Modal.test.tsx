@@ -1,12 +1,12 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { mockFramerMotion } from '../../tests/mocks';
+import { MOCK_FRAMER_MOTION } from '../../tests/mocks';
 import { Modal } from '../ui/Modal';
 
 // Mock framer-motion
-jest.mock('framer-motion', () => mockFramerMotion);
+jest.mock('framer-motion', () => MOCK_FRAMER_MOTION);
 
 // Mock createPortal
 jest.mock('react-dom', () => ({
@@ -85,9 +85,9 @@ describe('Modal Component', () => {
   });
 
   describe('Sizes', () => {
-    const sizes = ['sm', 'md', 'lg', 'xl', 'full'] as const;
+    const SIZES = ['sm', 'md', 'lg', 'xl', 'full'] as const;
     
-    sizes.forEach(size => {
+    SIZES.forEach(size => {
       it(`should render with ${size} size`, () => {
         render(
           <Modal isOpen={true} onClose={mockOnClose} size={size}>
@@ -438,11 +438,11 @@ describe('Modal Component', () => {
     });
 
     it('should handle forms inside modal', async () => {
-      const mockSubmit = jest.fn((e) => e.preventDefault());
+      const handleMockSubmit= jest.fn((e) => e.preventDefault());
       
       render(
         <Modal isOpen={true} onClose={mockOnClose} title="Form Modal">
-          <form onSubmit={mockSubmit}>
+          <form onSubmit={handleMockSubmit}>
             <input type="text" placeholder="Name" />
             <textarea placeholder="Description"></textarea>
             <button type="submit">Submit</button>
@@ -458,7 +458,7 @@ describe('Modal Component', () => {
       await user.type(descriptionTextarea, 'Test Description');
       await user.click(submitButton);
       
-      expect(mockSubmit).toHaveBeenCalled();
+      expect(handleMockSubmit).toHaveBeenCalled();
     });
   });
 

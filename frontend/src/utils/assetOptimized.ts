@@ -103,10 +103,10 @@ export class OptimizedAssetManager {
   public preloadAssets(assetIds: string[], configs: Record<string, AssetConfig>): void {
     // Sort by priority
     const sortedIds = assetIds.sort((a, b) => {
-      const priorityOrder = { high: 0, medium: 1, low: 2 };
+      const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
       const aPriority = configs[a]?.priority || 'medium';
       const bPriority = configs[b]?.priority || 'medium';
-      return priorityOrder[aPriority] - priorityOrder[bPriority];
+      return PRIORITY_ORDER[aPriority] - PRIORITY_ORDER[bPriority];
     });
 
     this.preloadQueue.push(...sortedIds);
@@ -351,10 +351,10 @@ export class OptimizedAssetManager {
    * Process preload queue
    */
   private async processPreloadQueue(configs: Record<string, AssetConfig>): Promise<void> {
-    const concurrentLoads = 3; // Limit concurrent preloads
+    const CONCURRENT_LOADS = 3; // Limit concurrent preloads
     
     while (this.preloadQueue.length > 0) {
-      const batch = this.preloadQueue.splice(0, concurrentLoads);
+      const batch = this.preloadQueue.splice(0, CONCURRENT_LOADS);
       
       const loadPromises = batch.map(id => {
         const config = configs[id];
@@ -374,13 +374,13 @@ export class OptimizedAssetManager {
   }
 
   /**
-   * Detect supported image formats
+   * Detect supported image FORMATS
    */
   private detectSupportedFormats(): void {
     const canvas = document.createElement('canvas');
-    const formats = ['webp', 'jpg', 'png'];
+    const FORMATS = ['webp', 'jpg', 'png'];
     
-    this.supportedFormats = formats.filter(format => {
+    this.supportedFormats = FORMATS.filter(format => {
       try {
         return canvas.toDataURL(`image/${format}`).startsWith(`data:image/${format}`);
       } catch {
@@ -456,8 +456,9 @@ export class OptimizedAssetManager {
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     
-    if (gl) {
-      return gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    if (gl && 'getParameter' in gl) {
+      const webglContext = gl as WebGLRenderingContext;
+      return webglContext.getParameter(webglContext.MAX_TEXTURE_SIZE);
     }
     
     // Fallback for non-WebGL devices
@@ -468,13 +469,13 @@ export class OptimizedAssetManager {
    * Determine if image should be compressed
    */
   private shouldCompress(img: HTMLImageElement): boolean {
-    const sizeThreshold = 512; // Compress images larger than 512px
-    const fileSizeThreshold = 100 * 1024; // Compress if estimated size > 100KB
+    const SIZE_THRESHOLD = 512; // Compress images larger than 512px
+    const FILE_SIZE_THRESHOLD = 100 * 1024; // Compress if estimated size > 100KB
     
     const estimatedSize = img.width * img.height * 4; // 4 bytes per pixel
     
-    return (img.width > sizeThreshold || img.height > sizeThreshold) ||
-           estimatedSize > fileSizeThreshold;
+    return (img.width > SIZE_THRESHOLD || img.height > SIZE_THRESHOLD) ||
+           estimatedSize > FILE_SIZE_THRESHOLD;
   }
 
   /**
@@ -484,21 +485,21 @@ export class OptimizedAssetManager {
     if (!texture.image) return 0;
     
     const { width, height } = texture.image;
-    const bytesPerPixel = 4; // RGBA
-    return (width * height * bytesPerPixel) / 1024 / 1024; // Size in MB
+    const BYTES_PER_PIXEL = 4; // RGBA
+    return (width * height * BYTES_PER_PIXEL) / 1024 / 1024; // Size in MB
   }
 
   /**
    * Calculate total cache size
    */
   private calculateCacheSize(): number {
-    let totalSize = 0;
+    let TOTAL_SIZE = 0;
     this.assetCache.forEach(asset => {
       if (asset.loaded) {
-        totalSize += asset.size;
+        TOTAL_SIZE += asset.size;
       }
     });
-    return Math.round(totalSize * 100) / 100; // Round to 2 decimal places
+    return Math.round(TOTAL_SIZE * 100) / 100; // Round to 2 decimal places
   }
 
   /**
@@ -515,11 +516,11 @@ export class OptimizedAssetManager {
       .sort(([_, a], [__, b]) => a.lastUsed - b.lastUsed);
     
     // Remove assets until under limit
-    let removedSize = 0;
+    let REMOVED_SIZE = 0;
     for (const [id, asset] of sortedAssets) {
-      if (currentSize - removedSize <= this.maxCacheSize) break;
+      if (currentSize - REMOVED_SIZE <= this.maxCacheSize) break;
       
-      removedSize += asset.size;
+      REMOVED_SIZE += asset.size;
       this.disposeAsset(id);
     }
   }

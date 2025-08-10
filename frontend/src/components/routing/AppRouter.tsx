@@ -11,8 +11,12 @@ import {
 } from '../../pages/lazy';
 import { preloadRouteComponents } from '../../utils/lazyLoading';
 import { Exercise } from '../../types/api.types';
-import { ExerciseEngine } from '../exercise/ExerciseEngine';
-import { ExercicePedagogique } from '../../types/api.types';
+import SkipLinks from '../accessibility/SkipLinks';
+import AccessibilityTestPanel from '../accessibility/AccessibilityTestPanel';
+import { useDevAccessibilityTesting } from '../../hooks/useAccessibilityTesting';
+import '../../utils/accessibility-dev-tools';
+
+
 import { SimpleExerciseComponent } from '../exercise/SimpleExerciseComponent';
 import ExerciseEngineTest from '../../pages/ExerciseEngineTest';
 import XPSystemThemeTest from '../../pages/XPSystemThemeTest';
@@ -27,6 +31,18 @@ export const AppRouter: React.FC = () => {
   const { student, loading, logout, isAuthenticated } = useAuth();
   const [currentRoute, setCurrentRoute] = useState<RouteType>('dashboard');
   const [currentExercise, setCurrentExercise] = useState<Exercise | null>(null);
+  const [showAccessibilityPanel, setShowAccessibilityPanel] = useState(false);
+  
+  // Enable accessibility testing in development
+  const { currentReport } = useDevAccessibilityTesting({
+    autoTest: true,
+    autoFix: true,
+    onViolations: (violations) => {
+      if (violations.length > 0) {
+        console.warn(`🚨 ${violations.length} accessibility violations detected`);
+      }
+    }
+  });
 
   // Preload components after initial load
   useEffect(() => {
@@ -66,12 +82,12 @@ export const AppRouter: React.FC = () => {
   };
 
   const getDifficultyColor = (difficulte: string) => {
-    const colors = {
+    const COLORS = {
       'FACILE': 'bg-green-100 text-green-800',
       'MOYEN': 'bg-yellow-100 text-yellow-800',
       'DIFFICILE': 'bg-red-100 text-red-800'
     };
-    return colors[difficulte as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return COLORS[difficulte as keyof typeof COLORS] || 'bg-gray-100 text-gray-800';
   };
 
   const handleStartExercise = (exercise: Exercise) => {
@@ -84,8 +100,9 @@ export const AppRouter: React.FC = () => {
     switch (currentRoute) {
       case 'dashboard':
         return (
-          <LazyComponentLoader>
-            <DashboardLazy
+          <main id="main-content" role="main" aria-label="Tableau de bord">
+            <LazyComponentLoader>
+              <DashboardLazy
               onNavigate={(path: string) => {
                 // Simple path mapping - could be enhanced with proper routing
                 if (path.includes('exercises')) handleNavigation('exercises');
@@ -103,6 +120,7 @@ export const AppRouter: React.FC = () => {
               onLogout={logout}
             />
           </LazyComponentLoader>
+        </main>
         );
 
       case 'exercises':
@@ -149,7 +167,7 @@ export const AppRouter: React.FC = () => {
                         setCurrentExercise(null);
                         setCurrentRoute('exercises');
                       }}
-                      className="mr-4 p-2 text-gray-600 hover:text-gray-800 transition-colors"
+                      className="mr-4 p-2 text-gray-600 hover:text-gray-800 transition-COLORS"
                     >
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -235,5 +253,22 @@ export const AppRouter: React.FC = () => {
     );
   }
 
-  return renderCurrentRoute();
+  return (
+    <>
+      <SkipLinks autoDetect={true} />
+      <div id="app-main" role="application" aria-label="Application RevEd Kids">
+        {renderCurrentRoute()}
+      </div>
+      
+      {/* Development-only accessibility testing panel */}
+      {process.env.NODE_ENV === 'development' && (
+        <AccessibilityTestPanel
+          isVisible={showAccessibilityPanel}
+          onToggle={() => setShowAccessibilityPanel(!showAccessibilityPanel)}
+          autoTest={true}
+          autoFix={true}
+        />
+      )}
+    </>
+  );
 };

@@ -297,16 +297,16 @@ export const Scene3DInspector: React.FC<Scene3DInspectorProps> = ({
 
   // Handle camera updates
   const handleCameraUpdate = useCallback((updates: Partial<CameraControls>) => {
-    const newControls = { ...cameraControls, ...updates };
-    setCameraControls(newControls);
-    onCameraUpdate?.(newControls);
+    const NEW_CONTROLS = { ...cameraControls, ...updates };
+    setCameraControls(NEW_CONTROLS);
+    onCameraUpdate?.(NEW_CONTROLS);
   }, [cameraControls, onCameraUpdate]);
 
   // Handle light updates
   const handleLightUpdate = useCallback((updates: Partial<LightSettings>) => {
-    const newLights = { ...lightSettings, ...updates };
-    setLightSettings(newLights);
-    onLightUpdate?.(newLights);
+    const NEW_LIGHTS = { ...lightSettings, ...updates };
+    setLightSettings(NEW_LIGHTS);
+    onLightUpdate?.(NEW_LIGHTS);
   }, [lightSettings, onLightUpdate]);
 
   // Camera presets

@@ -135,8 +135,8 @@ export class RecommendationService {
             attempts: sql`attempts + 1`,
             score: sql`score + ${pointsGagnes}`,
             timeSpent: sql`time_spent + ${data.timeSpent || 0}`,
-            completedAt: data.completed && !existingProgress[0].completedAt ? new Date().toISOString() : existingProgress[0].completedAt,
-            updatedAt: new Date().toISOString(),
+            completedAt: data.completed && !existingProgress[0].completedAt ? new Date() : existingProgress[0].completedAt,
+            updatedAt: new Date(),
           })
           .where(and(
             eq(schema.progress.studentId, data.studentId),
@@ -147,13 +147,14 @@ export class RecommendationService {
         const newProgress: NewProgress = {
           studentId: data.studentId,
           exerciseId: data.exerciseId,
+          competenceCode: 'default', // Add required field
           completed: data.completed,
-          score: pointsGagnes,
+          score: pointsGagnes.toString(),
           timeSpent: data.timeSpent || 0,
           attempts: 1,
-          completedAt: data.completed ? new Date().toISOString() : null,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          completedAt: data.completed ? new Date() : null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         };
 
         await db.insert(schema.progress).values(newProgress);
@@ -165,7 +166,7 @@ export class RecommendationService {
           .update(schema.students)
           .set({
             totalPoints: sql`total_points + ${pointsGagnes}`,
-            updatedAt: new Date().toISOString(),
+            updatedAt: new Date(),
           })
           .where(eq(schema.students.id, data.studentId));
       }

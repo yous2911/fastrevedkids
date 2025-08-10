@@ -1,9 +1,7 @@
 import { MascotItem } from '../types/wahoo.types';
-
 // ==========================================
 // 🎭 INVENTAIRE COMPLET DE LA GARDE-ROBE
 // ==========================================
-
 export const MASCOT_COLLECTION: MascotItem[] = [
   // ===================================
   // 🟢 COMMON (18 items)
@@ -206,7 +204,6 @@ export const MASCOT_COLLECTION: MascotItem[] = [
     unlocked: false,
     equipped: false
   },
-
   // ===================================
   // 💎 RARE (15 items)
   // ===================================
@@ -375,7 +372,6 @@ export const MASCOT_COLLECTION: MascotItem[] = [
     unlocked: false,
     equipped: false
   },
-
   // ===================================
   // 🔮 EPIC (12 items)
   // ===================================
@@ -511,7 +507,6 @@ export const MASCOT_COLLECTION: MascotItem[] = [
     unlocked: false,
     equipped: false
   },
-
   // ===================================
   // 🌟 LEGENDARY (5 items)
   // ===================================
@@ -571,11 +566,9 @@ export const MASCOT_COLLECTION: MascotItem[] = [
     equipped: false
   }
 ];
-
 // ==========================================
 // 🛠️ UTILITAIRES POUR LA GARDE-ROBE
 // ==========================================
-
 export const getItemsByType = (type: MascotItem['type']) => {
   return MASCOT_COLLECTION.filter(item => item.type === type);
 };
@@ -591,37 +584,6 @@ export const getUnlockedItems = () => {
 export const getEquippedItems = () => {
   return MASCOT_COLLECTION.filter(item => item.equipped);
 };
-
-export const getCollectionStats = () => {
-  const total = MASCOT_COLLECTION.length;
-  const unlocked = getUnlockedItems().length;
-  const equipped = getEquippedItems().length;
-
-  const rarityBreakdown = {
-    common: getItemsByRarity('common').length,
-    rare: getItemsByRarity('rare').length,
-    epic: getItemsByRarity('epic').length,
-    legendary: getItemsByRarity('legendary').length
-  };
-
-  const typeBreakdown = {
-    hat: getItemsByType('hat').length,
-    glasses: getItemsByType('glasses').length,
-    accessory: getItemsByType('accessory').length,
-    outfit: getItemsByType('outfit').length,
-    background: getItemsByType('background').length
-  };
-
-  return {
-    total,
-    unlocked,
-    equipped,
-    completionRate: (unlocked / total) * 100,
-    rarityBreakdown,
-    typeBreakdown
-  };
-};
-
 export const unlockItem = (itemId: string) => {
   const item = MASCOT_COLLECTION.find(item => item.id === itemId);
   if (item && !item.unlocked) {

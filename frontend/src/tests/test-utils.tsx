@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { GDPRProvider } from '../contexts/GDPRContext';
+
 
 // Mock providers and contexts for testing
 const MockGDPRProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -29,7 +29,7 @@ const customRender = (
 export const axe = require('@axe-core/jest');
 
 // Mock data generators
-export const mockStudent = {
+export const MOCK_STUDENT = {
   id: 1,
   prenom: 'Test',
   nom: 'Student',
@@ -39,7 +39,7 @@ export const mockStudent = {
   mascotteType: 'dragon'
 };
 
-export const mockExercise = {
+export const MOCK_EXERCISE = {
   id: 1,
   titre: 'Test Exercise',
   description: 'Test description',
@@ -50,16 +50,10 @@ export const mockExercise = {
 };
 
 // Custom matchers
-export const toBeAccessible = (received: any) => {
-  // Mock accessibility test result for now
-  return {
-    pass: true,
-    message: () => 'Element is accessible'
-  };
-};
+// (Add custom matchers here if needed)
 
 // Cross-browser testing utilities
-export const browsers = {
+export const BROWSERS = {
   chrome: 'Chrome',
   firefox: 'Firefox',
   safari: 'Safari',
@@ -75,8 +69,9 @@ export const measurePerformance = (fn: () => void) => {
 };
 
 // Screen reader testing utilities
-export const getByAriaLabel = (container: HTMLElement, label: string) => {
-  return container.querySelector(`[aria-label="${label}"]`);
+export const simulateScreenReader = (text: string) => {
+  // Mock screen reader announcement
+  console.log(`Screen reader: ${text}`);
 };
 
 export const getByRole = (container: HTMLElement, role: string) => {
@@ -92,14 +87,6 @@ export const simulateKeyPress = (key: string, element?: HTMLElement) => {
 
 // Focus management testing
 export const getFocusedElement = () => document.activeElement;
-
-export const tabToNextElement = () => {
-  simulateKeyPress('Tab');
-};
-
-export const tabToPreviousElement = () => {
-  simulateKeyPress('Tab', document.activeElement as HTMLElement);
-};
 
 // Color contrast testing
 export const getColorContrast = (foreground: string, background: string): number => {
@@ -123,12 +110,10 @@ export const setViewportSize = (width: number, height: number) => {
 };
 
 // Animation testing utilities
-export const waitForAnimation = (duration: number = 300) => {
-  return new Promise(resolve => setTimeout(resolve, duration));
-};
+// Add animation testing utilities here if needed
 
 // Sound and haptic testing mocks
-export const mockAudioContext = {
+export const MOCK_AUDIO_CONTEXT = {
   createOscillator: jest.fn(() => ({
     connect: jest.fn(),
     start: jest.fn(),

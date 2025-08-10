@@ -98,8 +98,8 @@ export class DatabaseService {
   async createStudent(studentData: NewStudent): Promise<Student> {
     const [result] = await this.db.insert(students).values({
       ...studentData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt: new Date(),
+      updatedAt: new Date()
     }).returning();
     return result;
   }
@@ -112,7 +112,7 @@ export class DatabaseService {
   async updateStudent(id: number, updates: Partial<NewStudent>): Promise<Student> {
     const [result] = await this.db.update(students).set({ 
       ...updates, 
-      updatedAt: new Date().toISOString() 
+      updatedAt: new Date() 
     }).where(eq(students.id, id)).returning();
     return result;
   }
@@ -125,8 +125,8 @@ export class DatabaseService {
   async createExercise(exerciseData: NewExercise): Promise<Exercise> {
     const [result] = await this.db.insert(exercises).values({
       ...exerciseData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt: new Date(),
+      updatedAt: new Date()
     }).returning();
     return result;
   }
@@ -147,7 +147,7 @@ export class DatabaseService {
   async updateExercise(id: number, updates: Partial<NewExercise>): Promise<Exercise> {
     const [result] = await this.db.update(exercises).set({ 
       ...updates, 
-      updatedAt: new Date().toISOString() 
+      updatedAt: new Date() 
     }).where(eq(exercises.id, id)).returning();
     return result;
   }
@@ -160,8 +160,8 @@ export class DatabaseService {
   async recordProgress(progressData: NewProgress): Promise<Progress> {
     const [result] = await this.db.insert(studentProgress).values({
       ...progressData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt: new Date(),
+      updatedAt: new Date()
     }).returning();
     return result;
   }
@@ -203,7 +203,7 @@ export class DatabaseService {
   async createSession(sessionData: NewSession): Promise<Session> {
     const [result] = await this.db.insert(sessions).values({
       ...sessionData,
-      createdAt: new Date().toISOString()
+      createdAt: new Date()
     }).returning();
     return result;
   }
@@ -228,7 +228,7 @@ export class DatabaseService {
   async createRevision(revisionData: NewRevision): Promise<Revision> {
     const [result] = await this.db.insert(revisions).values({
       ...revisionData,
-      createdAt: new Date().toISOString()
+      createdAt: new Date()
     }).returning();
     return result;
   }

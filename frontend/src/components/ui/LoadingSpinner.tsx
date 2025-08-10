@@ -8,7 +8,7 @@ interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   fullScreen?: boolean;
 }
 
-const sizeClasses = {
+const SIZE_CLASSES = {
   sm: 'w-4 h-4',
   md: 'w-6 h-6',
   lg: 'w-8 h-8',
@@ -16,7 +16,7 @@ const sizeClasses = {
   large: 'w-16 h-16'
 };
 
-const colorClasses = {
+const COLOR_CLASSES = {
   primary: 'border-blue-500',
   secondary: 'border-purple-500',
   white: 'border-white'
@@ -32,9 +32,9 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   const spinner = (
     <motion.div
       className={`
-        ${sizeClasses[size]} 
+        ${SIZE_CLASSES[size]} 
         border-2 border-gray-200 
-        ${colorClasses[variant]} 
+        ${COLOR_CLASSES[variant]} 
         border-t-transparent 
         rounded-full
       `}

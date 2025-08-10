@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import AdvancedParticleEngine from '../components/ui/AdvancedParticleEngine';
-import AdvancedMascotSystem from '../components/ui/AdvancedMascotSystem';
+import CrossBrowserMascot3D from '../components/CrossBrowserMascot3D';
 import NextLevelXPSystem from '../components/ui/NextLevelXPSystem';
-import SparkyMascot3D from '../components/ui/SparkyMascot3D';
 import WardrobeSystem from '../components/ui/WardrobeSystem';
 
 const AdvancedDemo: React.FC = () => {
@@ -16,7 +15,7 @@ const AdvancedDemo: React.FC = () => {
     mascot: { 
       name: 'Advanced Mascot', 
       component: () => (
-        <AdvancedMascotSystem 
+        <CrossBrowserMascot3D 
           mascotType="dragon"
           studentData={{ 
             level: 5, 
@@ -45,7 +44,7 @@ const AdvancedDemo: React.FC = () => {
     sparky: { 
       name: 'Sparky 3D', 
       component: () => (
-        <SparkyMascot3D 
+        <CrossBrowserMascot3D 
           mascotType="dragon"
           emotion="happy"
           items={["crystal", "wand", "hat"]}

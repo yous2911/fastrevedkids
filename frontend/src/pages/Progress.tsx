@@ -93,7 +93,7 @@ export const ProgressPage: React.FC<ProgressPageProps> = ({ onBack }) => {
     return emojis[subject] || '📚';
   };
 
-  const tabs = [
+  const TABS = [
     { id: 'overview', name: 'Vue d\'ensemble', emoji: '📊' },
     { id: 'subjects', name: 'Par matière', emoji: '📚' },
     { id: 'sessions', name: 'Sessions', emoji: '📈' },
@@ -154,7 +154,7 @@ export const ProgressPage: React.FC<ProgressPageProps> = ({ onBack }) => {
         {/* Tabs */}
         <div className="bg-white rounded-2xl p-2 shadow-lg border border-gray-200 mb-8">
           <div className="flex space-x-2">
-            {tabs.map((tab) => (
+            {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}

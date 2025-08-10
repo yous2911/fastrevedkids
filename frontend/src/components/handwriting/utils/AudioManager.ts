@@ -16,7 +16,7 @@ export class CP2025AudioManager {
 
   private preloadCompetenceSounds() {
     // Sons génériques
-    const generalSounds = [
+    const GENERAL_SOUNDS = [
       'intro_seance', 'bravo_competence', 'validation_cp2025', 'encouragement',
       'pression_parfaite', 'pression_forte', 'pression_legere', 'stylet_detecte',
       'inclinaison_correcte', 'fluidite_excellente', 'precision_parfaite',
@@ -25,16 +25,16 @@ export class CP2025AudioManager {
     
     // Sons par compétence
     Object.values(this.competenceAudios).flat().forEach(audioKey => {
-      generalSounds.push(audioKey);
+      GENERAL_SOUNDS.push(audioKey);
     });
     
     // Sons phonétiques
-    const phonemes = ['a', 'i', 'o', 'u', 'e', 'l', 'm', 'n', 'r', 's', 't', 'p'];
-    phonemes.forEach(phoneme => {
-      generalSounds.push(`phoneme_${phoneme}`);
+    const PHONEMES = ['a', 'i', 'o', 'u', 'e', 'l', 'm', 'n', 'r', 's', 't', 'p'];
+    PHONEMES.forEach(phoneme => {
+      GENERAL_SOUNDS.push(`phoneme_${phoneme}`);
     });
     
-    generalSounds.forEach(key => {
+    GENERAL_SOUNDS.forEach(key => {
       const audio = new Audio(`/sounds/cp2025/${key}.mp3`);
       audio.preload = 'auto';
       this.audioCache.set(key, audio);

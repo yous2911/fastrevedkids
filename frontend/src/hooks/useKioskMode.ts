@@ -23,7 +23,7 @@ interface KioskModeControls {
   deactivateKioskMode: () => Promise<void>;
   enterFullscreen: () => Promise<void>;
   exitFullscreen: () => Promise<void>;
-  isSupported: {
+  IS_SUPPORTED: {
     fullscreen: boolean;
     wakeLock: boolean;
     keyboardLock: boolean;
@@ -45,7 +45,7 @@ export function useKioskMode(config: KioskModeConfig = {}): KioskModeState & Kio
   const keySequenceRef = useRef<string[]>([]);
 
   // Check browser support
-  const isSupported = {
+  const IS_SUPPORTED = {
     fullscreen: !!document.fullscreenEnabled,
     wakeLock: 'wakeLock' in navigator,
     keyboardLock: 'keyboard' in navigator && 'lock' in (navigator as any).keyboard
@@ -53,7 +53,7 @@ export function useKioskMode(config: KioskModeConfig = {}): KioskModeState & Kio
 
   // Request wake lock
   const requestWakeLock = useCallback(async () => {
-    if (!isSupported.wakeLock || !config.preventScreenSaver) return;
+    if (!IS_SUPPORTED.wakeLock || !config.preventScreenSaver) return;
 
     try {
       if ((navigator as any).wakeLock) {
@@ -69,7 +69,7 @@ export function useKioskMode(config: KioskModeConfig = {}): KioskModeState & Kio
     } catch (error) {
       console.warn('Wake Lock not supported:', error);
     }
-  }, [isSupported.wakeLock, config.preventScreenSaver]);
+  }, [IS_SUPPORTED.wakeLock, config.preventScreenSaver]);
 
   // Release wake lock
   const releaseWakeLock = useCallback(async () => {
@@ -85,7 +85,7 @@ export function useKioskMode(config: KioskModeConfig = {}): KioskModeState & Kio
 
   // Enter fullscreen
   const enterFullscreen = useCallback(async () => {
-    if (!isSupported.fullscreen || !config.enableFullscreen) return;
+    if (!IS_SUPPORTED.fullscreen || !config.enableFullscreen) return;
 
     try {
       await document.documentElement.requestFullscreen();
@@ -93,7 +93,7 @@ export function useKioskMode(config: KioskModeConfig = {}): KioskModeState & Kio
     } catch (error) {
       console.warn('Fullscreen not supported:', error);
     }
-  }, [isSupported.fullscreen, config.enableFullscreen]);
+  }, [IS_SUPPORTED.fullscreen, config.enableFullscreen]);
 
   // Exit fullscreen
   const exitFullscreen = useCallback(async () => {
@@ -120,8 +120,8 @@ export function useKioskMode(config: KioskModeConfig = {}): KioskModeState & Kio
 
     // Block navigation keys
     if (config.preventNavigation) {
-      const blockedKeys = ['F11', 'F5', 'F12', 'Escape'];
-      if (blockedKeys.includes(e.key)) {
+      const BLOCKED_KEYS = ['F11', 'F5', 'F12', 'Escape'];
+      if (BLOCKED_KEYS.includes(e.key)) {
         e.preventDefault();
         return;
       }
@@ -246,7 +246,7 @@ export function useKioskMode(config: KioskModeConfig = {}): KioskModeState & Kio
     deactivateKioskMode,
     enterFullscreen,
     exitFullscreen,
-    isSupported,
+    IS_SUPPORTED,
     updateActivity
   };
 } 

@@ -123,7 +123,7 @@ export const MobileParticleSystem: React.FC<MobileParticleSystemProps> = ({
 
   // Theme-based particle configuration
   const themeConfig = useMemo(() => {
-    const themes = {
+    const THEMES = {
       magic: {
         colors: ['#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE'],
         particleTypes: ['spark', 'star'] as const,
@@ -150,7 +150,7 @@ export const MobileParticleSystem: React.FC<MobileParticleSystemProps> = ({
         glowIntensity: 12
       }
     };
-    return themes[theme];
+    return THEMES[theme];
   }, [theme]);
 
   // Particle pool management for mobile memory efficiency
@@ -368,12 +368,12 @@ export const MobileParticleSystem: React.FC<MobileParticleSystemProps> = ({
 
     // Check for performance issues every 60 frames
     if (frameCountRef.current % 60 === 0) {
-      const avgFPS = 1000 / performanceMetricsRef.current.avgFrameTime;
+      const AVG_FPS = 1000 / performanceMetricsRef.current.avgFrameTime;
       const targetFPS = config?.batteryOptimized ? 20 : 30;
       
-      if (avgFPS < targetFPS * 0.8) {
+      if (AVG_FPS < targetFPS * 0.8) {
         onPerformanceIssue?.('low_fps', {
-          fps: avgFPS,
+          fps: AVG_FPS,
           targetFPS,
           particleCount: performanceMetricsRef.current.particleCount,
           frameTime: performanceMetricsRef.current.avgFrameTime

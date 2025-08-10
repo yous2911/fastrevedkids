@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { mockFramerMotion } from '../../tests/mocks';
+import { MOCK_FRAMER_MOTION } from '../../tests/mocks';
 import { SparkleElements, MagicElements, CelebrationElements } from '../ui/Toast';
 
 // Mock framer-motion
-jest.mock('framer-motion', () => mockFramerMotion);
+jest.mock('framer-motion', () => MOCK_FRAMER_MOTION);
 
 describe('SparkleElements Component', () => {
   const defaultProps = {

@@ -18,8 +18,8 @@ export class SpacedRepetitionService {
         .where(
           and(
             eq(revisions.studentId, studentId),
-            eq(revisions.score, 0),
-            lt(revisions.createdAt, now.toISOString())
+            eq(revisions.score, '0'),
+            lt(revisions.createdAt, now)
           )
         )
         .orderBy(revisions.createdAt);

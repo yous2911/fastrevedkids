@@ -26,13 +26,13 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   className = '',
   children
 }) => {
-  const difficultyColors = {
+  const DIFFICULTY_COLORS = {
     facile: 'bg-green-100 text-green-800 border-green-200',
     moyen: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     difficile: 'bg-red-100 text-red-800 border-red-200'
   };
 
-  const difficultyIcons = {
+  const DIFFICULTY_ICONS = {
     facile: '⭐',
     moyen: '⭐⭐',
     difficile: '⭐⭐⭐'
@@ -66,8 +66,8 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {/* Difficulty */}
-          <span className={`px-2 py-1 rounded-full text-xs font-medium border ${difficultyColors[difficulty]}`}>
-            {difficultyIcons[difficulty]} {difficulty}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium border ${DIFFICULTY_COLORS[difficulty]}`}>
+            {DIFFICULTY_ICONS[difficulty]} {difficulty}
           </span>
 
           {/* Duration */}

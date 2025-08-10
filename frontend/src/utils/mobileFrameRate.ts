@@ -214,7 +214,7 @@ export class MobileFrameRateManager {
     
     this.isRunning = true;
     this.lastFrameTime = performance.now();
-    this.animate();
+    this.rafId = requestAnimationFrame(this.animate);
   }
 
   /**
@@ -267,13 +267,13 @@ export class MobileFrameRateManager {
     if (this.frameCounter === 0) return false;
 
     // Calculate target frame time
-    const targetFrameTime = 1000 / this.config.targetFPS;
+    const TARGET_FRAME_TIME = 1000 / this.config.targetFPS;
     
     // Skip if frame is coming too early (unless critical callbacks exist)
     const hasCriticalCallbacks = Array.from(this.callbacks.values())
       .some(cb => cb.priority === 'critical');
     
-    if (!hasCriticalCallbacks && deltaTime < targetFrameTime * 0.9) {
+    if (!hasCriticalCallbacks && deltaTime < TARGET_FRAME_TIME * 0.9) {
       return true;
     }
 
@@ -333,8 +333,8 @@ export class MobileFrameRateManager {
     // Sort callbacks by priority
     const sortedCallbacks = Array.from(this.callbacks.values())
       .sort((a, b) => {
-        const priorities = { critical: 0, high: 1, medium: 2, low: 3 };
-        return priorities[a.priority] - priorities[b.priority];
+        const PRIORITIES = { critical: 0, high: 1, medium: 2, low: 3 };
+        return PRIORITIES[a.priority] - PRIORITIES[b.priority];
       });
 
     // Determine how many callbacks to execute this frame
@@ -408,7 +408,7 @@ export class MobileFrameRateManager {
    * Get maximum callbacks to execute per frame
    */
   private getMaxCallbacksPerFrame(): number {
-    const baseMax = 10;
+    const BASE_MAX = 10;
     
     // Reduce based on performance
     const performanceRatio = this.metrics.currentFPS / this.config.targetFPS;
@@ -420,7 +420,7 @@ export class MobileFrameRateManager {
     // Reduce based on battery
     const batteryMultiplier = this.getBatteryMultiplier();
     
-    return Math.max(1, Math.floor(baseMax * performanceMultiplier * thermalMultiplier * batteryMultiplier));
+    return Math.max(1, Math.floor(BASE_MAX * performanceMultiplier * thermalMultiplier * batteryMultiplier));
   }
 
   /**

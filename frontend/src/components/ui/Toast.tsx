@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // TOAST HOOK AND COMPONENT
 // =====================================================
 
-interface ToastProps {
+interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
   id: string;
   type: 'success' | 'error' | 'warning' | 'info';
   message: string;
@@ -32,21 +32,21 @@ export const Toast: React.FC<ToastProps> = ({
     }
   }, [id, duration, onClose]);
 
-  const typeStyles = {
+  const TYPE_STYLES = {
     success: 'bg-green-500 border-green-600',
     error: 'bg-red-500 border-red-600',
     warning: 'bg-yellow-500 border-yellow-600',
     info: 'bg-blue-500 border-blue-600'
   };
 
-  const typeIcons = {
+  const TYPE_ICONS = {
     success: '✅',
     error: '❌',
     warning: '⚠️',
     info: 'ℹ️'
   };
 
-  const positionStyles = {
+  const POSITION_STYLES = {
     'top-right': 'top-4 right-4',
     'top-left': 'top-4 left-4',
     'bottom-right': 'bottom-4 right-4',
@@ -55,15 +55,15 @@ export const Toast: React.FC<ToastProps> = ({
 
   return (
     <motion.div
-      className={`fixed ${positionStyles[position]} z-50 max-w-sm w-full`}
+      className={`fixed ${POSITION_STYLES[position]} z-50 max-w-sm w-full`}
       initial={{ opacity: 0, x: position.includes('right') ? 100 : -100, y: position.includes('top') ? -100 : 100 }}
       animate={{ opacity: 1, x: 0, y: 0 }}
       exit={{ opacity: 0, x: position.includes('right') ? 100 : -100 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
       {...props}
     >
-      <div className={`${typeStyles[type]} text-white p-4 rounded-xl shadow-lg border-l-4 flex items-center gap-3`}>
-        <span className="text-lg">{typeIcons[type]}</span>
+      <div className={`${TYPE_STYLES[type]} text-white p-4 rounded-xl shadow-lg border-l-4 flex items-center gap-3`}>
+        <span className="text-lg">{TYPE_ICONS[type]}</span>
         <span className="flex-1 font-medium">{message}</span>
         <button
           onClick={() => onClose(id)}
@@ -154,7 +154,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 }) => {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
-  const sizeClasses = {
+  const SIZE_CLASSES = {
     sm: 'h-2',
     md: 'h-3',
     lg: 'h-4'
@@ -181,9 +181,9 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         </div>
       )}
       
-      <div className={`w-full bg-gray-200 rounded-full ${sizeClasses[size]} overflow-hidden`}>
+      <div className={`w-full bg-gray-200 rounded-full ${SIZE_CLASSES[size]} overflow-hidden`}>
         <motion.div
-          className={`${sizeClasses[size]} ${variantClasses[variant]} rounded-full ${animated ? 'transition-all duration-500' : ''}`}
+          className={`${SIZE_CLASSES[size]} ${variantClasses[variant]} rounded-full ${animated ? 'transition-all duration-500' : ''}`}
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -212,13 +212,13 @@ export const SparkleElements: React.FC<FloatingElementProps> = ({
   intensity = 'medium',
   className = ''
 }) => {
-  const sparkleCount = {
+  const SPARKLE_COUNT = {
     low: 3,
     medium: 6,
     high: 10
   };
 
-  const sparkles = Array.from({ length: sparkleCount[intensity] }, (_, i) => (
+  const sparkles = Array.from({ length: SPARKLE_COUNT[intensity] }, (_, i) => (
     <motion.div
       key={i}
       className="absolute text-yellow-400 pointer-events-none"
@@ -264,7 +264,7 @@ export const MagicElements: React.FC<FloatingElementProps> = ({
     high: 6
   };
 
-  const magicEmojis = ['🌟', '✨', '💫', '⭐', '🔮', '🎭'];
+  const MAGIC_EMOJIS = ['🌟', '✨', '💫', '⭐', '🔮', '🎭'];
 
   const elements = Array.from({ length: elementCount[intensity] }, (_, i) => (
     <motion.div
@@ -287,7 +287,7 @@ export const MagicElements: React.FC<FloatingElementProps> = ({
         repeatDelay: 3
       }}
     >
-      {magicEmojis[i % magicEmojis.length]}
+      {MAGIC_EMOJIS[i % MAGIC_EMOJIS.length]}
     </motion.div>
   ));
 
@@ -306,15 +306,15 @@ export const CelebrationElements: React.FC<FloatingElementProps> = ({
   intensity = 'high',
   className = ''
 }) => {
-  const particleCount = {
+  const PARTICLE_COUNT = {
     low: 5,
     medium: 10,
     high: 20
   };
 
-  const celebrationEmojis = ['🎉', '🎊', '🎈', '🏆', '👏', '🌟', '💯', '🔥'];
+  const CELEBRATION_EMOJIS = ['🎉', '🎊', '🎈', '🏆', '👏', '🌟', '💯', '🔥'];
 
-  const particles = Array.from({ length: particleCount[intensity] }, (_, i) => (
+  const particles = Array.from({ length: PARTICLE_COUNT[intensity] }, (_, i) => (
     <motion.div
       key={i}
       className="absolute pointer-events-none text-2xl"
@@ -340,7 +340,7 @@ export const CelebrationElements: React.FC<FloatingElementProps> = ({
         ease: "easeOut"
       }}
     >
-      {celebrationEmojis[Math.floor(Math.random() * celebrationEmojis.length)]}
+      {CELEBRATION_EMOJIS[Math.floor(Math.random() * CELEBRATION_EMOJIS.length)]}
     </motion.div>
   ));
 
@@ -364,7 +364,7 @@ interface ErrorBoundaryState {
 }
 
 interface ErrorBoundaryProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   fallback?: React.ComponentType<{ error?: Error; resetError: () => void }>;
 }
 
@@ -451,7 +451,7 @@ export const Input: React.FC<InputProps> = ({
   className = '',
   ...props
 }) => {
-  const baseClasses = "w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 transition-all";
+  const BASE_CLASSES = "w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 transition-all";
   
   const variantClasses = {
     default: error 
@@ -479,7 +479,7 @@ export const Input: React.FC<InputProps> = ({
         
         <input
           className={`
-            ${baseClasses} 
+            ${BASE_CLASSES} 
             ${variantClasses[variant]} 
             ${leftIcon ? 'pl-10' : ''} 
             ${rightIcon ? 'pr-10' : ''}

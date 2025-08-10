@@ -268,8 +268,8 @@ export class ExerciseGeneratorService {
           difficulte: DIFFICULTE_MAP[template.difficulte],
           configuration: JSON.stringify(configuration),
           xp: this.calculatePoints(template.difficulte),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          createdAt: new Date(),
+          updatedAt: new Date()
         });
       }
     }
@@ -736,8 +736,8 @@ export class ExerciseGeneratorService {
             generatedAt: new Date().toISOString()
           },
           donneesSupplementaires: configuration.donnees || {},
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          createdAt: new Date(),
+          updatedAt: new Date()
         });
       }
     }

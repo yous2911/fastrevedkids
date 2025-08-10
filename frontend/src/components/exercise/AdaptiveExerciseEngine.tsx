@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ExerciseEngine } from './ExerciseEngine';
 import { useAdaptiveLearning } from '../../hooks/useAdaptiveLearning';
 import { ExerciseAttempt } from '../../services/exercise.service';
-import { AdaptiveMetrics } from '../../services/adaptive-learning.service';
+
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { LoadingSpinner } from '../ui/LoadingSpinner';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { ProgressBar } from '../ui/ProgressBar';
+
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { Toast } from '../ui/Toast';
 import { revisionService } from '../../services/revision.service';

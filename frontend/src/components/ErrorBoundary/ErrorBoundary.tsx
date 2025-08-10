@@ -1,9 +1,8 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import * as Sentry from "@sentry/react";
 import { reportError } from '../../utils/sentry';
 
 interface Props {
-  children: ReactNode;
+  children?: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }

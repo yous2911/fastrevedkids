@@ -86,7 +86,7 @@ export const PhysicsSystemManager: React.FC<PhysicsSystemProps> = ({
 
   // Physics quality configurations
   function getPhysicsConfigForDevice(hardwareTier: string, quality: 'low' | 'medium' | 'high'): PhysicsConfig {
-    const configs = {
+    const CONFIGS = {
       low: {
         enabled: true,
         quality: 'low' as const,
@@ -125,7 +125,7 @@ export const PhysicsSystemManager: React.FC<PhysicsSystemProps> = ({
       }
     };
     
-    return configs[quality];
+    return CONFIGS[quality];
   }
 
   // Particle pool management for memory efficiency
@@ -435,8 +435,8 @@ export const PhysicsSystemManager: React.FC<PhysicsSystemProps> = ({
       const deltaTime = currentTime - lastFrameTimeRef.current;
       
       // Frame rate limiting
-      const targetFrameTime = 1000 / config.frameRateTarget;
-      if (deltaTime < targetFrameTime * 0.9) {
+      const TARGET_FRAME_TIME = 1000 / config.frameRateTarget;
+      if (deltaTime < TARGET_FRAME_TIME * 0.9) {
         animationRef.current = requestAnimationFrame(animate);
         return;
       }
@@ -470,13 +470,13 @@ export const PhysicsSystemManager: React.FC<PhysicsSystemProps> = ({
     particle.maxLife = particle.life;
     particle.type = type;
     
-    const colors = {
+    const COLORS = {
       bubble: 'rgba(100, 200, 255, 0.8)',
       spark: 'rgba(255, 200, 50, 0.9)',
       drop: 'rgba(50, 150, 255, 0.7)',
       smoke: 'rgba(100, 100, 100, 0.6)'
     };
-    particle.color = colors[type];
+    particle.color = COLORS[type];
     
     particlesRef.current.push(particle);
   }, [config.maxParticles, getParticleFromPool]);

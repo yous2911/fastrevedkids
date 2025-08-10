@@ -258,15 +258,15 @@ export class ExerciseService {
   }
 
   private getConsecutiveErrors(attempts: any[]): number {
-    let consecutive = 0;
+    let CONSECUTIVE = 0;
     for (const attempt of attempts) {
       if (!attempt.reussi) {
-        consecutive++;
+        CONSECUTIVE++;
       } else {
         break;
       }
     }
-    return consecutive;
+    return CONSECUTIVE;
   }
 
   private getRecommendedConcepts(): string[] {

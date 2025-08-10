@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 // Interface types for better TypeScript support
 interface GameResult {
@@ -109,7 +109,7 @@ const SparkyDanceGame: React.FC<SparkyDanceGameProps> = ({ onComplete }) => {
   const [level, setLevel] = useState<number>(1);
   const [gameState, setGameState] = useState<'waiting' | 'showing' | 'playing' | 'success' | 'failed'>('waiting');
 
-  const directions = [
+  const DIRECTIONS = [
     { id: 'up', emoji: '⬆️', color: 'bg-blue-400' },
     { id: 'down', emoji: '⬇️', color: 'bg-green-400' },
     { id: 'left', emoji: '⬅️', color: 'bg-yellow-400' },
@@ -117,9 +117,9 @@ const SparkyDanceGame: React.FC<SparkyDanceGameProps> = ({ onComplete }) => {
   ];
 
   const startNewRound = useCallback(() => {
-    const newMove = directions[Math.floor(Math.random() * 4)].id;
-    const newSequence = [...sequence, newMove];
-    setSequence(newSequence);
+    const newMove = DIRECTIONS[Math.floor(Math.random() * 4)].id;
+    const NEW_SEQUENCE = [...sequence, newMove];
+    setSequence(NEW_SEQUENCE);
     setPlayerSequence([]);
     setGameState('showing');
     setShowSequence(true);
@@ -127,7 +127,7 @@ const SparkyDanceGame: React.FC<SparkyDanceGameProps> = ({ onComplete }) => {
     setTimeout(() => {
       setShowSequence(false);
       setGameState('playing');
-    }, newSequence.length * 800 + 1000);
+    }, NEW_SEQUENCE.length * 800 + 1000);
   }, [sequence]);
 
   useEffect(() => {
@@ -139,18 +139,18 @@ const SparkyDanceGame: React.FC<SparkyDanceGameProps> = ({ onComplete }) => {
   const handleMove = (direction: string) => {
     if (gameState !== 'playing') return;
 
-    const newPlayerSequence = [...playerSequence, direction];
-    setPlayerSequence(newPlayerSequence);
+    const NEW_PLAYER_SEQUENCE = [...playerSequence, direction];
+    setPlayerSequence(NEW_PLAYER_SEQUENCE);
 
     // Vérifier si correct
-    if (newPlayerSequence[newPlayerSequence.length - 1] !== sequence[newPlayerSequence.length - 1]) {
+    if (NEW_PLAYER_SEQUENCE[NEW_PLAYER_SEQUENCE.length - 1] !== sequence[NEW_PLAYER_SEQUENCE.length - 1]) {
       setGameState('failed');
       setTimeout(() => onComplete({ type: 'sparkyDance', level: level - 1 }), 1500);
       return;
     }
 
     // Si séquence complète
-    if (newPlayerSequence.length === sequence.length) {
+    if (NEW_PLAYER_SEQUENCE.length === sequence.length) {
       setGameState('success');
       if (level >= 5) {
         setTimeout(() => onComplete({ type: 'sparkyDance', level }), 1500);
@@ -186,7 +186,7 @@ const SparkyDanceGame: React.FC<SparkyDanceGameProps> = ({ onComplete }) => {
       {showSequence && (
         <div className="flex justify-center space-x-2 mb-6">
           {sequence.map((move, index) => {
-            const dir = directions.find(d => d.id === move);
+            const dir = DIRECTIONS.find(d => d.id === move);
             if (!dir) return null;
             return (
               <motion.div

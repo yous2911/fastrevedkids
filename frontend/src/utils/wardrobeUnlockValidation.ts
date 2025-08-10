@@ -365,28 +365,28 @@ export const clearUnlockData = (): void => {
 
 // Get unlock statistics (for admin/monitoring)
 export const getUnlockStatistics = (): {
-  totalAttempts: number;
-  successfulUnlocks: number;
-  securityViolations: number;
+  TOTAL_ATTEMPTS: number;
+  SUCCESSFUL_UNLOCKS: number;
+  SECURITY_VIOLATIONS: number;
   cacheHitRate: number;
 } => {
-  let totalAttempts = 0;
-  let successfulUnlocks = 0;
-  let securityViolations = 0;
+  let TOTAL_ATTEMPTS = 0;
+  let SUCCESSFUL_UNLOCKS = 0;
+  let SECURITY_VIOLATIONS = 0;
 
   for (const attempts of unlockAttempts.values()) {
-    totalAttempts += attempts.length;
-    successfulUnlocks += attempts.filter(a => a.result.isUnlocked).length;
-    securityViolations += attempts.filter(a => a.result.securityViolation).length;
+    TOTAL_ATTEMPTS += attempts.length;
+    SUCCESSFUL_UNLOCKS += attempts.filter(a => a.result.isUnlocked).length;
+    SECURITY_VIOLATIONS += attempts.filter(a => a.result.securityViolation).length;
   }
 
   const cacheSize = unlockResultCache.size;
-  const cacheHitRate = cacheSize > 0 ? (cacheSize / Math.max(totalAttempts, 1)) * 100 : 0;
+  const cacheHitRate = cacheSize > 0 ? (cacheSize / Math.max(TOTAL_ATTEMPTS, 1)) * 100 : 0;
 
   return {
-    totalAttempts,
-    successfulUnlocks,
-    securityViolations,
+    TOTAL_ATTEMPTS,
+    SUCCESSFUL_UNLOCKS,
+    SECURITY_VIOLATIONS,
     cacheHitRate
   };
 };

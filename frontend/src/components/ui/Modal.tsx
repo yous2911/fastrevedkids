@@ -15,7 +15,7 @@ export interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-const sizeClasses = {
+const SIZE_CLASSES = {
   sm: 'max-w-md',
   md: 'max-w-lg',
   lg: 'max-w-2xl',
@@ -73,7 +73,7 @@ export const Modal: React.FC<ModalProps> = ({
           {/* Modal */}
           <motion.div
             className={`
-              relative bg-white rounded-2xl shadow-2xl w-full ${sizeClasses[size]} 
+              relative bg-white rounded-2xl shadow-2xl w-full ${SIZE_CLASSES[size]} 
               max-h-[90vh] overflow-hidden ${className}
             `}
             initial={{ opacity: 0, scale: 0.9, y: 20 }}

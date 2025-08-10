@@ -3,11 +3,11 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderHook } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { mockFramerMotion } from '../../tests/mocks';
+import { MOCK_FRAMER_MOTION } from '../../tests/mocks';
 import { Toast, useToast } from '../ui/Toast';
 
 // Mock framer-motion
-jest.mock('framer-motion', () => mockFramerMotion);
+jest.mock('framer-motion', () => MOCK_FRAMER_MOTION);
 
 // Mock timers
 jest.useFakeTimers();
@@ -45,7 +45,7 @@ describe('Toast Component', () => {
     jest.clearAllTimers();
   });
 
-  const defaultProps = {
+  const DEFAULT_PROPS = {
     id: 'test-toast',
     type: 'info' as const,
     message: 'Test message',
@@ -54,75 +54,75 @@ describe('Toast Component', () => {
 
   describe('Basic Rendering', () => {
     it('should render toast with message', () => {
-      render(<Toast {...defaultProps} />);
+      render(<Toast {...DEFAULT_PROPS} />);
       expect(screen.getByText('Test message')).toBeInTheDocument();
     });
 
     it('should render with correct type icon', () => {
-      const types = [
+      const TYPES = [
         { type: 'success' as const, icon: '✅' },
         { type: 'error' as const, icon: '❌' },
         { type: 'warning' as const, icon: '⚠️' },
         { type: 'info' as const, icon: 'ℹ️' },
       ];
 
-      types.forEach(({ type, icon }) => {
-        const { unmount } = render(<Toast {...defaultProps} type={type} />);
+      TYPES.forEach(({ type, icon }) => {
+        const { unmount } = render(<Toast {...DEFAULT_PROPS} type={type} />);
         expect(screen.getByText(icon)).toBeInTheDocument();
         unmount();
       });
     });
 
     it('should render close button', () => {
-      render(<Toast {...defaultProps} />);
+      render(<Toast {...DEFAULT_PROPS} />);
       expect(screen.getByText('×')).toBeInTheDocument();
     });
   });
 
   describe('Toast Types and Styling', () => {
     it('should apply correct styling for success type', () => {
-      render(<Toast {...defaultProps} type="success" />);
+      render(<Toast {...DEFAULT_PROPS} type="success" />);
       const toastElement = screen.getByText('Test message').closest('div');
       expect(toastElement).toHaveClass('bg-green-500', 'border-green-600');
     });
 
     it('should apply correct styling for error type', () => {
-      render(<Toast {...defaultProps} type="error" />);
+      render(<Toast {...DEFAULT_PROPS} type="error" />);
       const toastElement = screen.getByText('Test message').closest('div');
       expect(toastElement).toHaveClass('bg-red-500', 'border-red-600');
     });
 
     it('should apply correct styling for warning type', () => {
-      render(<Toast {...defaultProps} type="warning" />);
+      render(<Toast {...DEFAULT_PROPS} type="warning" />);
       const toastElement = screen.getByText('Test message').closest('div');
       expect(toastElement).toHaveClass('bg-yellow-500', 'border-yellow-600');
     });
 
     it('should apply correct styling for info type', () => {
-      render(<Toast {...defaultProps} type="info" />);
+      render(<Toast {...DEFAULT_PROPS} type="info" />);
       const toastElement = screen.getByText('Test message').closest('div');
       expect(toastElement).toHaveClass('bg-blue-500', 'border-blue-600');
     });
   });
 
   describe('Positioning', () => {
-    const positions = [
+    const POSITIONS = [
       { position: 'top-right' as const, classes: 'top-4 right-4' },
       { position: 'top-left' as const, classes: 'top-4 left-4' },
       { position: 'bottom-right' as const, classes: 'bottom-4 right-4' },
       { position: 'bottom-left' as const, classes: 'bottom-4 left-4' },
     ];
 
-    positions.forEach(({ position, classes }) => {
+    POSITIONS.forEach(({ position, classes }) => {
       it(`should position toast at ${position}`, () => {
-        render(<Toast {...defaultProps} position={position} />);
+        render(<Toast {...DEFAULT_PROPS} position={position} />);
         const toastContainer = document.querySelector('.fixed');
         expect(toastContainer).toHaveClass(...classes.split(' '));
       });
     });
 
     it('should default to top-right position', () => {
-      render(<Toast {...defaultProps} />);
+      render(<Toast {...DEFAULT_PROPS} />);
       const toastContainer = document.querySelector('.fixed');
       expect(toastContainer).toHaveClass('top-4', 'right-4');
     });
@@ -130,7 +130,7 @@ describe('Toast Component', () => {
 
   describe('Auto-dismiss Functionality', () => {
     it('should auto-dismiss after default duration', async () => {
-      render(<Toast {...defaultProps} />);
+      render(<Toast {...DEFAULT_PROPS} />);
       
       expect(mockOnClose).not.toHaveBeenCalled();
       
@@ -142,7 +142,7 @@ describe('Toast Component', () => {
     });
 
     it('should auto-dismiss after custom duration', async () => {
-      render(<Toast {...defaultProps} duration={3000} />);
+      render(<Toast {...DEFAULT_PROPS} duration={3000} />);
       
       act(() => {
         jest.advanceTimersByTime(2999);
@@ -156,7 +156,7 @@ describe('Toast Component', () => {
     });
 
     it('should not auto-dismiss when duration is 0', async () => {
-      render(<Toast {...defaultProps} duration={0} />);
+      render(<Toast {...DEFAULT_PROPS} duration={0} />);
       
       act(() => {
         jest.advanceTimersByTime(10000);
@@ -166,7 +166,7 @@ describe('Toast Component', () => {
     });
 
     it('should not auto-dismiss when duration is negative', async () => {
-      render(<Toast {...defaultProps} duration={-1} />);
+      render(<Toast {...DEFAULT_PROPS} duration={-1} />);
       
       act(() => {
         jest.advanceTimersByTime(10000);
@@ -178,7 +178,7 @@ describe('Toast Component', () => {
 
   describe('Manual Close', () => {
     it('should close when close button is clicked', async () => {
-      render(<Toast {...defaultProps} />);
+      render(<Toast {...DEFAULT_PROPS} />);
       
       const closeButton = screen.getByText('×');
       await user.click(closeButton);
@@ -187,7 +187,7 @@ describe('Toast Component', () => {
     });
 
     it('should call onClose with correct id', async () => {
-      render(<Toast {...defaultProps} id="custom-id" />);
+      render(<Toast {...DEFAULT_PROPS} id="custom-id" />);
       
       const closeButton = screen.getByText('×');
       await user.click(closeButton);
@@ -200,7 +200,7 @@ describe('Toast Component', () => {
     it('should have proper ARIA attributes', () => {
       render(
         <Toast 
-          {...defaultProps} 
+          {...DEFAULT_PROPS} 
           role="alert"
           aria-live="polite"
           aria-atomic="true"
@@ -213,7 +213,7 @@ describe('Toast Component', () => {
     });
 
     it('should be focusable and keyboard accessible', async () => {
-      render(<Toast {...defaultProps} />);
+      render(<Toast {...DEFAULT_PROPS} />);
       
       const closeButton = screen.getByText('×');
       closeButton.focus();
@@ -225,18 +225,18 @@ describe('Toast Component', () => {
 
   describe('Animation', () => {
     it('should have proper animation classes', () => {
-      render(<Toast {...defaultProps} position="top-right" />);
+      render(<Toast {...DEFAULT_PROPS} position="top-right" />);
       
       const toastContainer = document.querySelector('.fixed');
       expect(toastContainer).toBeInTheDocument();
     });
 
     it('should animate from correct direction based on position', () => {
-      const { rerender } = render(<Toast {...defaultProps} position="top-left" />);
+      const { rerender } = render(<Toast {...DEFAULT_PROPS} position="top-left" />);
       let toastContainer = document.querySelector('.fixed');
       expect(toastContainer).toBeInTheDocument();
       
-      rerender(<Toast {...defaultProps} position="bottom-right" />);
+      rerender(<Toast {...DEFAULT_PROPS} position="bottom-right" />);
       toastContainer = document.querySelector('.fixed');
       expect(toastContainer).toBeInTheDocument();
     });
@@ -244,14 +244,14 @@ describe('Toast Component', () => {
 
   describe('Edge Cases', () => {
     it('should handle long messages', () => {
-      const longMessage = 'This is a very long toast message that should still display properly and not break the layout or functionality of the toast component';
-      render(<Toast {...defaultProps} message={longMessage} />);
+      const LONG_MESSAGE = 'This is a very long toast message that should still display properly and not break the layout or functionality of the toast component';
+      render(<Toast {...DEFAULT_PROPS} message={LONG_MESSAGE} />);
       
-      expect(screen.getByText(longMessage)).toBeInTheDocument();
+      expect(screen.getByText(LONG_MESSAGE)).toBeInTheDocument();
     });
 
     it('should handle empty messages', () => {
-      render(<Toast {...defaultProps} message="" />);
+      render(<Toast {...DEFAULT_PROPS} message="" />);
       
       const messageSpan = document.querySelector('.flex-1.font-medium');
       expect(messageSpan).toBeInTheDocument();
@@ -260,10 +260,10 @@ describe('Toast Component', () => {
     });
 
     it('should handle special characters in messages', () => {
-      const specialMessage = 'Toast with émojis 🚀 and special chars: <>&"\'';
-      render(<Toast {...defaultProps} message={specialMessage} />);
+      const SPECIAL_MESSAGE = 'Toast with émojis 🚀 and special chars: <>&"\'';
+      render(<Toast {...DEFAULT_PROPS} message={SPECIAL_MESSAGE} />);
       
-      expect(screen.getByText(specialMessage)).toBeInTheDocument();
+      expect(screen.getByText(SPECIAL_MESSAGE)).toBeInTheDocument();
     });
   });
 });
@@ -457,7 +457,8 @@ describe('useToast Hook', () => {
     it('should remove specific toast by ID', () => {
       const { result } = renderHook(() => useToast());
       
-      let firstId: string, secondId: string;
+      let firstId: string = '';
+      let secondId: string = '';
       
       act(() => {
         firstId = result.current.success('First toast');
@@ -558,7 +559,7 @@ describe('useToast Hook', () => {
     it('should return stable references for functions', () => {
       const { result, rerender } = renderHook(() => useToast());
       
-      const initialRefs = {
+      const INITIAL_REFS = {
         addToast: result.current.addToast,
         removeToast: result.current.removeToast,
         success: result.current.success,
@@ -569,12 +570,12 @@ describe('useToast Hook', () => {
       
       rerender();
       
-      expect(result.current.addToast).toBe(initialRefs.addToast);
-      expect(result.current.removeToast).toBe(initialRefs.removeToast);
-      expect(result.current.success).toBe(initialRefs.success);
-      expect(result.current.error).toBe(initialRefs.error);
-      expect(result.current.warning).toBe(initialRefs.warning);
-      expect(result.current.info).toBe(initialRefs.info);
+      expect(result.current.addToast).toBe(INITIAL_REFS.addToast);
+      expect(result.current.removeToast).toBe(INITIAL_REFS.removeToast);
+      expect(result.current.success).toBe(INITIAL_REFS.success);
+      expect(result.current.error).toBe(INITIAL_REFS.error);
+      expect(result.current.warning).toBe(INITIAL_REFS.warning);
+      expect(result.current.info).toBe(INITIAL_REFS.info);
     });
   });
 });

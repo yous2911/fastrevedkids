@@ -27,7 +27,7 @@ class GdprService {
       userAgent: data.userAgent || null,
       requestId: data.requestId || null,
       metadata: '{}',
-      createdAt: new Date().toISOString(),
+      createdAt: new Date(),
     };
 
     await this.db.insert(gdprDataProcessingLog).values(logEntry);
@@ -82,7 +82,7 @@ class GdprService {
         estConnecte: false,
         dernierAcces: null,
         // Ajouter un flag de suppression logique si nécessaire
-        updatedAt: new Date().toISOString(),
+        updatedAt: new Date(),
       })
       .where(eq(students.id, studentId));
 

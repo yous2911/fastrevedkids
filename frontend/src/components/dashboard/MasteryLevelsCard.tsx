@@ -24,7 +24,7 @@ interface MasteryLevelsCardProps {
   studentLevel: string;
 }
 
-const MasteryLevelsCard: React.FC<MasteryLevelsCardProps> = ({ 
+const masteryLevelsCard: React.FC<MasteryLevelsCardProps> = ({ 
   competenceProgress, 
   loading, 
   studentLevel 
@@ -32,7 +32,7 @@ const MasteryLevelsCard: React.FC<MasteryLevelsCardProps> = ({
   const getMasteryStats = () => {
     if (!competenceProgress.length) return null;
     
-    const stats = {
+    const STATS = {
       not_started: competenceProgress.filter(cp => cp.masteryLevel === 'not_started').length,
       discovering: competenceProgress.filter(cp => cp.masteryLevel === 'discovering').length,
       practicing: competenceProgress.filter(cp => cp.masteryLevel === 'practicing').length,
@@ -40,9 +40,9 @@ const MasteryLevelsCard: React.FC<MasteryLevelsCardProps> = ({
       mastered: competenceProgress.filter(cp => cp.masteryLevel === 'mastered').length,
     };
     
-    const total = Object.values(stats).reduce((sum, count) => sum + count, 0);
+    const total = Object.values(STATS).reduce((sum, count) => sum + count, 0);
     
-    return { stats, total };
+    return { STATS, total };
   };
 
   const getMasteryColor = (level: string) => {
@@ -80,7 +80,7 @@ const MasteryLevelsCard: React.FC<MasteryLevelsCardProps> = ({
 
   const masteryData = getMasteryStats();
   const overallProgress = masteryData ? 
-    Math.round(((masteryData.stats.mastered + masteryData.stats.mastering * 0.8 + masteryData.stats.practicing * 0.5) / masteryData.total) * 100) : 0;
+    Math.round(((masteryData.STATS.mastered + masteryData.STATS.mastering * 0.8 + masteryData.STATS.practicing * 0.5) / masteryData.total) * 100) : 0;
 
   if (loading) {
     return (
@@ -124,7 +124,7 @@ const MasteryLevelsCard: React.FC<MasteryLevelsCardProps> = ({
           {/* Mastery Level Breakdown */}
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-gray-600 mb-3">Répartition par niveau :</h4>
-            {Object.entries(masteryData.stats).map(([level, count]) => (
+            {Object.entries(masteryData.STATS).map(([level, count]) => (
               count > 0 && (
                 <motion.div
                   key={level}
@@ -155,9 +155,9 @@ const MasteryLevelsCard: React.FC<MasteryLevelsCardProps> = ({
             <div className="flex items-center gap-2 mb-1">
               <span className="text-green-600 font-semibold text-sm">🏆 Récemment maîtrisé :</span>
             </div>
-            {masteryData.stats.mastered > 0 ? (
+            {masteryData.STATS.mastered > 0 ? (
               <p className="text-green-700 text-sm">
-                {masteryData.stats.mastered} compétence{masteryData.stats.mastered > 1 ? 's' : ''} maîtrisée{masteryData.stats.mastered > 1 ? 's' : ''} !
+                {masteryData.STATS.mastered} compétence{masteryData.STATS.mastered > 1 ? 's' : ''} maîtrisée{masteryData.STATS.mastered > 1 ? 's' : ''} !
               </p>
             ) : (
               <p className="text-green-600 text-sm">Continue à t'exercer pour maîtriser tes premières compétences !</p>
@@ -170,10 +170,10 @@ const MasteryLevelsCard: React.FC<MasteryLevelsCardProps> = ({
               <span className="text-blue-600 font-semibold text-sm">🎯 Prochains objectifs :</span>
             </div>
             <p className="text-blue-700 text-sm">
-              {masteryData.stats.practicing > 0 ? (
-                `${masteryData.stats.practicing} compétence${masteryData.stats.practicing > 1 ? 's' : ''} en cours de pratique`
-              ) : masteryData.stats.discovering > 0 ? (
-                `${masteryData.stats.discovering} compétence${masteryData.stats.discovering > 1 ? 's' : ''} en découverte`
+              {masteryData.STATS.practicing > 0 ? (
+                `${masteryData.STATS.practicing} compétence${masteryData.STATS.practicing > 1 ? 's' : ''} en cours de pratique`
+              ) : masteryData.STATS.discovering > 0 ? (
+                `${masteryData.STATS.discovering} compétence${masteryData.STATS.discovering > 1 ? 's' : ''} en découverte`
               ) : (
                 'Commence de nouveaux exercices pour progresser !'
               )}
@@ -190,4 +190,4 @@ const MasteryLevelsCard: React.FC<MasteryLevelsCardProps> = ({
   );
 };
 
-export default MasteryLevelsCard;
+export default masteryLevelsCard;

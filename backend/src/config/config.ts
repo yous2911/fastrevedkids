@@ -57,19 +57,43 @@ const configSchema = z.object({
   // Security (with development fallbacks)
   JWT_SECRET: z.string().min(8).default('dev-secret-key-change-in-production-minimum-32-chars'),
   JWT_EXPIRES_IN: z.string().default('24h'),
+  JWT_REFRESH_SECRET: z.string().min(8).default('dev-refresh-secret-change-in-production-minimum-32-chars'),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
   ENCRYPTION_KEY: z.string().min(8).default('dev-encryption-key-change-in-production-32-chars'),
+  COOKIE_SECRET: z.string().min(8).default('dev-cookie-secret-change-in-production-minimum-32-chars'),
+  
+  // Production security settings
+  TRUST_PROXY: z.coerce.boolean().default(true),
+  SECURE_COOKIES: z.coerce.boolean().default(false),
+  SAME_SITE: z.enum(['strict', 'lax', 'none']).default('lax'),
+  HTTPS_ONLY: z.coerce.boolean().default(false),
   
   // Rate Limiting
   RATE_LIMIT_MAX: z.coerce.number().default(100),
   RATE_LIMIT_WINDOW: z.coerce.number().default(900000), // 15 minutes
+  RATE_LIMIT_AUTH_MAX: z.coerce.number().default(10), // Stricter for auth endpoints
+  RATE_LIMIT_AUTH_WINDOW: z.coerce.number().default(900000), // 15 minutes
+  RATE_LIMIT_GLOBAL_MAX: z.coerce.number().default(10000), // Global rate limit
+  RATE_LIMIT_GLOBAL_WINDOW: z.coerce.number().default(3600000), // 1 hour
   
-  // File Upload
+  // DDoS Protection
+  DDOS_MAX_REQUESTS: z.coerce.number().default(1000),
+  DDOS_TIME_WINDOW: z.coerce.number().default(60000), // 1 minute
+  DDOS_BAN_DURATION: z.coerce.number().default(3600000), // 1 hour
+  
+  // File Upload Security
   MAX_FILE_SIZE: z.coerce.number().default(10485760), // 10MB
+  MAX_FILES_PER_REQUEST: z.coerce.number().default(5),
   UPLOAD_PATH: z.string().default('./uploads'),
+  ALLOWED_EXTENSIONS: z.string().default('.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx'),
+  SCAN_UPLOADS: z.coerce.boolean().default(true),
   
-  // Monitoring
+  // Monitoring & Health Checks
   ENABLE_METRICS: z.coerce.boolean().default(true),
   METRICS_INTERVAL: z.coerce.number().default(60000),
+  HEALTH_CHECK_TIMEOUT: z.coerce.number().default(5000),
+  PROMETHEUS_ENABLED: z.coerce.boolean().default(true),
+  PROMETHEUS_PORT: z.coerce.number().default(9090),
   
   // Cache
   CACHE_TTL: z.coerce.number().default(900),
@@ -83,9 +107,13 @@ const configSchema = z.object({
   CORS_ORIGIN: z.string().default('http://localhost:3000,http://localhost:3001'),
   CORS_CREDENTIALS: z.coerce.boolean().default(true),
   
-  // Logging
+  // Structured Logging
   LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
   LOG_FILE: z.string().optional().default(''),
+  LOG_FORMAT: z.enum(['json', 'pretty']).default('json'),
+  LOG_ROTATION: z.coerce.boolean().default(true),
+  LOG_MAX_SIZE: z.string().default('100MB'),
+  LOG_MAX_FILES: z.coerce.number().default(10),
   
   // WebSocket
   WS_HEARTBEAT_INTERVAL: z.coerce.number().default(30000),
@@ -205,6 +233,8 @@ export const redisConfig = {
 export const jwtConfig = {
   secret: config.JWT_SECRET,
   expiresIn: config.JWT_EXPIRES_IN,
+  refreshSecret: config.JWT_REFRESH_SECRET,
+  refreshExpiresIn: config.JWT_REFRESH_EXPIRES_IN,
   algorithm: 'HS256' as const,
   issuer: 'reved-kids',
   audience: 'reved-kids-students',
@@ -221,6 +251,37 @@ export const rateLimitConfig = {
   keyGenerator: (req: any) => {
     return req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   },
+};
+
+// Auth rate limiting (stricter)
+export const authRateLimitConfig = {
+  max: config.RATE_LIMIT_AUTH_MAX,
+  timeWindow: config.RATE_LIMIT_AUTH_WINDOW,
+  cache: 1000,
+  allowList: isDevelopment ? ['127.0.0.1', 'localhost'] : [],
+  continueExceeding: false,
+  skipOnError: false,
+  keyGenerator: (req: any) => {
+    return req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  },
+};
+
+// Global rate limiting
+export const globalRateLimitConfig = {
+  max: config.RATE_LIMIT_GLOBAL_MAX,
+  timeWindow: config.RATE_LIMIT_GLOBAL_WINDOW,
+  cache: 50000,
+  skipOnError: true,
+  keyGenerator: (req: any) => {
+    return req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  },
+};
+
+// DDoS protection configuration
+export const ddosConfig = {
+  maxRequests: config.DDOS_MAX_REQUESTS,
+  timeWindow: config.DDOS_TIME_WINDOW,
+  banDuration: config.DDOS_BAN_DURATION,
 };
 
 // Helmet configuration
@@ -275,6 +336,43 @@ export const emailConfig = {
   supportEmail: config.SUPPORT_EMAIL,
 };
 
+// Cookie configuration
+export const cookieConfig = {
+  secret: config.COOKIE_SECRET,
+  secure: config.SECURE_COOKIES || isProduction,
+  httpOnly: true,
+  sameSite: config.SAME_SITE as 'strict' | 'lax' | 'none',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+};
+
+// File upload configuration
+export const uploadConfig = {
+  maxFileSize: config.MAX_FILE_SIZE,
+  maxFilesPerRequest: config.MAX_FILES_PER_REQUEST,
+  uploadPath: config.UPLOAD_PATH,
+  allowedExtensions: config.ALLOWED_EXTENSIONS.split(',').map(ext => ext.trim()),
+  scanUploads: config.SCAN_UPLOADS,
+};
+
+// Monitoring configuration
+export const monitoringConfig = {
+  enableMetrics: config.ENABLE_METRICS,
+  metricsInterval: config.METRICS_INTERVAL,
+  healthCheckTimeout: config.HEALTH_CHECK_TIMEOUT,
+  prometheusEnabled: config.PROMETHEUS_ENABLED,
+  prometheusPort: config.PROMETHEUS_PORT,
+};
+
+// Logging configuration
+export const loggingConfig = {
+  level: config.LOG_LEVEL,
+  file: config.LOG_FILE,
+  format: config.LOG_FORMAT,
+  rotation: config.LOG_ROTATION,
+  maxSize: config.LOG_MAX_SIZE,
+  maxFiles: config.LOG_MAX_FILES,
+};
+
 // Enhanced validation with helpful messages
 export function validateEnvironment(): void {
   const warnings: string[] = [];
@@ -286,12 +384,32 @@ export function validateEnvironment(): void {
       errors.push('JWT_SECRET must be changed and be at least 32 characters in production');
     }
     
+    if (config.JWT_REFRESH_SECRET.includes('dev-') || config.JWT_REFRESH_SECRET.length < 32) {
+      errors.push('JWT_REFRESH_SECRET must be changed and be at least 32 characters in production');
+    }
+    
     if (config.ENCRYPTION_KEY.includes('dev-') || config.ENCRYPTION_KEY.length < 32) {
       errors.push('ENCRYPTION_KEY must be changed and be at least 32 characters in production');
     }
     
+    if (config.COOKIE_SECRET.includes('dev-') || config.COOKIE_SECRET.length < 32) {
+      errors.push('COOKIE_SECRET must be changed and be at least 32 characters in production');
+    }
+    
     if (!config.DB_PASSWORD) {
       warnings.push('Database password is empty in production');
+    }
+    
+    if (!config.HTTPS_ONLY) {
+      warnings.push('HTTPS_ONLY should be enabled in production');
+    }
+    
+    if (!config.SECURE_COOKIES) {
+      warnings.push('SECURE_COOKIES should be enabled in production');
+    }
+    
+    if (config.CORS_ORIGIN.includes('localhost')) {
+      warnings.push('CORS_ORIGIN contains localhost in production');
     }
   }
 

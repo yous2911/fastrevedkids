@@ -113,11 +113,11 @@ export const useEducationalDashboard = () => {
   };
 
   const calculateLearningVelocity = (wahooData: UseWahooEngineReturn): number => {
-    const baseVelocity = 1.0;
+    const BASE_VELOCITY = 1.0;
     const streakBonus = wahooData.streak > 10 ? 0.2 : 0;
     const accuracyBonus = wahooData.totalCorrect > 100 ? 0.1 : 0;
     
-    return Math.min(baseVelocity + streakBonus + accuracyBonus, 2.0);
+    return Math.min(BASE_VELOCITY + streakBonus + accuracyBonus, 2.0);
   };
 
   const determineCognitiveLoad = (wahooData: UseWahooEngineReturn): 'optimal' | 'under-challenged' | 'overwhelmed' => {
@@ -181,12 +181,12 @@ export const useEducationalDashboard = () => {
   };
 
   const calculateMascotHappiness = (mascotData: UseMascotDataReturn, wahooData: UseWahooEngineReturn): number => {
-    const baseHappiness = 50;
+    const BASE_HAPPINESS = 50;
     const unlockBonus = mascotData.unlockedItems.length * 5;
     const engagementBonus = wahooData.engagementLevel === 'high' ? 20 : 
                            wahooData.engagementLevel === 'medium' ? 10 : 0;
     
-    return Math.min(baseHappiness + unlockBonus + engagementBonus, 100);
+    return Math.min(BASE_HAPPINESS + unlockBonus + engagementBonus, 100);
   };
 
   return {

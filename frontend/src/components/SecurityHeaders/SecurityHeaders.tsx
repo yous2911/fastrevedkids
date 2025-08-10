@@ -9,7 +9,7 @@ const SecurityHeaders: React.FC = () => {
     return null;
   }
 
-  const checks = [
+  const CHECKS = [
     { key: 'httpsOnly', label: 'HTTPS Only', status: securityStatus.httpsOnly },
     { key: 'csp', label: 'Content Security Policy', status: securityStatus.csp },
     { key: 'xssProtection', label: 'XSS Protection', status: securityStatus.xssProtection },
@@ -22,7 +22,7 @@ const SecurityHeaders: React.FC = () => {
     <div className="fixed bottom-4 right-4 bg-white border rounded-lg shadow-lg p-4 max-w-sm z-50">
       <h3 className="font-bold text-sm mb-2">🔒 Security Status</h3>
       <div className="space-y-1">
-        {checks.map(({ key, label, status }) => (
+        {CHECKS.map(({ key, label, status }) => (
           <div key={key} className="flex items-center justify-between text-xs">
             <span>{label}</span>
             <span className={`ml-2 ${status ? 'text-green-600' : 'text-red-600'}`}>

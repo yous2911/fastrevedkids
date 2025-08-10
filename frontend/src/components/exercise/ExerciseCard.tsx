@@ -21,13 +21,13 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   disabled = false,
   className = ''
 }) => {
-  const difficultyColors = {
+  const DIFFICULTY_COLORS = {
     FACILE: 'from-green-400 to-green-600',
     MOYEN: 'from-yellow-400 to-orange-500', 
     DIFFICILE: 'from-red-400 to-red-600'
   };
 
-  const typeIcons = {
+  const TYPE_ICONS = {
     QCM: '🎯',
     CALCUL: '🧮',
     TEXTE_LIBRE: '✍️',
@@ -64,7 +64,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
       {/* Difficulty Badge */}
       <div className={`
         absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-bold text-white
-        bg-gradient-to-r ${difficultyColors[exercise.difficulte]}
+        bg-gradient-to-r ${DIFFICULTY_COLORS[exercise.difficulte]}
       `}>
         {exercise.difficulte}
       </div>
@@ -80,7 +80,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
       <div className="p-6">
         {/* Exercise Type Icon */}
         <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-purple-500 to-blue-500">
-          <span className="text-2xl">{typeIcons[exercise.type]}</span>
+          <span className="text-2xl">{TYPE_ICONS[exercise.type]}</span>
         </div>
 
         {/* Exercise Info */}

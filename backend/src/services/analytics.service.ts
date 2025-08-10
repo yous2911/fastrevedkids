@@ -89,7 +89,7 @@ export class AnalyticsService {
         .from(schema.sessions)
         .where(and(
           eq(schema.sessions.studentId, studentId),
-          gte(schema.sessions.createdAt, startDate.toISOString())
+          gte(schema.sessions.createdAt, startDate)
         ));
 
       // Get student progress for points calculation
@@ -102,7 +102,7 @@ export class AnalyticsService {
         .from(schema.progress)
         .where(and(
           eq(schema.progress.studentId, studentId),
-          gte(schema.progress.createdAt, startDate.toISOString())
+          gte(schema.progress.createdAt, startDate)
         ));
 
       const totalSessions = sessions.length;

@@ -391,14 +391,14 @@ export const BatteryOptimizedAnimations: React.FC<BatteryOptimizedAnimationsProp
   const cssVariables = useMemo(() => {
     if (!currentPowerMode) return {};
 
-    const complexityDurations = {
+    const COMPLEXITY_DURATIONS = {
       full: 1,
       reduced: 1.5,
       minimal: 2,
       static: 0
     };
 
-    const complexityMultiplier = complexityDurations[currentPowerMode.animationComplexity];
+    const complexityMultiplier = COMPLEXITY_DURATIONS[currentPowerMode.animationComplexity];
 
     return {
       '--battery-animation-duration-multiplier': complexityMultiplier.toString(),
@@ -545,7 +545,7 @@ export function useBatteryOptimizedAnimation(
  * Get power-aware animation name
  */
 function getPowerAwareAnimationName(type: string, powerMode: string | null): string {
-  const baseAnimations = {
+  const BASE_ANIMATIONS = {
     fade: 'fadeInOut',
     slide: 'slideInOut', 
     scale: 'scaleInOut',
@@ -554,7 +554,7 @@ function getPowerAwareAnimationName(type: string, powerMode: string | null): str
     elastic: 'elasticInOut'
   };
 
-  const animation = baseAnimations[type as keyof typeof baseAnimations] || 'fadeInOut';
+  const animation = BASE_ANIMATIONS[type as keyof typeof BASE_ANIMATIONS] || 'fadeInOut';
 
   // Use simplified animations for lower power modes
   if (powerMode === 'ultra-saver' || powerMode === 'saver') {

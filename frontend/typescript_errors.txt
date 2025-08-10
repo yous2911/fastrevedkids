@@ -1,0 +1,162 @@
+src/components/CrossBrowserMascot3D.tsx(127,28): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/CrossBrowserMascot3D.tsx(137,13): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/CrossBrowserMascot3D.tsx(138,13): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/CrossBrowserMascot3D.tsx(143,35): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/CrossBrowserMascot3D.tsx(145,11): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/CrossBrowserMascot3D.tsx(146,11): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/CrossBrowserMascot3D.tsx(245,23): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/CrossBrowserMascot3D.tsx(422,13): error TS2339: Property 'background' does not exist on type 'Vector3'.
+src/components/CrossBrowserMascot3D.tsx(426,26): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/CrossBrowserMascot3D.tsx(446,15): error TS2339: Property 'clear' does not exist on type 'Vector3'.
+src/components/CrossBrowserMascot3D.tsx(452,32): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/CrossBrowserMascot3D.tsx(456,38): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/CrossBrowserMascot3D.tsx(494,15): error TS2339: Property 'traverse' does not exist on type 'Vector3'.
+src/components/MascotWardrobe3D.tsx(340,36): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(345,36): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(350,34): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(364,31): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(404,23): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(420,10): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(421,10): error TS2339: Property 'receiveShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(432,10): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(433,10): error TS2339: Property 'receiveShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(446,27): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(446,39): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(448,13): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(452,28): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(452,40): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(454,14): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(469,32): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(469,44): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(472,18): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(476,33): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(476,45): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(479,19): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(484,53): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(489,17): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(494,23): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(499,24): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(508,17): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(519,14): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(529,17): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(534,18): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(541,14): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(551,14): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(560,76): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(575,23): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(587,13): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(607,16): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(625,15): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(632,31): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(632,43): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(639,17): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(654,14): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(666,14): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(686,19): error TS2339: Property 'castShadow' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(696,35): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(802,45): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(828,21): error TS2339: Property 'geometry' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(829,19): error TS2339: Property 'geometry' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(831,21): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(832,37): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(833,21): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(835,21): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/MascotWardrobe3D.tsx(844,31): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(952,35): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(1043,11): error TS2339: Property 'background' does not exist on type 'Vector3'.
+src/components/MascotWardrobe3D.tsx(1047,24): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(1052,26): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(1064,33): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(1079,30): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(1080,11): error TS2339: Property 'add' does not exist on type 'Vector3'.
+src/components/MascotWardrobe3D.tsx(1082,34): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(1085,11): error TS2339: Property 'add' does not exist on type 'Vector3'.
+src/components/MascotWardrobe3D.tsx(1088,31): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(1090,11): error TS2339: Property 'add' does not exist on type 'Vector3'.
+src/components/MascotWardrobe3D.tsx(1092,31): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MascotWardrobe3D.tsx(1094,11): error TS2339: Property 'add' does not exist on type 'Vector3'.
+src/components/MascotWardrobe3D.tsx(1101,11): error TS2339: Property 'add' does not exist on type 'Vector3'.
+src/components/MascotWardrobe3D.tsx(1167,13): error TS2339: Property 'clear' does not exist on type 'Vector3'.
+src/components/MobileOptimizedRenderer.tsx(165,60): error TS2554: Expected 0-3 arguments, but got 6.
+src/components/MobileOptimizedRenderer.tsx(170,100): error TS2554: Expected 0-4 arguments, but got 5.
+src/components/MobileOptimizedRenderer.tsx(197,24): error TS2339: Property 'MeshLambertMaterial' does not exist on type 'typeof THREE'.
+src/components/MobileOptimizedRenderer.tsx(205,22): error TS2339: Property 'MeshStandardMaterial' does not exist on type 'typeof THREE'.
+src/components/MobileOptimizedRenderer.tsx(364,26): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MobileOptimizedRenderer.tsx(370,28): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MobileOptimizedRenderer.tsx(384,35): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MobileOptimizedRenderer.tsx(388,30): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MobileOptimizedRenderer.tsx(393,32): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MobileOptimizedRenderer.tsx(394,13): error TS2339: Property 'add' does not exist on type 'Vector3'.
+src/components/MobileOptimizedRenderer.tsx(397,31): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/components/MobileOptimizedRenderer.tsx(424,13): error TS2339: Property 'add' does not exist on type 'Vector3'.
+src/components/MobileOptimizedRenderer.tsx(452,15): error TS2339: Property 'traverse' does not exist on type 'Vector3'.
+src/components/MobileOptimizedRenderer.tsx(454,20): error TS2339: Property 'geometry' does not exist on type 'Mesh'.
+src/components/MobileOptimizedRenderer.tsx(455,38): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/MobileOptimizedRenderer.tsx(456,22): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/MobileOptimizedRenderer.tsx(458,22): error TS2339: Property 'material' does not exist on type 'Mesh'.
+src/components/optimization/LazyRoutes.tsx(6,27): error TS2305: Module '"react"' has no exported member 'ErrorBoundary'.
+src/components/optimization/LazyRoutes.tsx(261,15): error TS2339: Property 'preloadAssets' does not exist on type 'LazyLoadManager'.
+src/components/optimization/LazyRoutes.tsx(277,17): error TS2339: Property 'preloadAssets' does not exist on type 'LazyLoadManager'.
+src/components/optimization/LazyRoutes.tsx(298,19): error TS2339: Property 'preloadAssets' does not exist on type 'LazyLoadManager'.
+src/components/optimization/OptimizationDashboard.tsx(63,34): error TS2551: Property 'totalSize' does not exist on type '{ loadedModules: number; TOTAL_SIZE: number; memoryUsage: number; loadingTime: number; }'. Did you mean 'TOTAL_SIZE'?
+src/components/optimization/OptimizationDashboard.tsx(64,35): error TS2339: Property 'chunkSizes' does not exist on type '{ loadedModules: number; TOTAL_SIZE: number; memoryUsage: number; loadingTime: number; }'.
+src/components/optimization/OptimizationDashboard.tsx(65,41): error TS2339: Property 'compressionRatio' does not exist on type '{ loadedModules: number; TOTAL_SIZE: number; memoryUsage: number; loadingTime: number; }'.
+src/components/ui/Button.tsx(7,18): error TS2430: Interface 'ButtonProps' incorrectly extends interface 'ButtonHTMLAttributes<HTMLButtonElement>'.
+  Types of property 'icon' are incompatible.
+    Type 'ReactNode' is not assignable to type 'ReactElement<any, string | JSXElementConstructor<any>>'.
+      Type 'string' is not assignable to type 'ReactElement<any, string | JSXElementConstructor<any>>'.
+src/components/ui/NextLevelXPSystem.tsx(234,47): error TS2339: Property 'progress' does not exist on type '(baseLabel: string, context?: Record<string, any>) => string'.
+src/components/ui/NextLevelXPSystem.tsx(235,44): error TS2339: Property 'level' does not exist on type '(baseLabel: string, context?: Record<string, any>) => string'.
+src/components/ui/WardrobeSystem.tsx(23,20): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/secureAssetLoader.ts(261,42): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/secureAssetLoader.ts(264,24): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/secureAssetLoader.ts(268,14): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(4,29): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(4,52): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(5,29): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(5,46): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(6,27): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(6,43): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(18,23): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(19,22): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(20,21): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(23,27): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(23,48): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(28,27): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(28,42): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(33,25): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(33,39): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeMemoryManager.ts(56,33): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(9,22): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(10,34): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(11,35): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(12,30): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(13,29): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(14,33): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(15,27): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(16,26): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(17,32): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(20,30): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(26,32): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(27,24): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(28,22): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(29,24): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(30,27): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(37,19): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(37,43): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(38,21): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(39,20): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(39,39): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(39,62): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(54,25): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(60,25): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(64,25): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(72,36): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(80,30): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(85,34): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(96,23): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(96,47): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(100,25): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(107,32): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(160,47): error TS2693: 'any' only refers to a type, but is being used as a value here.
+src/utils/threeOptimized.ts(171,22): error TS2693: 'any' only refers to a type, but is being used as a value here.

@@ -2,11 +2,11 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { mockFramerMotion } from '../../tests/mocks';
+import { MOCK_FRAMER_MOTION } from '../../tests/mocks';
 import { Sidebar, SidebarItem } from '../layout/Sidebar';
 
 // Mock framer-motion
-jest.mock('framer-motion', () => mockFramerMotion);
+jest.mock('framer-motion', () => MOCK_FRAMER_MOTION);
 
 // Mock useApp hook
 const mockDispatch = jest.fn();
@@ -14,7 +14,7 @@ const mockLogout = jest.fn();
 const mockUseApp = jest.fn(() => ({
   state: {
     sidebarOpen: false,
-    currentStudent: null
+    currentStudent: null as any
   },
   dispatch: mockDispatch,
   logout: mockLogout
@@ -215,12 +215,16 @@ describe('Sidebar Component', () => {
         state: {
           sidebarOpen: false,
           currentStudent: {
+            id: 1,
             prenom: 'Alice',
             nom: 'Dupont',
+            dateNaissance: '2015-01-01',
             niveauActuel: 'CE2',
             totalPoints: 1250,
             serieJours: 7,
-            mascotteType: 'dragon'
+            mascotteType: 'dragon',
+            createdAt: '2023-01-01T00:00:00.000Z',
+            updatedAt: '2023-01-01T00:00:00.000Z'
           }
         },
         dispatch: mockDispatch,
@@ -256,23 +260,28 @@ describe('Sidebar Component', () => {
     });
 
     it('should display different mascot types correctly', () => {
-      const mascotTypes = [
+      const MASCOT_TYPES = [
         { type: 'fairy', emoji: '🧚‍♀️' },
         { type: 'robot', emoji: '🤖' },
         { type: 'cat', emoji: '🐱' },
         { type: 'owl', emoji: '🦉' }
       ];
 
-      mascotTypes.forEach(({ type, emoji }) => {
+      MASCOT_TYPES.forEach(({ type, emoji }) => {
         mockUseApp.mockReturnValue({
           state: {
             sidebarOpen: false,
             currentStudent: {
+              id: 1,
               prenom: 'Test',
+              nom: 'User',
+              dateNaissance: '2015-01-01',
               niveauActuel: 'CE2',
               totalPoints: 100,
               serieJours: 1,
-              mascotteType: type
+              mascotteType: type,
+              createdAt: '2023-01-01T00:00:00.000Z',
+              updatedAt: '2023-01-01T00:00:00.000Z'
             }
           },
           dispatch: mockDispatch,
@@ -515,11 +524,16 @@ describe('Sidebar Component', () => {
         state: {
           sidebarOpen: false,
           currentStudent: {
+            id: 1,
             prenom: 'Alice',
+            nom: 'Dupont',
+            dateNaissance: '2015-01-01',
             niveauActuel: 'CE2',
             totalPoints: 1250,
             serieJours: 7,
-            mascotteType: 'dragon'
+            mascotteType: 'dragon',
+            createdAt: '2023-01-01T00:00:00.000Z',
+            updatedAt: '2023-01-01T00:00:00.000Z'
           }
         },
         dispatch: mockDispatch,
@@ -555,13 +569,13 @@ describe('Sidebar Component', () => {
     });
 
     it('should handle items without badges', () => {
-      const itemsWithoutBadges = [
+      const ITEMS_WITHOUT_BADGES = [
         { id: 'simple', label: 'Simple Item', icon: '📄', path: '/simple' }
       ];
 
       render(
         <Sidebar 
-          items={itemsWithoutBadges} 
+          items={ITEMS_WITHOUT_BADGES} 
           currentPath="/simple" 
           onNavigate={mockOnNavigate} 
         />
@@ -576,11 +590,16 @@ describe('Sidebar Component', () => {
         state: {
           sidebarOpen: false,
           currentStudent: {
+            id: 1,
             prenom: 'Alice',
+            nom: 'Dupont',
+            dateNaissance: '2015-01-01',
             niveauActuel: 'CE2',
             totalPoints: 1250,
             serieJours: 7,
-            mascotteType: 'unknown'
+            mascotteType: 'unknown' as any,
+            createdAt: '2023-01-01T00:00:00.000Z',
+            updatedAt: '2023-01-01T00:00:00.000Z'
           }
         },
         dispatch: mockDispatch,
@@ -601,7 +620,7 @@ describe('Sidebar Component', () => {
     });
 
     it('should handle very long item labels', () => {
-      const longLabelItems = [
+      const LONG_LABEL_ITEMS = [
         { 
           id: 'long', 
           label: 'This is a very long navigation item label that might cause layout issues', 
@@ -612,7 +631,7 @@ describe('Sidebar Component', () => {
 
       render(
         <Sidebar 
-          items={longLabelItems} 
+          items={LONG_LABEL_ITEMS} 
           currentPath="/long" 
           onNavigate={mockOnNavigate} 
         />

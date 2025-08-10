@@ -15,7 +15,7 @@ export interface PropValidationResult {
 }
 
 // Base validation functions
-export const validators = {
+export const VALIDATORS = {
   // String validation with length and content checks
   string: (value: unknown, options?: { 
     minLength?: number; 
@@ -152,7 +152,7 @@ export const validators = {
       }
     }
 
-    // Validate properties if validators provided
+    // Validate properties if VALIDATORS provided
     if (options?.properties) {
       for (const [prop, validator] of Object.entries(options.properties)) {
         if (prop in obj) {
@@ -187,19 +187,19 @@ export const validateXPSystemProps = (props: Record<string, unknown>): PropValid
 
   // Define validation schema for XP System
   const schema = {
-    currentXP: (value: unknown) => validators.number(value, { min: 0, max: 1000000, integer: true }),
-    maxXP: (value: unknown) => validators.number(value, { min: 1, max: 1000000, integer: true }),
-    level: (value: unknown) => validators.number(value, { min: 1, max: 1000, integer: true }),
-    xpGained: (value: unknown) => validators.number(value, { min: 0, max: 10000, integer: true }),
-    bonusMultiplier: (value: unknown) => validators.number(value, { min: 1, max: 10 }),
-    streakActive: (value: unknown) => validators.boolean(value),
-    size: (value: unknown) => validators.oneOf(value, ['compact', 'normal', 'large', 'massive']),
-    theme: (value: unknown) => validators.oneOf(value, ['default', 'magic', 'fire', 'water', 'crystal', 'rainbow']),
-    enablePhysics: (value: unknown) => validators.boolean(value),
-    interactive: (value: unknown) => validators.boolean(value),
-    recentAchievements: (value: unknown) => validators.array(value, {
+    currentXP: (value: unknown) => VALIDATORS.number(value, { min: 0, max: 1000000, integer: true }),
+    maxXP: (value: unknown) => VALIDATORS.number(value, { min: 1, max: 1000000, integer: true }),
+    level: (value: unknown) => VALIDATORS.number(value, { min: 1, max: 1000, integer: true }),
+    xpGained: (value: unknown) => VALIDATORS.number(value, { min: 0, max: 10000, integer: true }),
+    bonusMultiplier: (value: unknown) => VALIDATORS.number(value, { min: 1, max: 10 }),
+    streakActive: (value: unknown) => VALIDATORS.boolean(value),
+    size: (value: unknown) => VALIDATORS.oneOf(value, ['compact', 'normal', 'large', 'massive']),
+    theme: (value: unknown) => VALIDATORS.oneOf(value, ['default', 'magic', 'fire', 'water', 'crystal', 'rainbow']),
+    enablePhysics: (value: unknown) => VALIDATORS.boolean(value),
+    interactive: (value: unknown) => VALIDATORS.boolean(value),
+    recentAchievements: (value: unknown) => VALIDATORS.array(value, {
       maxLength: 10,
-      elementValidator: (item) => validators.string(item, { maxLength: 100 })
+      elementValidator: (item) => VALIDATORS.string(item, { maxLength: 100 })
     })
   };
 
@@ -244,24 +244,24 @@ export const validateMascotWardrobe3DProps = (props: Record<string, unknown>): P
   const sanitizedProps: Record<string, any> = {};
 
   const schema = {
-    mascotType: (value: unknown) => validators.oneOf(value, ['dragon', 'fairy', 'robot', 'cat', 'owl']),
-    emotion: (value: unknown) => validators.oneOf(value, ['idle', 'happy', 'thinking', 'celebrating', 'oops']),
-    equippedItems: (value: unknown) => validators.array(value, {
+    mascotType: (value: unknown) => VALIDATORS.oneOf(value, ['dragon', 'fairy', 'robot', 'cat', 'owl']),
+    emotion: (value: unknown) => VALIDATORS.oneOf(value, ['idle', 'happy', 'thinking', 'celebrating', 'oops']),
+    equippedItems: (value: unknown) => VALIDATORS.array(value, {
       maxLength: 20,
-      elementValidator: (item) => validators.string(item, { 
+      elementValidator: (item) => VALIDATORS.string(item, { 
         maxLength: 50, 
         pattern: /^[a-zA-Z0-9_-]+$/ 
       })
     }),
-    xpLevel: (value: unknown) => validators.number(value, { min: 1, max: 1000, integer: true }),
-    size: (value: unknown) => validators.oneOf(value, ['small', 'medium', 'large']),
-    enableInteraction: (value: unknown) => validators.boolean(value),
-    studentStats: (value: unknown) => validators.object(value, {
+    xpLevel: (value: unknown) => VALIDATORS.number(value, { min: 1, max: 1000, integer: true }),
+    size: (value: unknown) => VALIDATORS.oneOf(value, ['small', 'medium', 'large']),
+    enableInteraction: (value: unknown) => VALIDATORS.boolean(value),
+    studentStats: (value: unknown) => VALIDATORS.object(value, {
       properties: {
-        xp: (val) => validators.number(val, { min: 0, max: 1000000, integer: true }),
-        streak: (val) => validators.number(val, { min: 0, max: 1000, integer: true }),
-        exercisesCompleted: (val) => validators.number(val, { min: 0, max: 100000, integer: true }),
-        achievementsUnlocked: (val) => validators.number(val, { min: 0, max: 1000, integer: true })
+        xp: (val) => VALIDATORS.number(val, { min: 0, max: 1000000, integer: true }),
+        streak: (val) => VALIDATORS.number(val, { min: 0, max: 1000, integer: true }),
+        exercisesCompleted: (val) => VALIDATORS.number(val, { min: 0, max: 100000, integer: true }),
+        achievementsUnlocked: (val) => VALIDATORS.number(val, { min: 0, max: 1000, integer: true })
       },
       required: ['xp', 'streak', 'exercisesCompleted', 'achievementsUnlocked']
     })
@@ -297,19 +297,19 @@ export const validateWardrobeSystemProps = (props: Record<string, unknown>): Pro
   const sanitizedProps: Record<string, any> = {};
 
   const schema = {
-    studentStats: (value: unknown) => validators.object(value, {
+    studentStats: (value: unknown) => VALIDATORS.object(value, {
       properties: {
-        xp: (val) => validators.number(val, { min: 0, max: 1000000, integer: true }),
-        streak: (val) => validators.number(val, { min: 0, max: 1000, integer: true }),
-        exercisesCompleted: (val) => validators.number(val, { min: 0, max: 100000, integer: true }),
-        achievementsUnlocked: (val) => validators.number(val, { min: 0, max: 1000, integer: true })
+        xp: (val) => VALIDATORS.number(val, { min: 0, max: 1000000, integer: true }),
+        streak: (val) => VALIDATORS.number(val, { min: 0, max: 1000, integer: true }),
+        exercisesCompleted: (val) => VALIDATORS.number(val, { min: 0, max: 100000, integer: true }),
+        achievementsUnlocked: (val) => VALIDATORS.number(val, { min: 0, max: 1000, integer: true })
       },
       required: ['xp', 'streak', 'exercisesCompleted', 'achievementsUnlocked']
     }),
-    mascotType: (value: unknown) => validators.oneOf(value, ['dragon', 'fairy', 'robot', 'cat', 'owl']),
-    equippedItems: (value: unknown) => validators.array(value, {
+    mascotType: (value: unknown) => VALIDATORS.oneOf(value, ['dragon', 'fairy', 'robot', 'cat', 'owl']),
+    equippedItems: (value: unknown) => VALIDATORS.array(value, {
       maxLength: 20,
-      elementValidator: (item) => validators.string(item, { 
+      elementValidator: (item) => VALIDATORS.string(item, { 
         maxLength: 50, 
         pattern: /^[a-zA-Z0-9_-]+$/ 
       })

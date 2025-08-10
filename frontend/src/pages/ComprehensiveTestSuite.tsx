@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import NextLevelXPSystem from '../components/ui/NextLevelXPSystem';
-import AdvancedMascotSystem from '../components/AdvancedMascotSystem';
+import CrossBrowserMascot3D from '../components/CrossBrowserMascot3D';
 import MascotWardrobe3D from '../components/MascotWardrobe3D';
 
 type XPTheme = 'default' | 'magic' | 'fire' | 'water' | 'crystal' | 'rainbow';
@@ -400,7 +400,7 @@ const ComprehensiveTestSuite: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* AdvancedMascotSystem AI Test */}
+          {/* CrossBrowserMascot3D AI Test */}
           <motion.div
             layout
             className="bg-gray-800 rounded-lg p-6"
@@ -410,7 +410,7 @@ const ComprehensiveTestSuite: React.FC = () => {
               🤖 AI Mascot Test
             </h3>
             <div className="flex justify-center mb-4">
-              <AdvancedMascotSystem
+              <CrossBrowserMascot3D
                 mascotType={currentScenario.mascotType}
                 studentData={getStudentData(currentScenario)}
                 currentActivity={currentScenario.activity}

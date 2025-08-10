@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Shield, Settings, Eye, AlertTriangle } from 'lucide-react';
+import { Shield, Settings, Eye, AlertTriangle } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Modal } from '../ui/Modal';
 

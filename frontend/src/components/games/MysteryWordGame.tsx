@@ -101,11 +101,11 @@ const VirtualKeyboard = ({
   guessedLetters: string[];
   wrongGuesses: string[];
 }) => {
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   
   return (
     <div className="grid grid-cols-6 md:grid-cols-9 gap-2 max-w-2xl mx-auto">
-      {alphabet.map((letter) => {
+      {ALPHABET.map((letter) => {
         const isGuessed = guessedLetters.includes(letter);
         const isWrong = wrongGuesses.includes(letter);
         
@@ -134,7 +134,7 @@ const VirtualKeyboard = ({
 
 // Indicateur visuel des erreurs (style pendu stylisé)
 const MistakeIndicator = ({ wrongGuesses, maxWrong }: { wrongGuesses: number, maxWrong: number }) => {
-  const mistakeElements = ['🌱', '🌿', '🍃', '🌺', '🌸', '💐'];
+  const MISTAKE_ELEMENTS = ['🌱', '🌿', '🍃', '🌺', '🌸', '💐'];
   
   return (
     <div className="flex justify-center items-center bg-gradient-to-r from-pink-100 to-purple-100 p-4 rounded-xl">
@@ -153,7 +153,7 @@ const MistakeIndicator = ({ wrongGuesses, maxWrong }: { wrongGuesses: number, ma
                   : 'bg-green-200 border-2 border-green-400'
               }`}
             >
-              {i < wrongGuesses ? '💔' : mistakeElements[i] || '🌟'}
+              {i < wrongGuesses ? '💔' : MISTAKE_ELEMENTS[i] || '🌟'}
             </motion.div>
           ))}
         </div>
@@ -281,7 +281,7 @@ const MysteryWordGame = () => {
   const handleLetterGuess = (letter: string) => {
     if (gameState.gameStatus !== 'playing') return;
 
-    const newGuessedLetters = [...gameState.guessedLetters, letter];
+    const NEW_GUESSED_LETTERS = [...gameState.guessedLetters, letter];
     const isCorrect = gameState.currentWord.word.includes(letter);
     
     let newWrongGuesses = gameState.wrongGuesses;
@@ -330,7 +330,7 @@ const MysteryWordGame = () => {
       setGameState(prev => ({
         ...prev,
         letters: newLetters,
-        guessedLetters: newGuessedLetters,
+        guessedLetters: NEW_GUESSED_LETTERS,
         score: newScore
       }));
     } else {
@@ -360,7 +360,7 @@ const MysteryWordGame = () => {
       
       setGameState(prev => ({
         ...prev,
-        guessedLetters: newGuessedLetters,
+        guessedLetters: NEW_GUESSED_LETTERS,
         wrongGuesses: newWrongGuesses,
         score: newScore
       }));

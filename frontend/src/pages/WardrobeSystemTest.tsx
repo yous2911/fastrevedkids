@@ -21,7 +21,7 @@ const WardrobeSystemTest: React.FC = () => {
   const mascotTypes: MascotType[] = ['dragon', 'fairy', 'robot', 'cat', 'owl'];
   const emotions: EmotionType[] = ['idle', 'happy', 'thinking', 'celebrating', 'oops'];
   
-  const availableItems = [
+  const AVAILABLE_ITEMS = [
     { id: 'wizard_hat', name: 'Wizard Hat', unlockReq: 'XP: 1000', type: 'hat' },
     { id: 'crown_gold', name: 'Golden Crown', unlockReq: 'Streak: 30', type: 'hat' },
     { id: 'baseball_cap', name: 'Baseball Cap', unlockReq: 'XP: 100', type: 'hat' },
@@ -53,8 +53,8 @@ const WardrobeSystemTest: React.FC = () => {
 
   const equipRandomItems = () => {
     const randomCount = Math.floor(Math.random() * 4) + 1;
-    const shuffled = [...availableItems].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, randomCount).map(item => item.id);
+    const SHUFFLED = [...AVAILABLE_ITEMS].sort(() => 0.5 - Math.random());
+    const selected = SHUFFLED.slice(0, randomCount).map(item => item.id);
     setEquippedItems(selected);
   };
 
@@ -284,7 +284,7 @@ const WardrobeSystemTest: React.FC = () => {
             <h2 className="text-white text-xl mb-4">👕 Wardrobe Items</h2>
             
             <div className="space-y-3">
-              {availableItems.map(item => {
+              {AVAILABLE_ITEMS.map(item => {
                 const isEquipped = equippedItems.includes(item.id);
                 const isConflicted = conflicts.includes(item.id);
                 

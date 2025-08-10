@@ -50,7 +50,7 @@ import { apiService } from '../services/api.service';
 export { apiService };
 
 // Configuration par défaut RGPD
-export const defaultGDPRConfig = {
+export const DEFAULT_GDPRCONFIG = {
   enabled: true,
   parentalConsentRequired: true,
   consentBannerEnabled: true,
@@ -63,7 +63,7 @@ export const defaultGDPRConfig = {
 };
 
 // Utilitaires d'initialisation
-export const initializeGDPR = async (config?: Partial<typeof defaultGDPRConfig>) => {
+export const initializeGDPR = async (config?: Partial<typeof DEFAULT_GDPRCONFIG>) => {
   try {
     // Vérifier la connexion aux services RGPD
     const healthCheck = await apiService.getGDPRHealthCheck();
@@ -75,34 +75,26 @@ export const initializeGDPR = async (config?: Partial<typeof defaultGDPRConfig>)
 
     // Charger la configuration depuis le serveur
     const serverConfig = await apiService.getGDPRConfig();
-    const finalConfig = {
-      ...defaultGDPRConfig,
+    const FINAL_CONFIG = {
+      ...DEFAULT_GDPRCONFIG,
       ...(serverConfig.success ? serverConfig.data : {}),
       ...config
     };
 
-    console.log('✅ RGPD initialisé avec succès:', finalConfig);
-    return { success: true, config: finalConfig };
+    console.log('✅ RGPD initialisé avec succès:', FINAL_CONFIG);
+    return { success: true, config: FINAL_CONFIG };
 
   } catch (error) {
     console.error('❌ Erreur initialisation RGPD:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Erreur inconnue',
-      config: { ...defaultGDPRConfig, ...config }
+      config: { ...DEFAULT_GDPRCONFIG, ...config }
     };
   }
 };
 
 // Helpers pour l'intégration rapide
-export const createGDPRWrapper = (
-  WrappedComponent: React.ComponentType<any>,
-  studentId?: number,
-  config?: Partial<typeof defaultGDPRConfig>
-) => {
-  return withGDPR(WrappedComponent);
-};
-
 // Constantes utiles
 export const GDPR_STORAGE_KEYS = {
   CONSENT_PREFERENCES: 'gdpr_consent_preferences',
@@ -119,7 +111,7 @@ export const GDPR_EVENTS = {
 } as const;
 
 // Helpers de validation rapide
-export const quickValidation = {
+export const QUICK_VALIDATION = {
   isValidEmail: (email: string): boolean => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   },
@@ -192,15 +184,7 @@ const App = () => {
 ```tsx
 import { useGDPRContext, useConsentCheck } from './gdpr';
 
-const StudentProfile = ({ studentId }) => {
-  const gdpr = useGDPRContext();
-  const consent = useConsentCheck(studentId);
-  
-  if (consent.requiresConsent) {
-    return <ConsentBanner />;
-  }
-  
-  return <StudentData />;
+return <StudentData />;
 };
 ```
 
@@ -208,14 +192,7 @@ const StudentProfile = ({ studentId }) => {
 ```tsx
 import { useGDPRPermissions } from './gdpr';
 
-const DataExportButton = () => {
-  const permissions = useGDPRPermissions();
-  
-  if (!permissions.canExportData()) {
-    return null;
-  }
-  
-  return <ExportButton />;
+return <ExportButton />;
 };
 ```
 
@@ -223,8 +200,7 @@ const DataExportButton = () => {
 ```tsx
 import { useGDPRRequests } from './gdpr';
 
-const GDPRRequestForm = () => {
-  const { submitRequest, loading } = useGDPRRequests();
+= useGDPRRequests();
   
   const handleSubmit = async (data) => {
     const requestId = await submitRequest(data);

@@ -47,10 +47,10 @@ interface BatteryOptimization {
 
 interface TouchCapabilities {
   maxTouchPoints: number;
-  supportsPressure: boolean;
+  SUPPORTS_PRESSURE: boolean;
   supportsMultiTouch: boolean;
-  hasGyroscope: boolean;
-  hasAccelerometer: boolean;
+  HAS_GYROSCOPE: boolean;
+  HAS_ACCELEROMETER: boolean;
   hasCompass: boolean;
 }
 
@@ -63,7 +63,7 @@ export class MobileDeviceDetector {
   private qualitySettings: MobileQualitySettings | null = null;
   private touchCapabilities: TouchCapabilities | null = null;
   private performanceProfile: Map<string, number> = new Map();
-  private batteryMonitor: BatteryManager | null = null;
+  private batteryMonitor: any | null = null;
 
   private constructor() {
     this.initializeBatteryMonitoring();
@@ -134,20 +134,20 @@ export class MobileDeviceDetector {
     }
 
     const maxTouchPoints = navigator.maxTouchPoints || 0;
-    const supportsPressure = 'force' in TouchEvent.prototype;
+    const SUPPORTS_PRESSURE = 'force' in TouchEvent.prototype;
     const supportsMultiTouch = maxTouchPoints > 1;
 
     // Check for device sensors
-    const hasGyroscope = 'DeviceOrientationEvent' in window;
-    const hasAccelerometer = 'DeviceMotionEvent' in window;
-    const hasCompass = hasGyroscope; // Usually comes together
+    const HAS_GYROSCOPE = 'DeviceOrientationEvent' in window;
+    const HAS_ACCELEROMETER = 'DeviceMotionEvent' in window;
+    const hasCompass = HAS_GYROSCOPE; // Usually comes together
 
     this.touchCapabilities = {
       maxTouchPoints,
-      supportsPressure,
+      SUPPORTS_PRESSURE,
       supportsMultiTouch,
-      hasGyroscope,
-      hasAccelerometer,
+      HAS_GYROSCOPE,
+      HAS_ACCELEROMETER,
       hasCompass
     };
 
@@ -246,14 +246,14 @@ export class MobileDeviceDetector {
   private detectDeviceType(): 'desktop' | 'tablet' | 'mobile' {
     const userAgent = navigator.userAgent.toLowerCase();
     const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const IS_TOUCH_DEVICE = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     
     // More sophisticated detection
     const screenWidth = Math.min(screen.width, screen.height);
     const screenHeight = Math.max(screen.width, screen.height);
     const aspectRatio = screenHeight / screenWidth;
 
-    if (!isMobileUA && !isTouchDevice) {
+    if (!isMobileUA && !IS_TOUCH_DEVICE) {
       return 'desktop';
     }
 
@@ -335,8 +335,9 @@ export class MobileDeviceDetector {
     
     if (!gl) return 'low';
 
-    const renderer = gl.getParameter(gl.RENDERER);
-    const vendor = gl.getParameter(gl.VENDOR);
+    const webglContext = gl as WebGLRenderingContext;
+    const renderer = webglContext.getParameter(webglContext.RENDERER);
+    const vendor = webglContext.getParameter(webglContext.VENDOR);
     
     // High-end GPU indicators
     if (/adreno [6-7]\d\d|mali-g\d{2,}|apple gpu|nvidia|radeon/i.test(renderer)) {
@@ -398,8 +399,9 @@ export class MobileDeviceDetector {
       };
     }
 
-    const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-    const vendor = gl.getParameter(gl.VENDOR);
+    const webglContext = gl as WebGLRenderingContext;
+    const maxTextureSize = webglContext.getParameter(webglContext.MAX_TEXTURE_SIZE);
+    const vendor = webglContext.getParameter(webglContext.VENDOR);
 
     return {
       webgl: webglSupport,
@@ -606,16 +608,16 @@ export class MobileDeviceDetector {
   private async benchmarkAnimation(): Promise<number> {
     return new Promise((resolve) => {
       const startTime = performance.now();
-      let frameCount = 0;
+      let FRAME_COUNT = 0;
       let lastTime = startTime;
       
       const animate = (currentTime: number) => {
-        frameCount++;
+        FRAME_COUNT++;
         
         if (currentTime - startTime < 1000) { // Run for 1 second
           requestAnimationFrame(animate);
         } else {
-          const avgFPS = (frameCount * 1000) / (currentTime - startTime);
+          const avgFPS = (FRAME_COUNT * 1000) / (currentTime - startTime);
           resolve(avgFPS);
         }
       };

@@ -74,9 +74,9 @@ describe('ProgressBar Component', () => {
   });
 
   describe('Sizes', () => {
-    const sizes = ['sm', 'md', 'lg'] as const;
+    const SIZES = ['sm', 'md', 'lg'] as const;
     
-    sizes.forEach(size => {
+    SIZES.forEach(size => {
       it(`should render with ${size} size`, () => {
         render(<ProgressBar progress={50} size={size} data-testid="progress-bar" />);
         const progressBar = screen.getByTestId('progress-bar');

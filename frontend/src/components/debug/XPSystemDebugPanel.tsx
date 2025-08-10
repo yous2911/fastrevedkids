@@ -1,6 +1,6 @@
 /**
  * XP System Debug Panel
- * Comprehensive debugging interface for XP system physics and visual parameters
+ * Comprehensive debugging interface IFor XP system physics and visual parameters
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -167,11 +167,11 @@ export const XPSystemDebugPanel: React.FC<XPSystemDebugPanelProps> = ({
 
   // Handle parameter changes
   const handleParameterChange = useCallback((key: keyof XPPhysicsParams, value: number | boolean) => {
-    const newParams = { ...physicsParams, [key]: value };
-    setPhysicsParams(newParams);
+    const NEW_PARAMS = { ...physicsParams, [key]: value };
+    setPhysicsParams(NEW_PARAMS);
     
     // Apply changes to XP system
-    onParameterChange?.(newParams);
+    onParameterChange?.(NEW_PARAMS);
     
     // Log event
     if (isRecording) {
@@ -188,9 +188,9 @@ export const XPSystemDebugPanel: React.FC<XPSystemDebugPanelProps> = ({
     };
     
     setDebugEvents(prev => {
-      const newEvents = [...prev, event];
+      const NEW_EVENTS = [...prev, event];
       // Keep only last 100 events
-      return newEvents.slice(-100);
+      return NEW_EVENTS.slice(-100);
     });
 
     // Auto-scroll event log
@@ -203,9 +203,9 @@ export const XPSystemDebugPanel: React.FC<XPSystemDebugPanelProps> = ({
 
   // Save preset
   const savePreset = useCallback((name: string) => {
-    const newPresets = { ...presets, [name]: physicsParams };
-    setPresets(newPresets);
-    localStorage.setItem('xp-debug-presets', JSON.stringify(newPresets));
+    const NEW_PRESETS = { ...presets, [name]: physicsParams };
+    setPresets(NEW_PRESETS);
+    localStorage.setItem('xp-debug-presets', JSON.stringify(NEW_PRESETS));
     addDebugEvent('preset_saved', { name });
   }, [presets, physicsParams]);
 

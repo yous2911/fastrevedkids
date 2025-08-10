@@ -1,11 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { mockFramerMotion, mockUseSound, mockUseHaptic } from '../../tests/mocks';
+import { MOCK_FRAMER_MOTION, mockUseSound, mockUseHaptic } from '../../tests/mocks';
 
 // Mock framer-motion
-jest.mock('framer-motion', () => mockFramerMotion);
+jest.mock('framer-motion', () => MOCK_FRAMER_MOTION);
 
 // Mock hooks
 jest.mock('../../hooks/useSound', () => ({
@@ -40,9 +40,13 @@ describe('Button Component', () => {
       playSound: mockPlaySound,
       playMelody: jest.fn(),
       initAudio: jest.fn(),
+      setVolume: jest.fn(),
+      isEnabled: true,
     });
     mockUseHaptic.mockReturnValue({
       triggerHaptic: mockTriggerHaptic,
+      isSupported: true,
+      isEnabled: true,
     });
   });
 
@@ -74,9 +78,9 @@ describe('Button Component', () => {
   });
 
   describe('Variants', () => {
-    const variants = ['primary', 'secondary', 'success', 'warning', 'danger', 'ghost', 'magical', 'outline'] as const;
+    const VARIANTS = ['primary', 'secondary', 'success', 'warning', 'danger', 'ghost', 'magical', 'outline'] as const;
     
-    variants.forEach(variant => {
+    VARIANTS.forEach(variant => {
       it(`should render with ${variant} variant`, () => {
         render(<Button variant={variant}>{variant} Button</Button>);
         const button = screen.getByRole('button');
@@ -87,9 +91,9 @@ describe('Button Component', () => {
   });
 
   describe('Sizes', () => {
-    const sizes = ['sm', 'md', 'lg', 'xl'] as const;
+    const SIZES = ['sm', 'md', 'lg', 'xl'] as const;
     
-    sizes.forEach(size => {
+    SIZES.forEach(size => {
       it(`should render with ${size} size`, () => {
         render(<Button size={size}>{size} Button</Button>);
         const button = screen.getByRole('button');

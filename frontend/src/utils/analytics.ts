@@ -1,6 +1,5 @@
 import { Metric } from 'web-vitals';
-import * as Sentry from "@sentry/react";
-
+import * as Sentry from '@sentry/react';
 interface PerformanceData {
   metric: Metric;
   url: string;
@@ -38,7 +37,7 @@ class PerformanceMonitor {
   }
 
   reportMetric(metric: Metric) {
-    const data: PerformanceData = {
+    const DATA: PerformanceData = {
       metric,
       url: window.location.href,
       userAgent: navigator.userAgent,
@@ -48,7 +47,7 @@ class PerformanceMonitor {
     };
 
     // Add to buffer
-    this.buffer.push(data);
+    this.buffer.push(DATA);
 
     // Send to Sentry for error tracking
     if (process.env.NODE_ENV === 'production') {
@@ -104,7 +103,7 @@ class PerformanceMonitor {
   private async flush(isUnloading = false) {
     if (this.buffer.length === 0) return;
 
-    const data = [...this.buffer];
+    const DATA = [...this.buffer];
     this.buffer = [];
 
     try {
@@ -113,7 +112,7 @@ class PerformanceMonitor {
       if (method === 'sendBeacon' && navigator.sendBeacon) {
         navigator.sendBeacon(
           this.apiEndpoint,
-          JSON.stringify({ metrics: data })
+          JSON.stringify({ metrics: DATA })
         );
       } else {
         await fetch(this.apiEndpoint, {
@@ -121,14 +120,14 @@ class PerformanceMonitor {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ metrics: data }),
+          body: JSON.stringify({ metrics: DATA }),
           keepalive: isUnloading,
         });
       }
     } catch (error) {
-      console.error('Failed to send performance data:', error);
-      // Put data back in buffer for retry
-      this.buffer = [...data, ...this.buffer];
+      console.error('Failed to send performance DATA:', error);
+      // Put DATA back in buffer for retry
+      this.buffer = [...DATA, ...this.buffer];
     }
   }
 

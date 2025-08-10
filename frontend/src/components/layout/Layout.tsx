@@ -5,7 +5,7 @@ import { Sidebar, SidebarProps } from './Sidebar';
 import { useToast } from '../ui/Toast';
 import { useApp } from '../../context/AppContext';
 
-export interface LayoutProps extends Omit<HeaderProps, 'className'>, Omit<SidebarProps, 'className'> {
+export interface LayoutProps extends Omit<HeaderProps, 'className'>, Partial<Omit<SidebarProps, 'className'>> {
   children: React.ReactNode;
   sidebar?: boolean;
   className?: string;
@@ -30,7 +30,7 @@ export const Layout: React.FC<LayoutProps> = ({
   const { ToastContainer } = useToast();
   const { state } = useApp();
 
-  const defaultSidebarItems = [
+  const DEFAULT_SIDEBAR_ITEMS = [
     {
       id: 'dashboard',
       label: 'Tableau de bord',
@@ -63,7 +63,7 @@ export const Layout: React.FC<LayoutProps> = ({
     }
   ];
 
-  const sidebarItems = items.length > 0 ? items : defaultSidebarItems;
+  const sidebarItems = items.length > 0 ? items : DEFAULT_SIDEBAR_ITEMS;
 
   return (
     <ErrorBoundary>

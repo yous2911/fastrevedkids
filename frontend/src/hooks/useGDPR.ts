@@ -294,16 +294,16 @@ export const useStudentDataExport = (): UseStudentDataExportState => {
       const blob = await apiService.exportStudentData(request);
       
       // Ajouter à l'historique des exports
-      const exportRecord = {
+      const EXPORT_RECORD = {
         ...request,
         exportedAt: new Date().toISOString(),
         size: blob.size,
         type: blob.type
       };
       
-      setExportHistory(prev => [exportRecord, ...prev.slice(0, 9)]); // Garder les 10 derniers
+      setExportHistory(prev => [EXPORT_RECORD, ...prev.slice(0, 9)]); // Garder les 10 derniers
       
-      console.log('✅ Export réussi:', exportRecord);
+      console.log('✅ Export réussi:', EXPORT_RECORD);
       return blob;
     } catch (err: any) {
       const errorMessage = err.message || 'Erreur lors de l\'export des données';

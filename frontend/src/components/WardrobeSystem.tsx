@@ -66,7 +66,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
   const [newlyUnlocked, setNewlyUnlocked] = useState<string[]>([]);
   const [focusedItemIndex, setFocusedItemIndex] = useState(0);
   const [focusedCategoryIndex, setFocusedCategoryIndex] = useState(0);
-  const [currentFocusArea, setCurrentFocusArea] = useState<'categories' | 'items'>('categories');
+  const [currentFocusArea, setCurrentFocusArea] = useState<'CATEGORIES' | 'items'>('CATEGORIES');
   
   // Accessibility hooks
   const { announce } = useScreenReader();
@@ -127,7 +127,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
   }, [validatedStudentStats, validatedMascotType]);
 
   // Rarity colors
-  const rarityColors = {
+  const RARITY_COLORS = {
     common: 'from-gray-400 to-gray-600',
     rare: 'from-blue-400 to-blue-600',
     epic: 'from-purple-400 to-purple-600',
@@ -135,7 +135,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
   };
 
   // Categories
-  const categories = [
+  const CATEGORIES = [
     { id: 'all', name: 'Tous', icon: '👕' },
     { id: 'hat', name: 'Chapeaux', icon: '🎩' },
     { id: 'clothing', name: 'Vêtements', icon: '👔' },
@@ -144,13 +144,13 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
     { id: 'special', name: 'Spéciaux', icon: '✨' }
   ];
 
-  // Keyboard navigation for categories
+  // Keyboard navigation for CATEGORIES
   const categoryNavigation = useKeyboardNavigation(
-    categories,
+    CATEGORIES,
     (index) => {
-      const category = categories[index];
+      const category = CATEGORIES[index];
       setSelectedCategory(category.id);
-      setFocusedItemIndex(0); // Reset item focus when switching categories
+      setFocusedItemIndex(0); // Reset item focus when switching CATEGORIES
       announce(`Catégorie sélectionnée: ${category.name}`);
     },
     { orientation: 'horizontal' }
@@ -180,7 +180,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
         // Allow natural tab navigation
         break;
       case 'ArrowDown':
-        if (currentFocusArea === 'categories') {
+        if (currentFocusArea === 'CATEGORIES') {
           e.preventDefault();
           setCurrentFocusArea('items');
           setFocusedItemIndex(0);
@@ -197,7 +197,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
           const itemsPerRow = window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 3 : 2;
           if (focusedItemIndex < itemsPerRow) {
             e.preventDefault();
-            setCurrentFocusArea('categories');
+            setCurrentFocusArea('CATEGORIES');
             announce('Navigation vers les catégories');
           } else {
             const newIndex = Math.max(focusedItemIndex - itemsPerRow, 0);
@@ -207,7 +207,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
         break;
       case 'ArrowLeft':
       case 'ArrowRight':
-        if (currentFocusArea === 'categories') {
+        if (currentFocusArea === 'CATEGORIES') {
           categoryNavigation.handleKeyDown(e);
         } else {
           itemNavigation.handleKeyDown(e);
@@ -215,7 +215,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
         break;
       case 'Enter':
       case ' ':
-        if (currentFocusArea === 'categories') {
+        if (currentFocusArea === 'CATEGORIES') {
           categoryNavigation.handleKeyDown(e);
         } else {
           itemNavigation.handleKeyDown(e);
@@ -235,7 +235,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
     >
       {/* Skip links */}
       <a 
-        href="#wardrobe-categories" 
+        href="#wardrobe-CATEGORIES" 
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:p-2 focus:bg-blue-600 focus:text-white focus:rounded"
       >
         Aller aux catégories
@@ -310,9 +310,9 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
         className="flex flex-wrap gap-2 mb-6"
         role="tablist"
         aria-label="Catégories d'objets"
-        id="wardrobe-categories"
+        id="wardrobe-CATEGORIES"
       >
-        {categories.map((category, index) => (
+        {CATEGORIES.map((category, index) => (
           <button
             key={category.id}
             onClick={() => {
@@ -326,7 +326,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
                 ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }
-              ${currentFocusArea === 'categories' && categoryNavigation.isSelected(index)
+              ${currentFocusArea === 'CATEGORIES' && categoryNavigation.isSelected(index)
                 ? 'ring-2 ring-blue-500 ring-offset-2'
                 : ''
               }
@@ -335,7 +335,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
             aria-selected={selectedCategory === category.id}
             aria-controls={`category-${category.id}-panel`}
             id={`category-${category.id}-tab`}
-            tabIndex={currentFocusArea === 'categories' && categoryNavigation.isSelected(index) ? 0 : -1}
+            tabIndex={currentFocusArea === 'CATEGORIES' && categoryNavigation.isSelected(index) ? 0 : -1}
           >
             <span role="img" aria-label={category.name}>{category.icon}</span> {category.name}
           </button>
@@ -358,7 +358,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
       >
         {filteredItems.length > 0 && (
           <div className="sr-only" aria-live="polite">
-            {filteredItems.length} objet{filteredItems.length > 1 ? 's' : ''} disponible{filteredItems.length > 1 ? 's' : ''} dans la catégorie {categories.find(c => c.id === selectedCategory)?.name}.
+            {filteredItems.length} objet{filteredItems.length > 1 ? 's' : ''} disponible{filteredItems.length > 1 ? 's' : ''} dans la catégorie {CATEGORIES.find(c => c.id === selectedCategory)?.name}.
             Utilisez les flèches pour naviguer, Entrée pour équiper ou déséquiper.
           </div>
         )}
@@ -367,7 +367,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
           const isEquipped = validatedEquippedItems.includes(item.id);
           const isNewlyUnlocked = newlyUnlocked.includes(item.id);
           const isFocused = currentFocusArea === 'items' && focusedItemIndex === index;
-          const itemAriaLabel = generateAriaLabel.item(item.name, item.rarity, true, isEquipped);
+          const itemAriaLabel = generateAriaLabel(`Item: ${item.name}, rarity: ${item.rarity}, unlocked: true, equipped: ${isEquipped}`);
 
           return (
             <motion.div
@@ -415,7 +415,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
 
               {/* Rarity Border */}
               <div 
-                className={`absolute inset-0 rounded-xl bg-gradient-to-r ${rarityColors[item.rarity]} opacity-20`}
+                className={`absolute inset-0 rounded-xl bg-gradient-to-r ${RARITY_COLORS[item.rarity]} opacity-20`}
                 aria-hidden="true"
               />
 

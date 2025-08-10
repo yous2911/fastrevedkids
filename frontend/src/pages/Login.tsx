@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 
 interface LoginProps {
@@ -78,7 +78,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     }
   };
 
-  const mascots = [
+  const MASCOTS = [
     { emoji: '🐉', name: 'dragon' },
     { emoji: '🧚‍♀️', name: 'fairy' },
     { emoji: '🤖', name: 'robot' },
@@ -224,7 +224,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                       >
                         <div className="flex items-center gap-3">
                           <div className="text-2xl">
-                            {mascots.find(m => m.name === student.mascotteType)?.emoji || '👤'}
+                            {MASCOTS.find(m => m.name === student.mascotteType)?.emoji || '👤'}
                           </div>
                           <div>
                             <div className="text-white font-medium">

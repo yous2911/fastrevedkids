@@ -18,8 +18,8 @@ export const EnhancedMathGame: React.FC = () => {
   const { playSound } = useSound();
   const { triggerHaptic } = useHaptic();
 
-  // Sample CP math exercises (you can replace with your actual exercises)
-  const exercises = [
+  // Sample CP math EXERCISES (you can replace with your actual EXERCISES)
+  const EXERCISES = [
     {
       id: 1,
       question: "Combien y a-t-il d'objets ?",
@@ -63,7 +63,7 @@ export const EnhancedMathGame: React.FC = () => {
 
   const handleAnswerSelect = (answer: number) => {
     setSelectedAnswer(answer);
-    const correct = answer === exercises[currentExercise].answer;
+    const correct = answer === EXERCISES[currentExercise].answer;
     setIsCorrect(correct);
     setShowFeedback(true);
 
@@ -75,9 +75,9 @@ export const EnhancedMathGame: React.FC = () => {
       
       setTimeout(() => {
         setShowMagicEffects(false);
-        if (currentExercise < exercises.length - 1) {
+        if (currentExercise < EXERCISES.length - 1) {
           setCurrentExercise(prev => prev + 1);
-          setProgress(((currentExercise + 2) / exercises.length) * 100);
+          setProgress(((currentExercise + 2) / EXERCISES.length) * 100);
         } else {
           setGameState('complete');
           playSound('levelup');
@@ -209,7 +209,7 @@ export const EnhancedMathGame: React.FC = () => {
     );
   }
 
-  const exercise = exercises[currentExercise];
+  const exercise = EXERCISES[currentExercise];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
@@ -247,7 +247,7 @@ export const EnhancedMathGame: React.FC = () => {
         <AnimatedCard variant="exercise" className="max-w-2xl w-full">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Question {currentExercise + 1} sur {exercises.length}
+              Question {currentExercise + 1} sur {EXERCISES.length}
             </h2>
             <p className="text-lg text-gray-600">{exercise.question}</p>
           </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
-import { apiService } from '../services/api.service';
+
 import { Eleve } from '../types/api.types';
 
 interface AuthState {

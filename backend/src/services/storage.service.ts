@@ -251,7 +251,7 @@ export class StorageService {
         // Mark variants as deleted
         await tx
           .update(fileVariants)
-          .set({ deletedAt: new Date().toISOString() })
+          .set({ deletedAt: new Date() })
           .where(eq(fileVariants.fileId, fileId));
       });
 
@@ -346,7 +346,7 @@ export class StorageService {
           .select()
           .from(files)
           .where(and(
-            lt(files.uploadedAt, cutoffDate.toISOString()),
+            lt(files.uploadedAt, cutoffDate),
             eq(files.status, 'deleted')
           ))
           .limit(this.cleanupBatchSize);
@@ -561,7 +561,7 @@ export class StorageService {
         .where(and(
           eq(files.category, 'image'),
           eq(files.status, 'ready'),
-          lt(files.uploadedAt, cutoffDate.toISOString()),
+          lt(files.uploadedAt, cutoffDate),
           sql`${files.size} > 1048576` // > 1MB
         ))
         .limit(50);

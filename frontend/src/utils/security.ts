@@ -92,7 +92,7 @@ export class SecurityUtils {
 
   // Check for XSS content
   static hasXSSContent(content: string): boolean {
-    const xssPatterns = [
+    const XSS_PATTERNS = [
       /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
       /javascript:/gi,
       /on\w+\s*=/gi,
@@ -101,7 +101,7 @@ export class SecurityUtils {
       /<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi,
     ];
     
-    return xssPatterns.some(pattern => pattern.test(content));
+    return XSS_PATTERNS.some(pattern => pattern.test(content));
   }
 
   // Validate email format
@@ -113,33 +113,33 @@ export class SecurityUtils {
   // Validate password strength
   static validatePassword(password: string): {
     isValid: boolean;
-    score: number;
+    SCORE: number;
     feedback: string[];
   } {
     const feedback: string[] = [];
-    let score = 0;
+    let SCORE = 0;
 
     if (password.length < 8) {
       feedback.push('Password must be at least 8 characters long');
     } else {
-      score += 1;
+      SCORE += 1;
     }
 
-    if (/[a-z]/.test(password)) score += 1;
+    if (/[a-z]/.test(password)) SCORE += 1;
     else feedback.push('Include at least one lowercase letter');
 
-    if (/[A-Z]/.test(password)) score += 1;
+    if (/[A-Z]/.test(password)) SCORE += 1;
     else feedback.push('Include at least one uppercase letter');
 
-    if (/[0-9]/.test(password)) score += 1;
+    if (/[0-9]/.test(password)) SCORE += 1;
     else feedback.push('Include at least one number');
 
-    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) SCORE += 1;
     else feedback.push('Include at least one special character');
 
     return {
-      isValid: score >= 4,
-      score,
+      isValid: SCORE >= 4,
+      SCORE,
       feedback
     };
   }

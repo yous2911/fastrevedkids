@@ -2,11 +2,11 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { mockFramerMotion } from '../../tests/mocks';
+import { MOCK_FRAMER_MOTION } from '../../tests/mocks';
 import { Card } from '../ui/Card';
 
 // Mock framer-motion
-jest.mock('framer-motion', () => mockFramerMotion);
+jest.mock('framer-motion', () => MOCK_FRAMER_MOTION);
 
 describe('Card Component', () => {
   let user: ReturnType<typeof userEvent.setup>;
@@ -44,9 +44,9 @@ describe('Card Component', () => {
   });
 
   describe('Variants', () => {
-    const variants = ['default', 'elevated', 'outlined', 'magical'] as const;
+    const VARIANTS = ['default', 'elevated', 'outlined', 'magical'] as const;
     
-    variants.forEach(variant => {
+    VARIANTS.forEach(variant => {
       it(`should render with ${variant} variant`, () => {
         render(<Card variant={variant}>Variant content</Card>);
         const card = screen.getByText('Variant content');
@@ -72,9 +72,9 @@ describe('Card Component', () => {
   });
 
   describe('Padding', () => {
-    const paddings = ['none', 'sm', 'md', 'lg', 'xl'] as const;
+    const PADDINGS = ['none', 'sm', 'md', 'lg', 'xl'] as const;
     
-    paddings.forEach(padding => {
+    PADDINGS.forEach(padding => {
       it(`should render with ${padding} padding`, () => {
         render(<Card padding={padding}>Padding content</Card>);
         const card = screen.getByText('Padding content');
@@ -103,9 +103,9 @@ describe('Card Component', () => {
   });
 
   describe('Rounded Corners', () => {
-    const roundedOptions = ['sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
+    const ROUNDED_OPTIONS = ['sm', 'md', 'lg', 'xl', '2xl', '3xl'] as const;
     
-    roundedOptions.forEach(rounded => {
+    ROUNDED_OPTIONS.forEach(rounded => {
       it(`should render with ${rounded} rounded corners`, () => {
         render(<Card rounded={rounded}>Rounded content</Card>);
         const card = screen.getByText('Rounded content');
@@ -195,14 +195,14 @@ describe('Card Component', () => {
     });
 
     it('should apply custom attributes', () => {
-      const cardProps = {
+      const CARD_PROPS = {
         'data-testid': 'custom-card',
         'aria-label': 'Custom card',
         'role': 'button'
       };
       
       render(
-        <Card {...cardProps}>
+        <Card {...CARD_PROPS}>
           Card with attributes
         </Card>
       );

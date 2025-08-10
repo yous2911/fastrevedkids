@@ -13,16 +13,16 @@ export const createLazyComponent = <T = any>(
   const { preload = false, retryDelay = 1000, maxRetries = 3 } = options;
 
   const lazyComponent = React.lazy(() => {
-    let retryCount = 0;
+    let RETRY_COUNT = 0;
     
     const retryImport = async (): Promise<{ default: React.ComponentType<T> }> => {
       try {
         return await importFunction();
       } catch (error) {
-        console.error(`Lazy loading failed (attempt ${retryCount + 1}):`, error);
+        console.error(`Lazy loading failed (attempt ${RETRY_COUNT + 1}):`, error);
         
-        if (retryCount < maxRetries) {
-          retryCount++;
+        if (RETRY_COUNT < maxRetries) {
+          RETRY_COUNT++;
           console.log(`Retrying lazy load in ${retryDelay}ms...`);
           
           await new Promise(resolve => setTimeout(resolve, retryDelay));
@@ -62,22 +62,22 @@ export const preloadComponents = (importFunctions: (() => Promise<any>)[]) => {
 // Route-based preloading strategy
 export const preloadRouteComponents = () => {
   // Preload likely next components based on user interaction patterns
-  const highPriorityComponents = [
+  const HIGH_PRIORITY_COMPONENTS = [
     () => import('../pages/Dashboard'),
     () => import('../pages/Exercises')
   ];
 
-  const lowPriorityComponents = [
+  const LOW_PRIORITY_COMPONENTS = [
     () => import('../pages/Profile'),
     () => import('../pages/Progress'),
     () => import('../pages/AdminPanel')
   ];
 
   // Preload high priority immediately
-  preloadComponents(highPriorityComponents);
+  preloadComponents(HIGH_PRIORITY_COMPONENTS);
 
   // Preload low priority after a delay
   setTimeout(() => {
-    preloadComponents(lowPriorityComponents);
+    preloadComponents(LOW_PRIORITY_COMPONENTS);
   }, 2000);
 };

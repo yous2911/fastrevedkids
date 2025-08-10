@@ -4,7 +4,7 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { useSound } from '../../hooks/useSound';
 import { useHaptic } from '../../hooks/useHaptic';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'icon'> {
   variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'ghost' | 'magical' | 'outline';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   loading?: boolean;
@@ -22,7 +22,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   sparkyReaction?: boolean; // Si true, Sparky réagit au clic
 }
 
-const variantClasses = {
+const VARIANT_CLASSES = {
   primary: 'bg-gradient-to-r from-magical-violet to-magical-blue hover:from-magical-violet-light hover:to-magical-blue-light text-white shadow-magical hover:shadow-magical-lg',
   secondary: 'bg-gradient-to-r from-neutral-200 to-neutral-300 hover:from-neutral-300 hover:to-neutral-400 text-neutral-800 shadow-md hover:shadow-lg',
   success: 'bg-gradient-to-r from-success-500 to-magical-green hover:from-success-400 hover:to-magical-green-light text-white shadow-success-glow hover:shadow-lg',
@@ -33,7 +33,7 @@ const variantClasses = {
   outline: 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-200'
 };
 
-const sizeClasses = {
+const SIZE_CLASSES = {
   sm: 'px-3 py-1.5 text-sm rounded-lg',
   md: 'px-4 py-2 text-base rounded-magical',
   lg: 'px-6 py-3 text-lg rounded-magical',
@@ -66,12 +66,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   const { playSound } = useSound();
   const { triggerHaptic } = useHaptic();
 
-  const baseClasses = 'font-magical font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magical-violet disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform-gpu';
+  const BASE_CLASSES = 'font-magical font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magical-violet disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform-gpu';
   
-  const classes = [
-    baseClasses,
-    variantClasses[variant],
-    sizeClasses[size],
+  const CLASSES = [
+    BASE_CLASSES,
+    VARIANT_CLASSES[variant],
+    SIZE_CLASSES[size],
     fullWidth ? 'w-full' : '',
     'hover:scale-105 active:scale-95', // Effet de scale magique
     className
@@ -174,7 +174,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     return (
       <motion.button
         ref={ref}
-        className={classes}
+        className={CLASSES}
         disabled={isDisabled}
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
@@ -241,7 +241,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   return (
     <button
       ref={ref}
-      className={classes}
+      className={CLASSES}
       disabled={isDisabled}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}

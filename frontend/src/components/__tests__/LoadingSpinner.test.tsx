@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { mockFramerMotion } from '../../tests/mocks';
+import { MOCK_FRAMER_MOTION } from '../../tests/mocks';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 
 // Mock framer-motion
-jest.mock('framer-motion', () => mockFramerMotion);
+jest.mock('framer-motion', () => MOCK_FRAMER_MOTION);
 
 describe('LoadingSpinner Component', () => {
   describe('Basic Rendering', () => {
@@ -27,9 +27,9 @@ describe('LoadingSpinner Component', () => {
   });
 
   describe('Sizes', () => {
-    const sizes = ['sm', 'md', 'lg', 'xl', 'large'] as const;
+    const SIZES = ['sm', 'md', 'lg', 'xl', 'large'] as const;
     
-    sizes.forEach(size => {
+    SIZES.forEach(size => {
       it(`should render with ${size} size`, () => {
         render(<LoadingSpinner size={size} data-testid={`spinner-${size}`} />);
         const container = screen.getByTestId(`spinner-${size}`);
@@ -61,9 +61,9 @@ describe('LoadingSpinner Component', () => {
   });
 
   describe('Variants', () => {
-    const variants = ['primary', 'secondary', 'white'] as const;
+    const VARIANTS = ['primary', 'secondary', 'white'] as const;
     
-    variants.forEach(variant => {
+    VARIANTS.forEach(variant => {
       it(`should render with ${variant} variant`, () => {
         render(<LoadingSpinner variant={variant} data-testid={`spinner-${variant}`} />);
         const container = screen.getByTestId(`spinner-${variant}`);
@@ -202,15 +202,15 @@ describe('LoadingSpinner Component', () => {
     });
 
     it('should handle long messages', () => {
-      const longMessage = 'This is a very long loading message that should still display correctly';
-      render(<LoadingSpinner message={longMessage} />);
-      expect(screen.getByText(longMessage)).toBeInTheDocument();
+      const LONG_MESSAGE = 'This is a very long loading message that should still display correctly';
+      render(<LoadingSpinner message={LONG_MESSAGE} />);
+      expect(screen.getByText(LONG_MESSAGE)).toBeInTheDocument();
     });
 
     it('should handle special characters in message', () => {
-      const specialMessage = 'Loading... 50% (2/4) 🔄';
-      render(<LoadingSpinner message={specialMessage} />);
-      expect(screen.getByText(specialMessage)).toBeInTheDocument();
+      const SPECIAL_MESSAGE = 'Loading... 50% (2/4) 🔄';
+      render(<LoadingSpinner message={SPECIAL_MESSAGE} />);
+      expect(screen.getByText(SPECIAL_MESSAGE)).toBeInTheDocument();
     });
   });
 

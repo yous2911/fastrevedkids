@@ -186,7 +186,7 @@ const extendedCP2025Data: CP2025Data = {
   ]
 };
 
-export const CP2025ExtendedDemo: React.FC = () => {
+export const cP2025ExtendedDemo: React.FC = () => {
   const cp2025Data = useCP2025Data({ initialData: extendedCP2025Data });
 
   if (cp2025Data.isLoading) {

@@ -1,18 +1,18 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { mockFramerMotion } from '../../tests/mocks';
+import { MOCK_FRAMER_MOTION } from '../../tests/mocks';
 import { Header } from '../layout/Header';
 
 // Mock framer-motion
-jest.mock('framer-motion', () => mockFramerMotion);
+jest.mock('framer-motion', () => MOCK_FRAMER_MOTION);
 
 // Mock useApp hook
 const mockDispatch = jest.fn();
 const mockUseApp = jest.fn(() => ({
   state: {
-    currentStudent: null,
+    currentStudent: null as any,
     online: true
   },
   dispatch: mockDispatch
@@ -130,11 +130,16 @@ describe('Header Component', () => {
       mockUseApp.mockReturnValue({
         state: {
           currentStudent: {
+            id: 1,
             prenom: 'Alice',
             nom: 'Dupont',
+            dateNaissance: '2015-01-01',
             niveauActuel: 'CE2',
             totalPoints: 1250,
-            mascotteType: 'dragon'
+            serieJours: 5,
+            mascotteType: 'dragon',
+            createdAt: '2023-01-01T00:00:00.000Z',
+            updatedAt: '2023-01-01T00:00:00.000Z'
           },
           online: true
         },
@@ -156,22 +161,27 @@ describe('Header Component', () => {
     });
 
     it('should display correct mascot for different types', () => {
-      const mascotTypes = [
+      const MASCOT_TYPES = [
         { type: 'fairy', emoji: '🧚‍♀️' },
         { type: 'robot', emoji: '🤖' },
         { type: 'cat', emoji: '🐱' },
         { type: 'owl', emoji: '🦉' }
       ];
 
-      mascotTypes.forEach(({ type, emoji }) => {
+      MASCOT_TYPES.forEach(({ type, emoji }) => {
         mockUseApp.mockReturnValue({
           state: {
             currentStudent: {
+              id: 1,
               prenom: 'Test',
               nom: 'User',
+              dateNaissance: '2015-01-01',
               niveauActuel: 'CE2',
               totalPoints: 100,
-              mascotteType: type
+              serieJours: 5,
+              mascotteType: type,
+              createdAt: '2023-01-01T00:00:00.000Z',
+              updatedAt: '2023-01-01T00:00:00.000Z'
             },
             online: true
           },
@@ -262,11 +272,16 @@ describe('Header Component', () => {
       mockUseApp.mockReturnValue({
         state: {
           currentStudent: {
+            id: 1,
             prenom: 'Alice',
             nom: 'Dupont',
+            dateNaissance: '2015-01-01',
             niveauActuel: 'CE2',
             totalPoints: 1250,
-            mascotteType: 'dragon'
+            serieJours: 5,
+            mascotteType: 'dragon',
+            createdAt: '2023-01-01T00:00:00.000Z',
+            updatedAt: '2023-01-01T00:00:00.000Z'
           },
           online: true
         },
@@ -324,11 +339,16 @@ describe('Header Component', () => {
       mockUseApp.mockReturnValue({
         state: {
           currentStudent: {
+            id: 1,
             prenom: 'Alice',
             nom: 'Dupont',
+            dateNaissance: '2015-01-01',
             niveauActuel: 'CE2',
             totalPoints: 1250,
-            mascotteType: 'dragon'
+            serieJours: 5,
+            mascotteType: 'dragon',
+            createdAt: '2023-01-01T00:00:00.000Z',
+            updatedAt: '2023-01-01T00:00:00.000Z'
           },
           online: false
         },
@@ -386,10 +406,10 @@ describe('Header Component', () => {
     });
 
     it('should handle very long titles', () => {
-      const longTitle = 'This is a very long title that should be truncated properly';
-      render(<Header title={longTitle} />);
+      const LONG_TITLE = 'This is a very long title that should be truncated properly';
+      render(<Header title={LONG_TITLE} />);
       
-      const titleElement = screen.getByText(longTitle);
+      const titleElement = screen.getByText(LONG_TITLE);
       expect(titleElement).toHaveClass('truncate');
     });
 

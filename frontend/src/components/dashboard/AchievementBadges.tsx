@@ -24,7 +24,7 @@ interface AchievementBadgesProps {
   onViewAll: () => void;
 }
 
-const AchievementBadges: React.FC<AchievementBadgesProps> = ({ 
+const achievementBadges: React.FC<AchievementBadgesProps> = ({ 
   achievements, 
   loading, 
   onViewAll 
@@ -241,4 +241,4 @@ const AchievementBadges: React.FC<AchievementBadgesProps> = ({
   );
 };
 
-export default AchievementBadges;
+export default achievementBadges;

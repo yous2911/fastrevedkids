@@ -95,13 +95,13 @@ const RobustXPSystem: React.FC<RobustXPSystemProps> = ({
 
   // Size configuration
   const sizeConfig = useMemo(() => {
-    const configs = {
+    const CONFIGS = {
       compact: { width: 120, height: 120, scale: 0.8 },
       normal: { width: 200, height: 200, scale: 1.0 },
       large: { width: 300, height: 300, scale: 1.4 },
       massive: { width: 400, height: 400, scale: 1.8 }
     };
-    return configs[size];
+    return CONFIGS[size];
   }, [size]);
 
   // Initialize system with progressive enhancement
@@ -291,7 +291,7 @@ const RobustXPSystem: React.FC<RobustXPSystemProps> = ({
 
   // Theme colors
   const themeColors = useMemo(() => {
-    const themes = {
+    const THEMES = {
       default: { primary: '#3B82F6', secondary: '#60A5FA', accent: '#93C5FD' },
       magic: { primary: '#8B5CF6', secondary: '#A78BFA', accent: '#C4B5FD' },
       fire: { primary: '#EF4444', secondary: '#F87171', accent: '#FCA5A5' },
@@ -299,7 +299,7 @@ const RobustXPSystem: React.FC<RobustXPSystemProps> = ({
       crystal: { primary: '#10B981', secondary: '#34D399', accent: '#6EE7B7' },
       rainbow: { primary: '#EC4899', secondary: '#F472B6', accent: '#F9A8D4' }
     };
-    return themes[theme];
+    return THEMES[theme];
   }, [theme]);
 
   // Render loading state

@@ -2,30 +2,116 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  
+  <!-- Primary Meta Tags -->
+  <title>RevEd Kids - Magical Educational Platform for Children</title>
+  <meta name="title" content="RevEd Kids - Magical Educational Platform for Children">
+  <meta name="description" content="Interactive educational platform featuring Sparky the magical mascot. Engaging exercises, games, and activities designed to make learning fun for children aged 4-12.">
+  <meta name="keywords" content="education, children, learning, interactive, games, exercises, math, reading, science, kids platform">
+  <meta name="author" content="RevEd Kids Team">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+  <meta name="revisit-after" content="7 days">
+  
+  <!-- Viewport and Mobile Optimization -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="RevEd Kids">
+  <meta name="application-name" content="RevEd Kids">
+  <meta name="msapplication-TileColor" content="#8A2BE2">
+  <meta name="msapplication-config" content="%PUBLIC_URL%/browserconfig.xml">
+  <meta name="theme-color" content="#8A2BE2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#4C1D95" media="(prefers-color-scheme: dark)">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://revedkids.com/">
+  <meta property="og:title" content="RevEd Kids - Magical Educational Platform">
+  <meta property="og:description" content="Interactive educational platform featuring Sparky the magical mascot. Make learning magical for your child with engaging exercises and games.">
+  <meta property="og:image" content="https://revedkids.com/images/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="RevEd Kids platform with Sparky mascot">
+  <meta property="og:site_name" content="RevEd Kids">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://revedkids.com/">
+  <meta property="twitter:title" content="RevEd Kids - Magical Educational Platform">
+  <meta property="twitter:description" content="Interactive educational platform featuring Sparky the magical mascot. Make learning magical for your child.">
+  <meta property="twitter:image" content="https://revedkids.com/images/twitter-card.png">
+  <meta property="twitter:image:alt" content="RevEd Kids educational platform">
+  <meta property="twitter:creator" content="@revedkids">
+  <meta property="twitter:site" content="@revedkids">
+  
+  <!-- Educational Schema.org structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": "RevEd Kids",
+    "description": "Interactive educational platform for children featuring engaging exercises and games",
+    "url": "https://revedkids.com",
+    "logo": "https://revedkids.com/logo512.png",
+    "sameAs": [
+      "https://twitter.com/revedkids",
+      "https://facebook.com/revedkids"
+    ],
+    "audience": {
+      "@type": "EducationalAudience",
+      "educationalRole": "student",
+      "audienceType": "children"
+    },
+    "educationalLevel": "Elementary School",
+    "teaches": ["Mathematics", "Reading", "Science", "Critical Thinking"]
+  }
+  </script>
+  
+  <!-- Icons and App Configuration -->
   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
+  <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png">
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <link rel="mask-icon" href="%PUBLIC_URL%/safari-pinned-tab.svg" color="#8A2BE2">
+  
+  <!-- Performance and Loading Optimization -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//fonts.gstatic.com">
+  <link rel="preconnect" href="https://api.revedkids.com">
+  <link rel="preload" href="%PUBLIC_URL%/fonts/magical-fonts/MagicalFont.woff2" as="font" type="font/woff2" crossorigin>
   
   <!-- Content Security Policy -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
-    script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.sentry.io;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    font-src 'self' https://fonts.gstatic.com;
+    font-src 'self' https://fonts.gstatic.com data:;
     img-src 'self' data: https: blob:;
-    media-src 'self' blob:;
-    connect-src 'self' http://localhost:3003 https://api.revedkids.com https://sentry.io https://www.google-analytics.com;
+    media-src 'self' blob: data:;
+    connect-src 'self' http://localhost:3003 https://api.revedkids.com https://sentry.io https://www.google-analytics.com wss:;
     worker-src 'self' blob:;
+    child-src 'self' blob:;
+    frame-src 'self';
+    object-src 'none';
     base-uri 'self';
     form-action 'self';
     upgrade-insecure-requests;
   ">
   
-  <meta name="description" content="RevEd Kids - Educational platform for children" />
-  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <!-- Additional Security Headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()">
   
-  <title>RevEd Kids</title>
+  <!-- Critical CSS will be injected here -->
+  <style id="critical-css"></style>
 </head>
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>

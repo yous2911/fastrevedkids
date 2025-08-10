@@ -33,12 +33,12 @@ class AnonymizationService {
         .set({
           prenom: 'Anonyme',
           nom: `Utilisateur-${anonymousId.slice(0, 8)}`,
-          dateNaissance: '2000-01-01',
+          dateNaissance: new Date('2000-01-01'),
           niveauActuel: 'Niveau',
           mascotteType: 'default',
           dernierAcces: null,
           estConnecte: false,
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date(),
         })
         .where(eq(students.id, studentId));
       
@@ -48,7 +48,7 @@ class AnonymizationService {
       const sessionResult = await this.db
         .update(sessions)
         .set({
-          data: '{}',
+
         })
         .where(eq(sessions.studentId, studentId));
       
@@ -60,7 +60,7 @@ class AnonymizationService {
         .set({
           originalName: 'fichier_anonymise.dat',
           metadata: '{}',
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date(),
         })
         .where(eq(gdprFiles.studentId, studentId));
       

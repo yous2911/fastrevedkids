@@ -93,11 +93,11 @@ class MathsService {
 
   private setCachedData<T>(key: string, data: T): void {
     try {
-      const cacheData = {
+      const CACHE_DATA = {
         data,
         timestamp: Date.now()
       };
-      localStorage.setItem(`maths_${key}`, JSON.stringify(cacheData));
+      localStorage.setItem(`maths_${key}`, JSON.stringify(CACHE_DATA));
     } catch (error) {
       console.warn('Erreur lors de l\'écriture du cache maths:', error);
     }

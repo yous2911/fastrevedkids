@@ -29,7 +29,7 @@ export interface ExerciseValidationResult {
   hints?: string[];
 }
 
-// Common props interface for all exercise components
+// Common props interface IFor all exercise components
 export interface BaseExerciseProps {
   exercise: import('./api.types').ExercicePedagogique;
   onAnswerChange: (answer: any) => void;

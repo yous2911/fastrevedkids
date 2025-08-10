@@ -27,8 +27,7 @@ declare module 'fastify' {
 export interface AuthenticatedRequest extends OriginalFastifyRequest {
   user: {
     studentId: number;
-    prenom: string;
-    nom: string;
-    niveau: string;
+    email: string;
+    type: string;
   };
 } 

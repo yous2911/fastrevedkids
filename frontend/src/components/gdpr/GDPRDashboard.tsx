@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { 
   Shield, 
   Download, 
@@ -114,7 +114,7 @@ export const GDPRDashboard: React.FC<GDPRDashboardProps> = memo(({
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Load GDPR data
+  // Load GDPR DATA
   useEffect(() => {
     loadGDPRData();
   }, [studentId, parentEmail]);
@@ -129,14 +129,14 @@ export const GDPRDashboard: React.FC<GDPRDashboardProps> = memo(({
         loadConsentStatus()
       ]);
     } catch (error) {
-      console.error('Error loading GDPR data:', error);
+      console.error('Error loading GDPR DATA:', error);
     } finally {
       setLoading(false);
     }
   }, [studentId, parentEmail]);
 
   const loadRequests = async () => {
-    // Mock data - replace with actual API call
+    // Mock DATA - replace with actual API call
     const mockRequests: GDPRRequest[] = [
       {
         id: '1',
@@ -163,7 +163,7 @@ export const GDPRDashboard: React.FC<GDPRDashboardProps> = memo(({
   };
 
   const loadDataCategories = async () => {
-    // Mock data - replace with actual API call
+    // Mock DATA - replace with actual API call
     const mockCategories: DataCategory[] = [
       {
         id: 'profile',
@@ -203,7 +203,7 @@ export const GDPRDashboard: React.FC<GDPRDashboardProps> = memo(({
   };
 
   const loadConsentStatus = async () => {
-    // Mock data - replace with actual API call
+    // Mock DATA - replace with actual API call
     const mockConsent: ConsentStatus[] = [
       {
         category: 'Cookies fonctionnels',
@@ -267,17 +267,17 @@ export const GDPRDashboard: React.FC<GDPRDashboardProps> = memo(({
 
   const exportData = useCallback(async (categoryId: string) => {
     try {
-      // Simulate data export
+      // Simulate DATA export
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Create and download a mock file
-      const data = {
+      const DATA = {
         category: categoryId,
         exportedAt: new Date().toISOString(),
-        data: 'Mock exported data for ' + categoryId
+        DATA: 'Mock exported DATA for ' + categoryId
       };
       
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -289,7 +289,7 @@ export const GDPRDashboard: React.FC<GDPRDashboardProps> = memo(({
       
       alert('Export réussi ! Le fichier a été téléchargé.');
     } catch (error) {
-      console.error('Error exporting data:', error);
+      console.error('Error exporting DATA:', error);
       alert('Erreur lors de l\'export des données');
     }
   }, []);
@@ -643,7 +643,7 @@ export const GDPRDashboard: React.FC<GDPRDashboardProps> = memo(({
             <p className="text-gray-600">
               Détails des données pour la catégorie : {selectedDataCategory}
             </p>
-            {/* Add actual data viewing functionality */}
+            {/* Add actual DATA viewing functionality */}
           </div>
         )}
       </Modal>

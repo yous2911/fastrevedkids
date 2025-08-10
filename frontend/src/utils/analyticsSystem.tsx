@@ -1,13 +1,14 @@
 /**
  * Analytics System
- * Comprehensive analytics and telemetry system for tracking component usage,
+ * Comprehensive ANALYTICS and telemetry system for tracking component usage,
  * performance metrics, user engagement, and system health
  */
 
+import React from 'react';
 import { mobileDetector } from './mobileOptimized';
 import { performanceMonitoring } from './performanceMonitoringHooks';
 
-// Core analytics interfaces
+// Core ANALYTICS interfaces
 interface AnalyticsEvent {
   id: string;
   timestamp: number;
@@ -74,7 +75,7 @@ type EventCategory =
   | 'debug_tools'
   | 'general';
 
-// Component-specific analytics interfaces
+// Component-specific ANALYTICS interfaces
 interface XPSystemAnalytics {
   xpGained: number;
   levelUps: number;
@@ -240,7 +241,7 @@ class AnalyticsSystem {
     // Initialize device info
     this.deviceInfo = await this.collectDeviceInfo();
     
-    // Create analytics context
+    // Create ANALYTICS context
     this.context = {
       deviceInfo: this.deviceInfo,
       sessionInfo: this.sessionInfo,
@@ -343,13 +344,13 @@ class AnalyticsSystem {
 
   private setupCrashReporting() {
     // Monitor for critical system failures
-    let criticalErrorCount = 0;
+    let CRITICAL_ERROR_COUNT = 0;
     const originalError = window.onerror;
     
     window.onerror = (message, source, lineno, colno, error) => {
-      criticalErrorCount++;
+      CRITICAL_ERROR_COUNT++;
       
-      if (criticalErrorCount > 5) {
+      if (CRITICAL_ERROR_COUNT > 5) {
         this.reportCrash(error || new Error(message as string), 'critical_errors');
       }
       
@@ -362,7 +363,7 @@ class AnalyticsSystem {
 
   private setupPerformanceTracking() {
     // Integrate with performance monitoring system
-    performanceMonitoring.registerCallback('analytics-integration', (data) => {
+    performanceMonitoring.registerCallback('ANALYTICS-integration', (data) => {
       this.trackPerformanceMetrics(data);
     });
 
@@ -404,7 +405,7 @@ class AnalyticsSystem {
   private async sendBatch(events: AnalyticsEvent[]) {
     try {
       if (this.config.endpoint && this.config.apiKey) {
-        // Send to external analytics service
+        // Send to external ANALYTICS service
         const response = await fetch(this.config.endpoint, {
           method: 'POST',
           headers: {
@@ -437,10 +438,10 @@ class AnalyticsSystem {
   private storeLocally(events: AnalyticsEvent[]) {
     try {
       const existing = JSON.parse(localStorage.getItem('analytics_events') || '[]');
-      const combined = [...existing, ...events].slice(-5000); // Keep last 5000 events
-      localStorage.setItem('analytics_events', JSON.stringify(combined));
+      const COMBINED = [...existing, ...events].slice(-5000); // Keep last 5000 events
+      localStorage.setItem('analytics_events', JSON.stringify(COMBINED));
     } catch (error) {
-      console.warn('Failed to store analytics locally:', error);
+      console.warn('Failed to store ANALYTICS locally:', error);
     }
   }
 
@@ -760,10 +761,10 @@ class AnalyticsSystem {
   }
 }
 
-// Global analytics instance
+// Global ANALYTICS instance
 let analyticsInstance: AnalyticsSystem | null = null;
 
-export const analytics = {
+export const ANALYTICS = {
   initialize: (config?: Partial<AnalyticsConfig>) => {
     if (!analyticsInstance) {
       analyticsInstance = new AnalyticsSystem(config);
@@ -779,39 +780,39 @@ export const analytics = {
   },
 
   track: (type: EventType, category: EventCategory, action: string, label?: string, value?: number, properties?: Record<string, any>) => {
-    analytics.getInstance().track(type, category, action, label, value, properties);
+    ANALYTICS.getInstance().track(type, category, action, label, value, properties);
   },
 
   // Convenience methods
   trackXP: (action: string, amount?: number, properties?: Record<string, any>) => {
-    analytics.getInstance().trackXPInteraction(action, amount, properties);
+    ANALYTICS.getInstance().trackXPInteraction(action, amount, properties);
   },
 
   trackWardrobe: (action: string, itemId?: string, properties?: Record<string, any>) => {
-    analytics.getInstance().trackWardrobeInteraction(action, itemId, properties);
+    ANALYTICS.getInstance().trackWardrobeInteraction(action, itemId, properties);
   },
 
   trackError: (error: Error, filename?: string, lineno?: number, colno?: number) => {
-    analytics.getInstance().trackError(error, filename, lineno, colno);
+    ANALYTICS.getInstance().trackError(error, filename, lineno, colno);
   },
 
   trackLoadTime: (componentName: string, loadTime: number, additionalData?: any) => {
-    analytics.getInstance().trackLoadTime(componentName, loadTime, additionalData);
+    ANALYTICS.getInstance().trackLoadTime(componentName, loadTime, additionalData);
   },
 
   // Data retrieval
-  getXPAnalytics: () => analytics.getInstance().getXPSystemAnalytics(),
-  getWardrobeAnalytics: () => analytics.getInstance().getMascotWardrobeAnalytics(),
-  getSessionInfo: () => analytics.getInstance().getSessionInfo(),
-  getDeviceInfo: () => analytics.getInstance().getDeviceInfo()
+  getXPAnalytics: () => ANALYTICS.getInstance().getXPSystemAnalytics(),
+  getWardrobeAnalytics: () => ANALYTICS.getInstance().getMascotWardrobeAnalytics(),
+  getSessionInfo: () => ANALYTICS.getInstance().getSessionInfo(),
+  getDeviceInfo: () => ANALYTICS.getInstance().getDeviceInfo()
 };
 
-// React Hook for analytics
+// React Hook for ANALYTICS
 export function useAnalytics(componentName?: string) {
   const [analyticsReady, setAnalyticsReady] = React.useState(false);
 
   React.useEffect(() => {
-    analytics.initialize();
+    ANALYTICS.initialize();
     setAnalyticsReady(true);
 
     if (componentName) {
@@ -819,22 +820,22 @@ export function useAnalytics(componentName?: string) {
       
       return () => {
         const loadTime = performance.now() - startTime;
-        analytics.trackLoadTime(componentName, loadTime);
+        ANALYTICS.trackLoadTime(componentName, loadTime);
       };
     }
   }, [componentName]);
 
   return {
-    track: analytics.track,
-    trackXP: analytics.trackXP,
-    trackWardrobe: analytics.trackWardrobe,
-    trackError: analytics.trackError,
-    trackLoadTime: analytics.trackLoadTime,
+    track: ANALYTICS.track,
+    trackXP: ANALYTICS.trackXP,
+    trackWardrobe: ANALYTICS.trackWardrobe,
+    trackError: ANALYTICS.trackError,
+    trackLoadTime: ANALYTICS.trackLoadTime,
     ready: analyticsReady
   };
 }
 
-// Higher-Order Component for automatic analytics
+// Higher-Order Component for automatic ANALYTICS
 export function withAnalytics<P extends object>(
   Component: React.ComponentType<P>,
   componentName: string
@@ -844,17 +845,17 @@ export function withAnalytics<P extends object>(
     
     React.useEffect(() => {
       const loadTime = performance.now() - startTime.current;
-      analytics.trackLoadTime(componentName, loadTime, { 
+      ANALYTICS.trackLoadTime(componentName, loadTime, { 
         componentName,
         propsCount: Object.keys(props as any).length
       });
 
       // Track component mount
-      analytics.track('component_interaction', 'general', 'component_mounted', componentName);
+      ANALYTICS.track('component_interaction', 'general', 'component_mounted', componentName);
 
       return () => {
         // Track component unmount
-        analytics.track('component_interaction', 'general', 'component_unmounted', componentName);
+        ANALYTICS.track('component_interaction', 'general', 'component_unmounted', componentName);
       };
     }, []);
 
@@ -862,4 +863,4 @@ export function withAnalytics<P extends object>(
   });
 }
 
-export default analytics;
+export default ANALYTICS;

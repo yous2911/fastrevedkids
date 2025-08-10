@@ -29,7 +29,7 @@ export const calculateContrastRatio = (color1: string, color2: string): number =
 };
 
 // WCAG-compliant color combinations
-export const wcagColors = {
+export const WCAG_COLORS = {
   // High contrast colors (7:1 ratio for AAA compliance)
   highContrast: {
     primary: {
@@ -131,10 +131,10 @@ export const useReducedMotion = (): boolean => {
 
 // Focus management utilities
 export const useFocusManagement = () => {
-  const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  const FOCUSABLE_ELEMENTS = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
   
   const trapFocus = (container: HTMLElement) => {
-    const focusableEls = container.querySelectorAll(focusableElements);
+    const focusableEls = container.querySelectorAll(FOCUSABLE_ELEMENTS);
     const firstFocusableEl = focusableEls[0] as HTMLElement;
     const lastFocusableEl = focusableEls[focusableEls.length - 1] as HTMLElement;
 
@@ -162,7 +162,7 @@ export const useFocusManagement = () => {
   };
 
   const focusFirst = (container: HTMLElement) => {
-    const firstFocusable = container.querySelector(focusableElements) as HTMLElement;
+    const firstFocusable = container.querySelector(FOCUSABLE_ELEMENTS) as HTMLElement;
     if (firstFocusable) {
       firstFocusable.focus();
     }
@@ -240,7 +240,7 @@ export const useKeyboardNavigation = (
 };
 
 // ARIA label generators
-export const generateAriaLabel = {
+export const GENERATE_ARIA_LABEL = {
   progress: (current: number, max: number, label: string = 'Progression') => 
     `${label}: ${current} sur ${max}, ${Math.round((current / max) * 100)} pour cent`,
   
@@ -317,13 +317,13 @@ export const getAccessibleColor = (
     return type === 'background' ? '#000000' : '#FFFFFF';
   }
 
-  const themeColors = wcagColors.themes[theme as keyof typeof wcagColors.themes];
+  const themeColors = WCAG_COLORS.themes[theme as keyof typeof WCAG_COLORS.themes];
   if (themeColors) {
     return themeColors[type];
   }
 
   // Fallback to standard colors
-  return wcagColors.standard.primary[type as keyof typeof wcagColors.standard.primary] || '#000000';
+  return WCAG_COLORS.standard.primary[type as keyof typeof WCAG_COLORS.standard.primary] || '#000000';
 };
 
 // Animation utilities for reduced motion
@@ -358,12 +358,24 @@ export const useFocusVisible = () => {
   return { ref, isFocusVisible };
 };
 
+// Generate ARIA label for better accessibility
+export const generateAriaLabel = (baseLabel: string, context?: Record<string, any>): string => {
+  if (!context) return baseLabel;
+  
+  const contextParts = Object.entries(context)
+    .filter(([_, value]) => value != null && value !== '')
+    .map(([key, value]) => `${key}: ${value}`);
+  
+  if (contextParts.length === 0) return baseLabel;
+  
+  return `${baseLabel}. ${contextParts.join(', ')}`;
+};
+
 // Skip link utility
-export const createSkipLink = (targetId: string, label: string = 'Passer au contenu principal') => {
+export const createSkipLink = (targetId: string, text: string = "Skip to main content") => {
   return {
-    targetId,
-    label,
     href: `#${targetId}`,
+    children: text,
     className: "sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:p-4 focus:bg-blue-600 focus:text-white focus:no-underline",
     onFocus: (e: Event) => {
       // Ensure the target exists

@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
-import * as THREE from 'three';
 import { motion } from 'framer-motion';
+
+// Type workaround for THREE.js
+declare const THREE: any;
 
 // Wardrobe Items Data Structure
 interface WardrobeItem {
@@ -13,9 +15,9 @@ interface WardrobeItem {
     value: number;
   };
   mascotType?: string[]; // Which mascots can wear this
-  position: THREE.Vector3;
-  scale: THREE.Vector3;
-  rotation: THREE.Vector3;
+  position: any;
+  scale: any;
+  rotation: any;
   color: number;
   geometry: 'box' | 'sphere' | 'cone' | 'cylinder' | 'custom';
   customGeometry?: THREE.BufferGeometry;
@@ -364,7 +366,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
   }, [unlockedItems, selectedCategory]);
 
   // Rarity colors
-  const rarityColors = {
+  const RARITY_COLORS = {
     common: 'from-gray-400 to-gray-600',
     rare: 'from-blue-400 to-blue-600',
     epic: 'from-purple-400 to-purple-600',
@@ -372,7 +374,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
   };
 
   // Categories
-  const categories = [
+  const CATEGORIES = [
     { id: 'all', name: 'Tous', icon: '👕' },
     { id: 'hat', name: 'Chapeaux', icon: '🎩' },
     { id: 'clothing', name: 'Vêtements', icon: '👔' },
@@ -415,7 +417,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
 
       {/* Category Tabs */}
       <div className="flex flex-wrap gap-2 mb-6">
-        {categories.map(category => (
+        {CATEGORIES.map(category => (
           <button
             key={category.id}
             onClick={() => setSelectedCategory(category.id)}
@@ -463,7 +465,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
               )}
 
               {/* Rarity Border */}
-              <div className={`absolute inset-0 rounded-xl bg-gradient-to-r ${rarityColors[item.rarity]} opacity-20`} />
+              <div className={`absolute inset-0 rounded-xl bg-gradient-to-r ${RARITY_COLORS[item.rarity]} opacity-20`} />
 
               {/* Item Icon */}
               <div className="text-4xl text-center mb-2">{item.icon}</div>

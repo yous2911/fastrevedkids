@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mathsService } from '../../services/mathsService';
-import type { DefiMath } from '../../types/shared';
-
-// Stone interface
 interface Stone {
   id: string;
   valeur: number;
@@ -28,7 +25,7 @@ const STONES: Stone[] = [
 ];
 
 const FrenchMathsGame: React.FC = () => {
-  const [defis, setDefis] = useState<DefiMath[]>([]);
+  const [defis, setDefis] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -42,7 +39,7 @@ const FrenchMathsGame: React.FC = () => {
   const [showHintState, setShowHintState] = useState(false);
   const [solutionsFound, setSolutionsFound] = useState<number[][]>([]);
   
-  // Player stats (to be connected to backend later)
+  // Player STATS (to be connected to backend later)
   const [playerStats, setPlayerStats] = useState({
     totalCristaux: 50,
     totalEtoiles: 15,
@@ -107,13 +104,13 @@ const FrenchMathsGame: React.FC = () => {
     }
     
     // Add stone
-    const newStone = { ...stone, id: `${stone.id}-${Date.now()}` };
-    setPlacedStones(prev => [...prev, newStone]);
+    const NEW_STONE = { ...stone, id: `${stone.id}-${Date.now()}` };
+    setPlacedStones(prev => [...prev, NEW_STONE]);
     setCurrentSum(newSum);
     
     // Check if solution found
     if (newSum === currentDefi.cible) {
-      checkSolution([...placedStones, newStone]);
+      checkSolution([...placedStones, NEW_STONE]);
     } else {
       setFeedbackMessage(`✨ ${newSum}... Continue ! Il faut ${currentDefi.cible}`);
     }
@@ -130,14 +127,14 @@ const FrenchMathsGame: React.FC = () => {
     });
     
     if (isValidSolution) {
-      const newSolution = [...values];
+      const NEW_SOLUTION = [...values];
       const isNewSolution = !solutionsFound.some(sol => 
-        sol.length === newSolution.length && 
-        sol.every((val, index) => val === newSolution[index])
+        sol.length === NEW_SOLUTION.length && 
+        sol.every((val, index) => val === NEW_SOLUTION[index])
       );
       
       if (isNewSolution) {
-        setSolutionsFound(prev => [...prev, newSolution]);
+        setSolutionsFound(prev => [...prev, NEW_SOLUTION]);
         setFeedbackMessage(`✨ Parfait ! ${currentDefi.creature.nom} se réveille !`);
         
         // Check if all solutions found
@@ -204,8 +201,8 @@ const FrenchMathsGame: React.FC = () => {
     );
   }
   
-  // Calculate stats
-  const stats = {
+  // Calculate STATS
+  const STATS = {
     totalDefis: defis.length,
     defisReussis: playerStats.defisReussis.size,
     pourcentageReussite: Math.round((playerStats.defisReussis.size / defis.length) * 100),
@@ -312,15 +309,15 @@ const FrenchMathsGame: React.FC = () => {
                 <h3 className="text-white text-xl font-bold mb-3">📈 Progression Détaillée</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-white">
                   <div className="bg-blue-500/30 rounded-lg p-3">
-                    <div className="text-2xl font-bold">{stats.totalDefis}</div>
+                    <div className="text-2xl font-bold">{STATS.totalDefis}</div>
                     <div className="text-sm">Défis Totaux</div>
                   </div>
                   <div className="bg-green-500/30 rounded-lg p-3">
-                    <div className="text-2xl font-bold">{stats.defisReussis}</div>
+                    <div className="text-2xl font-bold">{STATS.defisReussis}</div>
                     <div className="text-sm">Défis Réussis</div>
                   </div>
                   <div className="bg-purple-500/30 rounded-lg p-3">
-                    <div className="text-2xl font-bold">{stats.pourcentageReussite}%</div>
+                    <div className="text-2xl font-bold">{STATS.pourcentageReussite}%</div>
                     <div className="text-sm">Réussite</div>
                   </div>
                   <div className="bg-orange-500/30 rounded-lg p-3">
@@ -332,7 +329,7 @@ const FrenchMathsGame: React.FC = () => {
                 <div className="mt-4">
                   <h4 className="text-white font-bold mb-2">🎯 Progression par Niveau</h4>
                   <div className="grid grid-cols-5 gap-2">
-                    {Object.entries(stats.defisParNiveau).map(([niveau, total]) => {
+                    {Object.entries(STATS.defisParNiveau).map(([niveau, total]) => {
                       const reussis = Array.from(playerStats.defisReussis).filter(id => 
                         defis.find(d => d.id === id)?.niveau === parseInt(niveau)
                       ).length;

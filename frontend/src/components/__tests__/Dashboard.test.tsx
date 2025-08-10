@@ -76,7 +76,7 @@ try {
 }
 
 // Test data
-const mockStudent = {
+const MOCK_STUDENT = {
   eleve: {
     id: 1,
     prenom: 'Alice',
@@ -103,8 +103,8 @@ const mockStudent = {
   achievements: [],
 };
 
-const mockProps = {
-  student: mockStudent,
+const MOCK_PROPS = {
+  student: MOCK_STUDENT,
   onNavigate: jest.fn(),
   onStartExercise: jest.fn(),
   onLogout: jest.fn(),
@@ -116,73 +116,73 @@ describe('Dashboard Component', () => {
   });
 
   it('should render without crashing', () => {
-    render(React.createElement(Dashboard, mockProps));
+    render(React.createElement(Dashboard, MOCK_PROPS));
     expect(screen.getByTestId('dashboard')).toBeInTheDocument();
   });
 
   it('should display student name', () => {
-    render(React.createElement(Dashboard, mockProps));
+    render(React.createElement(Dashboard, MOCK_PROPS));
     expect(screen.getByText('Alice')).toBeInTheDocument();
   });
 
   it('should display student points', () => {
-    render(React.createElement(Dashboard, mockProps));
+    render(React.createElement(Dashboard, MOCK_PROPS));
     expect(screen.getByText('1500')).toBeInTheDocument();
   });
 
   it('should display completed exercises', () => {
-    render(React.createElement(Dashboard, mockProps));
+    render(React.createElement(Dashboard, MOCK_PROPS));
     expect(screen.getByText('75')).toBeInTheDocument();
   });
 
   it('should display success rate', () => {
-    render(React.createElement(Dashboard, mockProps));
+    render(React.createElement(Dashboard, MOCK_PROPS));
     expect(screen.getByText('85%')).toBeInTheDocument();
   });
 
   it('should display streak days', () => {
-    render(React.createElement(Dashboard, mockProps));
+    render(React.createElement(Dashboard, MOCK_PROPS));
     expect(screen.getByText('7')).toBeInTheDocument();
   });
 
   it('should render recommendations when available', () => {
-    render(React.createElement(Dashboard, mockProps));
+    render(React.createElement(Dashboard, MOCK_PROPS));
     expect(screen.getByText('Addition Simple')).toBeInTheDocument();
   });
 
   it('should call onNavigate when exercise button is clicked', () => {
-    render(React.createElement(Dashboard, mockProps));
+    render(React.createElement(Dashboard, MOCK_PROPS));
     
     const exerciseButton = screen.getByText('Faire un exercice');
     fireEvent.click(exerciseButton);
-    expect(mockProps.onNavigate).toHaveBeenCalledWith('/exercises');
+    expect(MOCK_PROPS.onNavigate).toHaveBeenCalledWith('/exercises');
   });
 
   it('should call onNavigate when progress button is clicked', () => {
-    render(React.createElement(Dashboard, mockProps));
+    render(React.createElement(Dashboard, MOCK_PROPS));
     
     const progressButton = screen.getByText('Voir ma progression');
     fireEvent.click(progressButton);
-    expect(mockProps.onNavigate).toHaveBeenCalledWith('/progress');
+    expect(MOCK_PROPS.onNavigate).toHaveBeenCalledWith('/progress');
   });
 
   it('should handle empty recommendations gracefully', () => {
-    const propsWithoutRecommendations = {
-      ...mockProps,
+    const PROPS_WITHOUT_RECOMMENDATIONS = {
+      ...MOCK_PROPS,
       student: {
-        ...mockStudent,
+        ...MOCK_STUDENT,
         recommendations: [],
       },
     };
     
-    render(React.createElement(Dashboard, propsWithoutRecommendations));
+    render(React.createElement(Dashboard, PROPS_WITHOUT_RECOMMENDATIONS));
     
     // Should show empty state message
     expect(screen.getByText('Aucun exercice recommandé')).toBeInTheDocument();
   });
 
   it('should display all required dashboard elements', () => {
-    render(React.createElement(Dashboard, mockProps));
+    render(React.createElement(Dashboard, MOCK_PROPS));
     
     // Check all main elements are present
     expect(screen.getByText('Alice')).toBeInTheDocument();
@@ -195,7 +195,7 @@ describe('Dashboard Component', () => {
   });
 
   it('should handle minimal student data', () => {
-    const minimalStudent = {
+    const MINIMAL_STUDENT = {
       eleve: {
         id: 1,
         prenom: 'Test',
@@ -215,12 +215,12 @@ describe('Dashboard Component', () => {
       achievements: [],
     };
     
-    const minimalProps = {
-      ...mockProps,
-      student: minimalStudent,
+    const MINIMAL_PROPS = {
+      ...MOCK_PROPS,
+      student: MINIMAL_STUDENT,
     };
     
-    render(React.createElement(Dashboard, minimalProps));
+    render(React.createElement(Dashboard, MINIMAL_PROPS));
     expect(screen.getByText('Test')).toBeInTheDocument();
   });
 }); 

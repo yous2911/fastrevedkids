@@ -1,7 +1,7 @@
 // Global test mocks
 
 // Mock framer-motion
-export const mockFramerMotion = {
+export const MOCK_FRAMER_MOTION = {
   motion: {
     div: ({ children, ...props }: any) => {
       const { 
@@ -114,7 +114,7 @@ export const mockUseHaptic = jest.fn(() => ({
 }));
 
 // Mock Three.js for 3D components
-export const mockThree = {
+export const MOCK_THREE = {
   WebGLRenderer: jest.fn(() => ({
     setSize: jest.fn(),
     render: jest.fn(),
@@ -130,7 +130,7 @@ export const mockThree = {
 };
 
 // Mock Howler.js for audio
-export const mockHowler = {
+export const MOCK_HOWLER = {
   Howl: jest.fn(() => ({
     play: jest.fn(),
     pause: jest.fn(),
@@ -152,7 +152,7 @@ export const mockHowler = {
 };
 
 // Mock localStorage
-export const mockLocalStorage = {
+export const MOCK_LOCAL_STORAGE = {
   getItem: jest.fn((key: string) => {
     const store: { [key: string]: string } = {};
     return store[key] || null;
@@ -169,8 +169,8 @@ export const mockLocalStorage = {
 };
 
 // Mock sessionStorage
-export const mockSessionStorage = {
-  ...mockLocalStorage,
+export const MOCK_SESSION_STORAGE = {
+  ...MOCK_LOCAL_STORAGE,
 };
 
 // Mock fetch for API calls
@@ -198,7 +198,7 @@ export const mockIntersectionObserver = jest.fn(() => ({
 }));
 
 // Mock MediaDevices for camera/microphone access
-export const mockMediaDevices = {
+export const MOCK_MEDIA_DEVICES = {
   getUserMedia: jest.fn(() => 
     Promise.resolve({
       getTracks: () => [{ stop: jest.fn() }],
@@ -208,7 +208,7 @@ export const mockMediaDevices = {
 };
 
 // Mock geolocation
-export const mockGeolocation = {
+export const MOCK_GEOLOCATION = {
   getCurrentPosition: jest.fn((success) => 
     success({
       coords: {
@@ -223,7 +223,7 @@ export const mockGeolocation = {
 };
 
 // Mock clipboard
-export const mockClipboard = {
+export const MOCK_CLIPBOARD = {
   writeText: jest.fn(() => Promise.resolve()),
   readText: jest.fn(() => Promise.resolve('mocked text')),
 };
@@ -238,7 +238,7 @@ export const mockNotification = jest.fn(() => ({
 }));
 
 // Common test data
-export const testData = {
+export const TEST_DATA = {
   student: {
     id: 1,
     prenom: 'Test',

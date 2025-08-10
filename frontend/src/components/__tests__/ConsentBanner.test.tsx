@@ -24,6 +24,9 @@ jest.mock('../../hooks/useHaptic', () => ({
   }),
 }));
 
+// Mock function for tests
+const mockOnConsentChange = jest.fn();
+
 // Mock UI components
 jest.mock('../ui/AnimatedCard', () => ({
   AnimatedCard: ({ children, ...props }: any) => (
@@ -61,8 +64,8 @@ jest.mock('lucide-react', () => ({
 }));
 
 describe('ConsentBanner', () => {
-  const mockOnConsentChange = jest.fn();
-  const defaultConsent = {
+  const handleMockOnConsentChange= jest.fn();
+  const DEFAULT_CONSENT = {
     essential: true,
     functional: false,
     analytics: false,
@@ -83,7 +86,7 @@ describe('ConsentBanner', () => {
       <ConsentBanner
         onConsentChange={mockOnConsentChange}
         showBanner={true}
-        currentConsent={defaultConsent}
+        currentConsent={DEFAULT_CONSENT}
       />
     );
 
@@ -95,7 +98,7 @@ describe('ConsentBanner', () => {
       <ConsentBanner
         onConsentChange={mockOnConsentChange}
         showBanner={false}
-        currentConsent={defaultConsent}
+        currentConsent={DEFAULT_CONSENT}
       />
     );
 
@@ -107,7 +110,7 @@ describe('ConsentBanner', () => {
       <ConsentBanner
         onConsentChange={mockOnConsentChange}
         showBanner={true}
-        currentConsent={defaultConsent}
+        currentConsent={DEFAULT_CONSENT}
       />
     );
 
@@ -122,7 +125,7 @@ describe('ConsentBanner', () => {
       <ConsentBanner
         onConsentChange={mockOnConsentChange}
         showBanner={true}
-        currentConsent={defaultConsent}
+        currentConsent={DEFAULT_CONSENT}
       />
     );
 
@@ -137,7 +140,7 @@ describe('ConsentBanner', () => {
       <ConsentBanner
         onConsentChange={mockOnConsentChange}
         showBanner={true}
-        currentConsent={defaultConsent}
+        currentConsent={DEFAULT_CONSENT}
       />
     );
 
@@ -153,7 +156,7 @@ describe('ConsentBanner', () => {
       <ConsentBanner
         onConsentChange={mockOnConsentChange}
         showBanner={true}
-        currentConsent={defaultConsent}
+        currentConsent={DEFAULT_CONSENT}
       />
     );
 
@@ -165,7 +168,7 @@ describe('ConsentBanner', () => {
       <ConsentBanner
         onConsentChange={mockOnConsentChange}
         showBanner={true}
-        currentConsent={defaultConsent}
+        currentConsent={DEFAULT_CONSENT}
         isMinor={true}
       />
     );
@@ -178,7 +181,7 @@ describe('ConsentBanner', () => {
       <ConsentBanner
         onConsentChange={mockOnConsentChange}
         showBanner={true}
-        currentConsent={defaultConsent}
+        currentConsent={DEFAULT_CONSENT}
         parentalConsentRequired={true}
       />
     );

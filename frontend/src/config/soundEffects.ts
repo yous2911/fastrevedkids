@@ -461,7 +461,7 @@ export const SOUND_CATEGORIES: Record<SoundCategory, { name: string; description
   },
   ui: {
     name: 'UI Interactions',
-    description: 'General user interface sounds',
+    description: 'General user interface ISounds',
     color: '#6B7280'
   },
   session: {

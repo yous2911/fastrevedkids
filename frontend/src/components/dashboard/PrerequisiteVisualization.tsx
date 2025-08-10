@@ -70,21 +70,21 @@ const PrerequisiteVisualization: React.FC<PrerequisiteVisualizationProps> = ({
   }, [studentId, currentLevel]);
 
   const getSampleCompetenceForLevel = (level: string): string => {
-    const competences = {
+    const COMPETENCES = {
       'CP': 'CP.FR.L1.2',
       'CE1': 'CE1.MATH.N1.3', 
       'CE2': 'CE2.FR.G1.2',
       'CM1': 'CM1.MATH.G2.1',
       'CM2': 'CM2.SC.V1.1'
     };
-    return competences[level as keyof typeof competences] || 'CP.FR.L1.1';
+    return COMPETENCES[level as keyof typeof COMPETENCES] || 'CP.FR.L1.1';
   };
 
   const loadPrerequisites = async (competenceCode: string) => {
     setDataLoading(true);
     try {
       const response = await fetch(
-        `/api/competences/${competenceCode}/prerequisites?studentId=${studentId}&includePrerequisiteDetails=true&depth=1`,
+        `/api/COMPETENCES/${competenceCode}/prerequisites?studentId=${studentId}&includePrerequisiteDetails=true&depth=1`,
         {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`

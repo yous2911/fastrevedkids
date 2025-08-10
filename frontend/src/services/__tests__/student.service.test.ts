@@ -22,7 +22,7 @@ describe('StudentService', () => {
 
   describe('getStudent', () => {
     it('should get student by ID', async () => {
-      const mockStudent = {
+      const MOCK_STUDENT = {
         id: 1,
         prenom: 'Alice',
         nom: 'Dupont',
@@ -32,14 +32,14 @@ describe('StudentService', () => {
 
       mockApiService.get.mockResolvedValue({
         success: true,
-        data: mockStudent,
+        data: MOCK_STUDENT,
       });
 
       const result = await studentService.getStudent(1);
 
       expect(mockApiService.get).toHaveBeenCalledWith('/students/1');
       expect(result.success).toBe(true);
-      expect(result.data).toEqual(mockStudent);
+      expect(result.data).toEqual(MOCK_STUDENT);
     });
 
     it('should handle API errors', async () => {
@@ -56,7 +56,7 @@ describe('StudentService', () => {
 
   describe('getRecommendations', () => {
     it('should get exercise recommendations', async () => {
-      const mockRecommendations = [
+      const MOCK_RECOMMENDATIONS = [
         {
           id: 1,
           titre: 'Addition Simple',
@@ -67,19 +67,19 @@ describe('StudentService', () => {
 
       mockApiService.get.mockResolvedValue({
         success: true,
-        data: mockRecommendations,
+        data: MOCK_RECOMMENDATIONS,
       });
 
       const result = await studentService.getRecommendations(1, { limit: 5 });
 
       expect(mockApiService.get).toHaveBeenCalledWith('/students/1/recommendations?limit=5');
-      expect(result.data).toEqual(mockRecommendations);
+      expect(result.data).toEqual(MOCK_RECOMMENDATIONS);
     });
   });
 
   describe('submitAttempt', () => {
-    it('should submit valid exercise attempt', async () => {
-      const attempt = {
+    it('should submit valid exercise ATTEMPT', async () => {
+      const ATTEMPT = {
         reponse: '7',
         reussi: true,
         tempsSecondes: 30,
@@ -97,17 +97,17 @@ describe('StudentService', () => {
 
       mockApiService.post.mockResolvedValue(mockResponse);
 
-      const result = await studentService.submitAttempt(1, 1, attempt);
+      const result = await studentService.submitAttempt(1, 1, ATTEMPT);
 
       expect(mockApiService.post).toHaveBeenCalledWith('/students/1/attempts', {
         exerciseId: 1,
-        attempt,
+        ATTEMPT,
       });
       expect(result.success).toBe(true);
     });
 
     it('should handle validation errors gracefully', async () => {
-      const invalidAttempt = {
+      const INVALID_ATTEMPT = {
         reponse: '',
         reussi: 'invalid' as any,
         tempsSecondes: -5,
@@ -116,7 +116,7 @@ describe('StudentService', () => {
 
       // The service should validate and throw an error
       try {
-        await studentService.submitAttempt(1, 1, invalidAttempt);
+        await studentService.submitAttempt(1, 1, INVALID_ATTEMPT);
         // If we get here, the test should fail
         expect(true).toBe(false);
       } catch (error) {
@@ -128,7 +128,7 @@ describe('StudentService', () => {
 
   describe('getProgress', () => {
     it('should get student progress', async () => {
-      const mockProgress = [
+      const MOCK_PROGRESS = [
         {
           exerciceId: 1,
           statut: 'ACQUIS',
@@ -141,19 +141,19 @@ describe('StudentService', () => {
 
       mockApiService.get.mockResolvedValue({
         success: true,
-        data: mockProgress,
+        data: MOCK_PROGRESS,
       });
 
       const result = await studentService.getProgress(1);
 
       expect(mockApiService.get).toHaveBeenCalledWith('/students/1/progress?');
-      expect(result.data).toEqual(mockProgress);
+      expect(result.data).toEqual(MOCK_PROGRESS);
     });
   });
 
   describe('getStatistics', () => {
     it('should get student statistics', async () => {
-      const mockStats = {
+      const MOCK_STATS = {
         totalExercises: 100,
         completedExercises: 75,
         successRate: 85,
@@ -163,31 +163,31 @@ describe('StudentService', () => {
 
       mockApiService.get.mockResolvedValue({
         success: true,
-        data: mockStats,
+        data: MOCK_STATS,
       });
 
       const result = await studentService.getStatistics(1);
 
       expect(mockApiService.get).toHaveBeenCalledWith('/students/1/statistics');
-      expect(result.data).toEqual(mockStats);
+      expect(result.data).toEqual(MOCK_STATS);
     });
   });
 
   describe('getAchievements', () => {
     it('should get student achievements', async () => {
-      const mockAchievements = [
+      const MOCK_ACHIEVEMENTS = [
         { id: 1, titre: 'Premier exercice', description: 'A complété son premier exercice' },
       ];
 
       mockApiService.get.mockResolvedValue({
         success: true,
-        data: mockAchievements,
+        data: MOCK_ACHIEVEMENTS,
       });
 
       const result = await studentService.getAchievements(1);
 
       expect(mockApiService.get).toHaveBeenCalledWith('/students/1/achievements');
-      expect(result.data).toEqual(mockAchievements);
+      expect(result.data).toEqual(MOCK_ACHIEVEMENTS);
     });
   });
 
@@ -231,26 +231,26 @@ describe('StudentService', () => {
 
   describe('getStreak', () => {
     it('should get student streak', async () => {
-      const mockStreak = {
+      const MOCK_STREAK = {
         serieJours: 7,
         lastActivity: '2024-01-01',
       };
 
       mockApiService.get.mockResolvedValue({
         success: true,
-        data: mockStreak,
+        data: MOCK_STREAK,
       });
 
       const result = await studentService.getStreak(1);
 
       expect(mockApiService.get).toHaveBeenCalledWith('/students/1/streak');
-      expect(result.data).toEqual(mockStreak);
+      expect(result.data).toEqual(MOCK_STREAK);
     });
   });
 
   describe('logActivity', () => {
-    it('should log student activity', async () => {
-      const activity = {
+    it('should log student ACTIVITY', async () => {
+      const ACTIVITY = {
         type: 'exercise_completed',
         details: { exerciseId: 1, score: 100 },
         duration: 300,
@@ -258,14 +258,14 @@ describe('StudentService', () => {
 
       const mockResponse = {
         success: true,
-        data: { id: 1, activity },
+        data: { id: 1, ACTIVITY },
       };
 
       mockApiService.post.mockResolvedValue(mockResponse);
 
-      const result = await studentService.logActivity(1, activity);
+      const result = await studentService.logActivity(1, ACTIVITY);
 
-      expect(mockApiService.post).toHaveBeenCalledWith('/students/1/activity', activity);
+      expect(mockApiService.post).toHaveBeenCalledWith('/students/1/ACTIVITY', ACTIVITY);
       expect(result.success).toBe(true);
     });
   });

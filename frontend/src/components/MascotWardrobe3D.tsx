@@ -32,14 +32,14 @@ interface MascotWardrobe3DProps {
 }
 
 // Size configurations
-const sizeConfig = {
+const SIZE_CONFIG = {
   small: { scale: 0.8, containerSize: 120 },
   medium: { scale: 1.0, containerSize: 150 },
   large: { scale: 1.2, containerSize: 200 }
 };
 
-// Mascot colors and characteristics with positioning data
-const mascotConfig = {
+// Mascot COLORS and characteristics with positioning data
+const MASCOT_CONFIG = {
   dragon: {
     primaryColor: 0x8A2BE2,
     secondaryColor: 0x4F46E5,
@@ -113,7 +113,7 @@ const mascotConfig = {
 };
 
 // Item collision zones and compatibility
-const itemCompatibility = {
+const ITEM_COMPATIBILITY = {
   wizard_hat: { conflicts: ['crown_gold', 'baseball_cap'], zone: 'head' },
   crown_gold: { conflicts: ['wizard_hat', 'baseball_cap'], zone: 'head' },
   baseball_cap: { conflicts: ['wizard_hat', 'crown_gold'], zone: 'head' },
@@ -183,7 +183,7 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
     }
     
     // Add description based on mascot type
-    const mascotDescriptions = {
+    const MASCOT_DESCRIPTIONS = {
       dragon: 'Un dragon majestueux avec des ailes puissantes et des écailles brillantes',
       fairy: 'Une fée gracieuse avec des ailes délicates et une aura magique',
       robot: 'Un robot futuriste avec des composants technologiques avancés',
@@ -191,10 +191,10 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
       owl: 'Un hibou sage avec de grands yeux perçants et des plumes douces'
     };
     
-    altText += `. ${mascotDescriptions[safeMascotType]}`;
+    altText += `. ${MASCOT_DESCRIPTIONS[safeMascotType]}`;
     
     // Add emotion-specific description
-    const emotionDescriptions = {
+    const EMOTION_DESCRIPTIONS = {
       idle: 'dans une pose détendue',
       happy: 'exprimant la joie et l\'enthousiasme',
       thinking: 'dans une posture réfléchie',
@@ -202,7 +202,7 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
       oops: 'montrant de la surprise ou de l\'embarras'
     };
     
-    altText += ` ${emotionDescriptions[safeEmotion]}`;
+    altText += ` ${EMOTION_DESCRIPTIONS[safeEmotion]}`;
     
     return altText;
   };
@@ -234,17 +234,17 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
     return description;
   };
   const mountRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<THREE.Scene>();
-  const rendererRef = useRef<THREE.WebGLRenderer>();
-  const cameraRef = useRef<THREE.PerspectiveCamera>();
-  const mascotGroupRef = useRef<THREE.Group>();
-  const wardrobeItemsRef = useRef<THREE.Group>();
+  const sceneRef = useRef<any>();
+  const rendererRef = useRef<any>();
+  const cameraRef = useRef<any>();
+  const mascotGroupRef = useRef<any>();
+  const wardrobeItemsRef = useRef<any>();
   const animationRef = useRef<number>();
   const cleanupRef = useRef<(() => void)[]>([]);
-  const geometriesRef = useRef<THREE.BufferGeometry[]>([]);
-  const materialsRef = useRef<THREE.Material[]>([]);
-  const texturesRef = useRef<THREE.Texture[]>([]);
-  const itemPositionsRef = useRef<Map<string, THREE.Vector3>>(new Map());
+  const geometriesRef = useRef<any>([]);
+  const materialsRef = useRef<any>([]);
+  const texturesRef = useRef<any>([]);
+  const itemPositionsRef = useRef<Map<string, any>>(new Map());
   const equippedItemsRef = useRef<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -255,7 +255,7 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
   // Secure texture loader instance
   const secureTextureLoader = useRef<SecureTextureLoader>(new SecureTextureLoader());
 
-  const config = sizeConfig[size];
+  const config = SIZE_CONFIG[size];
   
   // Secure asset loading function
   const loadAssetSecurely = async (assetPath: string, type: 'texture' | 'model' = 'texture'): Promise<any> => {
@@ -399,11 +399,11 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
   const createMascotGeometry = (type: string) => {
     // Sanitize mascot type
     const sanitizedType = sanitizeTextInput(type).sanitizedValue;
-    const validTypes = ['dragon', 'fairy', 'robot', 'cat', 'owl'];
-    const safeType = validTypes.includes(sanitizedType) ? sanitizedType : 'dragon';
+    const VALID_TYPES = ['dragon', 'fairy', 'robot', 'cat', 'owl'];
+    const safeType = VALID_TYPES.includes(sanitizedType) ? sanitizedType : 'dragon';
     
     const group = new THREE.Group();
-    const config = mascotConfig[safeType as keyof typeof mascotConfig];
+    const config = MASCOT_CONFIG[safeType as keyof typeof MASCOT_CONFIG];
     
     // Optimize geometry complexity based on device capability
     const segments = isMobile ? 8 : 16;
@@ -564,12 +564,12 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
     const sanitizedMascotType = sanitizeTextInput(mascotType).sanitizedValue;
     
     // Validate item ID against whitelist
-    const validItemIds = [
+    const VALID_ITEM_IDS = [
       'wizard_hat', 'crown_gold', 'magic_wand', 'magic_glasses', 
       'rainbow_aura', 'superhero_cape', 'lab_coat', 'rainbow_shirt'
     ];
     
-    if (!validItemIds.includes(sanitizedItemId)) {
+    if (!VALID_ITEM_IDS.includes(sanitizedItemId)) {
       console.warn(`Invalid item ID: ${sanitizedItemId}`);
       return null;
     }
@@ -730,11 +730,11 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
         
         // Rainbow particles
         for (let i = 0; i < 30; i++) {
-          const colors = [0xFF0000, 0xFF7F00, 0xFFFF00, 0x00FF00, 0x0000FF, 0x4B0082, 0x9400D3];
+          const COLORS = [0xFF0000, 0xFF7F00, 0xFFFF00, 0x00FF00, 0x0000FF, 0x4B0082, 0x9400D3];
           const particleGeometry = new THREE.SphereGeometry(0.05);
           const particleMaterial = new THREE.MeshPhongMaterial({ 
-            color: colors[Math.floor(Math.random() * colors.length)],
-            emissive: colors[Math.floor(Math.random() * colors.length)],
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+            emissive: COLORS[Math.floor(Math.random() * COLORS.length)],
             emissiveIntensity: 0.6
           });
           const particle = new THREE.Mesh(particleGeometry, particleMaterial);
@@ -766,7 +766,7 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
     const equippedZones = new Map<string, string>();
     
     items.forEach(itemId => {
-      const compatibility = itemCompatibility[itemId as keyof typeof itemCompatibility];
+      const compatibility = ITEM_COMPATIBILITY[itemId as keyof typeof ITEM_COMPATIBILITY];
       if (compatibility) {
         const existingItem = equippedZones.get(compatibility.zone);
         if (existingItem && existingItem !== itemId) {
@@ -788,8 +788,8 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
   };
   
   // Get mascot-specific positioning for item
-  const getMascotItemPosition = (itemId: string, itemType: string): { position: THREE.Vector3; scale: number } => {
-    const config = mascotConfig[safeMascotType];
+  const getMascotItemPosition = (itemId: string, itemType: string): { position: any; scale: number } => {
+    const config = MASCOT_CONFIG[safeMascotType];
     const wardrobeOffset = config.wardrobeOffsets[itemType as keyof typeof config.wardrobeOffsets] || 
                           config.wardrobeOffsets.accessory;
     
@@ -953,7 +953,7 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
         const threeItem = item as THREE.Object3D;
         const itemId = threeItem.userData.itemId;
         const itemType = threeItem.userData.itemType;
-        const basePosition = threeItem.userData.basePosition as THREE.Vector3;
+        const basePosition = threeItem.userData.basePosition as any;
         
         if (!itemId || !basePosition) return;
         
@@ -1015,9 +1015,9 @@ const MascotWardrobe3D: React.FC<MascotWardrobe3DProps> = ({
         
         // Apply mouse interaction effects
         if (enableInteraction && (itemType === 'hat' || itemType === 'accessory')) {
-          const mouseInfluence = 0.1;
-          threeItem.rotation.y += (mousePosition.x - 0.5) * mouseInfluence;
-          threeItem.rotation.x += (mousePosition.y - 0.5) * mouseInfluence * 0.5;
+          const MOUSE_INFLUENCE = 0.1;
+          threeItem.rotation.y += (mousePosition.x - 0.5) * MOUSE_INFLUENCE;
+          threeItem.rotation.x += (mousePosition.y - 0.5) * MOUSE_INFLUENCE * 0.5;
         }
       });
     }

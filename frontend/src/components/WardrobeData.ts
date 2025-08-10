@@ -1,4 +1,5 @@
-import * as THREE from 'three';
+// Type workaround for THREE.js
+declare const THREE: any;
 
 // Wardrobe Items Data Structure
 export interface WardrobeItem {
@@ -11,12 +12,12 @@ export interface WardrobeItem {
     value: number;
   };
   mascotType?: string[]; // Which mascots can wear this
-  position: THREE.Vector3;
-  scale: THREE.Vector3;
-  rotation: THREE.Vector3;
+  position: any;
+  scale: any;
+  rotation: any;
   color: number;
   geometry: 'box' | 'sphere' | 'cone' | 'cylinder' | 'custom';
-  customGeometry?: THREE.BufferGeometry;
+  customGeometry?: any;
   animation?: string;
   magicalEffect?: boolean;
   description: string;
@@ -293,8 +294,8 @@ export const WARDROBE_ITEMS: WardrobeItem[] = [
 ];
 
 // Helper function to create 3D item mesh
-export const createItemMesh = (item: WardrobeItem): THREE.Mesh => {
-  let geometry: THREE.BufferGeometry;
+export const createItemMesh = (item: WardrobeItem): any => {
+  let geometry: any;
 
   switch (item.geometry) {
     case 'box':

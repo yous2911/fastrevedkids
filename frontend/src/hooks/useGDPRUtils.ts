@@ -324,19 +324,19 @@ export const useGDPRNotifications = () => {
     type: 'success' | 'error' | 'warning' | 'info',
     message: string
   ) => {
-    const notification = {
+    const NOTIFICATION = {
       id: Date.now().toString(),
       type,
       message,
       timestamp: new Date()
     };
 
-    setNotifications(prev => [notification, ...prev.slice(0, 4)]); // Garder les 5 dernières
+    setNotifications(prev => [NOTIFICATION, ...prev.slice(0, 4)]); // Garder les 5 dernières
 
     // Auto-suppression après 5 secondes pour les succès et infos
     if (type === 'success' || type === 'info') {
       setTimeout(() => {
-        setNotifications(prev => prev.filter(n => n.id !== notification.id));
+        setNotifications(prev => prev.filter(n => n.id !== NOTIFICATION.id));
       }, 5000);
     }
   }, []);

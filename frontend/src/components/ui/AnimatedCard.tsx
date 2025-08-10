@@ -130,8 +130,8 @@ export const AnimatedCard: React.FC<AnimatedCardProps> = ({
   };
 
   const getCardClasses = () => {
-    const baseClasses = 'relative overflow-hidden rounded-xl shadow-lg backdrop-blur-sm';
-    const variantClasses = {
+    const BASE_CLASSES = 'relative overflow-hidden rounded-xl shadow-lg backdrop-blur-sm';
+    const VARIANT_CLASSES = {
       default: 'bg-white/90 border border-gray-200',
       exercise: 'bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-blue-200',
       reward: 'bg-gradient-to-br from-yellow-50 to-orange-100 border-2 border-yellow-200',
@@ -139,7 +139,7 @@ export const AnimatedCard: React.FC<AnimatedCardProps> = ({
       sparkle: 'bg-gradient-to-br from-purple-50 to-pink-100 border-2 border-purple-200'
     };
     
-    return `${baseClasses} ${variantClasses[variant]} ${className}`;
+    return `${BASE_CLASSES} ${VARIANT_CLASSES[variant]} ${className}`;
   };
 
   return (

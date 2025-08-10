@@ -20,7 +20,7 @@ interface WardrobeItem {
   };
   effects?: string[];
   animations?: string[];
-  colors?: string[];
+  COLORS?: string[];
   materials?: {
     diffuse?: string;
     normal?: string;
@@ -132,7 +132,7 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
         stats: { intelligence: 10, creativity: 5 },
         effects: ['sparkle', 'glow'],
         animations: ['float', 'twinkle'],
-        colors: ['purple', 'blue', 'dark_blue'],
+        COLORS: ['purple', 'blue', 'dark_blue'],
         materials: {
           diffuse: '/textures/wizard_hat_diffuse.png',
           normal: '/textures/wizard_hat_normal.png',
@@ -151,7 +151,7 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
         stats: { intelligence: 15 },
         effects: ['academic_aura'],
         animations: ['tip_hat'],
-        colors: ['black', 'navy', 'maroon'],
+        COLORS: ['black', 'navy', 'maroon'],
         materials: {
           diffuse: '/textures/graduation_cap_diffuse.png',
           metallic: 0.0,
@@ -165,7 +165,7 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
         rarity: 'common',
         unlockLevel: 1,
         stats: { luck: 5 },
-        colors: ['red', 'blue', 'green', 'yellow'],
+        COLORS: ['red', 'blue', 'green', 'yellow'],
         conflicts: ['wizard_hat', 'crown']
       },
       
@@ -195,7 +195,7 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
         unlockLevel: 3,
         stats: { charisma: 10 },
         effects: ['dapper_shine'],
-        colors: ['red', 'black', 'white', 'gold'],
+        COLORS: ['red', 'black', 'white', 'gold'],
         compatibility: ['tuxedo', 'formal_shirt']
       },
       
@@ -209,7 +209,7 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
         stats: { charisma: 20, luck: 10 },
         effects: ['heroic_aura', 'cape_flow', 'wind_effect'],
         animations: ['cape_flutter', 'dramatic_pose'],
-        colors: ['red', 'blue', 'purple', 'gold'],
+        COLORS: ['red', 'blue', 'purple', 'gold'],
         materials: {
           diffuse: '/textures/superhero_cape_diffuse.png',
           normal: '/textures/superhero_cape_normal.png',
@@ -226,7 +226,7 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
         unlockLevel: 6,
         stats: { intelligence: 12, creativity: 8 },
         effects: ['scientific_precision'],
-        colors: ['white', 'light_blue'],
+        COLORS: ['white', 'light_blue'],
         compatibility: ['magic_glasses', 'safety_goggles']
       },
       
@@ -240,7 +240,7 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
         stats: { luck: 8, creativity: 5 },
         effects: ['magic_trail', 'sparkle_step'],
         animations: ['hover', 'magic_step'],
-        colors: ['purple', 'silver', 'gold'],
+        COLORS: ['purple', 'silver', 'gold'],
         compatibility: ['wizard_hat', 'magic_robe']
       },
       {
@@ -250,7 +250,7 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
         rarity: 'common',
         unlockLevel: 1,
         stats: { luck: 3 },
-        colors: ['red', 'blue', 'black', 'white', 'rainbow']
+        COLORS: ['red', 'blue', 'black', 'white', 'rainbow']
       }
     ];
 
@@ -488,18 +488,18 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
 
   // Get item rarity color
   const getRarityColor = useCallback((rarity: string) => {
-    const colors = {
+    const COLORS = {
       common: 'text-gray-400',
       rare: 'text-blue-400',
       epic: 'text-purple-400',
       legendary: 'text-yellow-400'
     };
-    return colors[rarity as keyof typeof colors] || 'text-gray-400';
+    return COLORS[rarity as keyof typeof COLORS] || 'text-gray-400';
   }, []);
 
   // Get category icon
   const getCategoryIcon = useCallback((category: string) => {
-    const icons = {
+    const ICONS = {
       hat: '🎩',
       accessory: '👓',
       clothing: '👔',
@@ -507,7 +507,7 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
       weapon: '⚔️',
       special: '✨'
     };
-    return icons[category as keyof typeof icons] || '📦';
+    return ICONS[category as keyof typeof ICONS] || '📦';
   }, []);
 
   if (!isVisible) return null;
@@ -568,7 +568,7 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`w-full text-left p-3 rounded-lg transition-colors ${
+                className={`w-full text-left p-3 rounded-lg transition-COLORS ${
                   activeTab === tab.id
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
@@ -837,9 +837,9 @@ const ItemsTab: React.FC<{
               )}
 
               {/* Colors */}
-              {item.colors && item.colors.length > 0 && (
+              {item.COLORS && item.COLORS.length > 0 && (
                 <div className="flex gap-1 mt-2">
-                  {item.colors.map(color => (
+                  {item.COLORS.map(color => (
                     <div
                       key={color}
                       className="w-4 h-4 rounded border border-gray-600"

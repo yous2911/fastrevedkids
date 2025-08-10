@@ -68,7 +68,7 @@ interface MemoryItem {
 interface EmotionState {
   primary: string;
   intensity: number;
-  valence: number; // -1 (negative) to 1 (positive)
+  valence: number; // -1 (NEGATIVE) to 1 (POSITIVE)
   arousal: number; // 0 (calm) to 1 (excited)
   emotions: Record<string, number>;
   triggers: EmotionTrigger[];
@@ -423,20 +423,20 @@ export const AIStateVisualizationDashboard: React.FC<AIStateVisualizationDashboa
 
   // Helper functions
   const calculateValence = (emotions: Record<string, number>): number => {
-    const positive = ['joy', 'excitement', 'satisfaction', 'love'] as const;
-    const negative = ['anger', 'fear', 'sadness', 'frustration'] as const;
+    const POSITIVE = ['joy', 'excitement', 'satisfaction', 'love'] as const;
+    const NEGATIVE = ['anger', 'fear', 'sadness', 'frustration'] as const;
     
-    const positiveSum = positive.reduce((sum, emotion) => sum + (emotions[emotion] || 0), 0);
-    const negativeSum = negative.reduce((sum, emotion) => sum + (emotions[emotion] || 0), 0);
+    const positiveSum = POSITIVE.reduce((sum, emotion) => sum + (emotions[emotion] || 0), 0);
+    const negativeSum = NEGATIVE.reduce((sum, emotion) => sum + (emotions[emotion] || 0), 0);
     
     return (positiveSum - negativeSum) / Math.max(positiveSum + negativeSum, 1);
   };
 
   const calculateArousal = (emotions: Record<string, number>): number => {
-    const high = ['excitement', 'anger', 'fear', 'surprise'] as const;
+    const HIGH = ['excitement', 'anger', 'fear', 'surprise'] as const;
     const low = ['sadness', 'contentment', 'boredom'] as const;
     
-    const highSum = high.reduce((sum, emotion) => sum + (emotions[emotion] || 0), 0);
+    const highSum = HIGH.reduce((sum, emotion) => sum + (emotions[emotion] || 0), 0);
     const lowSum = low.reduce((sum, emotion) => sum + (emotions[emotion] || 0), 0);
     
     return highSum / Math.max(highSum + lowSum, 1);
@@ -470,7 +470,7 @@ export const AIStateVisualizationDashboard: React.FC<AIStateVisualizationDashboa
   const renderNetworkVisualization = (ctx: CanvasRenderingContext2D, agent: AIAgent) => {
     const centerX = ctx.canvas.width / 2;
     const centerY = ctx.canvas.height / 2;
-    const radius = 80;
+    const RADIUS = 80;
 
     // Draw central node (agent)
     ctx.beginPath();
@@ -485,8 +485,8 @@ export const AIStateVisualizationDashboard: React.FC<AIStateVisualizationDashboa
     const states = ['idle', 'active', 'interactive', 'learning', 'responding'];
     states.forEach((state, index) => {
       const angle = (index / states.length) * 2 * Math.PI;
-      const x = centerX + Math.cos(angle) * radius;
-      const y = centerY + Math.sin(angle) * radius;
+      const x = centerX + Math.cos(angle) * RADIUS;
+      const y = centerY + Math.sin(angle) * RADIUS;
       
       ctx.beginPath();
       ctx.arc(x, y, 15, 0, 2 * Math.PI);
@@ -549,10 +549,10 @@ export const AIStateVisualizationDashboard: React.FC<AIStateVisualizationDashboa
       ctx.stroke();
 
       if (index > 0) {
-        const prevX = 20 + (index - 1) * stepWidth;
+        const PREV_X = 20 + (index - 1) * stepWidth;
         const prevY = height + 20 - (getStateValue(history[index - 1].current) * height);
         ctx.beginPath();
-        ctx.moveTo(prevX, prevY);
+        ctx.moveTo(PREV_X, prevY);
         ctx.lineTo(x, y);
         ctx.strokeStyle = getStateColor(state.current);
         ctx.lineWidth = 2;
@@ -732,22 +732,20 @@ export const AIStateVisualizationDashboard: React.FC<AIStateVisualizationDashboa
                 className="h-full"
               >
                 {activeTab === 'overview' && currentAgent && (
-                  <OverviewTab 
-                    agent={currentAgent}
-                    visualizationMode={visualizationMode}
-                    canvasRef={canvasRef}
+                  <div className="overview-tab" 
+                    data-agent={JSON.stringify(currentAgent)}
+                    data-visualization-mode={visualizationMode}
                   />
                 )}
                 
                 {activeTab === 'behavior' && currentAgent && (
-                  <BehaviorTab 
-                    agent={currentAgent}
-                    onBehaviorOverride={onBehaviorOverride}
+                  <div className="behavior-tab" 
+                    data-agent={JSON.stringify(currentAgent)}
                   />
                 )}
                 
                 {activeTab === 'memory' && currentAgent && (
-                  <MemoryTab agent={currentAgent} />
+                  <div className="memory-tab" data-agent={JSON.stringify(currentAgent)} />
                 )}
                 
                 {activeTab === 'emotions' && currentAgent && (
@@ -767,7 +765,7 @@ export const AIStateVisualizationDashboard: React.FC<AIStateVisualizationDashboa
 };
 
 // Overview tab component
-const OverviewTab: React.FC<{
+const overviewTab: React.FC<{
   agent: AIAgent;
   visualizationMode: string;
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -842,11 +840,11 @@ const OverviewTab: React.FC<{
 };
 
 // Additional tab components would be implemented here...
-const BehaviorTab: React.FC<{ agent: AIAgent; onBehaviorOverride?: any }> = ({ agent }) => (
+const behaviorTab: React.FC<{ agent: AIAgent; onBehaviorOverride?: any }> = ({ agent }) => (
   <div>Behavior analysis for {agent.name}</div>
 );
 
-const MemoryTab: React.FC<{ agent: AIAgent }> = ({ agent }) => (
+const memoryTab: React.FC<{ agent: AIAgent }> = ({ agent }) => (
   <div>Memory state for {agent.name}</div>
 );
 

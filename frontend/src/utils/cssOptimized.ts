@@ -183,21 +183,21 @@ export class OptimizedStyleManager {
    * Process style definition with optimizations
    */
   private processStyleDefinition<T extends Record<string, any>>(styles: T): T {
-    const processed = {} as T;
+    const PROCESSED = {} as T;
 
     for (const [key, value] of Object.entries(styles)) {
       if (typeof value === 'object' && value !== null) {
         // Recursively process nested objects
-        processed[key as keyof T] = this.processStyleDefinition(value);
+        PROCESSED[key as keyof T] = this.processStyleDefinition(value);
       } else if (typeof value === 'string') {
         // Process CSS values
-        processed[key as keyof T] = this.optimizeStyleValue(value) as T[keyof T];
+        PROCESSED[key as keyof T] = this.optimizeStyleValue(value) as T[keyof T];
       } else {
-        processed[key as keyof T] = value;
+        PROCESSED[key as keyof T] = value;
       }
     }
 
-    return processed;
+    return PROCESSED;
   }
 
   /**
@@ -319,27 +319,21 @@ export class OptimizedStyleManager {
       },
       typography: {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        fontSize: {
-          xs: '0.75rem',
-          sm: '0.875rem',
-          base: '1rem',
-          lg: '1.125rem',
-          xl: '1.25rem',
-          '2xl': '1.5rem',
-          '3xl': '1.875rem',
-          '4xl': '2.25rem'
-        },
-        fontWeight: {
-          normal: '400',
-          medium: '500',
-          semibold: '600',
-          bold: '700'
-        },
-        lineHeight: {
-          tight: '1.25',
-          normal: '1.5',
-          relaxed: '1.75'
-        }
+        'fontSize-xs': '0.75rem',
+        'fontSize-sm': '0.875rem',
+        'fontSize-base': '1rem',
+        'fontSize-lg': '1.125rem',
+        'fontSize-xl': '1.25rem',
+        'fontSize-2xl': '1.5rem',
+        'fontSize-3xl': '1.875rem',
+        'fontSize-4xl': '2.25rem',
+        'fontWeight-normal': '400',
+        'fontWeight-medium': '500',
+        'fontWeight-semibold': '600',
+        'fontWeight-bold': '700',
+        'lineHeight-tight': '1.25',
+        'lineHeight-normal': '1.5',
+        'lineHeight-relaxed': '1.75'
       },
       animations: {
         fadeIn: 'fadeIn 0.3s ease-in-out',
@@ -504,7 +498,7 @@ export class OptimizedStyleManager {
 /**
  * Pre-defined optimized style mixins
  */
-export const optimizedMixins = {
+export const OPTIMIZED_MIXINS = {
   // Layout mixins
   flexCenter: {
     display: 'flex',
@@ -552,7 +546,7 @@ export const optimizedMixins = {
 /**
  * Responsive design utilities
  */
-export const responsive = {
+export const RESPONSIVE = {
   mobile: (styles: Record<string, any>) => ({
     '@media (max-width: 767px)': styles
   }),

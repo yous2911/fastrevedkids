@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, useMemo } from 'react';
-import { useMotionPreferences, getMotionSafeClasses } from '../../utils/reducedMotionSupport';
+import { useMotionPreferences } from '../../utils/reducedMotionSupport';
 import '../../styles/wcagColors.css';
 
 interface Particle {
@@ -51,7 +51,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
 
   // Intensity configurations
   const config = useMemo(() => {
-    const intensityConfigs = {
+    const INTENSITY_CONFIGS = {
       low: { 
         maxParticles: Math.min(20, particleCount),
         spawnRate: 1,
@@ -83,12 +83,12 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
         size: { min: 8, max: 20 }
       }
     };
-    return intensityConfigs[intensity] || intensityConfigs.medium;
+    return INTENSITY_CONFIGS[intensity] || INTENSITY_CONFIGS.medium;
   }, [intensity, particleCount]);
 
   // Particle type configurations
   const getParticleConfig = useCallback((type: string) => {
-    const configs = {
+    const CONFIGS = {
       fire: {
         colors: [{ r: 255, g: 69, b: 0 }, { r: 255, g: 140, b: 0 }, { r: 255, g: 215, b: 0 }],
         velocity: { x: 0, y: -2 },
@@ -126,7 +126,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
         friction: 0.995
       }
     };
-    return configs[type as keyof typeof configs] || configs.sparkle;
+    return CONFIGS[type as keyof typeof CONFIGS] || CONFIGS.sparkle;
   }, []);
 
   // Create a new particle

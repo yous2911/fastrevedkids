@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import AdvancedMascotSystem from './AdvancedMascotSystem';
+import { motion } from 'framer-motion';
+import CrossBrowserMascot3D from './CrossBrowserMascot3D';
 
 interface PersonalityProfile {
   extroversion: number;
@@ -32,7 +32,7 @@ interface TestResult {
   timestamp: number;
 }
 
-const AIPersonalityTester: React.FC = () => {
+const aIPersonalityTester: React.FC = () => {
   const [selectedPersonality, setSelectedPersonality] = useState<PersonalityProfile>({
     extroversion: 0.7,
     patience: 0.6,
@@ -47,7 +47,7 @@ const AIPersonalityTester: React.FC = () => {
   const [currentEmotionalStates, setCurrentEmotionalStates] = useState<any[]>([]);
 
   // Predefined personality profiles for testing
-  const personalityProfiles = {
+  const PERSONALITY_PROFILES = {
     'extrovert-patient': { extroversion: 0.9, patience: 0.9, playfulness: 0.6, intelligence: 0.7 },
     'introvert-playful': { extroversion: 0.3, patience: 0.5, playfulness: 0.9, intelligence: 0.8 },
     'balanced-smart': { extroversion: 0.5, patience: 0.7, playfulness: 0.5, intelligence: 0.9 },
@@ -156,8 +156,8 @@ const AIPersonalityTester: React.FC = () => {
     }));
   };
 
-  const selectPersonalityProfile = (profileName: keyof typeof personalityProfiles) => {
-    setSelectedPersonality(personalityProfiles[profileName]);
+  const selectPersonalityProfile = (profileName: keyof typeof PERSONALITY_PROFILES) => {
+    setSelectedPersonality(PERSONALITY_PROFILES[profileName]);
   };
 
   const handleMascotInteraction = useCallback((interaction: string) => {
@@ -197,7 +197,7 @@ const AIPersonalityTester: React.FC = () => {
     interactions: string[],
     emotionalStates: any[]
   ): number => {
-    let score = 0;
+    let SCORE = 0;
     
     // Check if emotional states match expected behavior
     const latestState = emotionalStates[emotionalStates.length - 1];
@@ -205,36 +205,36 @@ const AIPersonalityTester: React.FC = () => {
       // Score based on appropriate mood for scenario
       if (scenario.studentData.recentPerformance === 'excellent' && 
           ['excited', 'proud', 'happy'].includes(latestState.mood)) {
-        score += 25;
+        SCORE += 25;
       }
       
       if (scenario.studentData.recentPerformance === 'struggling' && 
           ['encouraging', 'focused'].includes(latestState.mood)) {
-        score += 25;
+        SCORE += 25;
       }
       
       // Score based on energy management
       if (scenario.studentData.timeOfDay === 'evening' && latestState.energy < 60) {
-        score += 20;
+        SCORE += 20;
       }
       
       if (scenario.studentData.timeOfDay === 'morning' && latestState.energy > 70) {
-        score += 20;
+        SCORE += 20;
       }
       
       // Score based on relationship building
       if (scenario.studentData.recentPerformance === 'excellent' && 
           latestState.relationship > 60) {
-        score += 15;
+        SCORE += 15;
       }
       
       // Score based on attention to student performance
       if (scenario.activity === 'mistake' && latestState.attention > 70) {
-        score += 15;
+        SCORE += 15;
       }
     }
     
-    return Math.min(100, score);
+    return Math.min(100, SCORE);
   };
 
   const runAllTests = async () => {
@@ -287,10 +287,10 @@ const AIPersonalityTester: React.FC = () => {
             <div className="bg-gray-800 rounded-lg p-6">
               <h2 className="text-white text-xl font-bold mb-4">👤 Personality Profiles</h2>
               <div className="space-y-2">
-                {Object.entries(personalityProfiles).map(([name, profile]) => (
+                {Object.entries(PERSONALITY_PROFILES).map(([name, profile]) => (
                   <button
                     key={name}
-                    onClick={() => selectPersonalityProfile(name as keyof typeof personalityProfiles)}
+                    onClick={() => selectPersonalityProfile(name as keyof typeof PERSONALITY_PROFILES)}
                     className="w-full p-3 text-left bg-gray-700 hover:bg-gray-600 text-white rounded text-sm"
                   >
                     <div className="font-medium capitalize">
@@ -455,7 +455,7 @@ const AIPersonalityTester: React.FC = () => {
               </h2>
               
               <div className="flex justify-center mb-6">
-                <AdvancedMascotSystem
+                <CrossBrowserMascot3D
                   mascotType="dragon"
                   studentData={scenario.studentData}
                   currentActivity={scenario.activity}
@@ -594,4 +594,4 @@ const AIPersonalityTester: React.FC = () => {
   );
 };
 
-export default AIPersonalityTester;
+export default aIPersonalityTester;

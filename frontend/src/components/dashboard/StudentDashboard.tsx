@@ -1,4 +1,4 @@
-// src/components/dashboard/StudentDashboard.tsx
+// src/components/dashboard/studentDashboard.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -84,7 +84,7 @@ interface Achievement {
   type: 'streak' | 'points' | 'subject' | 'level';
 }
 
-const StudentDashboard: React.FC<StudentDashboardProps> = ({ 
+const studentDashboard: React.FC<StudentDashboardProps> = ({ 
   student, 
   stats, 
   onStartExercise,
@@ -192,7 +192,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
   }, [student.serieJours]);
 
   const getMascotMessage = useCallback((): string => {
-    const messages = {
+    const MESSAGES = {
       dragon: ['Prêt à conquérir de nouveaux défis ? 🐉', 'Ta flamme d\'apprentissage brûle fort !'],
       fairy: ['Laisse la magie t\'emporter vers de nouveaux savoirs ! ✨', 'Chaque exercice est une nouvelle étoile !'],
       robot: ['Calculs en cours... Apprentissage optimal détecté ! 🤖', 'Système éducatif: ACTIVÉ !'],
@@ -200,7 +200,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
       owl: ['La sagesse t\'appelle, jeune apprenti ! 🦉', 'Hoot hoot ! L\'école continue !']
     };
     
-    const mascotMessages = messages[student.mascotteType] || messages.dragon;
+    const mascotMessages = MESSAGES[student.mascotteType] || MESSAGES.dragon;
     return mascotMessages[Math.floor(Math.random() * mascotMessages.length)];
   }, [student.mascotteType]);
 
@@ -235,14 +235,14 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
   }, [onStartExercise]);
 
   const getExerciseIcon = (type: Exercise['type']): string => {
-    const icons = {
+    const ICONS = {
       calcul: '🔢',
       lecture: '📖',
       geometrie: '📐',
       orthographe: '✏️',
       conjugaison: '📝'
     };
-    return icons[type] || '🎯';
+    return ICONS[type] || '🎯';
   };
 
   const getDifficultyColor = (difficulte: Exercise['difficulte']): string => {
@@ -255,12 +255,12 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
   };
 
   const getDifficultyLabel = (difficulte: Exercise['difficulte']): string => {
-    const labels = {
+    const LABELS = {
       1: 'Facile',
       2: 'Moyen',
       3: 'Difficile'
     };
-    return labels[difficulte] || 'Inconnu';
+    return LABELS[difficulte] || 'Inconnu';
   };
 
   return (
@@ -336,41 +336,33 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
             
             {/* Stats Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard
-                icon={<Trophy className="h-6 w-6" />}
-                title="Total Points"
-                value={student.totalPoints}
-                subtitle="points gagnés"
-                color="text-yellow-600"
-                animationKey="points"
-              />
+              <div className="stat-card">
+                <Trophy className="h-6 w-6" />
+                <span>Total Points</span>
+                <span>{student.totalPoints}</span>
+                <span>points gagnés</span>
+              </div>
               
-              <StatCard
-                icon={<Target className="h-6 w-6" />}
-                title="Taux de réussite"
-                value={`${Math.round(stats.successRate)}%`}
-                subtitle="exercices réussis"
-                color="text-green-600"
-                animationKey="success"
-              />
+              <div className="stat-card">
+                <Target className="h-6 w-6" />
+                <span>Taux de réussite</span>
+                <span>{Math.round(stats.successRate)}%</span>
+                <span>exercices réussis</span>
+              </div>
               
-              <StatCard
-                icon={<Zap className="h-6 w-6" />}
-                title="Série actuelle"
-                value={student.serieJours}
-                subtitle="jours consécutifs"
-                color="text-orange-600"
-                animationKey="streak"
-              />
+              <div className="stat-card">
+                <Zap className="h-6 w-6" />
+                <span>Série actuelle</span>
+                <span>{student.serieJours}</span>
+                <span>jours consécutifs</span>
+              </div>
               
-              <StatCard
-                icon={<BookOpen className="h-6 w-6" />}
-                title="Exercices"
-                value={stats.completedExercises}
-                subtitle="terminés"
-                color="text-blue-600"
-                animationKey="exercises"
-              />
+              <div className="stat-card">
+                <BookOpen className="h-6 w-6" />
+                <span>Exercices</span>
+                <span>{stats.completedExercises}</span>
+                <span>terminés</span>
+              </div>
             </div>
 
             {/* Progress Section */}
@@ -529,29 +521,23 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 🎯 Objectifs du jour
               </h2>
               <div className="space-y-4">
-                <GoalCard
-                  title="Exercices réalisés"
-                  current={3}
-                  target={5}
-                  icon={<BookOpen className="h-5 w-5" />}
-                  color="blue"
-                />
+                <div className="goal-card">
+                  <BookOpen className="h-5 w-5" />
+                  <span>Exercices réalisés</span>
+                  <span>3/5</span>
+                </div>
                 
-                <GoalCard
-                  title="Points gagnés"
-                  current={45}
-                  target={50}
-                  icon={<Star className="h-5 w-5" />}
-                  color="yellow"
-                />
+                <div className="goal-card">
+                  <Star className="h-5 w-5" />
+                  <span>Points gagnés</span>
+                  <span>45/50</span>
+                </div>
                 
-                <GoalCard
-                  title="Temps d'étude"
-                  current={25}
-                  target={30}
-                  icon={<Clock className="h-5 w-5" />}
-                  color="green"
-                />
+                <div className="goal-card">
+                  <Clock className="h-5 w-5" />
+                  <span>Temps d'étude</span>
+                  <span>25/30 min</span>
+                </div>
               </div>
             </div>
 
@@ -635,8 +621,8 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
   );
 };
 
-// StatCard Component
-const StatCard: React.FC<StatCardProps> = ({ 
+// statCard Component
+const statCard: React.FC<StatCardProps> = ({ 
   icon, 
   title, 
   value, 
@@ -672,8 +658,8 @@ const StatCard: React.FC<StatCardProps> = ({
   );
 };
 
-// GoalCard Component  
-const GoalCard: React.FC<GoalCardProps> = ({ 
+// goalCard Component  
+const goalCard: React.FC<GoalCardProps> = ({ 
   title, 
   current, 
   target, 
@@ -734,4 +720,4 @@ const GoalCard: React.FC<GoalCardProps> = ({
   );
 };
 
-export default StudentDashboard; 
+export default studentDashboard; 

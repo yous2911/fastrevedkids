@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { browserCompat, isWebGLSupported, requiresFallback } from '../utils/browserCompatibility';
 import CrossBrowserMascot3D from '../components/CrossBrowserMascot3D';
 import Canvas2DRenderer from '../components/fallback/Canvas2DRenderer';
@@ -46,7 +46,7 @@ const CrossBrowserTestSuite: React.FC = () => {
   const safariFixes = browserCompat.getSafariCanvasFixes();
 
   // Test scenarios
-  const testScenarios = [
+  const TEST_SCENARIOS = [
     {
       id: 'webgl-support',
       name: 'WebGL Support Detection',
@@ -387,13 +387,13 @@ const CrossBrowserTestSuite: React.FC = () => {
     }
   }, [browserInfo, webglCapabilities]);
 
-  // Run all tests
+  // Run all TESTS
   const runAllTests = useCallback(async () => {
     setIsRunningTests(true);
     setTestResults([]);
     setPerformanceIssues([]);
     
-    const tests = [
+    const TESTS = [
       { name: 'webgl-support', fn: testWebGLSupport },
       { name: 'safari-canvas2d', fn: testSafariCanvas2D },
       { name: 'mobile-performance', fn: testMobilePerformance },
@@ -401,14 +401,14 @@ const CrossBrowserTestSuite: React.FC = () => {
       { name: 'low-end-degradation', fn: testLowEndDegradation }
     ];
 
-    for (const test of tests) {
+    for (const test of TESTS) {
       setCurrentTest(test.name);
       
       try {
         const result = await test.fn();
         setTestResults(prev => [...prev, result]);
         
-        // Wait between tests
+        // Wait between TESTS
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (error) {
         console.error(`Test ${test.name} failed:`, error);

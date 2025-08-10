@@ -1,4 +1,4 @@
-import { WahooContext, WahooFeedback, WahooIntensity } from '../types/wahoo.types';
+import { WahooContext, WahooFeedback } from '../types/wahoo.types';
 
 // ==========================================
 // WAHOO ENGINE - MOTEUR DE RÉCOMPENSES COGNITIVES

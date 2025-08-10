@@ -40,10 +40,10 @@ const MobileOptimizedRenderer: React.FC<MobileOptimizedRendererProps> = ({
   onPerformanceIssue
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<THREE.Scene>();
-  const rendererRef = useRef<THREE.WebGLRenderer>();
-  const cameraRef = useRef<THREE.PerspectiveCamera>();
-  const mascotGroupRef = useRef<THREE.Group>();
+  const sceneRef = useRef<any>();
+  const rendererRef = useRef<any>();
+  const cameraRef = useRef<any>();
+  const mascotGroupRef = useRef<any>();
   const animationRef = useRef<number>();
   
   const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceMetrics>({
@@ -149,7 +149,7 @@ const MobileOptimizedRenderer: React.FC<MobileOptimizedRendererProps> = ({
 
   // Create mobile-optimized geometry
   const createMobileGeometry = useCallback((type: 'sphere' | 'box' | 'cylinder', ...args: number[]) => {
-    const qualityLevel = {
+    const QUALITY_LEVEL = {
       high: 1.0,
       medium: 0.7,
       low: 0.5
@@ -158,17 +158,17 @@ const MobileOptimizedRenderer: React.FC<MobileOptimizedRendererProps> = ({
     switch (type) {
       case 'sphere':
         const [radius = 1] = args;
-        const segments = Math.max(6, Math.floor(16 * qualityLevel));
+        const segments = Math.max(6, Math.floor(16 * QUALITY_LEVEL));
         return new THREE.SphereGeometry(radius, segments, segments);
         
       case 'box':
         const [width = 1, height = 1, depth = 1] = args;
-        return new THREE.BoxGeometry(width, height, depth, 1, 1, 1); // No subdivisions for mobile
+        return new THREE.BoxGeometry(width, height, depth); // No subdivisions for mobile
         
       case 'cylinder':
         const [radiusTop = 1, radiusBottom = 1, cylinderHeight = 1] = args;
-        const radialSegments = Math.max(6, Math.floor(12 * qualityLevel));
-        return new THREE.CylinderGeometry(radiusTop, radiusBottom, cylinderHeight, radialSegments, 1);
+        const radialSegments = Math.max(6, Math.floor(12 * QUALITY_LEVEL));
+        return new THREE.CylinderGeometry(radiusTop, radiusBottom, cylinderHeight, radialSegments);
         
       default:
         return new THREE.SphereGeometry(1, 8, 8);
@@ -193,9 +193,9 @@ const MobileOptimizedRenderer: React.FC<MobileOptimizedRendererProps> = ({
       });
     }
 
-    // Use Lambert for medium quality (cheaper than Phong)
+    // Use Basic material for medium quality (cheaper than Standard)
     if (adaptiveQuality === 'medium') {
-      return new THREE.MeshLambertMaterial({
+      return new THREE.MeshBasicMaterial({
         color,
         transparent: options.transparent,
         opacity: options.opacity || 1
@@ -217,7 +217,7 @@ const MobileOptimizedRenderer: React.FC<MobileOptimizedRendererProps> = ({
 
   // Object pooling for mobile performance
   const objectPool = useMemo(() => {
-    const pool = {
+    const POOL = {
       spheres: [] as THREE.Mesh[],
       boxes: [] as THREE.Mesh[],
       cylinders: [] as THREE.Mesh[],
@@ -226,14 +226,14 @@ const MobileOptimizedRenderer: React.FC<MobileOptimizedRendererProps> = ({
     // Pre-create common objects
     if (mobileOptimizations.enableObjectPooling) {
       for (let i = 0; i < 10; i++) {
-        pool.spheres.push(new THREE.Mesh(
+        POOL.spheres.push(new THREE.Mesh(
           createMobileGeometry('sphere', 0.1),
           createMobileMaterial(0xffffff)
         ));
       }
     }
 
-    return pool;
+    return POOL;
   }, [mobileOptimizations.enableObjectPooling, createMobileGeometry, createMobileMaterial]);
 
   // Performance monitoring specifically for mobile
@@ -304,10 +304,10 @@ const MobileOptimizedRenderer: React.FC<MobileOptimizedRendererProps> = ({
   const animateMobile = useCallback((time: number) => {
     try {
       // Frame rate limiting for mobile
-      const targetFrameTime = 1000 / mobileOptimizations.targetFrameRate;
+      const TARGET_FRAME_TIME = 1000 / mobileOptimizations.targetFrameRate;
       const deltaTime = time - (animateMobile as any).lastFrameTime || 0;
       
-      if (deltaTime < targetFrameTime) {
+      if (deltaTime < TARGET_FRAME_TIME) {
         animationRef.current = requestAnimationFrame(animateMobile);
         return;
       }
@@ -321,7 +321,7 @@ const MobileOptimizedRenderer: React.FC<MobileOptimizedRendererProps> = ({
 
       // Simplified animations for mobile
       if (mascotGroupRef.current) {
-        const emotionSpeed = {
+        const EMOTION_SPEED = {
           idle: 0.5,
           happy: 1.0,
           thinking: 0.3,
@@ -329,7 +329,7 @@ const MobileOptimizedRenderer: React.FC<MobileOptimizedRendererProps> = ({
           oops: 0.8
         }[emotion];
 
-        const animationTime = time * 0.001 * emotionSpeed;
+        const animationTime = time * 0.001 * EMOTION_SPEED;
         
         // Reduce animation complexity based on quality
         if (adaptiveQuality !== 'low') {

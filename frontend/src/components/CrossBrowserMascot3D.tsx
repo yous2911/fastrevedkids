@@ -5,9 +5,9 @@ import Canvas2DRenderer from './fallback/Canvas2DRenderer';
 
 interface CrossBrowserMascot3DProps {
   mascotType: 'dragon' | 'fairy' | 'robot' | 'cat' | 'owl';
-  emotion: 'idle' | 'happy' | 'thinking' | 'celebrating' | 'oops';
-  equippedItems: string[];
-  xpLevel: number;
+  emotion?: 'idle' | 'happy' | 'thinking' | 'celebrating' | 'oops';
+  equippedItems?: string[];
+  xpLevel?: number;
   size?: 'small' | 'medium' | 'large';
   enableInteraction?: boolean;
   onMascotClick?: () => void;
@@ -18,10 +18,21 @@ interface CrossBrowserMascot3DProps {
     exercisesCompleted: number;
     achievementsUnlocked: number;
   };
+  studentData?: {
+    level: number;
+    xp: number;
+    currentStreak: number;
+    timeOfDay: 'morning' | 'afternoon' | 'evening';
+    recentPerformance: any;
+  };
+  currentActivity?: string;
+  items?: string[];
+  onMascotInteraction?: (interaction: any) => void;
+  onEmotionalStateChange?: (state: any) => void;
 }
 
 // Enhanced size configurations with performance tiers
-const sizeConfig = {
+const SIZE_CONFIG = {
   small: { scale: 0.8, containerSize: 120, complexity: 'low' },
   medium: { scale: 1.0, containerSize: 150, complexity: 'medium' },
   large: { scale: 1.2, containerSize: 200, complexity: 'high' }
@@ -29,20 +40,25 @@ const sizeConfig = {
 
 const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
   mascotType,
-  emotion,
-  equippedItems,
-  xpLevel,
+  emotion = 'idle',
+  equippedItems = [],
+  xpLevel = 0,
   size = 'medium',
   enableInteraction = false,
   onMascotClick,
   onItemConflict,
-  studentStats
+  studentStats,
+  studentData,
+  currentActivity,
+  items,
+  onMascotInteraction,
+  onEmotionalStateChange
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<THREE.Scene>();
-  const rendererRef = useRef<THREE.WebGLRenderer>();
-  const cameraRef = useRef<THREE.PerspectiveCamera>();
-  const mascotGroupRef = useRef<THREE.Group>();
+  const sceneRef = useRef<any>();
+  const rendererRef = useRef<any>();
+  const cameraRef = useRef<any>();
+  const mascotGroupRef = useRef<any>();
   const animationRef = useRef<number>();
   const [renderError, setRenderError] = useState<string | null>(null);
   const [useFallback, setUseFallback] = useState(false);
@@ -112,7 +128,7 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
       
       // Configure renderer settings
       renderer.setPixelRatio(optimalSettings.pixelRatio);
-      renderer.setSize(sizeConfig[size].containerSize, sizeConfig[size].containerSize);
+      renderer.setSize(SIZE_CONFIG[size].containerSize, SIZE_CONFIG[size].containerSize);
       
       // Shadow settings based on performance tier
       if (optimalSettings.shadowMapEnabled) {
@@ -151,7 +167,7 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
 
   // Create performance-optimized geometry
   const createOptimizedGeometry = useCallback((type: 'sphere' | 'box' | 'cylinder', ...args: number[]) => {
-    const qualityMultiplier = {
+    const QUALITY_MULTIPLIER = {
       low: 0.5,
       medium: 1.0,
       high: 1.5
@@ -160,7 +176,7 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
     switch (type) {
       case 'sphere':
         const [radius = 1] = args;
-        const segments = Math.max(8, Math.floor(16 * qualityMultiplier));
+        const segments = Math.max(8, Math.floor(16 * QUALITY_MULTIPLIER));
         return new THREE.SphereGeometry(radius, segments, segments);
         
       case 'box':
@@ -169,8 +185,8 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
         
       case 'cylinder':
         const [radiusTop = 1, radiusBottom = 1, cylinderHeight = 1] = args;
-        const radialSegments = Math.max(8, Math.floor(12 * qualityMultiplier));
-        const heightSegments = Math.max(1, Math.floor(4 * qualityMultiplier));
+        const radialSegments = Math.max(8, Math.floor(12 * QUALITY_MULTIPLIER));
+        const heightSegments = Math.max(1, Math.floor(4 * QUALITY_MULTIPLIER));
         return new THREE.CylinderGeometry(radiusTop, radiusBottom, cylinderHeight, radialSegments, heightSegments);
         
       default:
@@ -229,8 +245,8 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
     const group = new THREE.Group();
     
     try {
-      // Base colors for different mascot types
-      const colors = {
+      // Base COLORS for different mascot types
+      const COLORS = {
         dragon: 0xFF6B6B,
         fairy: 0x8B5CF6,
         robot: 0x06B6D4,
@@ -240,7 +256,7 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
 
       // Body
       const bodyGeometry = createOptimizedGeometry('sphere', 0.6);
-      const bodyMaterial = createOptimizedMaterial(colors[mascotType], {
+      const bodyMaterial = createOptimizedMaterial(COLORS[mascotType], {
         roughness: 0.3,
         metalness: mascotType === 'robot' ? 0.8 : 0.1
       });
@@ -252,7 +268,7 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
 
       // Head
       const headGeometry = createOptimizedGeometry('sphere', 0.4);
-      const headMaterial = createOptimizedMaterial(colors[mascotType], {
+      const headMaterial = createOptimizedMaterial(COLORS[mascotType], {
         roughness: 0.2,
         metalness: mascotType === 'robot' ? 0.9 : 0.05
       });
@@ -303,7 +319,7 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
         case 'cat':
           // Ears
           const earGeometry = createOptimizedGeometry('sphere', 0.15);
-          const earMaterial = createOptimizedMaterial(colors[mascotType]);
+          const earMaterial = createOptimizedMaterial(COLORS[mascotType]);
           
           const leftEar = new THREE.Mesh(earGeometry, earMaterial);
           leftEar.position.set(-0.25, 1.35, 0);
@@ -362,7 +378,7 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
 
       // Simple emotion-based animations
       if (mascotGroupRef.current) {
-        const emotionMultipliers = {
+        const EMOTION_MULTIPLIERS = {
           idle: { bounce: 0.02, speed: 1 },
           happy: { bounce: 0.08, speed: 1.5 },
           thinking: { bounce: 0.01, speed: 0.8 },
@@ -370,7 +386,7 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
           oops: { bounce: 0.05, speed: 1.2 }
         };
 
-        const multiplier = emotionMultipliers[emotion];
+        const multiplier = EMOTION_MULTIPLIERS[emotion];
         const animationTime = time * 0.001 * multiplier.speed;
         
         mascotGroupRef.current.position.y = Math.sin(animationTime * 2) * multiplier.bounce;
@@ -508,8 +524,8 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
     return (
       <div className="relative">
         <Canvas2DRenderer
-          width={sizeConfig[size].containerSize}
-          height={sizeConfig[size].containerSize}
+          width={SIZE_CONFIG[size].containerSize}
+          height={SIZE_CONFIG[size].containerSize}
           mascotType={mascotType}
           emotion={emotion}
           equippedItems={equippedItems}
@@ -535,8 +551,8 @@ const CrossBrowserMascot3D: React.FC<CrossBrowserMascot3DProps> = ({
       className={`relative ${enableInteraction ? 'cursor-pointer' : ''}`}
       onClick={handleClick}
       style={{
-        width: sizeConfig[size].containerSize,
-        height: sizeConfig[size].containerSize
+        width: SIZE_CONFIG[size].containerSize,
+        height: SIZE_CONFIG[size].containerSize
       }}
     >
       {/* Performance indicator for development */}

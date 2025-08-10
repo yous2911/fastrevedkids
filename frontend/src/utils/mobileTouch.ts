@@ -3,6 +3,8 @@
  * Advanced touch interaction system optimized for mobile devices
  */
 
+import React, { useRef, useEffect } from 'react';
+
 interface TouchPoint {
   id: number;
   x: number;
@@ -603,8 +605,8 @@ export class MobileTouchHandler {
     this.velocityTracker.times.push(now);
     
     // Keep only recent samples
-    const maxSamples = 5;
-    if (this.velocityTracker.x.length > maxSamples) {
+    const MAX_SAMPLES = 5;
+    if (this.velocityTracker.x.length > MAX_SAMPLES) {
       this.velocityTracker.x.shift();
       this.velocityTracker.y.shift();
       this.velocityTracker.times.shift();
@@ -670,9 +672,9 @@ export function useMobileTouch(
   callbacks: TouchCallbacks,
   config: Partial<TouchConfig> = {}
 ) {
-  const handlerRef = React.useRef<MobileTouchHandler | null>(null);
+  const handlerRef = useRef<MobileTouchHandler | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const element = elementRef.current;
     if (!element) return;
 
@@ -686,14 +688,14 @@ export function useMobileTouch(
   }, [elementRef.current]);
 
   // Update callbacks when they change
-  React.useEffect(() => {
+  useEffect(() => {
     if (handlerRef.current) {
       handlerRef.current.updateCallbacks(callbacks);
     }
   }, [callbacks]);
 
   // Update config when it changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (handlerRef.current) {
       handlerRef.current.updateConfig(config);
     }

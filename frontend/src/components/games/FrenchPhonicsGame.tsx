@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { defisService } from '../../services/defisService';
-import type { DefiPhonique } from '../../types/shared';
 import { AnimatedCard } from '../ui/AnimatedCard';
 import { ProgressBar } from '../ui/ProgressBar';
-import { SparkleElements, MagicElements, CelebrationElements } from '../ui/FloatingElements';
+import { SparkleElements, MagicElements } from '../ui/FloatingElements';
 import { useSound } from '../../hooks/useSound';
 import { useHaptic } from '../../hooks/useHaptic';
 
@@ -34,7 +33,7 @@ interface DropZone {
 
 export const FrenchPhonicsGame: React.FC = () => {
   // Game state
-  const [challenges, setChallenges] = useState<DefiPhonique[]>([]);
+  const [challenges, setChallenges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
@@ -233,7 +232,7 @@ export const FrenchPhonicsGame: React.FC = () => {
                           updatedZones.every(zone => zone.isCorrect);
         
         // Record challenge result in session
-        const challengeResult = {
+        const CHALLENGE_RESULT = {
           challengeId: currentChallenge.id,
           targetWord: currentChallenge.targetWord || '',
           isCorrect: allCorrect,

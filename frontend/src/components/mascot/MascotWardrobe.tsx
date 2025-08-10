@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MascotItem, MascotCollection, WAHOO_COLORS, WAHOO_ANIMATIONS } from '../../types/wahoo.types';
+import { MascotItem, MascotCollection, WAHOO_COLORS } from '../../types/wahoo.types';
 
 // ==========================================
 // MASCOT WARDROBE - SYSTÈME DE COLLECTION
@@ -31,14 +31,14 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
     { type: 'background', label: 'Arrière-plans', emoji: '🌅' }
   ];
 
-  const rarityColors = {
+  const RARITY_COLORS = {
     common: '#6B7280',
     rare: WAHOO_COLORS.blue,
     epic: WAHOO_COLORS.violet,
     legendary: WAHOO_COLORS.yellow
   };
 
-  const rarityLabels = {
+  const RARITY_LABELS = {
     common: 'Commun',
     rare: 'Rare',
     epic: 'Épique',
@@ -141,9 +141,9 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
                 {/* Rarity Badge */}
                 <div
                   className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold text-white"
-                  style={{ backgroundColor: rarityColors[item.rarity] }}
+                  style={{ backgroundColor: RARITY_COLORS[item.rarity] }}
                 >
-                  {rarityLabels[item.rarity]}
+                  {RARITY_LABELS[item.rarity]}
                 </div>
 
                 {/* Lock Icon */}
@@ -218,9 +218,9 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
               <span className="text-gray-600">Rareté:</span>
               <span
                 className="font-semibold"
-                style={{ color: rarityColors[selectedItem.rarity] }}
+                style={{ color: RARITY_COLORS[selectedItem.rarity] }}
               >
-                {rarityLabels[selectedItem.rarity]}
+                {RARITY_LABELS[selectedItem.rarity]}
               </span>
             </div>
 
@@ -278,9 +278,9 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
             <div key={rarity} className="text-sm">
               <div
                 className="font-bold mb-1"
-                style={{ color: rarityColors[rarity as keyof typeof rarityColors] }}
+                style={{ color: RARITY_COLORS[rarity as keyof typeof RARITY_COLORS] }}
               >
-                {rarityLabels[rarity as keyof typeof rarityLabels]}
+                {RARITY_LABELS[rarity as keyof typeof RARITY_LABELS]}
               </div>
               <div className="text-gray-600">{count}</div>
             </div>

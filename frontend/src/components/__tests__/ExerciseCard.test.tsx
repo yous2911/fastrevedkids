@@ -39,7 +39,7 @@ jest.mock('../ui/AnimatedCard', () => ({
 }));
 
 describe('ExerciseCard', () => {
-  const mockExercise = {
+  const MOCK_EXERCISE = {
     id: 'test-exercise-1',
     title: 'Test Exercise',
     description: 'This is a test exercise',
@@ -65,7 +65,7 @@ describe('ExerciseCard', () => {
   it('should render exercise information', () => {
     render(
       <MockExerciseCard
-        exercise={mockExercise}
+        exercise={MOCK_EXERCISE}
         onComplete={mockOnComplete}
         onSkip={mockOnSkip}
       />
@@ -81,7 +81,7 @@ describe('ExerciseCard', () => {
   it('should call onComplete when completed', () => {
     render(
       <MockExerciseCard
-        exercise={mockExercise}
+        exercise={MOCK_EXERCISE}
         onComplete={mockOnComplete}
         onSkip={mockOnSkip}
       />
@@ -96,7 +96,7 @@ describe('ExerciseCard', () => {
   it('should call onSkip when skip button is clicked', () => {
     render(
       <MockExerciseCard
-        exercise={mockExercise}
+        exercise={MOCK_EXERCISE}
         onComplete={mockOnComplete}
         onSkip={mockOnSkip}
       />
@@ -111,7 +111,7 @@ describe('ExerciseCard', () => {
   it('should render without skip button when onSkip is not provided', () => {
     render(
       <MockExerciseCard
-        exercise={mockExercise}
+        exercise={MOCK_EXERCISE}
         onComplete={mockOnComplete}
       />
     );
@@ -122,7 +122,7 @@ describe('ExerciseCard', () => {
   it('should render with custom className', () => {
     render(
       <MockExerciseCard
-        exercise={mockExercise}
+        exercise={MOCK_EXERCISE}
         onComplete={mockOnComplete}
         className="custom-class"
       />
@@ -132,15 +132,15 @@ describe('ExerciseCard', () => {
   });
 
   it('should handle different exercise types', () => {
-    const dragDropExercise = {
-      ...mockExercise,
+    const DRAG_DROP_EXERCISE = {
+      ...MOCK_EXERCISE,
       type: 'drag-drop' as const,
       title: 'Drag and Drop Exercise'
     };
 
     render(
       <MockExerciseCard
-        exercise={dragDropExercise}
+        exercise={DRAG_DROP_EXERCISE}
         onComplete={mockOnComplete}
       />
     );
@@ -149,15 +149,15 @@ describe('ExerciseCard', () => {
   });
 
   it('should handle different difficulty levels', () => {
-    const hardExercise = {
-      ...mockExercise,
+    const HARD_EXERCISE = {
+      ...MOCK_EXERCISE,
       difficulty: 'hard' as const,
       title: 'Hard Exercise'
     };
 
     render(
       <MockExerciseCard
-        exercise={hardExercise}
+        exercise={HARD_EXERCISE}
         onComplete={mockOnComplete}
       />
     );
@@ -166,15 +166,15 @@ describe('ExerciseCard', () => {
   });
 
   it('should handle different subjects', () => {
-    const readingExercise = {
-      ...mockExercise,
+    const READING_EXERCISE = {
+      ...MOCK_EXERCISE,
       subject: 'reading' as const,
       title: 'Reading Exercise'
     };
 
     render(
       <MockExerciseCard
-        exercise={readingExercise}
+        exercise={READING_EXERCISE}
         onComplete={mockOnComplete}
       />
     );
@@ -183,15 +183,15 @@ describe('ExerciseCard', () => {
   });
 
   it('should display correct points', () => {
-    const highPointExercise = {
-      ...mockExercise,
+    const HIGH_POINT_EXERCISE = {
+      ...MOCK_EXERCISE,
       points: 50,
       title: 'High Point Exercise'
     };
 
     render(
       <MockExerciseCard
-        exercise={highPointExercise}
+        exercise={HIGH_POINT_EXERCISE}
         onComplete={mockOnComplete}
       />
     );

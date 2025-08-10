@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface Exercise {
   id: number;
@@ -35,7 +35,7 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState('');
 
-  const subjects = [
+  const SUBJECTS = [
     { id: 'all', name: 'Toutes les matières', emoji: '📚' },
     { id: 'MATHEMATIQUES', name: 'Mathématiques', emoji: '🔢' },
     { id: 'FRANCAIS', name: 'Français', emoji: '📝' },
@@ -44,14 +44,14 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
     { id: 'ANGLAIS', name: 'Anglais', emoji: '🇬🇧' }
   ];
 
-  const difficulties = [
+  const DIFFICULTIES = [
     { id: 'all', name: 'Tous niveaux', color: 'bg-gray-100 text-gray-800' },
     { id: 'FACILE', name: 'Facile', color: 'bg-green-100 text-green-800' },
     { id: 'MOYEN', name: 'Moyen', color: 'bg-yellow-100 text-yellow-800' },
     { id: 'DIFFICILE', name: 'Difficile', color: 'bg-red-100 text-red-800' }
   ];
 
-  const exerciseTypes = {
+  const EXERCISE_TYPES = {
     QCM: { name: 'Choix multiples', emoji: '☑️', color: 'bg-blue-100 text-blue-800' },
     CALCUL: { name: 'Calcul', emoji: '🧮', color: 'bg-purple-100 text-purple-800' },
     TEXTE_LIBRE: { name: 'Texte libre', emoji: '✏️', color: 'bg-green-100 text-green-800' },
@@ -71,7 +71,7 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
     setLoading(true);
     try {
       const token = localStorage.getItem('auth_token');
-      let url = 'http://localhost:3003/api/subjects/exercises';
+      let url = 'http://localhost:3003/api/SUBJECTS/exercises';
       
       const params = new URLSearchParams();
       if (selectedSubject !== 'all') params.append('matiere', selectedSubject);
@@ -132,12 +132,12 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
   });
 
   const getDifficultyColor = (difficulte: string) => {
-    const difficulty = difficulties.find(d => d.id === difficulte);
+    const difficulty = DIFFICULTIES.find(d => d.id === difficulte);
     return difficulty?.color || 'bg-gray-100 text-gray-800';
   };
 
   const getExerciseTypeInfo = (type: string) => {
-    return exerciseTypes[type as keyof typeof exerciseTypes] || { 
+    return EXERCISE_TYPES[type as keyof typeof EXERCISE_TYPES] || { 
       name: type, 
       emoji: '📝', 
       color: 'bg-gray-100 text-gray-800' 
@@ -193,7 +193,7 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
                 onChange={(e) => setSelectedSubject(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                {subjects.map(subject => (
+                {SUBJECTS.map(subject => (
                   <option key={subject.id} value={subject.id}>
                     {subject.emoji} {subject.name}
                   </option>
@@ -211,7 +211,7 @@ export const ExercisesPage: React.FC<ExercisesPageProps> = ({ onBack, onStartExe
                 onChange={(e) => setSelectedDifficulty(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                {difficulties.map(difficulty => (
+                {DIFFICULTIES.map(difficulty => (
                   <option key={difficulty.id} value={difficulty.id}>
                     {difficulty.name}
                   </option>

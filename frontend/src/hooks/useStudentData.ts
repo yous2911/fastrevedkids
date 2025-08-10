@@ -66,9 +66,9 @@ export const useStudentData = (studentId?: number) => {
 
   const updateStudentData = (updates: Partial<StudentData>) => {
     if (studentData) {
-      const updatedData = { ...studentData, ...updates };
-      setStudentData(updatedData);
-      localStorage.setItem('studentData', JSON.stringify(updatedData));
+      const UPDATED_DATA = { ...studentData, ...updates };
+      setStudentData(UPDATED_DATA);
+      localStorage.setItem('studentData', JSON.stringify(UPDATED_DATA));
     }
   };
 

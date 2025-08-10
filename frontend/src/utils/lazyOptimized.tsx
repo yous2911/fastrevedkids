@@ -188,7 +188,7 @@ export class LazyLoadManager {
   ): Promise<{ default: T }> {
     const startTime = performance.now();
     
-    for (let attempt = 0; attempt < retryCount; attempt++) {
+    for (let ATTEMPT = 0; ATTEMPT < retryCount; ATTEMPT++) {
       try {
         // Add timeout to the import
         const loadPromise = importFn();
@@ -204,14 +204,14 @@ export class LazyLoadManager {
 
         return result;
       } catch (error) {
-        console.warn(`Component load attempt ${attempt + 1} failed:`, error);
+        console.warn(`Component load ATTEMPT ${ATTEMPT + 1} failed:`, error);
         
-        if (attempt === retryCount - 1) {
+        if (ATTEMPT === retryCount - 1) {
           throw error;
         }
         
         // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, ATTEMPT) * 1000));
       }
     }
 
@@ -219,13 +219,13 @@ export class LazyLoadManager {
   }
 
   /**
-   * Process preload queue with concurrency control
+   * Process preload queue with CONCURRENCY control
    */
   private async processPreloadQueue(): Promise<void> {
-    const concurrency = 2; // Load 2 components at a time
+    const CONCURRENCY = 2; // Load 2 components at a time
     
     while (this.preloadQueue.length > 0) {
-      const batch = this.preloadQueue.splice(0, concurrency);
+      const batch = this.preloadQueue.splice(0, CONCURRENCY);
       
       const loadPromises = batch.map(async (chunkName) => {
         const chunk = this.chunks.get(chunkName);
@@ -235,7 +235,7 @@ export class LazyLoadManager {
         
         try {
           // Preload the component
-          await chunk.component._payload._result;
+          await (chunk.component as any)._payload._result;
           chunk.preloaded = true;
           chunk.loaded = true;
         } catch (error) {
@@ -363,7 +363,7 @@ export function withLazyLoading<P extends object>(
 
     return (
       <Suspense fallback={React.createElement(fallback)}>
-        <LazyComponent key={retryCount} {...props} />
+        <LazyComponent key={retryCount} {...(props as any)} />
       </Suspense>
     );
   };
@@ -502,16 +502,16 @@ export const BundleAnalyzer = {
   },
 
   getOptimizationSuggestions: (): string[] => {
-    const suggestions = [];
+    const SUGGESTIONS = [];
     const chunkSizes = BundleAnalyzer.getChunkSizes();
     
     Object.entries(chunkSizes).forEach(([chunk, size]) => {
       if (size > 100) {
-        suggestions.push(`Consider splitting ${chunk} (${size}KB) into smaller chunks`);
+        (SUGGESTIONS as string[]).push(`Consider splitting ${chunk} (${size}KB) into smaller chunks`);
       }
     });
 
-    return suggestions;
+    return SUGGESTIONS;
   },
 
   getTotalBundleSize: (): number => {

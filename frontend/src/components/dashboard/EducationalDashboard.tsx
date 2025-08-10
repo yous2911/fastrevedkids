@@ -33,7 +33,7 @@ const COMPETENCY_MAPPING: CompetencyMapping = {
 };
 
 // Composant pour une carte de compétence
-const CompetencyCard = ({ itemId, isUnlocked }: { itemId: string, isUnlocked: boolean }) => {
+const competencyCard = ({ itemId, isUnlocked }: { itemId: string, isUnlocked: boolean }) => {
   const competency = COMPETENCY_MAPPING[itemId] || {
     description: 'Compétence inconnue',
     gameMetric: 'Métrique non définie',
@@ -70,7 +70,7 @@ const CompetencyCard = ({ itemId, isUnlocked }: { itemId: string, isUnlocked: bo
 };
 
 // Analyseur de patterns d'engagement
-const EngagementAnalyzer = ({ student }: { student: StudentMetrics }) => {
+const engagementAnalyzer = ({ student }: { student: StudentMetrics }) => {
   const getEngagementColor = () => {
     if (student.mascotHappiness >= 80) return 'text-green-600';
     if (student.mascotHappiness >= 60) return 'text-yellow-600';
@@ -152,7 +152,7 @@ const EngagementAnalyzer = ({ student }: { student: StudentMetrics }) => {
 
 // Traducteur métriques ludiques → pédagogiques
 const GameToEducationTranslator = ({ student }: { student: StudentMetrics }) => {
-  const translations = [
+  const TRANSLATIONS = [
     {
       gameMetric: `Série actuelle: ${student.streakCurrent}`,
       educationalMeaning: 'Concentration et motivation soutenues',
@@ -179,7 +179,7 @@ const GameToEducationTranslator = ({ student }: { student: StudentMetrics }) => 
     <div className="bg-white rounded-xl p-6 shadow-lg">
       <h3 className="text-xl font-bold mb-4 text-gray-800">🔄 Traduction Pédagogique</h3>
       <div className="space-y-4">
-        {translations.map((translation, index) => (
+        {TRANSLATIONS.map((translation, index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, x: -20 }}
@@ -327,11 +327,11 @@ const EducationalDashboard = () => {
   };
 
   const calculateLearningVelocity = (wahooContext: any): number => {
-    const baseVelocity = 1.0;
+    const BASE_VELOCITY = 1.0;
     const streakBonus = wahooContext.streak > 10 ? 0.2 : 0;
     const accuracyBonus = wahooContext.totalCorrect > 100 ? 0.1 : 0;
     
-    return Math.min(baseVelocity + streakBonus + accuracyBonus, 2.0);
+    return Math.min(BASE_VELOCITY + streakBonus + accuracyBonus, 2.0);
   };
 
   if (loading) {
@@ -355,7 +355,7 @@ const EducationalDashboard = () => {
     );
   }
 
-  const tabs = [
+  const TABS = [
     { id: 'overview', name: 'Vue d\'ensemble', emoji: '📊' },
     { id: 'competencies', name: 'Compétences', emoji: '🏆' },
     { id: 'analysis', name: 'Analyse', emoji: '📈' },
@@ -404,7 +404,7 @@ const EducationalDashboard = () => {
 
         {/* Onglets */}
         <div className="flex gap-2 mb-6 overflow-x-auto">
-          {tabs.map(tab => (
+          {TABS.map(tab => (
             <motion.button
               key={tab.id}
               whileHover={{ scale: 1.05 }}
@@ -483,10 +483,11 @@ const EducationalDashboard = () => {
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
             >
               {Object.keys(COMPETENCY_MAPPING).map(itemId => (
-                <CompetencyCard
+                <div 
                   key={itemId}
-                  itemId={itemId}
-                  isUnlocked={student.unlockedItems.includes(itemId)}
+                  className="competency-card"
+                  data-item-id={itemId}
+                  data-is-unlocked={student.unlockedItems.includes(itemId)}
                 />
               ))}
             </motion.div>
@@ -499,7 +500,7 @@ const EducationalDashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <EngagementAnalyzer student={student} />
+              <div className="engagement-analyzer" data-student={JSON.stringify(student)} />
             </motion.div>
           )}
 

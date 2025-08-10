@@ -55,7 +55,7 @@ class SecureApi {
 
     let lastError: Error;
 
-    for (let attempt = 0; attempt <= retries; attempt++) {
+    for (let ATTEMPT = 0; ATTEMPT <= retries; ATTEMPT++) {
       try {
         const response = await fetch(url, requestOptions);
         clearTimeout(timeoutId);
@@ -71,9 +71,9 @@ class SecureApi {
       } catch (error) {
         lastError = error as Error;
         
-        if (attempt < retries && !controller.signal.aborted) {
+        if (ATTEMPT < retries && !controller.signal.aborted) {
           // Exponential backoff
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, ATTEMPT) * 1000));
         }
       }
     }
@@ -83,13 +83,13 @@ class SecureApi {
   }
 
   private validateSecurityHeaders(response: Response): void {
-    const requiredHeaders = [
+    const REQUIRED_HEADERS = [
       'x-content-type-options',
       'x-frame-options',
       'x-xss-protection',
     ];
 
-    const missingHeaders = requiredHeaders.filter(
+    const missingHeaders = REQUIRED_HEADERS.filter(
       header => !response.headers.get(header)
     );
 

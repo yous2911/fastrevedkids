@@ -12,14 +12,14 @@ export interface CardProps {
   onClick?: () => void;
 }
 
-const variantClasses = {
+const VARIANT_CLASSES = {
   default: 'bg-white shadow-md',
   elevated: 'bg-white shadow-xl',
   outlined: 'bg-white border-2 border-neutral-200',
   magical: 'bg-gradient-to-br from-white to-magical-violet-glow shadow-magical border border-magical-violet-light animate-magical-glow'
 };
 
-const paddingClasses = {
+const PADDING_CLASSES = {
   none: '',
   sm: 'p-3',
   md: 'p-4',
@@ -27,7 +27,7 @@ const paddingClasses = {
   xl: 'p-8'
 };
 
-const roundedClasses = {
+const ROUNDED_CLASSES = {
   sm: 'rounded-sm',
   md: 'rounded-md',
   lg: 'rounded-lg',
@@ -47,14 +47,14 @@ export const Card: React.FC<CardProps> = ({
   onClick,
   ...props
 }) => {
-  const baseClasses = 'transition-all duration-200';
+  const BASE_CLASSES = 'transition-all duration-200';
   const hoverClasses = hoverable ? 'hover:shadow-lg cursor-pointer' : '';
   
-  const classes = [
-    baseClasses,
-    variantClasses[variant],
-    paddingClasses[padding],
-    roundedClasses[rounded],
+  const CLASSES = [
+    BASE_CLASSES,
+    VARIANT_CLASSES[variant],
+    PADDING_CLASSES[padding],
+    ROUNDED_CLASSES[rounded],
     hoverClasses,
     className
   ].filter(Boolean).join(' ');
@@ -62,7 +62,7 @@ export const Card: React.FC<CardProps> = ({
   if (animated) {
     return (
       <motion.div
-        className={classes}
+        className={CLASSES}
         onClick={onClick}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -77,7 +77,7 @@ export const Card: React.FC<CardProps> = ({
   }
 
   return (
-    <div className={classes} onClick={onClick} {...props}>
+    <div className={CLASSES} onClick={onClick} {...props}>
       {children}
     </div>
   );

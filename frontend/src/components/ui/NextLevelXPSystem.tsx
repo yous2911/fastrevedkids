@@ -153,7 +153,7 @@ const NextLevelXPSystem: React.FC<NextLevelXPSystemProps> = ({
 
   // Enhanced theme configurations with complete color schemes and fallbacks
   const getThemeConfig = useCallback((themeName: string) => {
-    const themes = {
+    const THEMES = {
       fire: {
         name: 'fire',
         liquidGradient: ['#FF4500', '#FF6347', '#FFD700', '#FFA500'],
@@ -223,7 +223,7 @@ const NextLevelXPSystem: React.FC<NextLevelXPSystemProps> = ({
     };
     
     // Return theme config with fallback to default
-    return themes[themeName as keyof typeof themes] || themes.default;
+    return THEMES[themeName as keyof typeof THEMES] || THEMES.default;
   }, []);
   
   const themeConfig = useMemo(() => getThemeConfig(theme), [theme, getThemeConfig]);
@@ -231,8 +231,16 @@ const NextLevelXPSystem: React.FC<NextLevelXPSystemProps> = ({
   const progress = Math.min((safeCurrentXP / safeMaxXP) * 100, 100);
 
   // Generate accessible labels
-  const progressAriaLabel = generateAriaLabel.progress(safeCurrentXP, safeMaxXP, 'Points d\'expérience');
-  const levelAriaLabel = generateAriaLabel.level(safeLevel, safeCurrentXP, safeMaxXP);
+  const progressAriaLabel = generateAriaLabel('Barre de progression', { 
+    current: safeCurrentXP, 
+    max: safeMaxXP, 
+    type: 'Points d\'expérience' 
+  });
+  const levelAriaLabel = generateAriaLabel('Niveau', { 
+    level: safeLevel, 
+    currentXP: safeCurrentXP, 
+    maxXP: safeMaxXP 
+  });
   const xpToNextLevel = Math.max(0, safeMaxXP - safeCurrentXP);
 
   // Create liquid drop physics with pool management
@@ -336,7 +344,7 @@ const NextLevelXPSystem: React.FC<NextLevelXPSystemProps> = ({
       
       // Enhanced liquid surface with smoother wave physics
       const waveHeight = Math.min(height * 0.12, 5);
-      const waveFrequency = 0.015;
+      const WAVE_FREQUENCY = 0.015;
       const numPoints = Math.max(Math.ceil(fillWidth / 1.5), 20); // More points for smoother curves
       
       // Create smooth wave with multiple harmonics
@@ -655,7 +663,7 @@ const NextLevelXPSystem: React.FC<NextLevelXPSystemProps> = ({
       announce(xpMessage);
       
       // Create floating number with validated values
-      const newFloating = {
+      const NEW_FLOATING = {
         id: Date.now(),
         value: safeXPGained,
         x: 50 + Math.random() * 100,
@@ -664,7 +672,7 @@ const NextLevelXPSystem: React.FC<NextLevelXPSystemProps> = ({
         type: streakActive ? 'streak' : safeBonusMultiplier > 1 ? 'bonus' : 'normal'
       };
       
-      setFloatingNumbers(prev => [...prev, newFloating]);
+      setFloatingNumbers(prev => [...prev, NEW_FLOATING]);
       
       // Create liquid drops for visual feedback with validated values
       for (let i = 0; i < Math.min(safeXPGained / 10, 20); i++) {
@@ -680,7 +688,7 @@ const NextLevelXPSystem: React.FC<NextLevelXPSystemProps> = ({
       
       setTimeout(() => {
         setShowXPGain(false);
-        setFloatingNumbers(prev => prev.filter(f => f.id !== newFloating.id));
+        setFloatingNumbers(prev => prev.filter(f => f.id !== NEW_FLOATING.id));
       }, 2000);
     }
 
@@ -710,9 +718,9 @@ const NextLevelXPSystem: React.FC<NextLevelXPSystemProps> = ({
       }, 3000);
     }
 
-    // Check for milestones using validated values
-    const milestones = [25, 50, 75, 90, 95, 99];
-    milestones.forEach(milestone => {
+    // Check for MILESTONES using validated values
+    const MILESTONES = [25, 50, 75, 90, 95, 99];
+    MILESTONES.forEach(milestone => {
       if (progress >= milestone && lastXPRef.current / safeMaxXP * 100 < milestone) {
         announce(`Étape importante atteinte: ${milestone}% de progression vers le niveau suivant!`);
         onMilestone?.(milestone);

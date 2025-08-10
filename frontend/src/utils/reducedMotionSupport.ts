@@ -38,7 +38,7 @@ export const useMotionPreferences = (): MotionPreferences => {
     updatePreferences();
 
     // Set up listeners for preference changes
-    const mediaQueries = [
+    const MEDIA_QUERIES = [
       window.matchMedia('(prefers-reduced-motion: reduce)'),
       window.matchMedia('(prefers-contrast: high)'),
       window.matchMedia('(forced-colors: active)'),
@@ -49,12 +49,12 @@ export const useMotionPreferences = (): MotionPreferences => {
 
     const handleChange = () => updatePreferences();
 
-    mediaQueries.forEach(mq => {
+    MEDIA_QUERIES.forEach(mq => {
       mq.addEventListener('change', handleChange);
     });
 
     return () => {
-      mediaQueries.forEach(mq => {
+      MEDIA_QUERIES.forEach(mq => {
         mq.removeEventListener('change', handleChange);
       });
     };
@@ -86,7 +86,7 @@ export const getSafeAnimationProps = (
 };
 
 // Component-specific animation configurations
-export const animationConfigs = {
+export const ANIMATION_CONFIGS = {
   // XP System animations
   xpSystem: {
     normal: {
@@ -270,11 +270,11 @@ export const animationConfigs = {
 
 // Get safe animation config for a component
 export const getSafeAnimationConfig = (
-  componentName: keyof typeof animationConfigs,
+  componentName: keyof typeof ANIMATION_CONFIGS,
   animationType: string,
   motionPreferences: MotionPreferences
 ) => {
-  const config = animationConfigs[componentName];
+  const config = ANIMATION_CONFIGS[componentName];
   if (!config) return {};
 
   const normalConfig = config.normal[animationType as keyof typeof config.normal];
@@ -388,5 +388,5 @@ export default {
   getMotionSafeTimeout,
   getMotionSafeTransform,
   addReducedMotionCSS,
-  animationConfigs
+  ANIMATION_CONFIGS
 };

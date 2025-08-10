@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { browserCompat, isWebGLSupported } from '../../utils/browserCompatibility';
+import { browserCompat } from '../../utils/browserCompatibility';
 import Canvas2DRenderer from './Canvas2DRenderer';
 
 interface FallbackUIProps {
@@ -127,13 +127,13 @@ export const FallbackUISystem: React.FC<FallbackUIProps> = ({
     onRetry?.();
   }, [onRetry]);
 
-  const sizeConfig = {
+  const SIZE_CONFIG = {
     small: { width: 120, height: 120 },
     medium: { width: 150, height: 150 },
     large: { width: 200, height: 200 }
   };
 
-  const { width, height } = sizeConfig[size];
+  const { width, height } = SIZE_CONFIG[size];
 
   return (
     <div className="relative">
@@ -342,7 +342,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
     onDismiss?.();
   }, [onDismiss]);
 
-  const typeConfig = {
+  const TYPE_CONFIG = {
     warning: {
       icon: '⚠️',
       bgColor: 'bg-yellow-50',
@@ -366,7 +366,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
     }
   };
 
-  const config = typeConfig[type];
+  const config = TYPE_CONFIG[type];
 
   if (!isVisible) return null;
 
@@ -442,7 +442,7 @@ export const handleCanvasContextError = (
       }
     } else {
       // Try WebGL contexts
-      const contextOptions = {
+      const CONTEXT_OPTIONS = {
         alpha: true,
         antialias: false, // Start without antialiasing for compatibility
         depth: true,
@@ -453,12 +453,12 @@ export const handleCanvasContextError = (
       };
 
       if (contextType === 'webgl2') {
-        context = canvasElement.getContext('webgl2', contextOptions) as WebGL2RenderingContext;
+        context = canvasElement.getContext('webgl2', CONTEXT_OPTIONS) as WebGL2RenderingContext;
       }
       
       if (!context) {
-        context = (canvasElement.getContext('webgl', contextOptions) || 
-                   canvasElement.getContext('experimental-webgl', contextOptions)) as WebGLRenderingContext;
+        context = (canvasElement.getContext('webgl', CONTEXT_OPTIONS) || 
+                   canvasElement.getContext('experimental-webgl', CONTEXT_OPTIONS)) as WebGLRenderingContext;
       }
 
       if (!context) {
@@ -466,9 +466,9 @@ export const handleCanvasContextError = (
       }
 
       // Test if context is working
-      context.viewport(0, 0, canvasElement.width, canvasElement.height);
-      const error = context.getError();
-      if (error !== context.NO_ERROR) {
+      (context as any).viewport(0, 0, canvasElement.width, canvasElement.height);
+      const error = (context as any).getError();
+      if (error !== (context as any).NO_ERROR) {
         throw new Error(`WebGL context error: ${error}`);
       }
     }

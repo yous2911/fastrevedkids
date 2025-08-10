@@ -1,12 +1,12 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { ExercicePedagogique, TentativeExercice, TentativeResponse } from '../../types/api.types';
 import { useStudentData } from '../../hooks/useStudentData';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../ui/Toast';
-import { Card } from '../ui/Card';
+
 import { Button } from '../ui/Button';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
+
 
 // Exercise type components
 import { ExerciseQCM } from './types/ExerciseQCM';

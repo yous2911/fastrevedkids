@@ -155,7 +155,7 @@ export const KioskModeProvider: React.FC<KioskModeProviderProps> = ({
     wakeLockActive: kioskMode.wakeLockActive,
     activateKioskMode: kioskMode.activateKioskMode,
     deactivateKioskMode: kioskMode.deactivateKioskMode,
-    isSupported: kioskMode.isSupported
+    isSupported: kioskMode.IS_SUPPORTED
   };
 
   return (

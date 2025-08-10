@@ -3,7 +3,8 @@
  * Comprehensive monitoring of component loading, rendering, and performance metrics
  */
 
-import { analytics } from './analyticsSystem';
+import React from 'react';
+import { ANALYTICS } from './analyticsSystem';
 import { crossDeviceTracker } from './crossDevicePerformanceTracker';
 
 // Load time monitoring interfaces
@@ -429,24 +430,24 @@ class ComponentLoadTimeMonitor {
   }
 
   private calculateUserPerceptionScore(loadTime: number, phases: LoadPhase[]): number {
-    let score = 100;
+    let SCORE = 100;
     
     // Penalize based on total load time
-    if (loadTime > 100) score -= Math.min(50, (loadTime - 100) / 10);
+    if (loadTime > 100) SCORE -= Math.min(50, (loadTime - 100) / 10);
     
     // Penalize for blocking phases
     const blockingTime = phases.filter(p => p.blocking).reduce((sum, p) => sum + p.duration, 0);
-    if (blockingTime > 50) score -= Math.min(25, (blockingTime - 50) / 5);
+    if (blockingTime > 50) SCORE -= Math.min(25, (blockingTime - 50) / 5);
     
     // Bonus for caching
     const activeLoad = Array.from(this.activeLoads.values())[0];
-    if (activeLoad?.cacheStatus?.hit) score += 10;
+    if (activeLoad?.cacheStatus?.hit) SCORE += 10;
     
-    return Math.max(0, Math.min(100, score));
+    return Math.max(0, Math.min(100, SCORE));
   }
 
   private sendLoadMetricsToAnalytics(metric: ComponentLoadMetrics) {
-    analytics.trackLoadTime(metric.componentName, metric.totalLoadTime, {
+    ANALYTICS.trackLoadTime(metric.componentName, metric.totalLoadTime, {
       phases: metric.phases,
       dependencies: metric.dependencies.length,
       cached: metric.cacheStatus.hit,
@@ -454,7 +455,7 @@ class ComponentLoadTimeMonitor {
       deviceOptimized: metric.deviceOptimized,
       renderMetrics: metric.renderMetrics,
       errorCount: metric.errorsDuringLoad.length,
-      deviceType: crossDeviceTracker.getCurrentDeviceProfile()?.hardware.deviceType,
+      deviceType: (crossDeviceTracker.getCurrentDeviceProfile()?.hardware as any)?.deviceType,
       performanceTier: crossDeviceTracker.getCurrentDeviceProfile()?.capabilities.performanceTier
     });
   }
@@ -528,7 +529,7 @@ class ComponentLoadTimeMonitor {
   }
 
   private trackPageLoadMetrics(navigation: PerformanceNavigationTiming) {
-    analytics.track('load_time', 'general', 'page_load', undefined, navigation.loadEventEnd, {
+    ANALYTICS.track('load_time', 'general', 'page_load', undefined, navigation.loadEventEnd, {
       domContentLoaded: navigation.domContentLoadedEventEnd,
       domInteractive: navigation.domInteractive,
       domComplete: navigation.domComplete,
@@ -550,7 +551,7 @@ class ComponentLoadTimeMonitor {
       load: navigation.loadEventEnd - navigation.loadEventStart
     };
 
-    analytics.track('performance_metric', 'general', 'navigation_timing', undefined, undefined, metrics);
+    ANALYTICS.track('performance_metric', 'general', 'navigation_timing', undefined, undefined, metrics);
   }
 
   private calculatePerformanceDistribution(metrics: ComponentLoadMetrics[]) {
@@ -591,7 +592,7 @@ class ComponentLoadTimeMonitor {
         phaseAnalysis.forEach(bottleneck => {
           bottlenecks.push({
             componentName,
-            ...bottleneck
+            ...(bottleneck as any)
           });
         });
       }
@@ -750,13 +751,13 @@ export function withLoadTimeMonitoring<P extends object>(
     const { isLoading, loadTime } = useLoadTimeMonitoring(componentName, options);
     
     // Add load time data to props
-    const enhancedProps = {
+    const ENHANCED_PROPS = {
       ...props,
       loadTime,
       isLoading
     } as P & { loadTime: number | null; isLoading: boolean };
     
-    return <Component {...enhancedProps} />;
+    return <Component {...ENHANCED_PROPS} />;
   });
 }
 

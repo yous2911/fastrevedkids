@@ -5,7 +5,7 @@ import { useStudentData } from '../hooks/useStudentData';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
-import { Eleve } from '../types/api.types';
+
 
 interface ProfileProps {
   onBack: () => void;
@@ -24,7 +24,7 @@ export const Profile: React.FC<ProfileProps> = ({ onBack }) => {
     mascotteType: currentStudent?.mascotteType || 'dragon'
   });
 
-  const mascots = [
+  const MASCOTS = [
     { type: 'dragon', emoji: '🐉', name: 'Dragon Sage', description: 'Puissant et protecteur' },
     { type: 'fairy', emoji: '🧚‍♀️', name: 'Fée Magique', description: 'Créative et inspirante' },
     { type: 'robot', emoji: '🤖', name: 'Robot Intelligent', description: 'Logique et précis' },
@@ -45,8 +45,8 @@ export const Profile: React.FC<ProfileProps> = ({ onBack }) => {
       
       // Update current student in app state
       if (currentStudent) {
-        const updatedStudent = { ...currentStudent, ...formData };
-        setCurrentStudent(updatedStudent);
+        const UPDATED_STUDENT = { ...currentStudent, ...formData };
+        setCurrentStudent(UPDATED_STUDENT);
       }
 
       success('Profil mis à jour avec succès !');
@@ -63,7 +63,7 @@ export const Profile: React.FC<ProfileProps> = ({ onBack }) => {
     return { level: 'Débutant', icon: '🌟', color: 'text-green-600' };
   };
 
-  const selectedMascot = mascots.find(m => m.type === formData.mascotteType) || mascots[0];
+  const selectedMascot = MASCOTS.find(m => m.type === formData.mascotteType) || MASCOTS[0];
   const achievement = currentStudent ? getAchievementLevel(currentStudent.totalPoints) : null;
 
   return (
@@ -209,7 +209,7 @@ export const Profile: React.FC<ProfileProps> = ({ onBack }) => {
                   
                   {isEditing ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {mascots.map((mascot) => (
+                      {MASCOTS.map((mascot) => (
                         <button
                           key={mascot.type}
                           onClick={() => handleInputChange('mascotteType', mascot.type)}

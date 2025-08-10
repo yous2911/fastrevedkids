@@ -1,4 +1,4 @@
-import { Tutorial, ModuleAchievement, AchievementTrigger, AchievementReward } from '../types/wahoo.types';
+import { Tutorial, ModuleAchievement, AchievementTrigger } from '../types/wahoo.types';
 
 // ==========================================
 // TUTORIAL SERVICE - Gestion des Guides
@@ -155,7 +155,7 @@ export class AchievementService {
    * Déclencher la célébration d'achievement
    */
   private triggerAchievementCelebration(achievement: ModuleAchievement): void {
-    const celebration = {
+    const CELEBRATION = {
       type: 'achievement_unlock',
       achievement: achievement,
       animation: 'epic_explosion',
@@ -163,11 +163,10 @@ export class AchievementService {
       haptic: 'victory_dance'
     };
 
-    console.log(`🎉 Achievement celebration: ${celebration}`);
+    console.log(`🎉 Achievement CELEBRATION: ${CELEBRATION}`);
     
-    // Dispatch d'événement pour l'interface
     window.dispatchEvent(new CustomEvent('achievement-unlocked', {
-      detail: celebration
+      detail: CELEBRATION
     }));
   }
 

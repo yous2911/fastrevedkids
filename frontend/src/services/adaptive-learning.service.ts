@@ -1,7 +1,7 @@
 // src/services/adaptive-learning.service.ts
 import { ExercicePedagogique } from '../types/api.types';
 
-// Define StudentProgress interface locally since it's not exported from api.types
+// Define StudentProgress interface ILocally since it's not exported from api.types
 export interface StudentProgress {
   exerciceId: number;
   statut: 'NON_COMMENCE' | 'EN_COURS' | 'TERMINE' | 'ECHEC' | 'ACQUIS' | 'DIFFICILE';
@@ -497,15 +497,15 @@ export class AdaptiveLearningService {
   }
 
   private getConsecutiveErrors(attempts: any[]): number {
-    let consecutive = 0;
+    let CONSECUTIVE = 0;
     for (const attempt of attempts) {
       if (!attempt.reussi) {
-        consecutive++;
+        CONSECUTIVE++;
       } else {
         break;
       }
     }
-    return consecutive;
+    return CONSECUTIVE;
   }
 
   private getTimeIncreaseRate(attempts: any[]): number {

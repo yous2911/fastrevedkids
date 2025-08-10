@@ -6,7 +6,7 @@
 import { mobileDetector } from './mobileOptimized';
 import { mobileFrameRate } from './mobileFrameRate';
 import { performanceMonitoring } from './performanceMonitoringHooks';
-import { analytics } from './analyticsSystem';
+import { ANALYTICS } from './analyticsSystem';
 
 // Performance tracking interfaces
 interface DevicePerformanceProfile {
@@ -32,7 +32,7 @@ interface HardwareSpecs {
     colorDepth: number;
   };
   inputMethods: ('touch' | 'mouse' | 'keyboard')[];
-  sensors: string[];
+  SENSORS: string[];
   connectivity: {
     types: string[];
     speed: string;
@@ -278,8 +278,8 @@ class CrossDevicePerformanceTracker {
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     if (gl) {
-      const renderer = gl.getParameter(gl.RENDERER);
-      const vendor = gl.getParameter(gl.VENDOR);
+      const renderer = (gl as WebGLRenderingContext).getParameter((gl as WebGLRenderingContext).RENDERER);
+      const vendor = (gl as WebGLRenderingContext).getParameter((gl as WebGLRenderingContext).VENDOR);
       components.push(renderer, vendor);
     }
 
@@ -298,7 +298,7 @@ class CrossDevicePerformanceTracker {
         colorDepth: screen.colorDepth
       },
       inputMethods: this.detectInputMethods(),
-      sensors: this.detectAvailableSensors(),
+      SENSORS: this.detectAvailableSensors(),
       connectivity: await this.detectConnectivity()
     };
   }
@@ -362,7 +362,7 @@ class CrossDevicePerformanceTracker {
         this.updateCapabilitiesFromBenchmarks();
         
         // Track benchmark results
-        analytics.track('performance_metric', 'general', 'device_benchmark', undefined, overallScore, {
+        ANALYTICS.track('performance_metric', 'general', 'device_benchmark', undefined, overallScore, {
           deviceFingerprint: this.currentProfile.deviceFingerprint,
           benchmarks: this.currentProfile.benchmarks,
           hardwareSpecs: this.currentProfile.hardware
@@ -378,9 +378,9 @@ class CrossDevicePerformanceTracker {
     const iterations = 100000;
     
     // CPU-intensive calculation
-    let result = 0;
+    let RESULT = 0;
     for (let i = 0; i < iterations; i++) {
-      result += Math.sqrt(i) * Math.sin(i) * Math.cos(i);
+      RESULT += Math.sqrt(i) * Math.sin(i) * Math.cos(i);
     }
     
     const duration = performance.now() - startTime;
@@ -399,13 +399,13 @@ class CrossDevicePerformanceTracker {
     const startTime = performance.now();
     
     // Simple GPU test - draw many triangles
-    const triangleCount = 1000;
-    for (let i = 0; i < triangleCount; i++) {
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    const TRIANGLE_COUNT = 1000;
+    for (let i = 0; i < TRIANGLE_COUNT; i++) {
+      (gl as WebGLRenderingContext).drawArrays((gl as WebGLRenderingContext).TRIANGLES, 0, 3);
     }
     
     const duration = performance.now() - startTime;
-    return Math.min(100, (triangleCount / duration) * 10);
+    return Math.min(100, (TRIANGLE_COUNT / duration) * 10);
   }
 
   private async benchmarkMemory(): Promise<number> {
@@ -448,16 +448,16 @@ class CrossDevicePerformanceTracker {
   private async benchmarkAnimation(): Promise<number> {
     return new Promise((resolve) => {
       const startTime = performance.now();
-      let frameCount = 0;
+      let FRAME_COUNT = 0;
       
       const animate = () => {
-        frameCount++;
+        FRAME_COUNT++;
         
-        if (frameCount < 60) { // Test for 60 frames
+        if (FRAME_COUNT < 60) { // Test for 60 frames
           requestAnimationFrame(animate);
         } else {
           const duration = performance.now() - startTime;
-          const fps = (frameCount * 1000) / duration;
+          const fps = (FRAME_COUNT * 1000) / duration;
           resolve(Math.min(100, fps * 1.67)); // 60 FPS = 100 points
         }
       };
@@ -492,7 +492,7 @@ class CrossDevicePerformanceTracker {
   private collectRealWorldMetrics() {
     if (!this.currentProfile) return;
 
-    const performanceData = performanceMonitoring.getPerformanceData();
+    const performanceData = (performanceMonitoring as any).getPerformanceData();
     const frameMetrics = mobileFrameRate.getMetrics();
     
     if (performanceData && frameMetrics) {
@@ -545,7 +545,7 @@ class CrossDevicePerformanceTracker {
   private trackDeviceSpecificMetrics() {
     if (!this.currentProfile) return;
     
-    analytics.track('performance_metric', 'general', 'device_performance', undefined, undefined, {
+    ANALYTICS.track('performance_metric', 'general', 'device_performance', undefined, undefined, {
       deviceId: this.currentProfile.deviceId,
       performanceTier: this.currentProfile.capabilities.performanceTier,
       realWorldMetrics: this.currentProfile.realWorldMetrics,
@@ -630,13 +630,13 @@ class CrossDevicePerformanceTracker {
   }
 
   private detectAvailableSensors(): string[] {
-    const sensors = [];
+    const SENSORS = [];
     
-    if ('DeviceMotionEvent' in window) sensors.push('accelerometer');
-    if ('DeviceOrientationEvent' in window) sensors.push('gyroscope');
-    if ('AmbientLightSensor' in window) sensors.push('ambient-light');
+    if ('DeviceMotionEvent' in window) (SENSORS as string[]).push('accelerometer');
+    if ('DeviceOrientationEvent' in window) (SENSORS as string[]).push('gyroscope');
+    if ('AmbientLightSensor' in window) (SENSORS as string[]).push('ambient-light');
     
-    return sensors;
+    return SENSORS;
   }
 
   private async detectConnectivity(): Promise<HardwareSpecs['connectivity']> {
@@ -652,7 +652,7 @@ class CrossDevicePerformanceTracker {
   // Additional helper methods would be implemented here...
   private getWebGLContext(): WebGLRenderingContext | null {
     const canvas = document.createElement('canvas');
-    return canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    return (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null;
   }
 
   private getWebGL2Context(): WebGL2RenderingContext | null {
@@ -735,17 +735,17 @@ class CrossDevicePerformanceTracker {
   }
 
   private calculatePerformanceDistribution(profiles: DevicePerformanceProfile[]) {
-    const distribution = { low: 0, medium: 0, high: 0 };
+    const DISTRIBUTION = { low: 0, medium: 0, high: 0 };
     
     profiles.forEach(profile => {
-      distribution[profile.capabilities.performanceTier]++;
+      DISTRIBUTION[profile.capabilities.performanceTier]++;
     });
     
     const total = profiles.length;
     return {
-      low: total > 0 ? distribution.low / total : 0,
-      medium: total > 0 ? distribution.medium / total : 0,
-      high: total > 0 ? distribution.high / total : 0
+      low: total > 0 ? DISTRIBUTION.low / total : 0,
+      medium: total > 0 ? DISTRIBUTION.medium / total : 0,
+      high: total > 0 ? DISTRIBUTION.high / total : 0
     };
   }
 

@@ -1,0 +1,58 @@
+{
+  "timestamp": "2025-08-09T11:18:28.238Z",
+  "summary": {
+    "totalSuggestions": 3,
+    "largeFiles": 2,
+    "categories": {
+      "large_file": 2,
+      "import_consolidation": 1
+    }
+  },
+  "largeFiles": [
+    {
+      "path": "components\\MascotWardrobe3D.tsx",
+      "size": 50378,
+      "type": "component",
+      "threshold": 50000
+    },
+    {
+      "path": "utils\\cp2025DataLoader.ts",
+      "size": 51603,
+      "type": "component",
+      "threshold": 50000
+    }
+  ],
+  "suggestions": [
+    {
+      "type": "large_file",
+      "file": "components\\MascotWardrobe3D.tsx",
+      "description": "File exceeds component size limit: 49.2 KB > 48.83 KB",
+      "suggestion": "Consider splitting into smaller components or lazy loading"
+    },
+    {
+      "type": "large_file",
+      "file": "utils\\cp2025DataLoader.ts",
+      "description": "File exceeds component size limit: 50.39 KB > 48.83 KB",
+      "suggestion": "Consider splitting into smaller components or lazy loading"
+    },
+    {
+      "type": "import_consolidation",
+      "source": "three",
+      "description": "three is imported in many places with few named imports",
+      "suggestion": "Consider creating a barrel export or utility module",
+      "files": [
+        "components\\AdvancedMascotSystem.tsx",
+        "components\\CrossBrowserMascot3D.tsx",
+        "components\\HybridMascotSystem.tsx",
+        "components\\MascotWardrobe3D.tsx",
+        "components\\MobileOptimizedRenderer.tsx",
+        "components\\ui\\AdvancedMascotSystem.tsx",
+        "components\\ui\\SparkyMascot3D.tsx",
+        "components\\ui\\WardrobeSystem.tsx",
+        "components\\WardrobeData.ts",
+        "utils\\secureAssetLoader.ts",
+        "utils\\threeMemoryManager.ts"
+      ]
+    }
+  ]
+}

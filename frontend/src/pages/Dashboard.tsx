@@ -160,7 +160,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
   };
 
   // Mock stats for now since they're not in the database
-  const mockStats = {
+  const MOCK_STATS = {
     totalExercises: 25,
     completedExercises: 18,
     successRate: 85,
@@ -265,11 +265,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
     };
     const typeMessages = messages[type] || ['Prêt pour une nouvelle aventure ?'];
     return typeMessages[Math.floor(Math.random() * typeMessages.length)];
-  };
-
-  const getProgressPercentage = () => {
-    if (!student) return 0;
-    return Math.round((mockStats.completedExercises / mockStats.totalExercises) * 100);
   };
 
   const getStreakMessage = () => {
@@ -389,7 +384,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
                     <div className="text-blue-100 text-sm">Jours</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{mockStats.successRate}%</div>
+                    <div className="text-2xl font-bold">{MOCK_STATS.successRate}%</div>
                     <div className="text-blue-100 text-sm">Réussite</div>
                   </div>
                 </div>
@@ -623,15 +618,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Exercices terminés</span>
-                    <span className="font-bold text-gray-800">{mockStats.completedExercises}</span>
+                    <span className="font-bold text-gray-800">{MOCK_STATS.completedExercises}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Taux de réussite</span>
-                    <span className="font-bold text-green-600">{mockStats.successRate}%</span>
+                    <span className="font-bold text-green-600">{MOCK_STATS.successRate}%</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Temps d'étude</span>
-                    <span className="font-bold text-blue-600">{Math.round(mockStats.totalTime / 60)}min</span>
+                    <span className="font-bold text-blue-600">{Math.round(MOCK_STATS.totalTime / 60)}min</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Niveau actuel</span>

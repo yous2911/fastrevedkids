@@ -1,6 +1,6 @@
 // Fix: Declare mock object first to avoid initialization order issues
 export {};
-const mockApiService = {
+const MOCK_API_SERVICE = {
   get: jest.fn(),
   post: jest.fn(),
   put: jest.fn(),
@@ -9,7 +9,7 @@ const mockApiService = {
 
 // Mock the API service - create a virtual module since it might not exist
 jest.mock('../api.service', () => ({
-  apiService: mockApiService,
+  apiService: MOCK_API_SERVICE,
 }), { virtual: true });
 
 // Adaptive Learning Service Types
@@ -44,15 +44,15 @@ class AdaptiveLearningService {
   private readonly basePath = '/adaptive-learning';
 
   async getStudentProfile(studentId: number): Promise<{ success: boolean; data: LearningProfile }> {
-    return mockApiService.get(`${this.basePath}/profile/${studentId}`);
+    return MOCK_API_SERVICE.get(`${this.basePath}/profile/${studentId}`);
   }
 
   async updateLearningProfile(studentId: number, profile: Partial<LearningProfile>): Promise<{ success: boolean; data: LearningProfile }> {
-    return mockApiService.put(`${this.basePath}/profile/${studentId}`, profile);
+    return MOCK_API_SERVICE.put(`${this.basePath}/profile/${studentId}`, profile);
   }
 
   async getAdaptiveRecommendations(studentId: number, limit: number = 5): Promise<{ success: boolean; data: AdaptiveRecommendation[] }> {
-    return mockApiService.get(`${this.basePath}/recommendations/${studentId}?limit=${limit}`);
+    return MOCK_API_SERVICE.get(`${this.basePath}/recommendations/${studentId}?limit=${limit}`);
   }
 
   async recordLearningOutcome(studentId: number, exerciseId: number, outcome: {
@@ -62,7 +62,7 @@ class AdaptiveLearningService {
     attempts: number;
     confidence: number;
   }): Promise<{ success: boolean; data: any }> {
-    return mockApiService.post(`${this.basePath}/outcome`, {
+    return MOCK_API_SERVICE.post(`${this.basePath}/outcome`, {
       studentId,
       exerciseId,
       ...outcome,
@@ -70,18 +70,18 @@ class AdaptiveLearningService {
   }
 
   async getLearningAnalytics(studentId: number, period: number = 30): Promise<{ success: boolean; data: LearningAnalytics }> {
-    return mockApiService.get(`${this.basePath}/analytics/${studentId}?days=${period}`);
+    return MOCK_API_SERVICE.get(`${this.basePath}/analytics/${studentId}?days=${period}`);
   }
 
   async calibrateDifficulty(studentId: number, exerciseId: number): Promise<{ success: boolean; data: { adjustedDifficulty: number } }> {
-    return mockApiService.post(`${this.basePath}/calibrate`, {
+    return MOCK_API_SERVICE.post(`${this.basePath}/calibrate`, {
       studentId,
       exerciseId,
     });
   }
 
   async predictPerformance(studentId: number, exerciseId: number): Promise<{ success: boolean; data: { successProbability: number; estimatedTime: number } }> {
-    return mockApiService.post(`${this.basePath}/predict`, {
+    return MOCK_API_SERVICE.post(`${this.basePath}/predict`, {
       studentId,
       exerciseId,
     });
@@ -106,20 +106,20 @@ describe('AdaptiveLearningService', () => {
         preferredSubjects: ['math', 'science'],
       };
 
-      mockApiService.get.mockResolvedValue({
+      MOCK_API_SERVICE.get.mockResolvedValue({
         success: true,
         data: mockProfile,
       });
 
       const result = await adaptiveLearningService.getStudentProfile(1);
 
-      expect(mockApiService.get).toHaveBeenCalledWith('/adaptive-learning/profile/1');
+      expect(MOCK_API_SERVICE.get).toHaveBeenCalledWith('/adaptive-learning/profile/1');
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockProfile);
     });
 
     it('should handle profile not found', async () => {
-      mockApiService.get.mockResolvedValue({
+      MOCK_API_SERVICE.get.mockResolvedValue({
         success: false,
         error: { code: 'PROFILE_NOT_FOUND', message: 'Learning profile not found' },
       });
@@ -132,7 +132,7 @@ describe('AdaptiveLearningService', () => {
 
   describe('updateLearningProfile', () => {
     it('should update student learning profile', async () => {
-      const profileUpdates = {
+      const PROFILE_UPDATES = {
         difficultyLevel: 'DIFFICILE' as const,
         strengths: ['mathematics', 'logic', 'problem-solving'],
       };
@@ -146,14 +146,14 @@ describe('AdaptiveLearningService', () => {
         preferredSubjects: ['math', 'science'],
       };
 
-      mockApiService.put.mockResolvedValue({
+      MOCK_API_SERVICE.put.mockResolvedValue({
         success: true,
         data: updatedProfile,
       });
 
-      const result = await adaptiveLearningService.updateLearningProfile(1, profileUpdates);
+      const result = await adaptiveLearningService.updateLearningProfile(1, PROFILE_UPDATES);
 
-      expect(mockApiService.put).toHaveBeenCalledWith('/adaptive-learning/profile/1', profileUpdates);
+      expect(MOCK_API_SERVICE.put).toHaveBeenCalledWith('/adaptive-learning/profile/1', PROFILE_UPDATES);
       expect(result.success).toBe(true);
       expect(result.data.difficultyLevel).toBe('DIFFICILE');
       expect(result.data.strengths).toContain('problem-solving');
@@ -179,21 +179,21 @@ describe('AdaptiveLearningService', () => {
         },
       ];
 
-      mockApiService.get.mockResolvedValue({
+      MOCK_API_SERVICE.get.mockResolvedValue({
         success: true,
         data: mockRecommendations,
       });
 
       const result = await adaptiveLearningService.getAdaptiveRecommendations(1, 5);
 
-      expect(mockApiService.get).toHaveBeenCalledWith('/adaptive-learning/recommendations/1?limit=5');
+      expect(MOCK_API_SERVICE.get).toHaveBeenCalledWith('/adaptive-learning/recommendations/1?limit=5');
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(2);
       expect(result.data[0].confidence).toBe(0.85);
     });
 
     it('should handle no recommendations available', async () => {
-      mockApiService.get.mockResolvedValue({
+      MOCK_API_SERVICE.get.mockResolvedValue({
         success: true,
         data: [],
       });
@@ -224,11 +224,11 @@ describe('AdaptiveLearningService', () => {
         },
       };
 
-      mockApiService.post.mockResolvedValue(mockResponse);
+      MOCK_API_SERVICE.post.mockResolvedValue(mockResponse);
 
       const result = await adaptiveLearningService.recordLearningOutcome(1, 101, outcome);
 
-      expect(mockApiService.post).toHaveBeenCalledWith('/adaptive-learning/outcome', {
+      expect(MOCK_API_SERVICE.post).toHaveBeenCalledWith('/adaptive-learning/outcome', {
         studentId: 1,
         exerciseId: 101,
         ...outcome,
@@ -255,7 +255,7 @@ describe('AdaptiveLearningService', () => {
         },
       };
 
-      mockApiService.post.mockResolvedValue(mockResponse);
+      MOCK_API_SERVICE.post.mockResolvedValue(mockResponse);
 
       const result = await adaptiveLearningService.recordLearningOutcome(1, 101, outcome);
 
@@ -283,14 +283,14 @@ describe('AdaptiveLearningService', () => {
         ],
       };
 
-      mockApiService.get.mockResolvedValue({
+      MOCK_API_SERVICE.get.mockResolvedValue({
         success: true,
         data: mockAnalytics,
       });
 
       const result = await adaptiveLearningService.getLearningAnalytics(1, 30);
 
-      expect(mockApiService.get).toHaveBeenCalledWith('/adaptive-learning/analytics/1?days=30');
+      expect(MOCK_API_SERVICE.get).toHaveBeenCalledWith('/adaptive-learning/analytics/1?days=30');
       expect(result.success).toBe(true);
       expect(result.data.improvementTrend).toBe('IMPROVING');
       expect(result.data.successRate).toBe(0.78);
@@ -299,18 +299,18 @@ describe('AdaptiveLearningService', () => {
 
   describe('calibrateDifficulty', () => {
     it('should calibrate exercise difficulty for student', async () => {
-      const mockCalibration = {
+      const MOCK_CALIBRATION = {
         success: true,
         data: {
           adjustedDifficulty: 6.5,
         },
       };
 
-      mockApiService.post.mockResolvedValue(mockCalibration);
+      MOCK_API_SERVICE.post.mockResolvedValue(MOCK_CALIBRATION);
 
       const result = await adaptiveLearningService.calibrateDifficulty(1, 101);
 
-      expect(mockApiService.post).toHaveBeenCalledWith('/adaptive-learning/calibrate', {
+      expect(MOCK_API_SERVICE.post).toHaveBeenCalledWith('/adaptive-learning/calibrate', {
         studentId: 1,
         exerciseId: 101,
       });
@@ -321,7 +321,7 @@ describe('AdaptiveLearningService', () => {
 
   describe('predictPerformance', () => {
     it('should predict student performance on exercise', async () => {
-      const mockPrediction = {
+      const MOCK_PREDICTION = {
         success: true,
         data: {
           successProbability: 0.75,
@@ -329,11 +329,11 @@ describe('AdaptiveLearningService', () => {
         },
       };
 
-      mockApiService.post.mockResolvedValue(mockPrediction);
+      MOCK_API_SERVICE.post.mockResolvedValue(MOCK_PREDICTION);
 
       const result = await adaptiveLearningService.predictPerformance(1, 101);
 
-      expect(mockApiService.post).toHaveBeenCalledWith('/adaptive-learning/predict', {
+      expect(MOCK_API_SERVICE.post).toHaveBeenCalledWith('/adaptive-learning/predict', {
         studentId: 1,
         exerciseId: 101,
       });
@@ -343,7 +343,7 @@ describe('AdaptiveLearningService', () => {
     });
 
     it('should handle prediction errors gracefully', async () => {
-      mockApiService.post.mockResolvedValue({
+      MOCK_API_SERVICE.post.mockResolvedValue({
         success: false,
         error: { code: 'INSUFFICIENT_DATA', message: 'Not enough data for prediction' },
       });
@@ -356,7 +356,7 @@ describe('AdaptiveLearningService', () => {
 
   describe('error handling', () => {
     it('should handle network errors', async () => {
-      mockApiService.get.mockRejectedValue(new Error('Network error'));
+      MOCK_API_SERVICE.get.mockRejectedValue(new Error('Network error'));
 
       await expect(
         adaptiveLearningService.getStudentProfile(1)
@@ -364,7 +364,7 @@ describe('AdaptiveLearningService', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-      mockApiService.post.mockResolvedValue({
+      MOCK_API_SERVICE.post.mockResolvedValue({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
@@ -392,7 +392,7 @@ describe('AdaptiveLearningService', () => {
         preferredSubjects: ['math'],
       };
 
-      mockApiService.get
+      MOCK_API_SERVICE.get
         .mockResolvedValueOnce({ success: true, data: mockProfile })
         .mockResolvedValueOnce({
           success: true,
@@ -407,7 +407,7 @@ describe('AdaptiveLearningService', () => {
           ],
         });
 
-      mockApiService.post.mockResolvedValue({
+      MOCK_API_SERVICE.post.mockResolvedValue({
         success: true,
         data: { profileUpdated: true },
       });

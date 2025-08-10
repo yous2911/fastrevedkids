@@ -25,7 +25,7 @@ interface Particle {
     elasticity: number;
   };
   behavior: 'normal' | 'spiral' | 'orbit' | 'explosion' | 'attract' | 'repel';
-  trail: Array<{ x: number; y: number; alpha: number }>;
+  trail: Array<{ x: number; y: number; ALPHA: number }>;
 }
 
 interface AdvancedParticleEngineProps {
@@ -68,7 +68,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
   const mousePositionRef = useRef({ x: 0, y: 0 });
 
   // Intensity configurations
-  const intensityConfig = {
+  const INTENSITY_CONFIG = {
     low: { 
       maxParticles: Math.min(50, particleCount),
       spawnRate: 2,
@@ -101,7 +101,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
     }
   };
 
-  const config = intensityConfig[intensity];
+  const config = INTENSITY_CONFIG[intensity];
 
   // Particle type configurations
   const getParticleConfig = (type: string) => {
@@ -243,7 +243,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
     // Apply gravity
     particle.vy += particle.physics.gravity * deltaTime * 0.1;
 
-    // Apply wind force
+    // Apply wind FORCE
     particle.vx += windForce.x * deltaTime/0.01;
     particle.vy += windForce.y * deltaTime * 0.01;
 
@@ -260,9 +260,9 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
           const dx = attractorPosition.x - particle.x;
           const dy = attractorPosition.y - particle.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          const force = 100 / (distance * distance + 1);
-          particle.vx += (dx / distance) * force * deltaTime * 0.01;
-          particle.vy += (dy / distance) * force * deltaTime * 0.01;
+          const FORCE = 100 / (distance * distance + 1);
+          particle.vx += (dx / distance) * FORCE * deltaTime * 0.01;
+          particle.vy += (dy / distance) * FORCE * deltaTime * 0.01;
         }
         break;
         
@@ -326,16 +326,16 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
       particle.trail.push({
         x: particle.x,
         y: particle.y,
-        alpha: 1
+        ALPHA: 1
       });
       
       // Fade and limit trail length
       particle.trail = particle.trail
         .map((point, index) => ({
           ...point,
-          alpha: point.alpha * 0.95
+          ALPHA: point.ALPHA * 0.95
         }))
-        .filter(point => point.alpha > 0.1)
+        .filter(point => point.ALPHA > 0.1)
         .slice(-20);
     }
 
@@ -348,10 +348,10 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
     ctx.clearRect(0, 0, width, height);
     
     // Sort particles by depth for proper 3D rendering
-    const sortedParticles = [...particlesRef.current].sort((a, b) => a.z - b.z);
+    const SORTED_PARTICLES = [...particlesRef.current].sort((a, b) => a.z - b.z);
     
-    sortedParticles.forEach(particle => {
-      const alpha = 1 - (particle.life / particle.maxLife);
+    SORTED_PARTICLES.forEach(particle => {
+      const ALPHA = 1 - (particle.life / particle.maxLife);
       const size = particle.size * (1 + particle.z * 0.1); // 3D size scaling
       
       ctx.save();
@@ -362,21 +362,21 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
       
       // Render trail first
       if (enableTrails && particle.trail && particle.trail.length > 1) {
-        ctx.strokeStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha * 0.3})`;
+        ctx.strokeStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${ALPHA * 0.3})`;
         ctx.lineWidth = size * 0.5;
         ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(particle.trail[0].x, particle.trail[0].y);
         
         for (let i = 1; i < particle.trail.length; i++) {
-          const trailAlpha = particle.trail[i].alpha * alpha * 0.3;
+          const trailAlpha = particle.trail[i].ALPHA * ALPHA * 0.3;
           ctx.globalAlpha = trailAlpha;
           ctx.lineTo(particle.trail[i].x, particle.trail[i].y);
         }
         ctx.stroke();
       }
       
-      ctx.globalAlpha = alpha;
+      ctx.globalAlpha = ALPHA;
       
       // Glow effect for certain particle types
       const particleConfig = getParticleConfig(particle.type);
@@ -385,8 +385,8 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
           screenX, screenY, 0,
           screenX, screenY, size * 2
         );
-        gradient.addColorStop(0, `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha})`);
-        gradient.addColorStop(0.5, `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha * 0.5})`);
+        gradient.addColorStop(0, `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${ALPHA})`);
+        gradient.addColorStop(0.5, `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${ALPHA * 0.5})`);
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
         
         ctx.fillStyle = gradient;
@@ -399,7 +399,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
       switch (particle.type) {
         case 'fire':
           // Flame-like shape
-          ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha})`;
+          ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${ALPHA})`;
           ctx.beginPath();
           ctx.ellipse(screenX, screenY, size, size * 1.5, particle.life * 0.1, 0, Math.PI * 2);
           ctx.fill();
@@ -407,7 +407,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
           
         case 'crystal':
           // Diamond shape
-          ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha})`;
+          ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${ALPHA})`;
           ctx.translate(screenX, screenY);
           ctx.rotate(particle.life * 0.05);
           ctx.beginPath();
@@ -419,7 +419,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
           ctx.fill();
           
           // Crystal reflection
-          ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.5})`;
+          ctx.fillStyle = `rgba(255, 255, 255, ${ALPHA * 0.5})`;
           ctx.beginPath();
           ctx.moveTo(0, -size * 0.7);
           ctx.lineTo(size * 0.3, -size * 0.3);
@@ -431,7 +431,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
           
         case 'heart':
           // Heart shape
-          ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha})`;
+          ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${ALPHA})`;
           ctx.translate(screenX, screenY);
           ctx.scale(size / 10, size / 10);
           ctx.beginPath();
@@ -443,7 +443,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
           
         case 'star':
           // Star shape
-          ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha})`;
+          ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${ALPHA})`;
           ctx.translate(screenX, screenY);
           ctx.rotate(particle.life * 0.1);
           ctx.beginPath();
@@ -465,7 +465,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
           
         case 'lightning':
           // Lightning bolt
-          ctx.strokeStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha})`;
+          ctx.strokeStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${ALPHA})`;
           ctx.lineWidth = size * 0.3;
           ctx.lineCap = 'round';
           ctx.translate(screenX, screenY);
@@ -479,7 +479,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
           
         default:
           // Default circle
-          ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha})`;
+          ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${ALPHA})`;
           ctx.beginPath();
           ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
           ctx.fill();

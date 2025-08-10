@@ -167,9 +167,9 @@ const PlumeEnchanteeCP2025: React.FC = () => {
   const [currentEvaluation, setCurrentEvaluation] = useState<CompetenceEvaluation | null>(null);
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [showCompetenceInfo, setShowCompetenceInfo] = useState(true);
+  const [showGuidance, setShowGuidance] = useState(true);
   
   // États interface
-  const [showGuidance, setShowGuidance] = useState(true);
   const [showReglure, setShowReglure] = useState(true);
   
   // États pression stylet

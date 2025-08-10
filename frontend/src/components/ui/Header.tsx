@@ -67,13 +67,13 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
-  const sizeClasses = {
+  const SIZE_CLASSES = {
     sm: 'py-3 px-4',
     md: 'py-4 px-6',
     lg: 'py-6 px-8'
   };
 
-  const variantClasses = {
+  const VARIANT_CLASSES = {
     default: 'bg-white border-b border-gray-200',
     gradient: 'bg-gradient-to-r from-blue-500 to-purple-600 text-white',
     transparent: 'bg-transparent',
@@ -103,8 +103,8 @@ export const Header: React.FC<HeaderProps> = ({
         w-full z-30 transition-all duration-200
         ${sticky ? 'sticky top-0' : ''}
         ${shadow ? 'shadow-sm' : ''}
-        ${variantClasses[variant]}
-        ${sizeClasses[size]}
+        ${VARIANT_CLASSES[variant]}
+        ${SIZE_CLASSES[size]}
         ${className}
       `}
       initial={animated ? { y: -100, opacity: 0 } : false}

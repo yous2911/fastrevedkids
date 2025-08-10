@@ -113,7 +113,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
     return new Date(dateString).toLocaleDateString('fr-FR');
   };
 
-  const tabs = [
+  const TABS = [
     { id: 'overview', name: 'Vue d\'ensemble', emoji: '📊' },
     { id: 'users', name: 'Utilisateurs', emoji: '👥' },
     { id: 'exercises', name: 'Exercices', emoji: '📚' },
@@ -146,7 +146,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
         {/* Tab Navigation */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 mb-8">
           <div className="flex border-b border-gray-200">
-            {tabs.map((tab) => (
+            {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}

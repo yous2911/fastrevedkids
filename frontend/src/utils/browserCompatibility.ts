@@ -145,16 +145,17 @@ export class BrowserCompatibilityManager {
       };
     }
 
-    // Get renderer info
+    // Get renderer info and cast to WebGL context for proper typing
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-    const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'Unknown';
-    const vendor = debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'Unknown';
+    const webglContext = gl as WebGLRenderingContext;
+    const renderer = debugInfo ? webglContext.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'Unknown';
+    const vendor = debugInfo ? webglContext.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'Unknown';
 
     // Get capabilities
-    const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-    const maxRenderbufferSize = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
-    const vertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-    const fragmentTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    const maxTextureSize = webglContext.getParameter(webglContext.MAX_TEXTURE_SIZE);
+    const maxRenderbufferSize = webglContext.getParameter(webglContext.MAX_RENDERBUFFER_SIZE);
+    const vertexTextureUnits = webglContext.getParameter(webglContext.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+    const fragmentTextureUnits = webglContext.getParameter(webglContext.MAX_TEXTURE_IMAGE_UNITS);
 
     // Get extensions
     const extensions = gl.getSupportedExtensions() || [];
@@ -285,8 +286,8 @@ export class BrowserCompatibilityManager {
     const { hardwareTier, isMobile, devicePixelRatio } = this.browserInfo;
     const { maxTextureSize } = this.webglCapabilities;
 
-    // Conservative settings for different hardware tiers
-    const settings = {
+    // Conservative SETTINGS for different hardware tiers
+    const SETTINGS = {
       low: {
         pixelRatio: Math.min(devicePixelRatio, 1),
         antialias: false,
@@ -316,7 +317,7 @@ export class BrowserCompatibilityManager {
       }
     };
 
-    return settings[hardwareTier];
+    return SETTINGS[hardwareTier];
   }
 
   public isLowEndDevice(): boolean {
@@ -412,10 +413,6 @@ export function isWebGLSupported(): boolean {
 
 export function isLowEndDevice(): boolean {
   return browserCompat.isLowEndDevice();
-}
-
-export function getOptimalRenderSettings() {
-  return browserCompat.getOptimalSettings();
 }
 
 export function requiresFallback(): boolean {

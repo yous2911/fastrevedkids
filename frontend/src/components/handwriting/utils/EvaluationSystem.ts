@@ -45,14 +45,14 @@ export const evaluateCompetence = (
   const traceTime = (endTime - startTime) / 1000;
   
   // 1. PRÉCISION - Distance au tracé de référence
-  let proximityScore = 0;
+  let PROXIMITY_SCORE = 0;
   userTrace.forEach(userPoint => {
     const minDistance = Math.min(...referencePath.points.map(refPoint => 
       Math.sqrt(Math.pow(userPoint.x - refPoint.x, 2) + Math.pow(userPoint.y - refPoint.y, 2))
     ));
-    proximityScore += minDistance < 15 ? 1 : minDistance < 25 ? 0.7 : minDistance < 35 ? 0.4 : 0;
+    PROXIMITY_SCORE += minDistance < 15 ? 1 : minDistance < 25 ? 0.7 : minDistance < 35 ? 0.4 : 0;
   });
-  const precision = Math.min(100, (proximityScore / userTrace.length) * 100);
+  const precision = Math.min(100, (PROXIMITY_SCORE / userTrace.length) * 100);
   
   // 2. VITESSE - Selon cible compétence
   const speedScore = traceTime <= referencePath.speedTarget ? 100 : 
@@ -99,7 +99,7 @@ export const evaluateCompetence = (
   }
   
   // SCORE TOTAL pondéré selon compétence
-  const weights = {
+  const WEIGHTS = {
     precision: 0.35,
     vitesse: 0.20,
     fluidite: 0.25,
@@ -108,11 +108,11 @@ export const evaluateCompetence = (
   };
   
   const totalScore = Math.round(
-    precision * weights.precision + 
-    speedScore * weights.vitesse + 
-    smoothnessScore * weights.fluidite + 
-    inclinaisonScore * weights.inclinaison +
-    pressionScore * weights.pression
+    precision * WEIGHTS.precision + 
+    speedScore * WEIGHTS.vitesse + 
+    smoothnessScore * WEIGHTS.fluidite + 
+    inclinaisonScore * WEIGHTS.inclinaison +
+    pressionScore * WEIGHTS.pression
   );
   
   // VALIDATION COMPÉTENCE

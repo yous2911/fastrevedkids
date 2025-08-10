@@ -90,25 +90,25 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ analyticsData, loadin
   };
 
   const getSubjectIcon = (subject: string) => {
-    const icons = {
+    const ICONS = {
       francais: '📖',
       mathematiques: '🔢',
       sciences: '🔬',
       histoireGeographie: '🌍',
       anglais: '🇬🇧'
     };
-    return icons[subject as keyof typeof icons] || '📚';
+    return ICONS[subject as keyof typeof ICONS] || '📚';
   };
 
   const getSubjectColor = (subject: string) => {
-    const colors = {
+    const COLORS = {
       francais: 'bg-blue-100 text-blue-700',
       mathematiques: 'bg-green-100 text-green-700',
       sciences: 'bg-purple-100 text-purple-700',
       histoireGeographie: 'bg-orange-100 text-orange-700',
       anglais: 'bg-red-100 text-red-700'
     };
-    return colors[subject as keyof typeof colors] || 'bg-gray-100 text-gray-700';
+    return COLORS[subject as keyof typeof COLORS] || 'bg-gray-100 text-gray-700';
   };
 
   if (loading) {

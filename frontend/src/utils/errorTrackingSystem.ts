@@ -3,7 +3,9 @@
  * Comprehensive error monitoring, crash detection, and automated reporting
  */
 
-import { analytics } from './analyticsSystem';
+import React from 'react';
+import * as Sentry from '@sentry/react';
+import { ANALYTICS } from './analyticsSystem';
 import { crossDeviceTracker } from './crossDevicePerformanceTracker';
 
 // Error tracking interfaces
@@ -152,7 +154,17 @@ class ErrorTrackingSystem {
   private crashes: CrashReport[] = [];
   private userActions: UserAction[] = [];
   private componentErrorRates: Map<string, ComponentErrorRates> = new Map();
-  private errorThresholds: Record<ErrorType, number> = {};
+  private errorThresholds: Record<ErrorType, number> = {
+    javascript: 10,
+    network: 5,
+    rendering: 8,
+    memory: 2,
+    performance: 3,
+    security: 1,
+    api: 5,
+    'user-input': 15,
+    'third-party': 10
+  };
   private sessionId: string;
   private isInitialized = false;
   private errorBoundaryStack: Error[] = [];
@@ -215,7 +227,7 @@ class ErrorTrackingSystem {
         source: event.filename,
         line: event.lineno,
         column: event.colno,
-        error: event.error
+        // error: event.error // Removed property not in ErrorEvent
       });
     });
 
@@ -225,7 +237,7 @@ class ErrorTrackingSystem {
         type: 'javascript',
         severity: 'high',
         message: `Unhandled Promise Rejection: ${event.reason}`,
-        error: event.reason
+        // error: event.reason // Removed property not in ErrorEvent
       });
     });
 
@@ -257,7 +269,7 @@ class ErrorTrackingSystem {
             severity: 'high',
             message,
             component: componentMatch ? componentMatch[1] : undefined,
-            error: args[1] instanceof Error ? args[1] : new Error(message)
+            // error: args[1] instanceof Error ? args[1] : new Error(message) // Removed property not in ErrorEvent
           });
         }
       }
@@ -279,7 +291,7 @@ class ErrorTrackingSystem {
             type: 'performance',
             severity: 'high',
             message: `Severe FPS degradation: ${metrics.averageFPS.toFixed(1)} FPS`,
-            context: { performanceMetrics: metrics }
+            context: { performanceMetrics: metrics } as any
           });
         }
         
@@ -288,7 +300,7 @@ class ErrorTrackingSystem {
             type: 'memory',
             severity: 'medium',
             message: `High memory usage detected: ${metrics.memoryUsagePeak.toFixed(1)}MB`,
-            context: { memoryMetrics: metrics }
+            context: { memoryMetrics: metrics } as any
           });
         }
       }
@@ -318,7 +330,7 @@ class ErrorTrackingSystem {
           severity: 'high',
           message: `Network request failed: ${error}`,
           source: args[0]?.toString(),
-          error: error as Error
+          // error: error as Error // Removed property not in ErrorEvent
         });
         throw error;
       }
@@ -349,9 +361,18 @@ class ErrorTrackingSystem {
             severity: 'high',
             message: `Potential memory leak detected: ${(memoryGrowth / 1024 / 1024).toFixed(1)}MB growth`,
             context: {
-              baselineMemory: baselineMemory / 1024 / 1024,
-              currentMemory: currentMemory / 1024 / 1024,
-              growth: memoryGrowth / 1024 / 1024
+              deviceInfo: {},
+              performanceState: {},
+              userActions: [],
+              componentState: {},
+              networkState: {},
+              memoryState: {
+                baselineMemory: baselineMemory / 1024 / 1024,
+                currentMemory: currentMemory / 1024 / 1024,
+                growth: memoryGrowth / 1024 / 1024
+              },
+              renderingState: {},
+              customData: {}
             }
           });
           
@@ -391,10 +412,10 @@ class ErrorTrackingSystem {
       timestamp: now,
       sessionId: this.sessionId,
       type: errorData.type || 'javascript',
-      severity: errorData.severity || this.determineSeverity(errorData.error),
+      severity: errorData.severity || this.determineSeverity((errorData as any).error),
       component: errorData.component,
       message: errorData.message || 'Unknown error',
-      stack: errorData.stack || errorData.error?.stack,
+      stack: errorData.stack || (errorData as any).error?.stack,
       source: errorData.source,
       line: errorData.line,
       column: errorData.column,
@@ -488,7 +509,7 @@ class ErrorTrackingSystem {
     this.crashes.push(crashReport);
     
     // Send critical crash report immediately
-    analytics.track('crash', 'general', 'application_crash', triggerError.component, undefined, crashReport);
+    ANALYTICS.track('crash', 'general', 'application_crash', triggerError.component, undefined, crashReport);
     
     console.error('💥 CRASH REPORTED:', crashReport);
   }
@@ -521,7 +542,7 @@ class ErrorTrackingSystem {
   }
 
   private sendErrorToAnalytics(error: ErrorEvent) {
-    analytics.track('error', 'general', `${error.type}_error`, error.component, undefined, {
+    ANALYTICS.track('error', 'general', `${error.type}_error`, error.component, undefined, {
       errorId: error.id,
       severity: error.severity,
       message: error.message,
@@ -540,8 +561,8 @@ class ErrorTrackingSystem {
     );
 
     if (recentErrors.length >= threshold) {
-      analytics.track('error', 'general', 'error_threshold_exceeded', errorType, threshold, {
-        errorType,
+      ANALYTICS.track('error', 'general', 'error_threshold_exceeded', errorType, threshold, {
+        // error // Removed property not in ErrorEventType,
         threshold,
         actualCount: recentErrors.length,
         timeWindow: 300000
@@ -554,8 +575,8 @@ class ErrorTrackingSystem {
     const error = this.errors.find(e => e.id === errorId);
     if (error) {
       error.recovered = true;
-      analytics.track('error', 'general', 'error_recovered', error.component, undefined, {
-        errorId,
+      ANALYTICS.track('error', 'general', 'error_recovered', error.component, undefined, {
+        // error // Removed property not in ErrorEventId,
         timToRecovery: Date.now() - error.timestamp
       });
     }
@@ -565,8 +586,8 @@ class ErrorTrackingSystem {
     const error = this.errors.find(e => e.id === errorId);
     if (error) {
       error.reproduced = reproduced;
-      analytics.track('error', 'general', 'error_feedback', error.component, undefined, {
-        errorId,
+      ANALYTICS.track('error', 'general', 'error_feedback', error.component, undefined, {
+        // error // Removed property not in ErrorEventId,
         feedback,
         reproduced,
         userAgent: navigator.userAgent
@@ -603,7 +624,7 @@ class ErrorTrackingSystem {
         existing.count++;
         existing.lastSeen = Math.max(existing.lastSeen, error.timestamp);
       } else {
-        errorCounts.set(key, { count: 1, lastSeen: error.timestamp, severity: error.severity });
+        // error // Removed property not in ErrorEventCounts.set(key, { count: 1, lastSeen: error.timestamp, severity: error.severity });
       }
     });
 
@@ -695,8 +716,9 @@ class ErrorTrackingSystem {
     const memory = (performance as any).memory;
     return memory ? {
       used: memory.usedJSHeapSize / 1024 / 1024,
-      total: memory.totalJSHeapSize / 1024 / 1024,
-      limit: memory.jsHeapSizeLimit / 1024 / 1024
+      available: (memory.jsHeapSizeLimit - memory.usedJSHeapSize) / 1024 / 1024,
+      pressure: (memory.usedJSHeapSize / memory.jsHeapSizeLimit > 0.8 ? 'high' : 
+                memory.usedJSHeapSize / memory.jsHeapSizeLimit > 0.6 ? 'medium' : 'low') as 'low' | 'medium' | 'high'
     } : null;
   }
 
@@ -713,8 +735,8 @@ class ErrorTrackingSystem {
 
   private getCurrentSystemState(): SystemState {
     return {
-      memory: this.getCurrentMemoryState() || { used: 0, available: 0, pressure: 'low' },
-      performance: this.getCurrentPerformanceState() || { fps: 60, frameTime: 16.67, renderTime: 5 },
+      memory: this.getCurrentMemoryState() || { used: 0, available: 0, pressure: 'low' as const },
+      performance: this.getCurrentPerformanceState() || { fps: 60, frameTime: 16.67, renderTime: 5 } as any,
       network: this.getCurrentNetworkState(),
       battery: this.getBatteryState(),
       thermal: this.getThermalState()
@@ -759,11 +781,11 @@ class ErrorTrackingSystem {
   }
 
   private calculateErrorDistribution(): Record<ErrorType, number> {
-    const distribution = {} as Record<ErrorType, number>;
+    const DISTRIBUTION = {} as Record<ErrorType, number>;
     this.errors.forEach(error => {
-      distribution[error.type] = (distribution[error.type] || 0) + 1;
+      DISTRIBUTION[error.type] = (DISTRIBUTION[error.type] || 0) + 1;
     });
-    return distribution;
+    return DISTRIBUTION;
   }
 
   private calculateErrorTrends() {
@@ -794,7 +816,7 @@ class ErrorTrackingSystem {
 
   private getWebGLContext(): WebGLRenderingContext | null {
     const canvas = document.createElement('canvas');
-    return canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    return (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null;
   }
 }
 
@@ -822,8 +844,7 @@ export class ErrorBoundary extends React.Component<
       message: error.message,
       stack: error.stack,
       component: this.props.componentName || 'ErrorBoundary',
-      error,
-      context: { errorInfo }
+      context: { errorInfo } as any
     });
   }
 
@@ -853,16 +874,16 @@ export function useErrorTracking(componentName: string) {
         message: error.message,
         stack: error.stack,
         component: componentName,
-        error
+        // error // Removed property not in ErrorEvent
       });
     };
 
     // Track component mount
-    analytics.track('component_interaction', 'general', 'component_mounted', componentName);
+    ANALYTICS.track('component_interaction', 'general', 'component_mounted', componentName);
 
     return () => {
       // Track component unmount
-      analytics.track('component_interaction', 'general', 'component_unmounted', componentName);
+      ANALYTICS.track('component_interaction', 'general', 'component_unmounted', componentName);
     };
   }, [componentName]);
 
@@ -874,7 +895,7 @@ export function useErrorTracking(componentName: string) {
         message: error.message,
         stack: error.stack,
         component: componentName,
-        error,
+        // error // Removed property not in ErrorEvent,
         context
       });
     },

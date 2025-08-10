@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { exerciseService } from '../services/exercise.service';
 import { adaptiveLearningService } from '../services/adaptive-learning.service';
-import { Exercise, ExerciseAttempt, AdaptiveExerciseResponse } from '../services/exercise.service';
-import { StudentProgress, AdaptiveMetrics } from '../services/adaptive-learning.service';
+import { Exercise, ExerciseAttempt } from '../services/exercise.service';
+import { AdaptiveMetrics } from '../services/adaptive-learning.service';
 
 export interface AdaptiveLearningState {
   currentExercise: Exercise | null;

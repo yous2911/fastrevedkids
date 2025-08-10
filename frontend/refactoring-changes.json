@@ -1,0 +1,570 @@
+{
+  "timestamp": "2025-08-09T11:26:22.427Z",
+  "changes": [
+    {
+      "type": "removed_import",
+      "file": "components\\AdvancedMascotSystem.tsx",
+      "import": "* as THREE",
+      "source": "three"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\AIPersonalityTester.tsx",
+      "import": "AnimatePresence",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\CrossBrowserMascot3D.tsx",
+      "import": "* as THREE",
+      "source": "three"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\error\\ThreeDErrorBoundary.tsx",
+      "import": "AnimatePresence",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\ErrorBoundary\\ErrorBoundary.tsx",
+      "import": "* as Sentry",
+      "source": "@sentry/react"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\exercise\\AdaptiveExerciseEngine.tsx",
+      "import": "AdaptiveMetrics",
+      "source": "../../services/adaptive-learning.service"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\exercise\\ExerciseEngine.tsx",
+      "import": "motion",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\exercise\\ExerciseEngine.tsx",
+      "import": "AnimatePresence",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\exercise\\ExerciseEngine.tsx",
+      "import": "Card",
+      "source": "../ui/Card"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\exercise\\ExerciseEngine.tsx",
+      "import": "LoadingSpinner",
+      "source": "../ui/LoadingSpinner"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\fallback\\FallbackUISystem.tsx",
+      "import": "isWebGLSupported",
+      "source": "../../utils/browserCompatibility"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\games\\FrenchMathsGame.tsx",
+      "import": "type { DefiMath }",
+      "source": "../../types/shared"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\games\\FrenchPhonicsGame.tsx",
+      "import": "type { DefiPhonique }",
+      "source": "../../types/shared"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\games\\FrenchPhonicsGame.tsx",
+      "import": "CelebrationElements",
+      "source": "../ui/FloatingElements"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\games\\MathGameWrapper.tsx",
+      "import": "AnimatePresence",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\gdpr\\ConsentBanner.tsx",
+      "import": "X",
+      "source": "lucide-react"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\gdpr\\GDPRDashboard.tsx",
+      "import": "motion",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\gdpr\\GDPRDashboard.tsx",
+      "import": "AnimatePresence",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\gdpr\\GDPRTestIntegration.tsx",
+      "import": "useGDPR",
+      "source": "../../hooks/useGDPR"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\HybridMascotSystem.tsx",
+      "import": "* as THREE",
+      "source": "three"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\mascot\\MascotWardrobe.tsx",
+      "import": "WAHOO_ANIMATIONS",
+      "source": "../../types/wahoo.types"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\MascotWardrobe3D.tsx",
+      "import": "* as THREE",
+      "source": "three"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\MobileOptimizedRenderer.tsx",
+      "import": "* as THREE",
+      "source": "three"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\revision\\RevisionManager.tsx",
+      "import": "ProgressBar",
+      "source": "../ui/ProgressBar"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\routing\\AppRouter.tsx",
+      "import": "ExerciseEngine",
+      "source": "../exercise/ExerciseEngine"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\routing\\AppRouter.tsx",
+      "import": "ExercicePedagogique",
+      "source": "../../types/api.types"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\ui\\AdvancedMascotSystem.tsx",
+      "import": "* as THREE",
+      "source": "three"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\ui\\AdvancedParticleEngine.tsx",
+      "import": "getMotionSafeClasses",
+      "source": "../../utils/reducedMotionSupport"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\ui\\SparkyMascot3D.tsx",
+      "import": "* as THREE",
+      "source": "three"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\ui\\WardrobeSystem.tsx",
+      "import": "* as THREE",
+      "source": "three"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\WardrobeData.ts",
+      "import": "* as THREE",
+      "source": "three"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\__tests__\\Button.test.tsx",
+      "import": "fireEvent",
+      "source": "@testing-library/react"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\__tests__\\Header.test.tsx",
+      "import": "fireEvent",
+      "source": "@testing-library/react"
+    },
+    {
+      "type": "removed_import",
+      "file": "components\\__tests__\\Modal.test.tsx",
+      "import": "waitFor",
+      "source": "@testing-library/react"
+    },
+    {
+      "type": "removed_import",
+      "file": "hooks\\useAdaptiveLearning.ts",
+      "import": "AdaptiveExerciseResponse",
+      "source": "../services/exercise.service"
+    },
+    {
+      "type": "removed_import",
+      "file": "hooks\\useAdaptiveLearning.ts",
+      "import": "StudentProgress",
+      "source": "../services/adaptive-learning.service"
+    },
+    {
+      "type": "removed_import",
+      "file": "hooks\\useAuth.tsx",
+      "import": "apiService",
+      "source": "../services/api.service"
+    },
+    {
+      "type": "removed_import",
+      "file": "pages\\BreakGamesDemo.tsx",
+      "import": "AnimatePresence",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "pages\\CrossBrowserTestSuite.tsx",
+      "import": "AnimatePresence",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "pages\\ExerciseEngineTest.tsx",
+      "import": "AnimatePresence",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "pages\\Exercises.tsx",
+      "import": "AnimatePresence",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "pages\\Login.tsx",
+      "import": "AnimatePresence",
+      "source": "framer-motion"
+    },
+    {
+      "type": "removed_import",
+      "file": "pages\\Profile.tsx",
+      "import": "Eleve",
+      "source": "../types/api.types"
+    },
+    {
+      "type": "removed_import",
+      "file": "services\\api.service.ts",
+      "import": "PaginatedResponse",
+      "source": "../types/api.types"
+    },
+    {
+      "type": "removed_import",
+      "file": "services\\cp2025.service.ts",
+      "import": "NiveauScolaire",
+      "source": "../types/cp2025.types"
+    },
+    {
+      "type": "removed_import",
+      "file": "services\\cp2025.service.ts",
+      "import": "Matiere",
+      "source": "../types/cp2025.types"
+    },
+    {
+      "type": "removed_import",
+      "file": "services\\revision.service.ts",
+      "import": "ApiResponse",
+      "source": "../types/api.types"
+    },
+    {
+      "type": "removed_import",
+      "file": "services\\TutorialService.ts",
+      "import": "AchievementReward",
+      "source": "../types/wahoo.types"
+    },
+    {
+      "type": "removed_import",
+      "file": "services\\WahooEngine.ts",
+      "import": "WahooIntensity",
+      "source": "../types/wahoo.types"
+    },
+    {
+      "type": "removed_import",
+      "file": "tests\\test-utils.tsx",
+      "import": "GDPRProvider",
+      "source": "../contexts/GDPRContext"
+    },
+    {
+      "type": "removed_import",
+      "file": "utils\\analytics.ts",
+      "import": "* as Sentry",
+      "source": "@sentry/react"
+    },
+    {
+      "type": "removed_import",
+      "file": "utils\\secureAssetLoader.ts",
+      "import": "* as THREE",
+      "source": "three"
+    },
+    {
+      "type": "removed_import",
+      "file": "utils\\sentry.ts",
+      "import": "* as Sentry",
+      "source": "@sentry/react"
+    },
+    {
+      "type": "removed_import",
+      "file": "utils\\threeMemoryManager.ts",
+      "import": "* as THREE",
+      "source": "three"
+    },
+    {
+      "type": "removed_function",
+      "file": "components\\optimization\\LazyRoutes.tsx",
+      "function": "LazyRoute"
+    },
+    {
+      "type": "removed_function",
+      "file": "components\\optimization\\LazyRoutes.tsx",
+      "function": "preloadBasedOnInteraction"
+    },
+    {
+      "type": "removed_function",
+      "file": "components\\optimization\\LazyRoutes.tsx",
+      "function": "monitorLazyLoadingPerformance"
+    },
+    {
+      "type": "removed_function",
+      "file": "data\\mascotCollection.ts",
+      "function": "getCollectionStats"
+    },
+    {
+      "type": "removed_function",
+      "file": "gdpr\\index.ts",
+      "function": "createGDPRWrapper"
+    },
+    {
+      "type": "removed_function",
+      "file": "gdpr\\index.ts",
+      "function": "StudentProfile"
+    },
+    {
+      "type": "removed_function",
+      "file": "gdpr\\index.ts",
+      "function": "DataExportButton"
+    },
+    {
+      "type": "removed_function",
+      "file": "gdpr\\index.ts",
+      "function": "GDPRRequestForm"
+    },
+    {
+      "type": "removed_function",
+      "file": "pages\\Dashboard.tsx",
+      "function": "getProgressPercentage"
+    },
+    {
+      "type": "removed_function",
+      "file": "tests\\test-utils.tsx",
+      "function": "toBeAccessible"
+    },
+    {
+      "type": "removed_function",
+      "file": "tests\\test-utils.tsx",
+      "function": "getByAriaLabel"
+    },
+    {
+      "type": "removed_function",
+      "file": "tests\\test-utils.tsx",
+      "function": "tabToNextElement"
+    },
+    {
+      "type": "removed_function",
+      "file": "tests\\test-utils.tsx",
+      "function": "tabToPreviousElement"
+    },
+    {
+      "type": "removed_function",
+      "file": "tests\\test-utils.tsx",
+      "function": "setViewportSize"
+    },
+    {
+      "type": "removed_function",
+      "file": "tests\\test-utils.tsx",
+      "function": "waitForAnimation"
+    },
+    {
+      "type": "removed_function",
+      "file": "utils\\accessibility.ts",
+      "function": "createSkipLink"
+    },
+    {
+      "type": "removed_function",
+      "file": "utils\\browserCompatibility.ts",
+      "function": "getOptimalRenderSettings"
+    },
+    {
+      "type": "removed_function",
+      "file": "utils\\bundleOptimized.ts",
+      "function": "initializeOptimizations"
+    },
+    {
+      "type": "removed_function",
+      "file": "utils\\lazyOptimized.tsx",
+      "function": "LazyWrapper"
+    },
+    {
+      "type": "removed_function",
+      "file": "utils\\sentry.ts",
+      "function": "reportMessage"
+    },
+    {
+      "type": "removed_function",
+      "file": "utils\\sentry.ts",
+      "function": "setUserContext"
+    },
+    {
+      "type": "removed_function",
+      "file": "utils\\sentry.ts",
+      "function": "clearUserContext"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\AIPersonalityTester.tsx",
+      "from": "AIPersonalityTester",
+      "to": "aIPersonalityTester"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\analytics\\AnalyticsDashboard.tsx",
+      "from": "AnalyticsDashboard",
+      "to": "analyticsDashboard"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\analytics\\AnalyticsDashboard.tsx",
+      "from": "OverviewTab",
+      "to": "overviewTab"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\analytics\\AnalyticsDashboard.tsx",
+      "from": "XPAnalyticsTab",
+      "to": "xPAnalyticsTab"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\analytics\\AnalyticsDashboard.tsx",
+      "from": "ErrorAnalyticsTab",
+      "to": "errorAnalyticsTab"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\analytics\\AnalyticsDashboard.tsx",
+      "from": "MetricCard",
+      "to": "metricCard"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\CP2025Demo.tsx",
+      "from": "CP2025Demo",
+      "to": "cP2025Demo"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\CP2025ExtendedDemo.tsx",
+      "from": "CP2025ExtendedDemo",
+      "to": "cP2025ExtendedDemo"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\CP2025UsageExample.tsx",
+      "from": "CP2025UsageExample",
+      "to": "cP2025UsageExample"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\dashboard\\AchievementBadges.tsx",
+      "from": "AchievementBadges",
+      "to": "achievementBadges"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\dashboard\\AnalyticsCharts.tsx",
+      "from": "AnalyticsCharts",
+      "to": "analyticsCharts"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\dashboard\\EducationalDashboard.tsx",
+      "from": "CompetencyCard",
+      "to": "competencyCard"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\dashboard\\EducationalDashboard.tsx",
+      "from": "EngagementAnalyzer",
+      "to": "engagementAnalyzer"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\dashboard\\MasteryLevelsCard.tsx",
+      "from": "MasteryLevelsCard",
+      "to": "masteryLevelsCard"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\dashboard\\StudentDashboard.tsx",
+      "from": "StudentDashboard",
+      "to": "studentDashboard"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\dashboard\\StudentDashboard.tsx",
+      "from": "StatCard",
+      "to": "statCard"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\dashboard\\StudentDashboard.tsx",
+      "from": "GoalCard",
+      "to": "goalCard"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\debug\\AIStateVisualizationDashboard.tsx",
+      "from": "OverviewTab",
+      "to": "overviewTab"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\debug\\AIStateVisualizationDashboard.tsx",
+      "from": "BehaviorTab",
+      "to": "behaviorTab"
+    },
+    {
+      "type": "renamed_variable",
+      "file": "components\\debug\\AIStateVisualizationDashboard.tsx",
+      "from": "MemoryTab",
+      "to": "memoryTab"
+    },
+    {
+      "type": "created_utilities",
+      "file": "utils/commonUtils.ts",
+      "description": "Created common utility functions"
+    }
+  ],
+  "summary": {
+    "removed_import": 54,
+    "removed_function": 22,
+    "renamed_variable": 20,
+    "created_utilities": 1
+  }
+}

@@ -134,8 +134,8 @@ describe('Validation Utils', () => {
     });
 
     it('should reject name that is too long', () => {
-      const longName = 'A'.repeat(51);
-      const errors = validateStudentName(longName);
+      const LONG_NAME = 'A'.repeat(51);
+      const errors = validateStudentName(LONG_NAME);
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toBe('Name must be less than 50 characters');
     });
@@ -196,8 +196,8 @@ describe('Validation Utils', () => {
     });
 
     it('should reject response that is too long', () => {
-      const longResponse = 'A'.repeat(1001);
-      const errors = validateExerciseResponse(longResponse);
+      const LONG_RESPONSE = 'A'.repeat(1001);
+      const errors = validateExerciseResponse(LONG_RESPONSE);
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toBe('Response is too long');
     });

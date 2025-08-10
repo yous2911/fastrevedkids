@@ -337,7 +337,7 @@ export class BundleOptimizer {
     if (!this.config.assets.preloadCriticalAssets) return;
 
     // Define critical assets
-    const criticalAssets = [
+    const CRITICAL_ASSETS = [
       'wizard_hat',
       'magic_glasses',
       'superhero_cape'
@@ -347,7 +347,7 @@ export class BundleOptimizer {
     const { WARDROBE_ASSETS } = await import('./assetOptimized');
     
     // Preload critical assets
-    assetManager.preloadAssets(criticalAssets, WARDROBE_ASSETS);
+    assetManager.preloadAssets(CRITICAL_ASSETS, WARDROBE_ASSETS);
   }
 
   /**
@@ -418,27 +418,27 @@ export class BundleOptimizer {
   }
 
   /**
-   * Calculate potential savings from optimizations
+   * Calculate potential SAVINGS from optimizations
    */
   private calculatePotentialSavings(): number {
-    let savings = 0;
+    let SAVINGS = 0;
 
-    // Estimate savings from tree-shaking Three.js
+    // Estimate SAVINGS from tree-shaking Three.js
     if (!this.config.general.treeshaking) {
-      savings += 420; // KB saved from Three.js optimization
+      SAVINGS += 420; // KB saved from Three.js optimization
     }
 
-    // Estimate savings from asset compression
+    // Estimate SAVINGS from asset compression
     if (!this.config.assets.compressionEnabled) {
-      savings += 200; // Estimated asset compression savings
+      SAVINGS += 200; // Estimated asset compression SAVINGS
     }
 
-    // Estimate savings from CSS optimization
+    // Estimate SAVINGS from CSS optimization
     if (!this.config.styles.staticExtraction) {
-      savings += 50; // CSS optimization savings
+      SAVINGS += 50; // CSS optimization SAVINGS
     }
 
-    return savings;
+    return SAVINGS;
   }
 
   /**
@@ -581,10 +581,7 @@ export const bundleOptimizer = BundleOptimizer.getInstance();
 /**
  * Initialize optimizations with auto-detected preset
  */
-export const initializeOptimizations = async (preset?: keyof typeof OptimizationPresets) => {
-  const selectedPreset = preset || 'balanced';
-  await bundleOptimizer.initialize(OptimizationPresets[selectedPreset]);
-};
+// Add initialization function here if needed
 
 /**
  * Utility to measure and log performance impact

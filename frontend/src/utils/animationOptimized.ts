@@ -154,7 +154,7 @@ export class AnimationFrameManager {
     
     this.isRunning = true;
     this.lastFrameTime = performance.now();
-    this.animate();
+    this.rafId = requestAnimationFrame(this.animate);
   }
 
   /**
@@ -205,18 +205,18 @@ export class AnimationFrameManager {
     const sortedCallbacks = Array.from(this.callbacks.values())
       .filter(cb => cb.active)
       .sort((a, b) => {
-        const priorityOrder = { high: 0, medium: 1, low: 2 };
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
+        const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
+        return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
       });
 
-    let executedCallbacks = 0;
+    let EXECUTED_CALLBACKS = 0;
     const maxExecutionsPerFrame = this.getMaxExecutionsForMode();
 
     for (const callback of sortedCallbacks) {
       // Check if we should throttle this callback based on its target FPS
       if (callback.fps && callback.lastRun) {
-        const targetInterval = 1000 / callback.fps;
-        if (timestamp - callback.lastRun < targetInterval) {
+        const TARGET_INTERVAL = 1000 / callback.fps;
+        if (timestamp - callback.lastRun < TARGET_INTERVAL) {
           continue;
         }
       }
@@ -225,10 +225,10 @@ export class AnimationFrameManager {
       try {
         callback.callback(deltaTime, timestamp);
         callback.lastRun = timestamp;
-        executedCallbacks++;
+        EXECUTED_CALLBACKS++;
 
         // Limit executions per frame to prevent blocking
-        if (executedCallbacks >= maxExecutionsPerFrame) {
+        if (EXECUTED_CALLBACKS >= maxExecutionsPerFrame) {
           break;
         }
       } catch (error) {
@@ -294,9 +294,9 @@ export class AnimationFrameManager {
     // Decrease frame time target (increase FPS)
     const targetFPS = this.performanceMode === 'performance' ? 60 : 
                      this.performanceMode === 'balanced' ? 50 : 30;
-    const targetFrameTime = 1000 / targetFPS;
+    const TARGET_FRAME_TIME = 1000 / targetFPS;
     
-    this.maxFrameTime = Math.max(this.maxFrameTime * 0.95, targetFrameTime);
+    this.maxFrameTime = Math.max(this.maxFrameTime * 0.95, TARGET_FRAME_TIME);
   }
 
   /**
@@ -425,11 +425,11 @@ export class AnimationUtils {
     fps: number = 30
   ): (deltaTime: number) => void {
     let lastRun = 0;
-    const interval = 1000 / fps;
+    const INTERVAL = 1000 / fps;
 
     return (deltaTime: number) => {
       const now = performance.now();
-      if (now - lastRun >= interval) {
+      if (now - lastRun >= INTERVAL) {
         fn(deltaTime);
         lastRun = now;
       }

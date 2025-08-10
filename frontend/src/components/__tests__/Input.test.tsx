@@ -2,11 +2,11 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { mockFramerMotion, mockUseSound, mockUseHaptic } from '../../tests/mocks';
-import { Input, Textarea, SearchInput, validators } from '../ui/Input';
+import { MOCK_FRAMER_MOTION, mockUseSound, mockUseHaptic } from '../../tests/mocks';
+import { Input, Textarea, SearchInput, VALIDATORS } from '../ui/Input';
 
 // Mock framer-motion
-jest.mock('framer-motion', () => mockFramerMotion);
+jest.mock('framer-motion', () => MOCK_FRAMER_MOTION);
 
 // Mock hooks
 jest.mock('../../hooks/useSound', () => ({
@@ -56,9 +56,9 @@ describe('Input Component', () => {
   });
 
   describe('Variants', () => {
-    const variants = ['default', 'magical', 'outlined', 'filled'] as const;
+    const VARIANTS = ['default', 'magical', 'outlined', 'filled'] as const;
     
-    variants.forEach(variant => {
+    VARIANTS.forEach(variant => {
       it(`should render with ${variant} variant`, () => {
         render(<Input variant={variant} data-testid={`input-${variant}`} />);
         const input = screen.getByTestId(`input-${variant}`);
@@ -68,9 +68,9 @@ describe('Input Component', () => {
   });
 
   describe('Sizes', () => {
-    const sizes = ['sm', 'md', 'lg', 'xl'] as const;
+    const SIZES = ['sm', 'md', 'lg', 'xl'] as const;
     
-    sizes.forEach(size => {
+    SIZES.forEach(size => {
       it(`should render with ${size} size`, () => {
         render(<Input size={size} data-testid={`input-${size}`} />);
         const input = screen.getByTestId(`input-${size}`);
@@ -481,33 +481,33 @@ describe('SearchInput Component', () => {
 describe('Validators', () => {
   describe('required validator', () => {
     it('should return error for empty string', () => {
-      expect(validators.required('')).toBe('Ce champ est requis');
-      expect(validators.required('   ')).toBe('Ce champ est requis');
+      expect(VALIDATORS.required('')).toBe('Ce champ est requis');
+      expect(VALIDATORS.required('   ')).toBe('Ce champ est requis');
     });
 
     it('should return null for non-empty string', () => {
-      expect(validators.required('test')).toBeNull();
+      expect(VALIDATORS.required('test')).toBeNull();
     });
   });
 
   describe('email validator', () => {
     it('should validate correct email', () => {
-      expect(validators.email('test@example.com')).toBeNull();
+      expect(VALIDATORS.email('test@example.com')).toBeNull();
     });
 
     it('should return error for invalid email', () => {
-      expect(validators.email('invalid-email')).toBe('Adresse email invalide');
-      expect(validators.email('test@')).toBe('Adresse email invalide');
+      expect(VALIDATORS.email('invalid-email')).toBe('Adresse email invalide');
+      expect(VALIDATORS.email('test@')).toBe('Adresse email invalide');
     });
 
     it('should return null for empty string', () => {
-      expect(validators.email('')).toBeNull();
+      expect(VALIDATORS.email('')).toBeNull();
     });
   });
 
   describe('minLength validator', () => {
     it('should validate minimum length', () => {
-      const minLength5 = validators.minLength(5);
+      const minLength5 = VALIDATORS.minLength(5);
       expect(minLength5('test')).toBe('Minimum 5 caractères');
       expect(minLength5('testing')).toBeNull();
       expect(minLength5('')).toBeNull();
@@ -516,7 +516,7 @@ describe('Validators', () => {
 
   describe('maxLength validator', () => {
     it('should validate maximum length', () => {
-      const maxLength5 = validators.maxLength(5);
+      const maxLength5 = VALIDATORS.maxLength(5);
       expect(maxLength5('testing')).toBe('Maximum 5 caractères');
       expect(maxLength5('test')).toBeNull();
       expect(maxLength5('')).toBeNull();
@@ -525,7 +525,7 @@ describe('Validators', () => {
 
   describe('pattern validator', () => {
     it('should validate pattern', () => {
-      const phonePattern = validators.pattern(/^\d{10}$/, 'Invalid phone number');
+      const phonePattern = VALIDATORS.pattern(/^\d{10}$/, 'Invalid phone number');
       expect(phonePattern('1234567890')).toBeNull();
       expect(phonePattern('123')).toBe('Invalid phone number');
       expect(phonePattern('')).toBeNull();
@@ -534,18 +534,18 @@ describe('Validators', () => {
 
   describe('numeric validator', () => {
     it('should validate numeric input', () => {
-      expect(validators.numeric('123')).toBeNull();
-      expect(validators.numeric('abc')).toBe('Seuls les chiffres sont autorisés');
-      expect(validators.numeric('')).toBeNull();
+      expect(VALIDATORS.numeric('123')).toBeNull();
+      expect(VALIDATORS.numeric('abc')).toBe('Seuls les chiffres sont autorisés');
+      expect(VALIDATORS.numeric('')).toBeNull();
     });
   });
 
   describe('combine validator', () => {
-    it('should combine multiple validators', () => {
-      const combined = validators.combine(
-        validators.required,
-        validators.minLength(3),
-        validators.email
+    it('should combine multiple VALIDATORS', () => {
+      const combined = VALIDATORS.combine(
+        VALIDATORS.required,
+        VALIDATORS.minLength(3),
+        VALIDATORS.email
       );
       
       expect(combined('')).toBe('Ce champ est requis');

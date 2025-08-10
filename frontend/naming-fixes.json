@@ -1,0 +1,2141 @@
+{
+  "timestamp": "2025-08-09T11:41:36.338Z",
+  "fixes": [
+    {
+      "type": "file_rename",
+      "from": "useCP2025Backend.ts",
+      "to": "UseCP2025Backend.ts",
+      "path": "components\\handwriting\\hooks"
+    },
+    {
+      "type": "constant_rename",
+      "from": "energyChange",
+      "to": "ENERGY_CHANGE",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "attentionChange",
+      "to": "ATTENTION_CHANGE",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "moodTransitions",
+      "to": "MOOD_TRANSITIONS",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "xpMilestones",
+      "to": "XP_MILESTONES",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "headSize",
+      "to": "HEAD_SIZE",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "eyeSize",
+      "to": "EYE_SIZE",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "bodyWidth",
+      "to": "BODY_WIDTH",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "bodyScale",
+      "to": "BODY_SCALE",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "baseHue",
+      "to": "BASE_HUE",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "eyeSpread",
+      "to": "EYE_SPREAD",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "patienceScale",
+      "to": "PATIENCE_SCALE",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "particleCount",
+      "to": "PARTICLE_COUNT",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "intensityConfig",
+      "to": "INTENSITY_CONFIG",
+      "file": "components\\AdvancedParticleEngine.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "force",
+      "to": "FORCE",
+      "file": "components\\AdvancedParticleEngine.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sortedParticles",
+      "to": "SORTED_PARTICLES",
+      "file": "components\\AdvancedParticleEngine.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "alpha",
+      "to": "ALPHA",
+      "file": "components\\AdvancedParticleEngine.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "personalityProfiles",
+      "to": "PERSONALITY_PROFILES",
+      "file": "components\\AIPersonalityTester.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "score",
+      "to": "SCORE",
+      "file": "components\\AIPersonalityTester.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "colorClasses",
+      "to": "COLOR_CLASSES",
+      "file": "components\\analytics\\AnalyticsDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizeConfig",
+      "to": "SIZE_CONFIG",
+      "file": "components\\CrossBrowserMascot3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "qualityMultiplier",
+      "to": "QUALITY_MULTIPLIER",
+      "file": "components\\CrossBrowserMascot3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "colors",
+      "to": "COLORS",
+      "file": "components\\CrossBrowserMascot3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "emotionMultipliers",
+      "to": "EMOTION_MULTIPLIERS",
+      "file": "components\\CrossBrowserMascot3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "icons",
+      "to": "ICONS",
+      "file": "components\\dashboard\\AnalyticsCharts.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "colors",
+      "to": "COLORS",
+      "file": "components\\dashboard\\AnalyticsCharts.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "translations",
+      "to": "TRANSLATIONS",
+      "file": "components\\dashboard\\EducationalDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "educationalInsights",
+      "to": "EDUCATIONAL_INSIGHTS",
+      "file": "components\\dashboard\\EducationalDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "baseVelocity",
+      "to": "BASE_VELOCITY",
+      "file": "components\\dashboard\\EducationalDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "tabs",
+      "to": "TABS",
+      "file": "components\\dashboard\\EducationalDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "stats",
+      "to": "STATS",
+      "file": "components\\dashboard\\MasteryLevelsCard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "competences",
+      "to": "COMPETENCES",
+      "file": "components\\dashboard\\PrerequisiteVisualization.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "messages",
+      "to": "MESSAGES",
+      "file": "components\\dashboard\\StudentDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "icons",
+      "to": "ICONS",
+      "file": "components\\dashboard\\StudentDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "labels",
+      "to": "LABELS",
+      "file": "components\\dashboard\\StudentDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "positive",
+      "to": "POSITIVE",
+      "file": "components\\debug\\AIStateVisualizationDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "negative",
+      "to": "NEGATIVE",
+      "file": "components\\debug\\AIStateVisualizationDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "high",
+      "to": "HIGH",
+      "file": "components\\debug\\AIStateVisualizationDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "radius",
+      "to": "RADIUS",
+      "file": "components\\debug\\AIStateVisualizationDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "prevX",
+      "to": "PREV_X",
+      "file": "components\\debug\\AIStateVisualizationDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "newControls",
+      "to": "NEW_CONTROLS",
+      "file": "components\\debug\\Scene3DInspector.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "newLights",
+      "to": "NEW_LIGHTS",
+      "file": "components\\debug\\Scene3DInspector.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "colors",
+      "to": "COLORS",
+      "file": "components\\debug\\WardrobeTestingInterface.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "icons",
+      "to": "ICONS",
+      "file": "components\\debug\\WardrobeTestingInterface.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "newParams",
+      "to": "NEW_PARAMS",
+      "file": "components\\debug\\XPSystemDebugPanel.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "newEvents",
+      "to": "NEW_EVENTS",
+      "file": "components\\debug\\XPSystemDebugPanel.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "newPresets",
+      "to": "NEW_PRESETS",
+      "file": "components\\debug\\XPSystemDebugPanel.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "errorReport",
+      "to": "ERROR_REPORT",
+      "file": "components\\error\\ThreeDErrorBoundary.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "difficultyColors",
+      "to": "DIFFICULTY_COLORS",
+      "file": "components\\exercise\\ExerciseCard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "typeIcons",
+      "to": "TYPE_ICONS",
+      "file": "components\\exercise\\ExerciseCard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "baseStyles",
+      "to": "BASE_STYLES",
+      "file": "components\\exercise\\types\\ExerciseQCM.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "variantStyles",
+      "to": "VARIANT_STYLES",
+      "file": "components\\exercise\\types\\ExerciseQCM.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mascotColors",
+      "to": "MASCOT_COLORS",
+      "file": "components\\fallback\\Canvas2DRenderer.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "emotionModifiers",
+      "to": "EMOTION_MODIFIERS",
+      "file": "components\\fallback\\Canvas2DRenderer.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizeConfig",
+      "to": "SIZE_CONFIG",
+      "file": "components\\fallback\\FallbackUISystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "typeConfig",
+      "to": "TYPE_CONFIG",
+      "file": "components\\fallback\\FallbackUISystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "contextOptions",
+      "to": "CONTEXT_OPTIONS",
+      "file": "components\\fallback\\FallbackUISystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "exercises",
+      "to": "EXERCISES",
+      "file": "components\\games\\EnhancedMathGame.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "newStone",
+      "to": "NEW_STONE",
+      "file": "components\\games\\FrenchMathsGame.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "newSolution",
+      "to": "NEW_SOLUTION",
+      "file": "components\\games\\FrenchMathsGame.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "stats",
+      "to": "STATS",
+      "file": "components\\games\\FrenchMathsGame.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "challengeResult",
+      "to": "CHALLENGE_RESULT",
+      "file": "components\\games\\FrenchPhonicsGame.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "alphabet",
+      "to": "ALPHABET",
+      "file": "components\\games\\MysteryWordGame.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mistakeElements",
+      "to": "MISTAKE_ELEMENTS",
+      "file": "components\\games\\MysteryWordGame.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "newGuessedLetters",
+      "to": "NEW_GUESSED_LETTERS",
+      "file": "components\\games\\MysteryWordGame.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "data",
+      "to": "DATA",
+      "file": "components\\gdpr\\GDPRDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "generalSounds",
+      "to": "GENERAL_SOUNDS",
+      "file": "components\\handwriting\\utils\\AudioManager.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "phonemes",
+      "to": "PHONEMES",
+      "file": "components\\handwriting\\utils\\AudioManager.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "proximityScore",
+      "to": "PROXIMITY_SCORE",
+      "file": "components\\handwriting\\utils\\EvaluationSystem.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "weights",
+      "to": "WEIGHTS",
+      "file": "components\\handwriting\\utils\\EvaluationSystem.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "headSize",
+      "to": "HEAD_SIZE",
+      "file": "components\\HybridMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "eyeSize",
+      "to": "EYE_SIZE",
+      "file": "components\\HybridMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "bodyScale",
+      "to": "BODY_SCALE",
+      "file": "components\\HybridMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "particleCount",
+      "to": "PARTICLE_COUNT",
+      "file": "components\\HybridMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "defaultSidebarItems",
+      "to": "DEFAULT_SIDEBAR_ITEMS",
+      "file": "components\\layout\\Layout.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "rarityColors",
+      "to": "RARITY_COLORS",
+      "file": "components\\mascot\\MascotWardrobe.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "rarityLabels",
+      "to": "RARITY_LABELS",
+      "file": "components\\mascot\\MascotWardrobe.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizeConfig",
+      "to": "SIZE_CONFIG",
+      "file": "components\\MascotWardrobe3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mascotConfig",
+      "to": "MASCOT_CONFIG",
+      "file": "components\\MascotWardrobe3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "itemCompatibility",
+      "to": "ITEM_COMPATIBILITY",
+      "file": "components\\MascotWardrobe3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mascotDescriptions",
+      "to": "MASCOT_DESCRIPTIONS",
+      "file": "components\\MascotWardrobe3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "emotionDescriptions",
+      "to": "EMOTION_DESCRIPTIONS",
+      "file": "components\\MascotWardrobe3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "validTypes",
+      "to": "VALID_TYPES",
+      "file": "components\\MascotWardrobe3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "validItemIds",
+      "to": "VALID_ITEM_IDS",
+      "file": "components\\MascotWardrobe3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "colors",
+      "to": "COLORS",
+      "file": "components\\MascotWardrobe3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mouseInfluence",
+      "to": "MOUSE_INFLUENCE",
+      "file": "components\\MascotWardrobe3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "complexityDurations",
+      "to": "COMPLEXITY_DURATIONS",
+      "file": "components\\mobile\\BatteryOptimizedAnimations.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "baseAnimations",
+      "to": "BASE_ANIMATIONS",
+      "file": "components\\mobile\\BatteryOptimizedAnimations.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "themes",
+      "to": "THEMES",
+      "file": "components\\mobile\\MobileParticleSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "avgFPS",
+      "to": "AVG_FPS",
+      "file": "components\\mobile\\MobileParticleSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "qualityLevel",
+      "to": "QUALITY_LEVEL",
+      "file": "components\\MobileOptimizedRenderer.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "pool",
+      "to": "POOL",
+      "file": "components\\MobileOptimizedRenderer.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "targetFrameTime",
+      "to": "TARGET_FRAME_TIME",
+      "file": "components\\MobileOptimizedRenderer.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "emotionSpeed",
+      "to": "EMOTION_SPEED",
+      "file": "components\\MobileOptimizedRenderer.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizes",
+      "to": "SIZES",
+      "file": "components\\optimization\\OptimizationDashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "configs",
+      "to": "CONFIGS",
+      "file": "components\\physics\\PhysicsSystemManager.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "targetFrameTime",
+      "to": "TARGET_FRAME_TIME",
+      "file": "components\\physics\\PhysicsSystemManager.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "colors",
+      "to": "COLORS",
+      "file": "components\\physics\\PhysicsSystemManager.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "colors",
+      "to": "COLORS",
+      "file": "components\\routing\\AppRouter.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "checks",
+      "to": "CHECKS",
+      "file": "components\\SecurityHeaders\\SecurityHeaders.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "headSize",
+      "to": "HEAD_SIZE",
+      "file": "components\\ui\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "eyeSize",
+      "to": "EYE_SIZE",
+      "file": "components\\ui\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "bodyScale",
+      "to": "BODY_SCALE",
+      "file": "components\\ui\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "particleCount",
+      "to": "PARTICLE_COUNT",
+      "file": "components\\ui\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "intensityConfigs",
+      "to": "INTENSITY_CONFIGS",
+      "file": "components\\ui\\AdvancedParticleEngine.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "configs",
+      "to": "CONFIGS",
+      "file": "components\\ui\\AdvancedParticleEngine.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "baseClasses",
+      "to": "BASE_CLASSES",
+      "file": "components\\ui\\AnimatedCard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "variantClasses",
+      "to": "VARIANT_CLASSES",
+      "file": "components\\ui\\AnimatedCard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "variantClasses",
+      "to": "VARIANT_CLASSES",
+      "file": "components\\ui\\Button.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizeClasses",
+      "to": "SIZE_CLASSES",
+      "file": "components\\ui\\Button.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "baseClasses",
+      "to": "BASE_CLASSES",
+      "file": "components\\ui\\Button.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "classes",
+      "to": "CLASSES",
+      "file": "components\\ui\\Button.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "variantClasses",
+      "to": "VARIANT_CLASSES",
+      "file": "components\\ui\\Card.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "paddingClasses",
+      "to": "PADDING_CLASSES",
+      "file": "components\\ui\\Card.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "roundedClasses",
+      "to": "ROUNDED_CLASSES",
+      "file": "components\\ui\\Card.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "baseClasses",
+      "to": "BASE_CLASSES",
+      "file": "components\\ui\\Card.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "classes",
+      "to": "CLASSES",
+      "file": "components\\ui\\Card.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "difficultyColors",
+      "to": "DIFFICULTY_COLORS",
+      "file": "components\\ui\\ExerciseCard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "difficultyIcons",
+      "to": "DIFFICULTY_ICONS",
+      "file": "components\\ui\\ExerciseCard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizeClasses",
+      "to": "SIZE_CLASSES",
+      "file": "components\\ui\\Header.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "variantClasses",
+      "to": "VARIANT_CLASSES",
+      "file": "components\\ui\\Header.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "validators",
+      "to": "VALIDATORS",
+      "file": "components\\ui\\Input.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizeClasses",
+      "to": "SIZE_CLASSES",
+      "file": "components\\ui\\LoadingSpinner.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "colorClasses",
+      "to": "COLOR_CLASSES",
+      "file": "components\\ui\\LoadingSpinner.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizeClasses",
+      "to": "SIZE_CLASSES",
+      "file": "components\\ui\\Modal.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "themes",
+      "to": "THEMES",
+      "file": "components\\ui\\NextLevelXPSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "waveFrequency",
+      "to": "WAVE_FREQUENCY",
+      "file": "components\\ui\\NextLevelXPSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "newFloating",
+      "to": "NEW_FLOATING",
+      "file": "components\\ui\\NextLevelXPSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "milestones",
+      "to": "MILESTONES",
+      "file": "components\\ui\\NextLevelXPSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizeClasses",
+      "to": "SIZE_CLASSES",
+      "file": "components\\ui\\ProgressBar.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "variantClasses",
+      "to": "VARIANT_CLASSES",
+      "file": "components\\ui\\ProgressBar.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "configs",
+      "to": "CONFIGS",
+      "file": "components\\ui\\RobustXPSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "themes",
+      "to": "THEMES",
+      "file": "components\\ui\\RobustXPSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "particleCount",
+      "to": "PARTICLE_COUNT",
+      "file": "components\\ui\\SparkyMascot3D.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "typeStyles",
+      "to": "TYPE_STYLES",
+      "file": "components\\ui\\Toast.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "typeIcons",
+      "to": "TYPE_ICONS",
+      "file": "components\\ui\\Toast.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "positionStyles",
+      "to": "POSITION_STYLES",
+      "file": "components\\ui\\Toast.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizeClasses",
+      "to": "SIZE_CLASSES",
+      "file": "components\\ui\\Toast.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sparkleCount",
+      "to": "SPARKLE_COUNT",
+      "file": "components\\ui\\Toast.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "magicEmojis",
+      "to": "MAGIC_EMOJIS",
+      "file": "components\\ui\\Toast.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "particleCount",
+      "to": "PARTICLE_COUNT",
+      "file": "components\\ui\\Toast.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "celebrationEmojis",
+      "to": "CELEBRATION_EMOJIS",
+      "file": "components\\ui\\Toast.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "baseClasses",
+      "to": "BASE_CLASSES",
+      "file": "components\\ui\\Toast.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "rarityColors",
+      "to": "RARITY_COLORS",
+      "file": "components\\ui\\WardrobeSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "categories",
+      "to": "CATEGORIES",
+      "file": "components\\ui\\WardrobeSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "rarityColors",
+      "to": "RARITY_COLORS",
+      "file": "components\\WardrobeSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "categories",
+      "to": "CATEGORIES",
+      "file": "components\\WardrobeSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "variants",
+      "to": "VARIANTS",
+      "file": "components\\__tests__\\Button.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizes",
+      "to": "SIZES",
+      "file": "components\\__tests__\\Button.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "variants",
+      "to": "VARIANTS",
+      "file": "components\\__tests__\\Card.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "paddings",
+      "to": "PADDINGS",
+      "file": "components\\__tests__\\Card.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "roundedOptions",
+      "to": "ROUNDED_OPTIONS",
+      "file": "components\\__tests__\\Card.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "cardProps",
+      "to": "CARD_PROPS",
+      "file": "components\\__tests__\\Card.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "defaultConsent",
+      "to": "DEFAULT_CONSENT",
+      "file": "components\\__tests__\\ConsentBanner.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockStudent",
+      "to": "MOCK_STUDENT",
+      "file": "components\\__tests__\\Dashboard.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockProps",
+      "to": "MOCK_PROPS",
+      "file": "components\\__tests__\\Dashboard.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "propsWithoutRecommendations",
+      "to": "PROPS_WITHOUT_RECOMMENDATIONS",
+      "file": "components\\__tests__\\Dashboard.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "minimalStudent",
+      "to": "MINIMAL_STUDENT",
+      "file": "components\\__tests__\\Dashboard.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "minimalProps",
+      "to": "MINIMAL_PROPS",
+      "file": "components\\__tests__\\Dashboard.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockExercise",
+      "to": "MOCK_EXERCISE",
+      "file": "components\\__tests__\\ExerciseCard.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "dragDropExercise",
+      "to": "DRAG_DROP_EXERCISE",
+      "file": "components\\__tests__\\ExerciseCard.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "hardExercise",
+      "to": "HARD_EXERCISE",
+      "file": "components\\__tests__\\ExerciseCard.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "readingExercise",
+      "to": "READING_EXERCISE",
+      "file": "components\\__tests__\\ExerciseCard.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "highPointExercise",
+      "to": "HIGH_POINT_EXERCISE",
+      "file": "components\\__tests__\\ExerciseCard.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mascotTypes",
+      "to": "MASCOT_TYPES",
+      "file": "components\\__tests__\\Header.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "longTitle",
+      "to": "LONG_TITLE",
+      "file": "components\\__tests__\\Header.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "variants",
+      "to": "VARIANTS",
+      "file": "components\\__tests__\\Input.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizes",
+      "to": "SIZES",
+      "file": "components\\__tests__\\Input.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizes",
+      "to": "SIZES",
+      "file": "components\\__tests__\\LoadingSpinner.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "variants",
+      "to": "VARIANTS",
+      "file": "components\\__tests__\\LoadingSpinner.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "longMessage",
+      "to": "LONG_MESSAGE",
+      "file": "components\\__tests__\\LoadingSpinner.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "specialMessage",
+      "to": "SPECIAL_MESSAGE",
+      "file": "components\\__tests__\\LoadingSpinner.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizes",
+      "to": "SIZES",
+      "file": "components\\__tests__\\Modal.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizes",
+      "to": "SIZES",
+      "file": "components\\__tests__\\ProgressBar.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mascotTypes",
+      "to": "MASCOT_TYPES",
+      "file": "components\\__tests__\\Sidebar.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "itemsWithoutBadges",
+      "to": "ITEMS_WITHOUT_BADGES",
+      "file": "components\\__tests__\\Sidebar.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "longLabelItems",
+      "to": "LONG_LABEL_ITEMS",
+      "file": "components\\__tests__\\Sidebar.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "defaultProps",
+      "to": "DEFAULT_PROPS",
+      "file": "components\\__tests__\\Toast.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "types",
+      "to": "TYPES",
+      "file": "components\\__tests__\\Toast.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "positions",
+      "to": "POSITIONS",
+      "file": "components\\__tests__\\Toast.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "longMessage",
+      "to": "LONG_MESSAGE",
+      "file": "components\\__tests__\\Toast.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "specialMessage",
+      "to": "SPECIAL_MESSAGE",
+      "file": "components\\__tests__\\Toast.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "initialRefs",
+      "to": "INITIAL_REFS",
+      "file": "components\\__tests__\\Toast.test.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "operationWithId",
+      "to": "OPERATION_WITH_ID",
+      "file": "context\\AppContext.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "typeBreakdown",
+      "to": "TYPE_BREAKDOWN",
+      "file": "data\\mascotCollection.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "defaultGDPRConfig",
+      "to": "DEFAULT_GDPRCONFIG",
+      "file": "gdpr\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "finalConfig",
+      "to": "FINAL_CONFIG",
+      "file": "gdpr\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "quickValidation",
+      "to": "QUICK_VALIDATION",
+      "file": "gdpr\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "baseVelocity",
+      "to": "BASE_VELOCITY",
+      "file": "hooks\\useEducationalDashboard.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "baseHappiness",
+      "to": "BASE_HAPPINESS",
+      "file": "hooks\\useEducationalDashboard.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "exportRecord",
+      "to": "EXPORT_RECORD",
+      "file": "hooks\\useGDPR.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "notification",
+      "to": "NOTIFICATION",
+      "file": "hooks\\useGDPRUtils.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "isSupported",
+      "to": "IS_SUPPORTED",
+      "file": "hooks\\useKioskMode.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "blockedKeys",
+      "to": "BLOCKED_KEYS",
+      "file": "hooks\\useKioskMode.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "offlineResult",
+      "to": "OFFLINE_RESULT",
+      "file": "hooks\\useOfflineSupport.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "updatedData",
+      "to": "UPDATED_DATA",
+      "file": "hooks\\useStudentData.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "tabs",
+      "to": "TABS",
+      "file": "pages\\AdminPanel.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "directions",
+      "to": "DIRECTIONS",
+      "file": "pages\\BreakGamesDemo.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "newSequence",
+      "to": "NEW_SEQUENCE",
+      "file": "pages\\BreakGamesDemo.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "newPlayerSequence",
+      "to": "NEW_PLAYER_SEQUENCE",
+      "file": "pages\\BreakGamesDemo.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "testScenarios",
+      "to": "TEST_SCENARIOS",
+      "file": "pages\\CrossBrowserTestSuite.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "tests",
+      "to": "TESTS",
+      "file": "pages\\CrossBrowserTestSuite.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockStats",
+      "to": "MOCK_STATS",
+      "file": "pages\\Dashboard.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "types",
+      "to": "TYPES",
+      "file": "pages\\ExerciseEngineTest.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "colors",
+      "to": "COLORS",
+      "file": "pages\\ExerciseEngineTest.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "commonProps",
+      "to": "COMMON_PROPS",
+      "file": "pages\\ExerciseEngineTest.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "subjects",
+      "to": "SUBJECTS",
+      "file": "pages\\Exercises.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "difficulties",
+      "to": "DIFFICULTIES",
+      "file": "pages\\Exercises.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "exerciseTypes",
+      "to": "EXERCISE_TYPES",
+      "file": "pages\\Exercises.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mascots",
+      "to": "MASCOTS",
+      "file": "pages\\Login.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mascots",
+      "to": "MASCOTS",
+      "file": "pages\\Profile.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "updatedStudent",
+      "to": "UPDATED_STUDENT",
+      "file": "pages\\Profile.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "tabs",
+      "to": "TABS",
+      "file": "pages\\Progress.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "availableItems",
+      "to": "AVAILABLE_ITEMS",
+      "file": "pages\\WardrobeSystemTest.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "shuffled",
+      "to": "SHUFFLED",
+      "file": "pages\\WardrobeSystemTest.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "consecutive",
+      "to": "CONSECUTIVE",
+      "file": "services\\adaptive-learning.service.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "possibleUrls",
+      "to": "POSSIBLE_URLS",
+      "file": "services\\api.service.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "attempt",
+      "to": "ATTEMPT",
+      "file": "services\\api.service.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "totalSize",
+      "to": "TOTAL_SIZE",
+      "file": "services\\api.service.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "consecutive",
+      "to": "CONSECUTIVE",
+      "file": "services\\exercise.service.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "cacheData",
+      "to": "CACHE_DATA",
+      "file": "services\\mathsService.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "celebration",
+      "to": "CELEBRATION",
+      "file": "services\\TutorialService.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockApiService",
+      "to": "MOCK_API_SERVICE",
+      "file": "services\\__tests__\\adaptive-learning.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "profileUpdates",
+      "to": "PROFILE_UPDATES",
+      "file": "services\\__tests__\\adaptive-learning.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockCalibration",
+      "to": "MOCK_CALIBRATION",
+      "file": "services\\__tests__\\adaptive-learning.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockPrediction",
+      "to": "MOCK_PREDICTION",
+      "file": "services\\__tests__\\adaptive-learning.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockStudent",
+      "to": "MOCK_STUDENT",
+      "file": "services\\__tests__\\student.service.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockRecommendations",
+      "to": "MOCK_RECOMMENDATIONS",
+      "file": "services\\__tests__\\student.service.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "attempt",
+      "to": "ATTEMPT",
+      "file": "services\\__tests__\\student.service.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "invalidAttempt",
+      "to": "INVALID_ATTEMPT",
+      "file": "services\\__tests__\\student.service.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockProgress",
+      "to": "MOCK_PROGRESS",
+      "file": "services\\__tests__\\student.service.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockStats",
+      "to": "MOCK_STATS",
+      "file": "services\\__tests__\\student.service.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockAchievements",
+      "to": "MOCK_ACHIEVEMENTS",
+      "file": "services\\__tests__\\student.service.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockStreak",
+      "to": "MOCK_STREAK",
+      "file": "services\\__tests__\\student.service.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "activity",
+      "to": "ACTIVITY",
+      "file": "services\\__tests__\\student.service.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockFramerMotion",
+      "to": "MOCK_FRAMER_MOTION",
+      "file": "tests\\mocks\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockThree",
+      "to": "MOCK_THREE",
+      "file": "tests\\mocks\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockHowler",
+      "to": "MOCK_HOWLER",
+      "file": "tests\\mocks\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockLocalStorage",
+      "to": "MOCK_LOCAL_STORAGE",
+      "file": "tests\\mocks\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockSessionStorage",
+      "to": "MOCK_SESSION_STORAGE",
+      "file": "tests\\mocks\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockMediaDevices",
+      "to": "MOCK_MEDIA_DEVICES",
+      "file": "tests\\mocks\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockGeolocation",
+      "to": "MOCK_GEOLOCATION",
+      "file": "tests\\mocks\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockClipboard",
+      "to": "MOCK_CLIPBOARD",
+      "file": "tests\\mocks\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "testData",
+      "to": "TEST_DATA",
+      "file": "tests\\mocks\\index.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockStudent",
+      "to": "MOCK_STUDENT",
+      "file": "tests\\test-utils.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockExercise",
+      "to": "MOCK_EXERCISE",
+      "file": "tests\\test-utils.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "browsers",
+      "to": "BROWSERS",
+      "file": "tests\\test-utils.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mockAudioContext",
+      "to": "MOCK_AUDIO_CONTEXT",
+      "file": "tests\\test-utils.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "wcagColors",
+      "to": "WCAG_COLORS",
+      "file": "utils\\accessibility.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "focusableElements",
+      "to": "FOCUSABLE_ELEMENTS",
+      "file": "utils\\accessibility.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "generateAriaLabel",
+      "to": "GENERATE_ARIA_LABEL",
+      "file": "utils\\accessibility.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "data",
+      "to": "DATA",
+      "file": "utils\\analytics.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "criticalErrorCount",
+      "to": "CRITICAL_ERROR_COUNT",
+      "file": "utils\\analyticsSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "combined",
+      "to": "COMBINED",
+      "file": "utils\\analyticsSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "analytics",
+      "to": "ANALYTICS",
+      "file": "utils\\analyticsSystem.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "priorityOrder",
+      "to": "PRIORITY_ORDER",
+      "file": "utils\\animationOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "executedCallbacks",
+      "to": "EXECUTED_CALLBACKS",
+      "file": "utils\\animationOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "targetInterval",
+      "to": "TARGET_INTERVAL",
+      "file": "utils\\animationOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "targetFrameTime",
+      "to": "TARGET_FRAME_TIME",
+      "file": "utils\\animationOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "interval",
+      "to": "INTERVAL",
+      "file": "utils\\animationOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "priorityOrder",
+      "to": "PRIORITY_ORDER",
+      "file": "utils\\assetOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "concurrentLoads",
+      "to": "CONCURRENT_LOADS",
+      "file": "utils\\assetOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "formats",
+      "to": "FORMATS",
+      "file": "utils\\assetOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizeThreshold",
+      "to": "SIZE_THRESHOLD",
+      "file": "utils\\assetOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "fileSizeThreshold",
+      "to": "FILE_SIZE_THRESHOLD",
+      "file": "utils\\assetOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "bytesPerPixel",
+      "to": "BYTES_PER_PIXEL",
+      "file": "utils\\assetOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "totalSize",
+      "to": "TOTAL_SIZE",
+      "file": "utils\\assetOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "removedSize",
+      "to": "REMOVED_SIZE",
+      "file": "utils\\assetOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "settings",
+      "to": "SETTINGS",
+      "file": "utils\\browserCompatibility.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "criticalAssets",
+      "to": "CRITICAL_ASSETS",
+      "file": "utils\\bundleOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "savings",
+      "to": "SAVINGS",
+      "file": "utils\\bundleOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "totalSize",
+      "to": "TOTAL_SIZE",
+      "file": "utils\\bundleOptimizer.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "suspectedUnused",
+      "to": "SUSPECTED_UNUSED",
+      "file": "utils\\bundleOptimizer.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "candidates",
+      "to": "CANDIDATES",
+      "file": "utils\\bundleOptimizer.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "clonedObj",
+      "to": "CLONED_OBJ",
+      "file": "utils\\commonUtils.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizes",
+      "to": "SIZES",
+      "file": "utils\\commonUtils.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "score",
+      "to": "SCORE",
+      "file": "utils\\componentLoadTimeMonitor.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "enhancedProps",
+      "to": "ENHANCED_PROPS",
+      "file": "utils\\componentLoadTimeMonitor.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "result",
+      "to": "RESULT",
+      "file": "utils\\crossDevicePerformanceTracker.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "triangleCount",
+      "to": "TRIANGLE_COUNT",
+      "file": "utils\\crossDevicePerformanceTracker.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "frameCount",
+      "to": "FRAME_COUNT",
+      "file": "utils\\crossDevicePerformanceTracker.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sensors",
+      "to": "SENSORS",
+      "file": "utils\\crossDevicePerformanceTracker.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "distribution",
+      "to": "DISTRIBUTION",
+      "file": "utils\\crossDevicePerformanceTracker.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "processed",
+      "to": "PROCESSED",
+      "file": "utils\\cssOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "optimizedMixins",
+      "to": "OPTIMIZED_MIXINS",
+      "file": "utils\\cssOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "responsive",
+      "to": "RESPONSIVE",
+      "file": "utils\\cssOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "distribution",
+      "to": "DISTRIBUTION",
+      "file": "utils\\errorTrackingSystem.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "retryCount",
+      "to": "RETRY_COUNT",
+      "file": "utils\\lazyLoading.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "highPriorityComponents",
+      "to": "HIGH_PRIORITY_COMPONENTS",
+      "file": "utils\\lazyLoading.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "lowPriorityComponents",
+      "to": "LOW_PRIORITY_COMPONENTS",
+      "file": "utils\\lazyLoading.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "attempt",
+      "to": "ATTEMPT",
+      "file": "utils\\lazyOptimized.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "concurrency",
+      "to": "CONCURRENCY",
+      "file": "utils\\lazyOptimized.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "suggestions",
+      "to": "SUGGESTIONS",
+      "file": "utils\\lazyOptimized.tsx"
+    },
+    {
+      "type": "constant_rename",
+      "from": "cleanedUp",
+      "to": "CLEANED_UP",
+      "file": "utils\\memoryLeakDetector.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "threshold",
+      "to": "THRESHOLD",
+      "file": "utils\\memoryLeakDetector.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "targetFrameTime",
+      "to": "TARGET_FRAME_TIME",
+      "file": "utils\\mobileFrameRate.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "priorities",
+      "to": "PRIORITIES",
+      "file": "utils\\mobileFrameRate.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "baseMax",
+      "to": "BASE_MAX",
+      "file": "utils\\mobileFrameRate.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "supportsPressure",
+      "to": "SUPPORTS_PRESSURE",
+      "file": "utils\\mobileOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "hasGyroscope",
+      "to": "HAS_GYROSCOPE",
+      "file": "utils\\mobileOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "hasAccelerometer",
+      "to": "HAS_ACCELEROMETER",
+      "file": "utils\\mobileOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "isTouchDevice",
+      "to": "IS_TOUCH_DEVICE",
+      "file": "utils\\mobileOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "frameCount",
+      "to": "FRAME_COUNT",
+      "file": "utils\\mobileOptimized.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "maxSamples",
+      "to": "MAX_SAMPLES",
+      "file": "utils\\mobileTouch.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "validators",
+      "to": "VALIDATORS",
+      "file": "utils\\propValidation.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "mediaQueries",
+      "to": "MEDIA_QUERIES",
+      "file": "utils\\reducedMotionSupport.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "animationConfigs",
+      "to": "ANIMATION_CONFIGS",
+      "file": "utils\\reducedMotionSupport.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "styles",
+      "to": "STYLES",
+      "file": "utils\\refactoredCommon.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "attempt",
+      "to": "ATTEMPT",
+      "file": "utils\\refactoredCommon.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "clonedObj",
+      "to": "CLONED_OBJ",
+      "file": "utils\\refactoredCommon.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "sizes",
+      "to": "SIZES",
+      "file": "utils\\refactoredCommon.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "storage",
+      "to": "STORAGE",
+      "file": "utils\\refactoredCommon.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "chars",
+      "to": "CHARS",
+      "file": "utils\\refactoredCommon.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "attempt",
+      "to": "ATTEMPT",
+      "file": "utils\\secureApi.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "requiredHeaders",
+      "to": "REQUIRED_HEADERS",
+      "file": "utils\\secureApi.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "suspiciousParams",
+      "to": "SUSPICIOUS_PARAMS",
+      "file": "utils\\secureAssetLoader.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "validExtensions",
+      "to": "VALID_EXTENSIONS",
+      "file": "utils\\secureAssetLoader.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "suspiciousPatterns",
+      "to": "SUSPICIOUS_PATTERNS",
+      "file": "utils\\secureAssetLoader.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "config",
+      "to": "CONFIG",
+      "file": "utils\\secureAssetLoader.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "attempt",
+      "to": "ATTEMPT",
+      "file": "utils\\secureAssetLoader.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "xssPatterns",
+      "to": "XSS_PATTERNS",
+      "file": "utils\\security.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "score",
+      "to": "SCORE",
+      "file": "utils\\security.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "validMascotTypes",
+      "to": "VALID_MASCOT_TYPES",
+      "file": "utils\\securityValidation.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "validEmotions",
+      "to": "VALID_EMOTIONS",
+      "file": "utils\\securityValidation.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "maxItems",
+      "to": "MAX_ITEMS",
+      "file": "utils\\securityValidation.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "allowedExtensions",
+      "to": "ALLOWED_EXTENSIONS",
+      "file": "utils\\securityValidation.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "geometries",
+      "to": "GEOMETRIES",
+      "file": "utils\\threeJsMemoryManager.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "materials",
+      "to": "MATERIALS",
+      "file": "utils\\threeJsMemoryManager.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "textures",
+      "to": "TEXTURES",
+      "file": "utils\\threeJsMemoryManager.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "size",
+      "to": "SIZE",
+      "file": "utils\\threeJsMemoryManager.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "bytesPerPixel",
+      "to": "BYTES_PER_PIXEL",
+      "file": "utils\\threeJsMemoryManager.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "totalAttempts",
+      "to": "TOTAL_ATTEMPTS",
+      "file": "utils\\wardrobeUnlockValidation.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "successfulUnlocks",
+      "to": "SUCCESSFUL_UNLOCKS",
+      "file": "utils\\wardrobeUnlockValidation.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "securityViolations",
+      "to": "SECURITY_VIOLATIONS",
+      "file": "utils\\wardrobeUnlockValidation.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "longName",
+      "to": "LONG_NAME",
+      "file": "utils\\__tests__\\validation.test.ts"
+    },
+    {
+      "type": "constant_rename",
+      "from": "longResponse",
+      "to": "LONG_RESPONSE",
+      "file": "utils\\__tests__\\validation.test.ts"
+    },
+    {
+      "type": "event_handler_rename",
+      "from": "relationshipChange",
+      "to": "handleRelationshipChange",
+      "file": "components\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "event_handler_rename",
+      "from": "energyChange",
+      "to": "handleEnergyChange",
+      "file": "components\\HybridMascotSystem.tsx"
+    },
+    {
+      "type": "event_handler_rename",
+      "from": "relationshipChange",
+      "to": "handleRelationshipChange",
+      "file": "components\\HybridMascotSystem.tsx"
+    },
+    {
+      "type": "event_handler_rename",
+      "from": "energyChange",
+      "to": "handleEnergyChange",
+      "file": "components\\ui\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "event_handler_rename",
+      "from": "relationshipChange",
+      "to": "handleRelationshipChange",
+      "file": "components\\ui\\AdvancedMascotSystem.tsx"
+    },
+    {
+      "type": "event_handler_rename",
+      "from": "mockOnConsentChange",
+      "to": "handleMockOnConsentChange",
+      "file": "components\\__tests__\\ConsentBanner.test.tsx"
+    },
+    {
+      "type": "event_handler_rename",
+      "from": "mockSubmit",
+      "to": "handleMockSubmit",
+      "file": "components\\__tests__\\Modal.test.tsx"
+    },
+    {
+      "type": "event_handler_rename",
+      "from": "nameInput",
+      "to": "handleNameInput",
+      "file": "components\\__tests__\\Modal.test.tsx"
+    },
+    {
+      "type": "interface_rename",
+      "from": "for",
+      "to": "IFor",
+      "file": "components\\debug\\XPSystemDebugPanel.tsx"
+    },
+    {
+      "type": "interface_rename",
+      "from": "interface",
+      "to": "Interface",
+      "file": "components\\games\\FrenchMathsGame.tsx"
+    },
+    {
+      "type": "interface_rename",
+      "from": "const",
+      "to": "IConst",
+      "file": "components\\handwriting\\PlumeEnchanteeCP2025.tsx"
+    },
+    {
+      "type": "interface_rename",
+      "from": "sounds",
+      "to": "ISounds",
+      "file": "config\\soundEffects.ts"
+    },
+    {
+      "type": "interface_rename",
+      "from": "showConsentBanner",
+      "to": "IShowConsentBanner",
+      "file": "contexts\\GDPRContext.tsx"
+    },
+    {
+      "type": "interface_rename",
+      "from": "showConsentBannerAction",
+      "to": "IShowConsentBannerAction",
+      "file": "contexts\\GDPRContext.tsx"
+    },
+    {
+      "type": "interface_rename",
+      "from": "for",
+      "to": "IFor",
+      "file": "pages\\ExerciseEngineTest.tsx"
+    },
+    {
+      "type": "interface_rename",
+      "from": "locally",
+      "to": "ILocally",
+      "file": "services\\adaptive-learning.service.ts"
+    },
+    {
+      "type": "interface_rename",
+      "from": "window",
+      "to": "IWindow",
+      "file": "services\\TutorialService.ts"
+    },
+    {
+      "type": "interface_rename",
+      "from": "for",
+      "to": "IFor",
+      "file": "types\\exercise.types.ts"
+    },
+    {
+      "type": "interface_rename",
+      "from": "for",
+      "to": "IFor",
+      "file": "types\\global.d.ts"
+    }
+  ],
+  "summary": {
+    "file_rename": 1,
+    "constant_rename": 335,
+    "event_handler_rename": 8,
+    "interface_rename": 11
+  }
+}

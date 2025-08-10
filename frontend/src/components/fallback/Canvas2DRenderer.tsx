@@ -47,7 +47,7 @@ export const Canvas2DRenderer: React.FC<Canvas2DRendererProps> = ({
   });
 
   // Colors for different mascot types
-  const mascotColors = {
+  const MASCOT_COLORS = {
     dragon: { primary: '#FF6B6B', secondary: '#FF8787', accent: '#FFA8A8' },
     fairy: { primary: '#8B5CF6', secondary: '#A78BFA', accent: '#C4B5FD' },
     robot: { primary: '#06B6D4', secondary: '#67E8F9', accent: '#A5F3FC' },
@@ -56,7 +56,7 @@ export const Canvas2DRenderer: React.FC<Canvas2DRendererProps> = ({
   };
 
   // Emotion-based modifiers
-  const emotionModifiers = {
+  const EMOTION_MODIFIERS = {
     idle: { bounce: 0.02, scale: 1, speed: 1 },
     happy: { bounce: 0.08, scale: 1.1, speed: 1.5 },
     thinking: { bounce: 0.01, scale: 0.95, speed: 0.8 },
@@ -69,11 +69,11 @@ export const Canvas2DRenderer: React.FC<Canvas2DRendererProps> = ({
     centerX: number,
     centerY: number,
     size: number,
-    colors: typeof mascotColors.dragon,
-    emotion: keyof typeof emotionModifiers
+    colors: typeof MASCOT_COLORS.dragon,
+    emotion: keyof typeof EMOTION_MODIFIERS
   ) => {
     try {
-      const modifier = emotionModifiers[emotion];
+      const modifier = EMOTION_MODIFIERS[emotion];
       const adjustedSize = size * modifier.scale * animationState.scaleOffset;
       
       // Save context for transformations
@@ -336,7 +336,7 @@ export const Canvas2DRenderer: React.FC<Canvas2DRendererProps> = ({
         return;
       }
 
-      const modifier = emotionModifiers[emotion];
+      const modifier = EMOTION_MODIFIERS[emotion];
       const time = currentTime * 0.001 * modifier.speed;
 
       setAnimationState(prev => ({
@@ -368,7 +368,7 @@ export const Canvas2DRenderer: React.FC<Canvas2DRendererProps> = ({
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       const size = Math.min(canvas.width, canvas.height) * 0.4;
-      const colors = mascotColors[mascotType];
+      const colors = MASCOT_COLORS[mascotType];
 
       drawMascotShape(ctx, centerX, centerY, size, colors, emotion);
       drawEquippedItems(ctx, centerX, centerY, size);

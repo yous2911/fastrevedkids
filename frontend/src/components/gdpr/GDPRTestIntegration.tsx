@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GDPRProvider, useGDPRContext, useGDPRPermissions } from '../../contexts/GDPRContext';
-import { useGDPR, useParentalConsent, useGDPRRequests } from '../../hooks/useGDPR';
+import { useParentalConsent } from '../../hooks/useGDPR';
 import { useGDPRValidation, useGDPRConnection } from '../../hooks/useGDPRUtils';
 import { apiService } from '../../services/api.service';
 import {

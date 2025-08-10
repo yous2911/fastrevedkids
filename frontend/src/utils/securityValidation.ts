@@ -171,9 +171,9 @@ export const validateMascotCustomization = (customization: unknown): { isValid: 
   const sanitized: Record<string, any> = {};
 
   // Validate mascot type
-  const validMascotTypes = ['dragon', 'fairy', 'robot', 'cat', 'owl'];
+  const VALID_MASCOT_TYPES = ['dragon', 'fairy', 'robot', 'cat', 'owl'];
   if (data.mascotType && typeof data.mascotType === 'string') {
-    if (validMascotTypes.includes(data.mascotType)) {
+    if (VALID_MASCOT_TYPES.includes(data.mascotType)) {
       sanitized.mascotType = data.mascotType;
     } else {
       return {
@@ -185,9 +185,9 @@ export const validateMascotCustomization = (customization: unknown): { isValid: 
   }
 
   // Validate emotion
-  const validEmotions = ['idle', 'happy', 'thinking', 'celebrating', 'oops'];
+  const VALID_EMOTIONS = ['idle', 'happy', 'thinking', 'celebrating', 'oops'];
   if (data.emotion && typeof data.emotion === 'string') {
-    if (validEmotions.includes(data.emotion)) {
+    if (VALID_EMOTIONS.includes(data.emotion)) {
       sanitized.emotion = data.emotion;
     } else {
       sanitized.emotion = 'idle'; // Default to safe value
@@ -196,10 +196,10 @@ export const validateMascotCustomization = (customization: unknown): { isValid: 
 
   // Validate equipped items array
   if (data.equippedItems && Array.isArray(data.equippedItems)) {
-    const maxItems = 10; // Limit number of equipped items
+    const MAX_ITEMS = 10; // Limit number of equipped items
     sanitized.equippedItems = data.equippedItems
       .filter(item => typeof item === 'string' && item.length < 50)
-      .slice(0, maxItems)
+      .slice(0, MAX_ITEMS)
       .map(item => sanitizeTextInput(item).sanitizedValue);
   }
 
@@ -286,8 +286,8 @@ export const validateAssetPath = (assetPath: unknown): { isValid: boolean; sanit
     .trim();
 
   // Validate allowed file extensions for 3D assets
-  const allowedExtensions = ['.glb', '.gltf', '.obj', '.fbx', '.dae'];
-  const hasValidExtension = allowedExtensions.some(ext => cleaned.toLowerCase().endsWith(ext));
+  const ALLOWED_EXTENSIONS = ['.glb', '.gltf', '.obj', '.fbx', '.dae'];
+  const hasValidExtension = ALLOWED_EXTENSIONS.some(ext => cleaned.toLowerCase().endsWith(ext));
 
   if (!hasValidExtension && cleaned !== '') {
     return {

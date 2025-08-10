@@ -59,9 +59,9 @@ export const validateAssetURL = (url: string): { isValid: boolean; error?: strin
     }
     
     // Check for suspicious query parameters
-    const suspiciousParams = ['script', 'eval', 'javascript', 'vbscript'];
+    const SUSPICIOUS_PARAMS = ['script', 'eval', 'javascript', 'vbscript'];
     for (const [key, value] of urlObj.searchParams.entries()) {
-      if (suspiciousParams.some(param => 
+      if (SUSPICIOUS_PARAMS.some(param => 
         key.toLowerCase().includes(param) || 
         value.toLowerCase().includes(param)
       )) {
@@ -70,8 +70,8 @@ export const validateAssetURL = (url: string): { isValid: boolean; error?: strin
     }
     
     // Validate file extension for 3D assets
-    const validExtensions = ['.glb', '.gltf', '.obj', '.fbx', '.dae', '.3ds'];
-    const hasValidExtension = validExtensions.some(ext => 
+    const VALID_EXTENSIONS = ['.glb', '.gltf', '.obj', '.fbx', '.dae', '.3ds'];
+    const hasValidExtension = VALID_EXTENSIONS.some(ext => 
       urlObj.pathname.toLowerCase().endsWith(ext)
     );
     
@@ -118,7 +118,7 @@ const validateFileContent = async (
   }
   
   // Check for suspicious patterns that might indicate malicious content
-  const suspiciousPatterns = [
+  const SUSPICIOUS_PATTERNS = [
     '<script', 'javascript:', 'vbscript:', 'onload=', 'onerror=',
     'eval(', 'Function(', 'setTimeout(', 'setInterval('
   ];
@@ -128,7 +128,7 @@ const validateFileContent = async (
     .decode(uint8Array.slice(0, Math.min(1024, uint8Array.length)))
     .toLowerCase();
   
-  for (const pattern of suspiciousPatterns) {
+  for (const pattern of SUSPICIOUS_PATTERNS) {
     if (stringContent.includes(pattern.toLowerCase())) {
       return { 
         isValid: false, 
@@ -145,7 +145,7 @@ export const secureAssetFetch = async (
   url: string, 
   options: AssetLoadingOptions = {}
 ): Promise<AssetLoadingResult> => {
-  const config = { ...DEFAULT_OPTIONS, ...options };
+  const CONFIG = { ...DEFAULT_OPTIONS, ...options };
   
   // Validate URL first
   const urlValidation = validateAssetURL(url);
@@ -159,20 +159,20 @@ export const secureAssetFetch = async (
   
   const sanitizedURL = urlValidation.sanitizedURL!;
   
-  let attempt = 0;
-  while (attempt <= config.retryAttempts) {
+  let ATTEMPT = 0;
+  while (ATTEMPT <= CONFIG.retryAttempts) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), config.timeout);
+      const timeoutId = setTimeout(() => controller.abort(), CONFIG.timeout);
       
       const response = await fetch(sanitizedURL, {
         method: 'GET',
         signal: controller.signal,
         headers: {
           ...SECURITY_HEADERS,
-          'Accept': config.allowedMimeTypes.join(', ')
+          'Accept': CONFIG.allowedMimeTypes.join(', ')
         },
-        cache: config.enableCaching ? 'default' : 'no-cache',
+        cache: CONFIG.enableCaching ? 'default' : 'no-cache',
         mode: 'cors',
         credentials: 'omit' // Don't send credentials for security
       });
@@ -185,7 +185,7 @@ export const secureAssetFetch = async (
       
       // Validate Content-Type header
       const contentType = response.headers.get('content-type') || '';
-      const isValidMimeType = config.allowedMimeTypes.some(type => 
+      const isValidMimeType = CONFIG.allowedMimeTypes.some(type => 
         contentType.toLowerCase().includes(type.toLowerCase())
       );
       
@@ -199,7 +199,7 @@ export const secureAssetFetch = async (
       
       // Check Content-Length header
       const contentLength = response.headers.get('content-length');
-      if (contentLength && parseInt(contentLength) > config.maxFileSize) {
+      if (contentLength && parseInt(contentLength) > CONFIG.maxFileSize) {
         return {
           success: false,
           error: 'File size exceeds maximum allowed',
@@ -225,7 +225,7 @@ export const secureAssetFetch = async (
       };
       
     } catch (error) {
-      attempt++;
+      ATTEMPT++;
       
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
@@ -236,17 +236,17 @@ export const secureAssetFetch = async (
           };
         }
         
-        if (attempt > config.retryAttempts) {
+        if (ATTEMPT > CONFIG.retryAttempts) {
           return {
             success: false,
-            error: `Failed after ${config.retryAttempts + 1} attempts: ${error.message}`,
+            error: `Failed after ${CONFIG.retryAttempts + 1} attempts: ${error.message}`,
             securityViolation: false
           };
         }
       }
       
       // Wait before retry (exponential backoff)
-      await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, ATTEMPT) * 1000));
     }
   }
   
@@ -281,7 +281,7 @@ export class SecureTextureLoader extends THREE.TextureLoader {
         const blob = new Blob([result.data]);
         const blobUrl = URL.createObjectURL(blob);
         
-        const texture = this.load(
+        const texture = (this as any).load(
           blobUrl,
           (loadedTexture) => {
             URL.revokeObjectURL(blobUrl); // Clean up

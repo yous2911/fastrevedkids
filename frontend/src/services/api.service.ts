@@ -1,4 +1,4 @@
-import { ApiResponse, PaginatedResponse, RequestConfig } from '../types/api.types';
+import { ApiResponse, RequestConfig } from '../types/api.types';
 import {
   SubmitConsentRequest,
   SubmitConsentResponse,
@@ -48,6 +48,8 @@ interface RetryConfig {
 }
 
 export class ApiService {
+  private static authToken: string | null = null;
+  private static refreshInProgress = false;
   private baseURL: string;
   private defaultHeaders: Record<string, string>;
   private requestCache = new Map<string, CacheEntry>();
@@ -85,14 +87,14 @@ export class ApiService {
 
   private initializeBaseURL(): string {
     // Try multiple environment variable names and fallbacks
-    const possibleUrls = [
+    const POSSIBLE_URLS = [
       process.env.REACT_APP_API_URL,
       process.env.REACT_APP_API_BASE_URL,
       process.env.REACT_APP_BACKEND_URL,
       'http://localhost:3003/api', // Default fallback
     ];
 
-    for (const url of possibleUrls) {
+    for (const url of POSSIBLE_URLS) {
       if (url && url.trim()) {
         return url.trim().replace(/\/$/, ''); // Remove trailing slash
       }
@@ -239,9 +241,9 @@ export class ApiService {
   }
 
   // Enhanced exponential backoff with jitter
-  private calculateRetryDelay(attempt: number): number {
+  private calculateRetryDelay(ATTEMPT: number): number {
     const exponentialDelay = Math.min(
-      this.retryConfig.baseDelay * Math.pow(2, attempt - 1),
+      this.retryConfig.baseDelay * Math.pow(2, ATTEMPT - 1),
       this.retryConfig.maxDelay
     );
     
@@ -251,8 +253,8 @@ export class ApiService {
   }
 
   // Smart retry logic
-  private shouldRetry(error: any, attempt: number): boolean {
-    return attempt <= this.retryConfig.maxRetries && 
+  private shouldRetry(error: any, ATTEMPT: number): boolean {
+    return ATTEMPT <= this.retryConfig.maxRetries && 
            this.retryConfig.retryCondition(error);
   }
 
@@ -310,9 +312,9 @@ export class ApiService {
     let lastError: Error = new NetworkError('Unknown error');
     
     // Enhanced retry logic with exponential backoff
-    for (let attempt = 1; attempt <= retries; attempt++) {
+    for (let ATTEMPT = 1; ATTEMPT <= retries; ATTEMPT++) {
       try {
-        console.log(`🔄 API Request [${requestIdLocal}:${attempt}/${retries}]: ${method} ${endpoint}`);
+        console.log(`🔄 API Request [${requestIdLocal}:${ATTEMPT}/${retries}]: ${method} ${endpoint}`);
         
         const response = await fetch(url, requestConfig);
         
@@ -332,17 +334,39 @@ export class ApiService {
           responseData = { message: 'Invalid response format' };
         }
 
-        // Enhanced error handling
+        // Enhanced error handling with authentication retry
         if (!response.ok) {
           const errorMessage = responseData.error?.message || 
                              responseData.message || 
                              `HTTP ${response.status}: ${response.statusText}`;
           const errorCode = responseData.error?.code || 'HTTP_ERROR';
           
+          // Handle authentication errors with automatic token refresh
+          if (response.status === 401 && !ApiService.refreshInProgress) {
+            console.log('🔑 Authentication failed, attempting token refresh...');
+            
+            try {
+              ApiService.refreshInProgress = true;
+              const refreshed = await this.refreshAuthToken();
+              
+              if (refreshed) {
+                console.log('✅ Token refreshed successfully, retrying request...');
+                // Retry the request with the new token
+                continue;
+              }
+            } catch (refreshError) {
+              console.error('❌ Token refresh failed:', refreshError);
+              // Clear any stored auth state
+              this.clearAuthState();
+            } finally {
+              ApiService.refreshInProgress = false;
+            }
+          }
+          
           const apiError = new ApiError(errorMessage, response.status, errorCode, responseData);
           
-          // Don't retry client errors (4xx)
-          if (response.status >= 400 && response.status < 500) {
+          // Don't retry client errors (4xx) except for authentication errors we just handled
+          if (response.status >= 400 && response.status < 500 && response.status !== 401) {
             throw apiError;
           }
           
@@ -391,12 +415,12 @@ export class ApiService {
         }
 
         // Enhanced retry logic with exponential backoff
-        if (attempt < retries && this.shouldRetry(lastError, attempt)) {
-          const delay = this.calculateRetryDelay(attempt);
+        if (ATTEMPT < retries && this.shouldRetry(lastError, ATTEMPT)) {
+          const delay = this.calculateRetryDelay(ATTEMPT);
           
-          console.log(`⏳ Smart retry [${requestIdLocal}] attempt ${attempt}/${retries} in ${Math.round(delay)}ms...`);
+          console.log(`⏳ Smart retry [${requestIdLocal}] ATTEMPT ${ATTEMPT}/${retries} in ${Math.round(delay)}ms...`);
           await new Promise(resolve => setTimeout(resolve, delay));
-        } else if (attempt < retries) {
+        } else if (ATTEMPT < retries) {
           // Break early if error shouldn't be retried
           break;
         }
@@ -489,23 +513,23 @@ export class ApiService {
     size: number; 
     keys: string[]; 
     tags: Record<string, number>;
-    totalSize: number;
+    TOTAL_SIZE: number;
   } {
     const tags: Record<string, number> = {};
-    let totalSize = 0;
+    let TOTAL_SIZE = 0;
     
     for (const [key, entry] of this.requestCache.entries()) {
       entry.tags.forEach(tag => {
         tags[tag] = (tags[tag] || 0) + 1;
       });
-      totalSize += JSON.stringify(entry.data).length;
+      TOTAL_SIZE += JSON.stringify(entry.data).length;
     }
     
     return {
       size: this.requestCache.size,
       keys: Array.from(this.requestCache.keys()),
       tags,
-      totalSize
+      TOTAL_SIZE
     };
   }
 
@@ -720,6 +744,109 @@ export class ApiService {
     return this.get('/gdpr/health', {
       cache: false,
       timeout: 5000
+    });
+  }
+
+  // ===== AUTHENTICATION METHODS =====
+
+  /**
+   * Refresh authentication token using refresh token cookie
+   */
+  private async refreshAuthToken(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseURL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include' // Include cookies for refresh token
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🔄 Token refresh successful');
+        return true;
+      } else {
+        console.error('❌ Token refresh failed:', response.status, response.statusText);
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ Token refresh error:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Clear authentication state
+   */
+  private clearAuthState(): void {
+    ApiService.authToken = null;
+    // Trigger logout in the application
+    window.dispatchEvent(new CustomEvent('auth:logout'));
+  }
+
+  /**
+   * Login with email/password or legacy name-based credentials
+   */
+  async login(credentials: {
+    email?: string;
+    prenom?: string;
+    nom?: string;
+    password: string;
+  }): Promise<ApiResponse<any>> {
+    return this.post('/auth/login', credentials);
+  }
+
+  /**
+   * Register new student account
+   */
+  async register(userData: {
+    prenom: string;
+    nom: string;
+    email: string;
+    password: string;
+    dateNaissance: string;
+    niveauActuel: string;
+  }): Promise<ApiResponse<any>> {
+    return this.post('/auth/register', userData);
+  }
+
+  /**
+   * Logout current user
+   */
+  async logout(): Promise<ApiResponse<any>> {
+    try {
+      const response = await this.post('/auth/logout', {});
+      this.clearAuthState();
+      return response;
+    } catch (error) {
+      // Clear state even if logout request fails
+      this.clearAuthState();
+      throw error;
+    }
+  }
+
+  /**
+   * Get current user information
+   */
+  async getCurrentUser(): Promise<ApiResponse<any>> {
+    return this.get('/auth/me', { cache: false });
+  }
+
+  /**
+   * Request password reset
+   */
+  async requestPasswordReset(email: string): Promise<ApiResponse<any>> {
+    return this.post('/auth/password-reset', { email });
+  }
+
+  /**
+   * Confirm password reset with token
+   */
+  async confirmPasswordReset(token: string, newPassword: string): Promise<ApiResponse<any>> {
+    return this.post('/auth/password-reset/confirm', {
+      token,
+      newPassword
     });
   }
 

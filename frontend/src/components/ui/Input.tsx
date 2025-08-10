@@ -508,7 +508,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 // VALIDATION HELPERS
 // =====================================================
 
-export const validators = {
+export const VALIDATORS = {
   required: (value: string) => !value.trim() ? 'Ce champ est requis' : null,
   
   email: (value: string) => {
@@ -530,8 +530,8 @@ export const validators = {
     return value && !numericRegex.test(value) ? 'Seuls les chiffres sont autorisés' : null;
   },
   
-  combine: (...validators: Array<(value: string) => string | null>) => (value: string) => {
-    for (const validator of validators) {
+  combine: (...VALIDATORS: Array<(value: string) => string | null>) => (value: string) => {
+    for (const validator of VALIDATORS) {
       const error = validator(value);
       if (error) return error;
     }

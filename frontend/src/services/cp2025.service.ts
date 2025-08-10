@@ -1,4 +1,4 @@
-import { CP2025Data, CP2025Exercise, CP2025Statistics, Difficulte, TypeExercice, NiveauScolaire, Matiere } from '../types/cp2025.types';
+import { CP2025Data, CP2025Exercise, CP2025Statistics, Difficulte, TypeExercice } from '../types/cp2025.types';
 
 export class CP2025Service {
   private data: CP2025Data = {
