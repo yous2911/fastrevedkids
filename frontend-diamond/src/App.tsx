@@ -1,10 +1,23 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Heart, Home, Volume2, VolumeX } from 'lucide-react';
+import { Star, Heart, Home, Volume2, VolumeX, LogOut } from 'lucide-react';
 import NextLevelXPSystem from './components/NextLevelXPSystem';
+import LoginScreen from './components/LoginScreen';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { 
+  useCompetences, 
+  useExercisesByLevel, 
+  useMascot, 
+  useWardrobe,
+  useSessionManagement, 
+  useExerciseSubmission,
+  useStudentStats,
+  useStudentAchievements,
+  useXpTracking 
+} from './hooks/useApiData';
 
 // =============================================================================
-// 🔊 SYSTÈME AUDIO PREMIUM DIAMANT
+// 🔊 SYSTÈME AUDIO PREMIUM DIAMANT (UNCHANGED)
 // =============================================================================
 const useMagicalSounds = () => {
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -87,7 +100,7 @@ const useMagicalSounds = () => {
 };
 
 // =============================================================================
-// ✨ MOTEUR DE PARTICULES DIAMANT 3D
+// ✨ MOTEUR DE PARTICULES DIAMANT 3D (UNCHANGED)
 // =============================================================================
 interface Particle {
   id: string;
@@ -295,7 +308,7 @@ const ParticleEngine: React.FC<{
 };
 
 // =============================================================================
-// 🐸 MASCOTTE PREMIUM DIAMANT AVEC ÉMOTIONS
+// 🐸 MASCOTTE PREMIUM DIAMANT AVEC API INTÉGRÉE
 // =============================================================================
 const MascottePremium: React.FC<{
   emotion: 'idle' | 'happy' | 'excited' | 'thinking' | 'celebrating' | 'sleepy';
@@ -305,14 +318,22 @@ const MascottePremium: React.FC<{
   const [currentEmotion, setCurrentEmotion] = useState(emotion);
   const [showMessage, setShowMessage] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
+  const [dialogueText, setDialogueText] = useState<string>('');
+
+  // Utilisation du hook mascot API
+  const { data: mascotApiData, getDialogue } = useMascot();
 
   const emotionEmojis = {
-    idle: '🐸',
-    happy: '😊🐸',
-    excited: '🤩🐸',
-    thinking: '🤔🐸',
-    celebrating: '🎉🐸',
-    sleepy: '😴🐸'
+    idle: mascotApiData?.mascot?.type === 'dragon' ? '🐲' : 
+          mascotApiData?.mascot?.type === 'fairy' ? '🧚‍♀️' : 
+          mascotApiData?.mascot?.type === 'robot' ? '🤖' : 
+          mascotApiData?.mascot?.type === 'cat' ? '🐱' : 
+          mascotApiData?.mascot?.type === 'owl' ? '🦉' : '🐸',
+    happy: '😊',
+    excited: '🤩',
+    thinking: '🤔',
+    celebrating: '🎉',
+    sleepy: '😴'
   };
 
   const emotionMessages = {
@@ -328,13 +349,27 @@ const MascottePremium: React.FC<{
     setCurrentEmotion(emotion);
     if (message) {
       setShowMessage(true);
+      setDialogueText(message);
       setTimeout(() => setShowMessage(false), 3000);
     }
   }, [emotion, message]);
 
-  const handleClick = () => {
+  const handleClick = async () => {
     setIsInteracting(true);
     setCurrentEmotion('excited');
+    
+    // Obtenir un dialogue contextuel de l'API
+    try {
+      const dialogueData = await getDialogue('greeting');
+      if (dialogueData) {
+        setDialogueText(dialogueData.dialogue);
+      } else {
+        setDialogueText(emotionMessages.excited[Math.floor(Math.random() * emotionMessages.excited.length)]);
+      }
+    } catch (error) {
+      setDialogueText(emotionMessages.excited[Math.floor(Math.random() * emotionMessages.excited.length)]);
+    }
+    
     setShowMessage(true);
     
     setTimeout(() => {
@@ -362,7 +397,7 @@ const MascottePremium: React.FC<{
   };
 
   return (
-    <div className="mascot-container">
+    <div className="mascot-container fixed bottom-4 right-4 z-40">
       {/* Aura magique */}
       <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-green-400/20 blur-xl animate-pulse" />
       
@@ -427,7 +462,7 @@ const MascottePremium: React.FC<{
             </div>
             
             <p className="text-sm font-medium text-gray-800 text-center">
-              {message || emotionMessages[currentEmotion][Math.floor(Math.random() * emotionMessages[currentEmotion].length)]}
+              {dialogueText || emotionMessages[currentEmotion][Math.floor(Math.random() * emotionMessages[currentEmotion].length)]}
             </p>
           </motion.div>
         )}
@@ -450,228 +485,28 @@ const MascottePremium: React.FC<{
 };
 
 // =============================================================================
-// 💎 CRISTAUX XP PREMIUM AVEC PHYSIQUE 3D
-// =============================================================================
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const XPCrystalsPremium: React.FC<{
-  currentXP: number;
-  maxXP: number;
-  level: number;
-  onLevelUp?: (newLevel: number) => void;
-}> = ({ currentXP, maxXP, level, onLevelUp }) => {
-  const [displayXP, setDisplayXP] = useState(currentXP);
-  const [isLevelingUp, setIsLevelingUp] = useState(false);
-  const [showXPGain, setShowXPGain] = useState<number | null>(null);
-  const { playLevelUpFanfare, playSparkleSound } = useMagicalSounds();
-
-  const progress = Math.min((displayXP / maxXP) * 100, 100);
-
-  // Animation XP gain
-  useEffect(() => {
-    if (currentXP > displayXP) {
-      const difference = currentXP - displayXP;
-      setShowXPGain(difference);
-      playSparkleSound();
-      
-      // Animation progressive
-      const duration = 1000;
-      const steps = 30;
-      const increment = difference / steps;
-      
-      let currentStep = 0;
-      const timer = setInterval(() => {
-        currentStep++;
-        setDisplayXP(prev => Math.min(prev + increment, currentXP));
-        
-        if (currentStep >= steps) {
-          clearInterval(timer);
-          setDisplayXP(currentXP);
-          setTimeout(() => setShowXPGain(null), 1000);
-        }
-      }, duration / steps);
-      
-      return () => clearInterval(timer);
-    }
-  }, [currentXP, displayXP, playSparkleSound]);
-
-  // Détection level up
-  useEffect(() => {
-    if (displayXP >= maxXP && !isLevelingUp) {
-      setIsLevelingUp(true);
-      playLevelUpFanfare();
-      
-      setTimeout(() => {
-        onLevelUp?.(level + 1);
-        setIsLevelingUp(false);
-      }, 2000);
-    }
-  }, [displayXP, maxXP, isLevelingUp, level, onLevelUp, playLevelUpFanfare]);
-
-  return (
-    <div className="relative flex flex-col items-center space-y-4">
-      {/* Niveau avec couronne */}
-      <motion.div
-        className="relative"
-        animate={isLevelingUp ? { 
-          scale: [1, 1.3, 1], 
-          rotate: [0, 360, 0] 
-        } : {}}
-        transition={{ duration: 2 }}
-      >
-        <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-2 rounded-full font-bold text-lg shadow-lg">
-          Niveau {level}
-        </div>
-        
-        {isLevelingUp && (
-          <motion.div
-            className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-3xl"
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            👑
-          </motion.div>
-        )}
-      </motion.div>
-
-      {/* Cristal principal rotatif */}
-      <motion.div
-        className="relative"
-        animate={{
-          rotate: [0, 360],
-          scale: isLevelingUp ? [1, 1.2, 1] : 1
-        }}
-        transition={{
-          rotate: { duration: 10, repeat: Infinity, ease: "linear" },
-          scale: { duration: 2 }
-        }}
-      >
-        {/* Aura du cristal */}
-        <div className="absolute inset-0 w-20 h-20 bg-purple-400 rounded-full blur-lg opacity-50 animate-pulse" />
-        
-        {/* Cristal 3D */}
-        <div className="relative w-16 h-16 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg transform rotate-45 shadow-xl">
-          {/* Facettes */}
-          <div className="absolute inset-2 bg-gradient-to-br from-white/40 to-transparent rounded-lg" />
-          <div className="absolute top-1 left-1 w-3 h-3 bg-white/60 rounded-full blur-sm" />
-          
-          {/* Reflet animé */}
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-lg"
-            animate={{ x: [-60, 60] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-        </div>
-
-        {/* Cristaux satellites */}
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-purple-400 rounded-full"
-            animate={{
-              x: [0, Math.cos(i * 60 * Math.PI / 180) * 40],
-              y: [0, Math.sin(i * 60 * Math.PI / 180) * 40],
-              scale: [0.5, 1, 0.5]
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              delay: i * 0.5,
-            }}
-            style={{
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)'
-            }}
-          />
-        ))}
-      </motion.div>
-
-      {/* Barre de progression liquide */}
-      <div className="relative w-64 h-6 bg-gray-200 rounded-full overflow-hidden shadow-inner">
-        <motion.div
-          className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full relative overflow-hidden"
-          initial={{ width: '0%' }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 1, ease: "easeOut" }}
-        >
-          {/* Effet liquide ondulant */}
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-white/30 via-transparent to-white/30"
-            animate={{ x: ['-100%', '200%'] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-          
-          {/* Bulles dans le liquide */}
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-white/50 rounded-full"
-              animate={{
-                y: [15, -5],
-                scale: [0.5, 1, 0.5]
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                delay: i * 0.3,
-              }}
-              style={{ left: `${i * 30 + 10}%`, bottom: 0 }}
-            />
-          ))}
-        </motion.div>
-        
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xs font-bold text-gray-700">
-            {Math.round(displayXP)} / {maxXP} XP
-          </span>
-        </div>
-      </div>
-
-      {/* XP flottant */}
-      <AnimatePresence>
-        {showXPGain && (
-          <motion.div
-            className="absolute text-xl font-bold text-yellow-500 pointer-events-none z-50"
-            style={{ top: '10%', left: '60%' }}
-            initial={{ opacity: 0, scale: 0.5, y: 0 }}
-            animate={{ 
-              opacity: [0, 1, 1, 0], 
-              scale: [0.5, 1.2, 1.2, 0.8], 
-              y: [-30, -60, -80, -100] 
-            }}
-            exit={{ opacity: 0, scale: 0 }}
-            transition={{ duration: 2 }}
-          >
-            +{showXPGain} XP ✨
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
-// =============================================================================
-// 🎯 APP PRINCIPALE DIAMANT PREMIUM
+// 🎯 INTERFACE PRINCIPALE AVEC API INTÉGRÉE
 // =============================================================================
 const DiamondCPCE2Interface = () => {
+  const { student, logout } = useAuth();
   const [currentView, setCurrentView] = useState('home');
   const [currentExercise, setCurrentExercise] = useState<any>(null);
   const [mascotEmotion, setMascotEmotion] = useState<'idle' | 'happy' | 'excited' | 'thinking' | 'celebrating' | 'sleepy'>('happy');
   const [mascotMessage, setMascotMessage] = useState('');
   const [showParticles, setShowParticles] = useState(false);
   const [particleType, setParticleType] = useState<'success' | 'levelup' | 'magic'>('magic');
-  
-  const [studentData, setStudentData] = useState({
-    prenom: 'Emma',
-    niveau: 'CE1',
-    stars: 47,
-    hearts: 3,
-    streak: 5,
-    currentXP: 75,
-    maxXP: 100,
-    level: 3
-  });
+  const [selectedSubject, setSelectedSubject] = useState<string>('');
+
+  // Hooks API
+  const { data: competencesData } = useCompetences();
+  const { data: exercisesData } = useExercisesByLevel(student?.niveau || 'CP');
+  const { data: statsData } = useStudentStats();
+  const { data: achievementsData } = useStudentAchievements();
+  const { data: mascotData, updateEmotion: updateMascotEmotion } = useMascot();
+  const { data: wardrobeData, unlockItem, equipItem } = useWardrobe();
+  const { startSession, endSession, data: activeSessionData } = useSessionManagement();
+  const { submitExercise, recordProgress } = useExerciseSubmission();
+  const { currentXp, currentLevel, addXp } = useXpTracking();
 
   const { 
     playMagicalChord, 
@@ -682,139 +517,80 @@ const DiamondCPCE2Interface = () => {
     setSoundEnabled 
   } = useMagicalSounds();
 
-  // Matières avec animations
-  const subjects = [
-    {
-      id: 'mathematiques',
-      name: 'Mathématiques',
-      emoji: '🔢',
-      gradient: 'from-blue-400 via-blue-500 to-blue-600',
-      shadowColor: 'shadow-blue-500/50',
-      description: 'Compter, additionner, géométrie',
-      exercises: [
-        {
-          id: 1,
-          type: 'CALCUL',
-          question: 'Combien font 5 + 3 ?',
-          operation: '5 + 3 = ?',
-          bonneReponse: 8,
-          choix: [6, 7, 8, 9],
-          xp: 15
-        },
-        {
-          id: 2,
-          type: 'MENTAL_MATH',
-          difficulty: 3, // GOOD level
-          xp: 20
-        },
-        {
-          id: 3,
-          type: 'DRAG_DROP',
-          question: 'Classe les nombres par ordre croissant',
-          items: [
-            { id: '1', content: '3', category: 'small' },
-            { id: '2', content: '7', category: 'GOOD' },
-            { id: '3', content: '1', category: 'small' },
-            { id: '4', content: '9', category: 'large' }
-          ],
-          zones: [
-            { id: 'zone1', label: 'Petits nombres', accepts: ['small'] },
-            { id: 'zone2', label: 'Nombres moyens', accepts: ['GOOD'] },
-            { id: 'zone3', label: 'Grands nombres', accepts: ['large'] }
-          ],
-          xp: 25
-        }
-      ]
-    },
-    {
-      id: 'francais',
-      name: 'Français',
-      emoji: '📚',
-      gradient: 'from-green-400 via-green-500 to-green-600',
-      shadowColor: 'shadow-green-500/50',
-      description: 'Lettres, mots, lecture',
-      exercises: [
-        {
-          id: 4,
-          type: 'QCM',
-          question: 'Quel mot commence par "B" ?',
-          choix: ['Pomme', 'Banane', 'Orange', 'Cerise'],
-          bonneReponse: 'Banane',
-          xp: 12
-        },
-        {
-          id: 5,
-          type: 'DRAG_DROP',
-          question: 'Classe les mots par catégorie',
-          items: [
-            { id: '1', content: 'Chat', category: 'animal' },
-            { id: '2', content: 'Pomme', category: 'fruit' },
-            { id: '3', content: 'Chien', category: 'animal' },
-            { id: '4', content: 'Banane', category: 'fruit' }
-          ],
-          zones: [
-            { id: 'zone1', label: 'Animaux', accepts: ['animal'] },
-            { id: 'zone2', label: 'Fruits', accepts: ['fruit'] }
-          ],
-          xp: 18
-        }
-      ]
-    },
-    {
-      id: 'sciences',
-      name: 'Sciences',
-      emoji: '🔬',
-      gradient: 'from-purple-400 via-purple-500 to-purple-600',
-      shadowColor: 'shadow-purple-500/50',
-      description: 'Animaux, plantes, corps humain',
-      exercises: [
-        {
-          id: 6,
-          type: 'DRAG_DROP',
-          question: 'Classe les animaux par habitat',
-          items: [
-            { id: '1', content: 'Poisson', category: 'eau' },
-            { id: '2', content: 'Oiseau', category: 'air' },
-            { id: '3', content: 'Lion', category: 'terre' },
-            { id: '4', content: 'Dauphin', category: 'eau' }
-          ],
-          zones: [
-            { id: 'zone1', label: 'Dans l\'eau', accepts: ['eau'] },
-            { id: 'zone2', label: 'Dans l\'air', accepts: ['air'] },
-            { id: 'zone3', label: 'Sur terre', accepts: ['terre'] }
-          ],
-          xp: 20
-        }
-      ]
-    },
-    {
-      id: 'geographie',
-      name: 'Géographie',
-      emoji: '🌍',
-      gradient: 'from-orange-400 via-orange-500 to-orange-600',
-      shadowColor: 'shadow-orange-500/50',
-      description: 'Pays, villes, cartes',
-      exercises: [
-        {
-          id: 7,
-          type: 'QCM',
-          question: 'Quelle est la capitale de la France ?',
-          choix: ['Londres', 'Paris', 'Berlin', 'Madrid'],
-          bonneReponse: 'Paris',
-          xp: 15
-        }
-      ]
-    }
-  ];
+  // Données d'étudiant avec API
+  const studentData = useMemo(() => ({
+    prenom: student?.prenom || 'Élève',
+    niveau: student?.niveau || 'CP',
+    stars: statsData?.stats?.totalCorrectAnswers || 0,
+    hearts: student?.heartsRemaining || 3,
+    streak: student?.currentStreak || 0,
+    currentXP: currentXp,
+    maxXP: 100 + (currentLevel * 20),
+    level: currentLevel
+  }), [student, statsData, currentXp, currentLevel]);
 
-  const handleSubjectClick = (subject: any) => {
+  // Matières basées sur les vraies compétences
+  const subjects = useMemo(() => {
+    const competences = competencesData || [];
+    const mathCompetences = competences.filter(c => c.matiere === 'MA');
+    const frenchCompetences = competences.filter(c => c.matiere === 'FR');
+
+    return [
+      {
+        id: 'mathematiques',
+        name: 'Mathématiques',
+        emoji: '🔢',
+        gradient: 'from-blue-400 via-blue-500 to-blue-600',
+        shadowColor: 'shadow-blue-500/50',
+        description: 'Compter, additionner, géométrie',
+        competences: mathCompetences,
+        exercises: exercisesData?.filter(ex => 
+          mathCompetences.some(comp => comp.id === ex.competenceId)
+        ) || []
+      },
+      {
+        id: 'francais',
+        name: 'Français',
+        emoji: '📚',
+        gradient: 'from-green-400 via-green-500 to-green-600',
+        shadowColor: 'shadow-green-500/50',
+        description: 'Lettres, mots, lecture',
+        competences: frenchCompetences,
+        exercises: exercisesData?.filter(ex => 
+          frenchCompetences.some(comp => comp.id === ex.competenceId)
+        ) || []
+      }
+    ];
+  }, [competencesData, exercisesData]);
+
+  // Gestion des interactions
+  const handleSubjectClick = async (subject: any) => {
     playButtonClick();
+    setSelectedSubject(subject.id);
     setMascotEmotion('thinking');
     setMascotMessage('C\'est parti pour une nouvelle aventure !');
     
+    // Mettre à jour l'émotion de la mascotte via l'API
+    try {
+      await updateMascotEmotion('good', 'exercise_complete');
+    } catch (error) {
+      console.warn('Failed to update mascot emotion:', error);
+    }
+
+    // Démarrer une session si pas déjà active
+    if (!activeSessionData?.hasActiveSession) {
+      try {
+        const session = await startSession(subject.competences?.map((c: any) => c.code) || []);
+        console.log('Session started:', session);
+      } catch (error) {
+        console.warn('Failed to start session:', error);
+      }
+    }
+    
     if (subject.exercises.length > 0) {
+      const randomExercise = subject.exercises[Math.floor(Math.random() * subject.exercises.length)];
       setCurrentView('exercise');
-      setCurrentExercise(subject.exercises[0]);
+      setCurrentExercise(randomExercise);
     } else {
       setMascotEmotion('sleepy');
       setMascotMessage('Cette matière arrive bientôt ! 🚧');
@@ -824,41 +600,132 @@ const DiamondCPCE2Interface = () => {
     }
   };
 
-  const handleAnswerSubmit = (answer: any, isCorrect: boolean) => {
-    if (isCorrect) {
-      setMascotEmotion('celebrating');
-      setMascotMessage('BRAVO ! Tu as réussi ! 🎉');
-      setShowParticles(true);
-      setParticleType('success');
-      playSparkleSound();
+  const handleAnswerSubmit = async (answer: any, isCorrect: boolean) => {
+    const startTime = Date.now();
+    
+    try {
+      if (isCorrect) {
+        setMascotEmotion('celebrating');
+        setMascotMessage('BRAVO ! Tu as réussi ! 🎉');
+        setShowParticles(true);
+        setParticleType('success');
+        playSparkleSound();
+        
+        // Soumettre à l'API
+        const exerciseResult = {
+          score: isCorrect ? 100 : 0,
+          timeSpent: Math.floor((Date.now() - startTime) / 1000),
+          completed: true,
+          answerGiven: answer?.toString()
+        };
+
+        const submission = await submitExercise(currentExercise.id, exerciseResult);
+        
+        if (submission.success) {
+          await addXp(submission.xpEarned || 15);
+          console.log('Exercise submitted successfully:', submission);
+          
+          // Vérifier les déblocages de garde-robe basés sur les accomplissements
+          await checkWardrobeUnlocks(submission);
+        }
+
+        // Mettre à jour l'émotion de la mascotte
+        await updateMascotEmotion('excellent', 'exercise_complete');
+        
+        setTimeout(() => {
+          setShowParticles(false);
+          setCurrentView('home');
+          setMascotEmotion('happy');
+        }, 2000);
+      } else {
+        setMascotEmotion('thinking');
+        setMascotMessage('Essaie encore, tu vas y arriver ! 💪');
+        playErrorSound();
+        
+        // Mettre à jour l'émotion de la mascotte pour erreur
+        await updateMascotEmotion('poor', 'mistake_made');
+      }
+    } catch (error) {
+      console.error('Error handling answer submission:', error);
+    }
+  };
+
+  // Système de déblocage de garde-robe basé sur les accomplissements
+  const checkWardrobeUnlocks = async (submission: any) => {
+    try {
+      if (!wardrobeData || !achievementsData) return;
       
-      // Gain XP
-      setStudentData(prev => ({
-        ...prev,
-        currentXP: Math.min(prev.currentXP + 15, prev.maxXP),
-        stars: prev.stars + 1
-      }));
+      const wardrobe = Array.isArray(wardrobeData) ? wardrobeData : wardrobeData.items || [];
+      const achievements = Array.isArray(achievementsData) ? achievementsData : achievementsData.achievements || [];
       
-      setTimeout(() => {
-        setShowParticles(false);
-        setCurrentView('home');
-        setMascotEmotion('happy');
-      }, 2000);
-    } else {
-      setMascotEmotion('thinking');
-      setMascotMessage('Essaie encore, tu vas y arriver ! 💪');
-      playErrorSound();
+      // Logique de déblocage basée sur différents critères
+      const unlockedItems = [];
+      
+      // Débloquer en fonction du niveau XP
+      if (currentLevel >= 3) {
+        const crownItem = wardrobe.find(item => 
+          item.name?.toLowerCase().includes('couronne') && !item.isUnlocked
+        );
+        if (crownItem) {
+          await unlockItem(crownItem.id);
+          unlockedItems.push(crownItem);
+        }
+      }
+      
+      // Débloquer en fonction du nombre d'exercices réussis
+      const completedExercises = statsData?.stats?.totalCorrectAnswers || 0;
+      if (completedExercises >= 10) {
+        const capeItem = wardrobe.find(item => 
+          item.name?.toLowerCase().includes('cape') && !item.isUnlocked
+        );
+        if (capeItem) {
+          await unlockItem(capeItem.id);
+          unlockedItems.push(capeItem);
+        }
+      }
+      
+      // Débloquer en fonction des achievements spécifiques
+      achievements.forEach(async (achievement: any) => {
+        if (achievement.completed && achievement.wardrobeReward) {
+          const rewardItem = wardrobe.find(item => 
+            item.id === achievement.wardrobeReward && !item.isUnlocked
+          );
+          if (rewardItem) {
+            await unlockItem(rewardItem.id);
+            unlockedItems.push(rewardItem);
+          }
+        }
+      });
+      
+      // Afficher les notifications de déblocage
+      if (unlockedItems.length > 0) {
+        unlockedItems.forEach(item => {
+          setMascotMessage(`🎉 Nouvel objet débloqué : ${item.name}!`);
+          playMagicalChord();
+          setShowParticles(true);
+          setParticleType('success');
+          
+          setTimeout(() => {
+            setShowParticles(false);
+          }, 2000);
+        });
+      }
+      
+    } catch (error) {
+      console.warn('Failed to check wardrobe unlocks:', error);
     }
   };
 
   const handleLevelUp = (newLevel: number) => {
-    setStudentData(prev => ({
-      ...prev,
-      level: newLevel,
-      maxXP: prev.maxXP + 20
-    }));
+    console.log('Level up to:', newLevel);
     setMascotEmotion('excited');
     setMascotMessage('NIVEAU SUPÉRIEUR ! 🎉');
+    
+    // Mettre à jour l'émotion de la mascotte pour level up
+    updateMascotEmotion('excellent', 'level_up').catch(console.warn);
+    
+    // Vérifier les déblocages de garde-robe pour le nouveau niveau
+    checkWardrobeUnlocks({ levelUp: true, newLevel }).catch(console.warn);
   };
 
   const handleMascotInteraction = () => {
@@ -868,7 +735,22 @@ const DiamondCPCE2Interface = () => {
     setTimeout(() => setShowParticles(false), 1000);
   };
 
-  // Rendu de l'écran d'accueil
+  const handleLogout = async () => {
+    try {
+      // Terminer la session active si elle existe
+      if (activeSessionData?.hasActiveSession && activeSessionData.session) {
+        await endSession(activeSessionData.session.id);
+      }
+      
+      await logout();
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Logout anyway
+      await logout();
+    }
+  };
+
+  // Rendu de l'écran d'accueil avec données API
   const renderHome = () => (
     <div className="min-h-screen p-6">
       {/* Header avec stats */}
@@ -911,10 +793,17 @@ const DiamondCPCE2Interface = () => {
               <VolumeX className="w-6 h-6 text-gray-400" />
             )}
           </button>
+          <button
+            onClick={handleLogout}
+            className="bg-white/80 rounded-full p-2 hover:bg-white transition-colors"
+            title="Se déconnecter"
+          >
+            <LogOut className="w-6 h-6 text-gray-500" />
+          </button>
         </div>
       </motion.div>
 
-      {/* Système XP Avancé */}
+      {/* Système XP Avancé avec données réelles */}
       <motion.div
         className="mb-8 flex justify-center"
         initial={{ opacity: 0, scale: 0.8 }}
@@ -942,7 +831,7 @@ const DiamondCPCE2Interface = () => {
         />
       </motion.div>
 
-      {/* Matières */}
+      {/* Matières basées sur les compétences API */}
       <motion.div 
         className="grid grid-cols-2 gap-6 max-w-4xl mx-auto"
         initial={{ opacity: 0, y: 20 }}
@@ -968,14 +857,33 @@ const DiamondCPCE2Interface = () => {
               <div className="text-6xl mb-4 animate-float">{subject.emoji}</div>
               <h3 className="text-xl font-bold mb-2">{subject.name}</h3>
               <p className="text-sm opacity-90">{subject.description}</p>
+              <p className="text-xs opacity-75 mt-2">
+                {subject.competences.length} compétences • {subject.exercises.length} exercices
+              </p>
             </div>
           </motion.button>
         ))}
       </motion.div>
+
+      {/* Informations de session active */}
+      {activeSessionData?.hasActiveSession && (
+        <motion.div
+          className="mt-8 max-w-md mx-auto bg-blue-100 border border-blue-300 rounded-2xl p-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="text-center">
+            <div className="text-blue-600 font-medium">📚 Session en cours</div>
+            <div className="text-sm text-blue-500">
+              {activeSessionData.session?.exercisesCompleted || 0} exercices complétés
+            </div>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 
-  // Rendu de l'exercice
+  // Rendu de l'exercice (simplifié pour la démo)
   const renderExercise = () => {
     if (!currentExercise) return null;
 
@@ -992,10 +900,10 @@ const DiamondCPCE2Interface = () => {
               setCurrentView('home');
               setMascotEmotion('happy');
             }}
-            className="btn-magical"
+            className="flex items-center space-x-2 bg-white/80 rounded-xl px-4 py-2 hover:bg-white transition-colors"
           >
-            <Home className="w-5 h-5 mr-2" />
-            Accueil
+            <Home className="w-5 h-5" />
+            <span>Accueil</span>
           </button>
           
           <h2 className="text-2xl font-bold text-gray-800">Exercice</h2>
@@ -1008,51 +916,55 @@ const DiamondCPCE2Interface = () => {
 
         {/* Contenu de l'exercice */}
         <motion.div
-          className="card-magical max-w-2xl mx-auto"
+          className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl max-w-2xl mx-auto"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
         >
           <h3 className="text-xl font-bold text-center mb-6">{currentExercise.question}</h3>
           
-          {currentExercise.type === 'CALCUL' && (
-            <div className="text-center">
-              <div className="text-4xl font-bold mb-6">{currentExercise.operation}</div>
-              <div className="grid grid-cols-2 gap-4">
-                {currentExercise.choix.map((choice: number, index: number) => (
-                  <motion.button
-                    key={index}
-                    onClick={() => handleAnswerSubmit(choice, choice === currentExercise.bonneReponse)}
-                    className="btn-magical text-lg"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + index * 0.1 }}
-                  >
-                    {choice}
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {currentExercise.type === 'QCM' && (
+          {/* Exercice QCM basique pour test */}
+          {currentExercise.options && (
             <div className="space-y-4">
-              {currentExercise.choix.map((choice: string, index: number) => (
+              {currentExercise.options.map((option: string, index: number) => (
                 <motion.button
                   key={index}
-                  onClick={() => handleAnswerSubmit(choice, choice === currentExercise.bonneReponse)}
-                  className="w-full btn-magical text-left"
+                  onClick={() => handleAnswerSubmit(option, option === currentExercise.correctAnswer)}
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-left"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
                 >
-                  {String.fromCharCode(65 + index)}. {choice}
+                  {String.fromCharCode(65 + index)}. {option}
                 </motion.button>
               ))}
+            </div>
+          )}
+
+          {/* Exercice simple si pas d'options */}
+          {!currentExercise.options && (
+            <div className="text-center">
+              <div className="text-4xl font-bold mb-6">{currentExercise.question}</div>
+              <div className="grid grid-cols-2 gap-4">
+                <motion.button
+                  onClick={() => handleAnswerSubmit('correct', true)}
+                  className="bg-green-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  ✓ Correct
+                </motion.button>
+                <motion.button
+                  onClick={() => handleAnswerSubmit('incorrect', false)}
+                  className="bg-red-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  ✗ Test Erreur
+                </motion.button>
+              </div>
             </div>
           )}
         </motion.div>
@@ -1107,8 +1019,46 @@ const DiamondCPCE2Interface = () => {
   );
 };
 
+// =============================================================================
+// APPLICATION PRINCIPALE AVEC AUTHENTIFICATION
+// =============================================================================
+const AppWithAuth = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-blue-500 flex items-center justify-center">
+        <motion.div
+          className="text-white text-center"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <motion.div 
+            className="text-6xl mb-4"
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          >
+            ✨
+          </motion.div>
+          <h2 className="text-2xl font-bold">FastRevEd Kids</h2>
+          <p className="text-lg opacity-90">Chargement...</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return isAuthenticated ? <DiamondCPCE2Interface /> : <LoginScreen />;
+};
+
+// =============================================================================
+// APP PRINCIPALE AVEC PROVIDERS
+// =============================================================================
 function App() {
-  return <DiamondCPCE2Interface />;
+  return (
+    <AuthProvider>
+      <AppWithAuth />
+    </AuthProvider>
+  );
 }
 
 export default App;

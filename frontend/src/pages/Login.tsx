@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/FastRevKidsAuth';
 
 interface LoginProps {
   onLoginSuccess: () => void;
 }
 
 export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
-  const { login, error: authError, loading: authLoading } = useAuth();
+  const { login, error: authError, isLoading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     prenom: '',
-    nom: ''
+    nom: '',
+    password: 'password123'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [students, setStudents] = useState<any[]>([]);
@@ -24,7 +25,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   const loadStudents = async () => {
     try {
-      const response = await fetch('http://localhost:3003/api/students');
+      const response = await fetch('http://localhost:5000/api/students');
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
@@ -49,11 +50,16 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
     setIsSubmitting(true);
     try {
-      const success = await login(formData.prenom.trim(), formData.nom.trim());
-      if (success) {
+      const response = await login({
+        prenom: formData.prenom.trim(),
+        nom: formData.nom.trim(),
+        password: formData.password
+      });
+      
+      if (response.success) {
         onLoginSuccess();
       } else {
-        setError('Erreur de connexion. Veuillez réessayer.');
+        setError(response.error?.message || 'Erreur de connexion. Veuillez réessayer.');
       }
     } catch (err: any) {
       setError('Erreur de connexion. Veuillez réessayer.');
@@ -65,11 +71,16 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const handleStudentSelect = async (student: any) => {
     setIsSubmitting(true);
     try {
-      const success = await login(student.prenom, student.nom);
-      if (success) {
+      const response = await login({
+        prenom: student.prenom,
+        nom: student.nom,
+        password: 'password123'
+      });
+      
+      if (response.success) {
         onLoginSuccess();
       } else {
-        setError('Erreur de connexion');
+        setError(response.error?.message || 'Erreur de connexion');
       }
     } catch (err: any) {
       setError('Erreur de connexion');

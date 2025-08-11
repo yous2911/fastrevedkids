@@ -3,6 +3,8 @@
  * Provides offline functionality, caching strategies, and PWA features
  */
 
+/* eslint-disable no-restricted-globals */
+
 import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute, NavigationRoute } from 'workbox-routing';
 import { StaleWhileRevalidate, CacheFirst, NetworkFirst, NetworkOnly } from 'workbox-strategies';

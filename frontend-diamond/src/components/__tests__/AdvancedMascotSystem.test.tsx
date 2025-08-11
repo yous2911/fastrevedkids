@@ -74,11 +74,17 @@ jest.mock('three', () => ({
   PCFSoftShadowMap: 'PCFSoftShadowMap',
 }));
 
-// Mock pour Framer Motion
+// Mock Framer Motion to avoid animation issues in tests
 jest.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+    div: ({ children, ...props }: any) => {
+      const { whileHover, whileTap, initial, animate, transition, ...domProps } = props;
+      return <div {...domProps}>{children}</div>;
+    },
+    button: ({ children, ...props }: any) => {
+      const { whileHover, whileTap, initial, animate, transition, ...domProps } = props;
+      return <button {...domProps}>{children}</button>;
+    },
   },
   AnimatePresence: ({ children }: any) => <div>{children}</div>,
 }));

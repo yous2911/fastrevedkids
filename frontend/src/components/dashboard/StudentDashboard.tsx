@@ -37,7 +37,7 @@ interface StudentStats {
   favoriteSubject: string;
 }
 
-interface Exercise {
+interface DashboardExercise {
   id: number;
   titre: string;
   type: 'calcul' | 'lecture' | 'geometrie' | 'orthographe' | 'conjugaison';
@@ -94,12 +94,12 @@ const studentDashboard: React.FC<StudentDashboardProps> = ({
 }) => {
   const [greeting, setGreeting] = useState('');
   const [showCelebration, setShowCelebration] = useState(false);
-  const [recommendedExercises, setRecommendedExercises] = useState<Exercise[]>([]);
+  const [recommendedExercises, setRecommendedExercises] = useState<DashboardExercise[]>([]);
   const [loading, setLoading] = useState(false);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
 
   // Mock recommended exercises
-  const mockRecommendedExercises: Exercise[] = [
+  const mockRecommendedExercises: DashboardExercise[] = [
     {
       id: 1,
       titre: "Addition magique",
@@ -234,7 +234,7 @@ const studentDashboard: React.FC<StudentDashboardProps> = ({
     setTimeout(() => setLoading(false), 1000);
   }, [onStartExercise]);
 
-  const getExerciseIcon = (type: Exercise['type']): string => {
+  const getExerciseIcon = (type: DashboardExercise['type']): string => {
     const ICONS = {
       calcul: '🔢',
       lecture: '📖',
@@ -245,7 +245,7 @@ const studentDashboard: React.FC<StudentDashboardProps> = ({
     return ICONS[type] || '🎯';
   };
 
-  const getDifficultyColor = (difficulte: Exercise['difficulte']): string => {
+  const getDifficultyColor = (difficulte: DashboardExercise['difficulte']): string => {
     const colors = {
       1: 'text-green-600 bg-green-100',
       2: 'text-yellow-600 bg-yellow-100',
@@ -254,7 +254,7 @@ const studentDashboard: React.FC<StudentDashboardProps> = ({
     return colors[difficulte] || 'text-gray-600 bg-gray-100';
   };
 
-  const getDifficultyLabel = (difficulte: Exercise['difficulte']): string => {
+  const getDifficultyLabel = (difficulte: DashboardExercise['difficulte']): string => {
     const LABELS = {
       1: 'Facile',
       2: 'Moyen',

@@ -3,11 +3,17 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import DragDropExercise from '../DragDropExercise';
 
-// Mock pour les animations Framer Motion
+// Mock Framer Motion to avoid animation issues in tests
 jest.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+    div: ({ children, ...props }: any) => {
+      const { whileHover, whileTap, initial, animate, transition, ...domProps } = props;
+      return <div {...domProps}>{children}</div>;
+    },
+    button: ({ children, ...props }: any) => {
+      const { whileHover, whileTap, initial, animate, transition, ...domProps } = props;
+      return <button {...domProps}>{children}</button>;
+    },
   },
   AnimatePresence: ({ children }: any) => <div>{children}</div>,
 }));
@@ -71,11 +77,16 @@ describe('DragDropExercise', () => {
       { id: '1', content: 'A', category: 'GOOD' },
       { id: '2', content: 'B', category: 'GOOD' },
     ];
+    const newZones = [
+      { id: 'zone1', label: 'First', accepts: ['GOOD'], items: [] },
+      { id: 'zone2', label: 'Second', accepts: ['GOOD'], items: [] },
+    ];
     
-    const { rerender } = render(<DragDropExercise {...defaultProps} />);
-    rerender(<DragDropExercise {...defaultProps} items={newItems} />);
+    render(<DragDropExercise {...defaultProps} items={newItems} zones={newZones} />);
     
     expect(screen.getByText('A')).toBeInTheDocument();
     expect(screen.getByText('B')).toBeInTheDocument();
+    expect(screen.getByText('First')).toBeInTheDocument();
+    expect(screen.getByText('Second')).toBeInTheDocument();
   });
 }); 

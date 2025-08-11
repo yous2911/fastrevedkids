@@ -76,6 +76,15 @@ async function registerPlugins() {
     console.log('🛣️ Registering competences routes...');
     await fastify.register(import('./routes/competences'), { prefix: '/api/competences' });
     
+    console.log('🛣️ Registering mascots routes...');
+    await fastify.register(import('./routes/mascots'), { prefix: '/api/mascots' });
+    
+    console.log('🛣️ Registering wardrobe routes...');
+    await fastify.register(import('./routes/wardrobe'), { prefix: '/api/wardrobe' });
+    
+    console.log('🛣️ Registering sessions routes...');
+    await fastify.register(import('./routes/sessions'), { prefix: '/api/sessions' });
+    
     console.log('🛣️ Registering analytics routes...');
     await fastify.register(import('./routes/analytics'), { prefix: '/api/analytics' });
     
@@ -125,17 +134,25 @@ async function registerPlugins() {
           health: '/api/health',
           auth: '/api/auth',
           students: '/api/students',
+          exercises: '/api/exercises',
           competences: '/api/competences',
+          mascots: '/api/mascots',
+          wardrobe: '/api/wardrobe',
+          sessions: '/api/sessions',
           analytics: '/api/analytics',
           monitoring: '/api/monitoring',
-          gdpr: '/api/gdpr',  // Nouveau endpoint GDPR
+          gdpr: '/api/gdpr',
           docs: '/docs',
           enhanced: {
             competenceProgress: '/api/students/:id/competence-progress',
             recordProgress: '/api/students/:id/record-progress',
             prerequisites: '/api/competences/:code/prerequisites',
             achievements: '/api/students/:id/achievements',
-            dailyProgress: '/api/analytics/daily-progress'
+            dailyProgress: '/api/analytics/daily-progress',
+            mascotEmotion: '/api/mascots/:studentId/emotion',
+            wardrobeUnlock: '/api/wardrobe/:studentId/unlock/:itemId',
+            sessionStart: '/api/sessions/start',
+            sessionEnd: '/api/sessions/:id/end'
           }
         },
         compliance: {

@@ -16,7 +16,12 @@ jest.mock('three', () => ({
   WebGLRenderer: jest.fn().mockImplementation(() => ({
     setSize: jest.fn(),
     render: jest.fn(),
-    domElement: document.createElement('canvas'),
+    domElement: {
+      style: {},
+      width: 800,
+      height: 600,
+      getContext: jest.fn(),
+    },
   })),
   BufferGeometry: jest.fn(),
   Float32BufferAttribute: jest.fn(),

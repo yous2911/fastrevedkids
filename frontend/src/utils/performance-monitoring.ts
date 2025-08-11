@@ -3,7 +3,7 @@
  * Tracks Web Vitals, custom metrics, and performance budgets
  */
 
-import { getCLS, getFID, getFCP, getLCP, getTTFB, Metric } from 'web-vitals';
+import { onCLS, onFCP, onLCP, onTTFB, onINP, Metric } from 'web-vitals';
 import { getConfig, shouldLog } from '../config/environment';
 
 interface PerformanceMetrics {
@@ -66,12 +66,12 @@ class PerformanceMonitor {
   }
 
   private initializeWebVitals() {
-    // Collect Web Vitals
-    getCLS(this.onMetric.bind(this));
-    getFID(this.onMetric.bind(this));
-    getFCP(this.onMetric.bind(this));
-    getLCP(this.onMetric.bind(this));
-    getTTFB(this.onMetric.bind(this));
+    // Collect Web Vitals with new API
+    onCLS(this.onMetric.bind(this));
+    onINP(this.onMetric.bind(this)); // INP replaces FID
+    onFCP(this.onMetric.bind(this));
+    onLCP(this.onMetric.bind(this));
+    onTTFB(this.onMetric.bind(this));
   }
 
   private onMetric(metric: Metric) {
@@ -80,7 +80,7 @@ class PerformanceMonitor {
         this.metrics.cls = metric.value;
         this.checkThreshold('cls', metric.value, this.config.performance.thresholds.cumulativeLayoutShift);
         break;
-      case 'FID':
+      case 'INP':
         this.metrics.fid = metric.value;
         this.checkThreshold('fid', metric.value, this.config.performance.thresholds.firstInputDelay);
         break;
@@ -172,7 +172,7 @@ class PerformanceMonitor {
         tcp: `${(entry.connectEnd - entry.connectStart).toFixed(2)}ms`,
         request: `${(entry.responseStart - entry.requestStart).toFixed(2)}ms`,
         response: `${(entry.responseEnd - entry.responseStart).toFixed(2)}ms`,
-        processing: `${(entry.domComplete - entry.domLoading).toFixed(2)}ms`,
+        processing: `${(entry.domComplete - (entry as any).domLoading).toFixed(2)}ms`,
       });
     }
   }

@@ -2,6 +2,17 @@
 // Point d'entrée unique pour l'intégration RGPD dans l'application
 
 // Types
+// Contexte et Provider
+import {
+  GDPRProvider,
+  useGDPRContext,
+  useGDPRPermissions,
+  withGDPR
+} from '../contexts/GDPRContext';
+
+// Services API (extensions RGPD)
+import { apiService } from '../services/api.service';
+
 export * from '../types/gdpr.types';
 
 // Hooks principaux
@@ -25,14 +36,6 @@ export {
   useGDPRLoading
 } from '../hooks/useGDPRUtils';
 
-// Contexte et Provider
-import {
-  GDPRProvider,
-  useGDPRContext,
-  useGDPRPermissions,
-  withGDPR
-} from '../contexts/GDPRContext';
-
 export {
   GDPRProvider,
   useGDPRContext,
@@ -44,9 +47,6 @@ export {
 export { default as ConsentBanner } from '../components/gdpr/ConsentBanner';
 export { default as GDPRDashboard } from '../components/gdpr/GDPRDashboard';
 export { default as GDPRTestIntegration } from '../components/gdpr/GDPRTestIntegration';
-
-// Services API (extensions RGPD)
-import { apiService } from '../services/api.service';
 export { apiService };
 
 // Configuration par défaut RGPD

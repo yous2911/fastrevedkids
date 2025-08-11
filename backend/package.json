@@ -5,10 +5,13 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "dev:full": "node start-dev.js",
     "build": "tsc",
     "start": "node dist/server.js",
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
+    "migrate": "tsx src/db/migrate-mysql.ts --sample-data",
+    "test:setup": "node test-setup.js",
     "test": "cross-env NODE_ENV=test vitest run",
     "test:watch": "cross-env NODE_ENV=test vitest",
     "test:ui": "cross-env NODE_ENV=test vitest --ui",
@@ -17,7 +20,6 @@
     "test:auth": "cross-env NODE_ENV=test vitest run src/tests/auth.test.ts",
     "test:students": "cross-env NODE_ENV=test vitest run src/tests/students.test.ts",
     "test:monitoring": "cross-env NODE_ENV=test vitest run src/tests/monitoring.test.ts",
-    "test:setup": "cross-env NODE_ENV=test node -e \"console.log('Test environment setup complete')\"",
     "test:clean": "rimraf coverage .vitest",
     "test:quick": "node scripts/test-simple.js",
     "test:integration": "cross-env NODE_ENV=test vitest run src/tests/integration-quick.test.ts",
@@ -43,7 +45,7 @@
     "pm2:stop": "pm2 stop ecosystem.config.js",
     "pm2:restart": "pm2 restart ecosystem.config.js",
     "pm2:logs": "pm2 logs",
-    "prepare": "husky install",
+    "prepare": "echo 'Skipping husky install in development'",
     "precommit": "lint-staged"
   },
   "keywords": [

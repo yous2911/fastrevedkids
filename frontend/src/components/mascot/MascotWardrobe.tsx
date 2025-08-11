@@ -1,41 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MascotItem, MascotCollection, WAHOO_COLORS } from '../../types/wahoo.types';
+import { WardrobeItem } from '../../services/fastrevkids-api.service';
+import { useWardrobe } from '../../hooks/useFastRevKidsApi';
 
 // ==========================================
 // MASCOT WARDROBE - SYSTÈME DE COLLECTION
 // ==========================================
 
 interface MascotWardrobeProps {
-  collection: MascotCollection;
-  onItemEquip: (itemId: string, type: MascotItem['type']) => void;
-  onItemUnequip: (type: MascotItem['type']) => void;
   className?: string;
 }
 
 export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
-  collection,
-  onItemEquip,
-  onItemUnequip,
   className = ''
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<MascotItem['type']>('hat');
-  const [selectedItem, setSelectedItem] = useState<MascotItem | null>(null);
-  const [showUnlockAnimation, setShowUnlockAnimation] = useState<string | null>(null);
+  const { data: wardrobeData, isLoading, unlockItem, equipItem, unequipItem } = useWardrobe();
+  const [selectedCategory, setSelectedCategory] = useState<WardrobeItem['type']>('hat');
+  const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
+  const [showUnlockAnimation, setShowUnlockAnimation] = useState<number | null>(null);
 
-  const categories: Array<{ type: MascotItem['type']; label: string; emoji: string }> = [
+  const categories: Array<{ type: WardrobeItem['type']; label: string; emoji: string }> = [
     { type: 'hat', label: 'Chapeaux', emoji: '🎩' },
-    { type: 'glasses', label: 'Lunettes', emoji: '👓' },
+    { type: 'clothing', label: 'Vêtements', emoji: '👕' },
     { type: 'accessory', label: 'Accessoires', emoji: '🎒' },
-    { type: 'outfit', label: 'Tenues', emoji: '👕' },
-    { type: 'background', label: 'Arrière-plans', emoji: '🌅' }
+    { type: 'shoes', label: 'Chaussures', emoji: '👟' },
+    { type: 'special', label: 'Spéciaux', emoji: '✨' }
   ];
 
   const RARITY_COLORS = {
     common: '#6B7280',
-    rare: WAHOO_COLORS.blue,
-    epic: WAHOO_COLORS.violet,
-    legendary: WAHOO_COLORS.yellow
+    rare: '#3B82F6',
+    epic: '#8B5CF6',
+    legendary: '#F59E0B'
   };
 
   const RARITY_LABELS = {
@@ -45,31 +41,31 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
     legendary: 'Légendaire'
   };
 
-  const getItemsByCategory = (category: MascotItem['type']) => {
-    return collection.items.filter(item => item.type === category);
+  const getItemsByCategory = (category: WardrobeItem['type']) => {
+    return wardrobeData?.items?.filter(item => item.type === category) || [];
   };
 
-  const handleItemClick = (item: MascotItem) => {
+  const handleItemClick = (item: WardrobeItem) => {
     setSelectedItem(item);
     
-    if (!item.unlocked) {
+    if (!item.isUnlocked) {
       setShowUnlockAnimation(item.id);
       setTimeout(() => setShowUnlockAnimation(null), 2000);
     }
   };
 
-  const handleEquipItem = (item: MascotItem) => {
-    if (item.unlocked) {
-      onItemEquip(item.id, item.type);
+  const handleEquipItem = async (item: WardrobeItem) => {
+    if (item.isUnlocked) {
+      await equipItem(item.id);
     }
   };
 
-  const handleUnequipItem = (type: MascotItem['type']) => {
-    onItemUnequip(type);
+  const handleUnequipItem = async (item: WardrobeItem) => {
+    await unequipItem(item.id);
   };
 
-  const isItemEquipped = (item: MascotItem) => {
-    return collection.equippedItems[item.type] === item.id;
+  const isItemEquipped = (item: WardrobeItem) => {
+    return item.isEquipped;
   };
 
   return (
@@ -80,7 +76,7 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
           🎭 Garde-Robe de la Mascotte
         </h2>
         <p className="text-gray-600">
-          {collection.unlockedItems} / {collection.totalItems} objets débloqués
+          {wardrobeData?.summary?.unlocked || 0} / {wardrobeData?.summary?.total || 0} objets débloqués
         </p>
       </div>
 
@@ -116,7 +112,7 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.3 }}
               className={`relative group cursor-pointer ${
-                !item.unlocked ? 'opacity-50' : ''
+                !item.isUnlocked ? 'opacity-50' : ''
               }`}
               onClick={() => handleItemClick(item)}
             >
@@ -125,14 +121,14 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
                 className={`relative bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border-2 transition-all ${
                   isItemEquipped(item)
                     ? 'border-purple-500 bg-purple-50'
-                    : item.unlocked
+                    : item.isUnlocked
                     ? 'border-gray-200 hover:border-purple-300'
                     : 'border-gray-300'
                 }`}
               >
                 {/* Item Icon */}
                 <div className="text-center mb-3">
-                  <div className="text-4xl mb-2">{item.emoji}</div>
+                  <div className="text-4xl mb-2">{item.icon}</div>
                   <h3 className="font-semibold text-sm text-gray-800 truncate">
                     {item.name}
                   </h3>
@@ -147,7 +143,7 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
                 </div>
 
                 {/* Lock Icon */}
-                {!item.unlocked && (
+                {!item.isUnlocked && (
                   <div className="absolute inset-0 bg-black bg-opacity-20 rounded-xl flex items-center justify-center">
                     <div className="text-2xl">🔒</div>
                   </div>
@@ -161,18 +157,22 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
                 )}
 
                 {/* Hover Actions */}
-                {item.unlocked && (
+                {item.isUnlocked && (
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-xl transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <motion.button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleEquipItem(item);
+                        if (isItemEquipped(item)) {
+                          handleUnequipItem(item);
+                        } else {
+                          handleEquipItem(item);
+                        }
                       }}
                       className="bg-white text-purple-600 px-3 py-1 rounded-full text-sm font-medium shadow-lg"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      {isItemEquipped(item) ? 'Équipé' : 'Équiper'}
+                      {isItemEquipped(item) ? 'Retirer' : 'Équiper'}
                     </motion.button>
                   </div>
                 )}
@@ -206,7 +206,7 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
           className="bg-gray-50 rounded-xl p-4"
         >
           <div className="flex items-center mb-3">
-            <div className="text-3xl mr-3">{selectedItem.emoji}</div>
+            <div className="text-3xl mr-3">{selectedItem.icon}</div>
             <div>
               <h3 className="font-bold text-lg text-gray-800">{selectedItem.name}</h3>
               <p className="text-sm text-gray-600">{selectedItem.description}</p>
@@ -224,7 +224,7 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
               </span>
             </div>
 
-            {selectedItem.unlocked ? (
+            {selectedItem.isUnlocked ? (
               <div className="flex justify-between">
                 <span className="text-gray-600">Statut:</span>
                 <span className="text-green-600 font-semibold">Débloqué</span>
@@ -232,24 +232,19 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
             ) : (
               <div className="flex justify-between">
                 <span className="text-gray-600">Condition:</span>
-                <span className="text-orange-600 font-semibold">{selectedItem.unlockCondition}</span>
-              </div>
-            )}
-
-            {selectedItem.unlockDate && (
-              <div className="flex justify-between">
-                <span className="text-gray-600">Débloqué le:</span>
-                <span className="text-gray-800">{new Date(selectedItem.unlockDate).toLocaleDateString()}</span>
+                <span className="text-orange-600 font-semibold">
+                  {selectedItem.unlockRequirementValue} {selectedItem.unlockRequirementType}
+                </span>
               </div>
             )}
           </div>
 
           {/* Action Buttons */}
-          {selectedItem.unlocked && (
+          {selectedItem.isUnlocked && (
             <div className="mt-4 flex space-x-2">
               {isItemEquipped(selectedItem) ? (
                 <motion.button
-                  onClick={() => handleUnequipItem(selectedItem.type)}
+                  onClick={() => handleUnequipItem(selectedItem)}
                   className="flex-1 bg-red-500 text-white py-2 rounded-lg font-medium"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -274,17 +269,20 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
       {/* Collection Stats */}
       <div className="mt-6 pt-4 border-t border-gray-200">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          {Object.entries(collection.rarityBreakdown).map(([rarity, count]) => (
-            <div key={rarity} className="text-sm">
-              <div
-                className="font-bold mb-1"
-                style={{ color: RARITY_COLORS[rarity as keyof typeof RARITY_COLORS] }}
-              >
-                {RARITY_LABELS[rarity as keyof typeof RARITY_LABELS]}
+          {Object.entries(RARITY_LABELS).map(([rarity, label]) => {
+            const count = wardrobeData?.items?.filter(item => item.rarity === rarity).length || 0;
+            return (
+              <div key={rarity} className="text-sm">
+                <div
+                  className="font-bold mb-1"
+                  style={{ color: RARITY_COLORS[rarity as keyof typeof RARITY_COLORS] }}
+                >
+                  {label}
+                </div>
+                <div className="text-gray-600">{count}</div>
               </div>
-              <div className="text-gray-600">{count}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

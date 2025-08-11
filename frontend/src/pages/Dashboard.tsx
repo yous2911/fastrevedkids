@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useAuth } from '../hooks/useAuth';
-import { enhancedApiService } from '../services/enhanced-api.service';
+import { useAuth } from '../contexts/FastRevKidsAuth';
+import { useStudentProgress, useStudentStats, useStudentAchievements, useRandomExercises, useCompetences } from '../hooks/useFastRevKidsApi';
+import { apiService } from '../services/fastrevkids-api.service';
 import MasteryLevelsCard from '../components/dashboard/MasteryLevelsCard';
 import PrerequisiteVisualization from '../components/dashboard/PrerequisiteVisualization';
 import AchievementBadges from '../components/dashboard/AchievementBadges';
@@ -84,152 +85,31 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercise, onLogout }) => {
-  const [recommendations, setRecommendations] = useState<Exercise[]>([]);
-  const [competenceProgress, setCompetenceProgress] = useState<CompetenceProgress[]>([]);
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [analyticsData, setAnalyticsData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [dataLoading, setDataLoading] = useState(true);
   const [greeting, setGreeting] = useState('');
-  const [error, setError] = useState('');
 
-  // Get student from auth context instead of fetching
-  const { currentStudent: student } = useAuth();
+  // Get student from auth context
+  const { student } = useAuth();
+  
+  // Use API hooks for data fetching
+  const { data: progressData, isLoading: progressLoading } = useStudentProgress();
+  const { data: statsData, isLoading: statsLoading } = useStudentStats(); 
+  const { data: achievementsData, isLoading: achievementsLoading } = useStudentAchievements();
+  const { data: recommendations, isLoading: recommendationsLoading } = useRandomExercises(student?.niveau || 'CP', 3);
+  
+  const dataLoading = progressLoading || statsLoading || achievementsLoading || recommendationsLoading;
 
   useEffect(() => {
     if (student) {
       generateGreeting();
-      loadDashboardData(student.id);
     }
   }, [student]);
 
-  const loadDashboardData = async (studentId: number) => {
-    setDataLoading(true);
-    try {
-      // Load all dashboard data in parallel
-      await Promise.all([
-        loadRecommendations(studentId),
-        loadCompetenceProgress(studentId),
-        loadAchievements(studentId),
-        loadAnalyticsData(studentId)
-      ]);
-    } catch (err) {
-      console.error('Error loading dashboard data:', err);
-      setError('Erreur lors du chargement des données');
-    } finally {
-      setDataLoading(false);
-    }
-  };
-
-  const loadCompetenceProgress = async (studentId: number) => {
-    try {
-      const data = await enhancedApiService.getStudentCompetenceProgress(studentId, { limit: 20 });
-      setCompetenceProgress(data.competenceProgress || []);
-    } catch (error) {
-      console.error('Error loading competence progress:', error);
-    }
-  };
-
-  const loadAchievements = async (studentId: number) => {
-    try {
-      const data = await enhancedApiService.getStudentAchievements(studentId, { 
-        limit: 10, 
-        visible: true 
-      });
-      setAchievements(data.achievements || []);
-    } catch (error) {
-      console.error('Error loading achievements:', error);
-    }
-  };
-
-  const loadAnalyticsData = async (studentId: number) => {
-    try {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 30);
-      
-      const data = await enhancedApiService.getDailyLearningAnalytics({
-        studentId,
-        dateStart: startDate.toISOString().split('T')[0],
-        dateEnd: endDate.toISOString().split('T')[0]
-      });
-      setAnalyticsData(data || null);
-    } catch (error) {
-      console.error('Error loading analytics data:', error);
-    }
-  };
-
-  // Mock stats for now since they're not in the database
-  const MOCK_STATS = {
+  // Use real stats from API or fallback
+  const stats = statsData?.stats || {
     totalExercises: 25,
     completedExercises: 18,
     successRate: 85,
     totalTime: 120
-  };
-
-  const loadRecommendations = async (studentId: number) => {
-    // Mock recommendations for now
-    const mockRecommendations: Exercise[] = [
-      {
-        id: 1,
-        type: 'CALCUL',
-        configuration: {
-          question: 'Combien font 5 + 7 ?',
-          difficulte: 'FACILE'
-        },
-        xp: 10,
-        difficulte: 'FACILE',
-        sousChapitre: {
-          titre: 'Addition',
-          chapitre: {
-            titre: 'Opérations de base',
-            matiere: {
-              nom: 'Mathématiques'
-            }
-          }
-        }
-      },
-      {
-        id: 2,
-        type: 'LECTURE',
-        configuration: {
-          question: 'Lis le mot : "maison"',
-          difficulte: 'FACILE'
-        },
-        xp: 15,
-        difficulte: 'FACILE',
-        sousChapitre: {
-          titre: 'Lecture de mots',
-          chapitre: {
-            titre: 'Lecture',
-            matiere: {
-              nom: 'Français'
-            }
-          }
-        }
-      },
-      {
-        id: 3,
-        type: 'GEOMETRIE',
-        configuration: {
-          question: 'Quelle forme a 3 côtés ?',
-          difficulte: 'MOYEN'
-        },
-        xp: 20,
-        difficulte: 'MOYEN',
-        sousChapitre: {
-          titre: 'Formes géométriques',
-          chapitre: {
-            titre: 'Géométrie',
-            matiere: {
-              nom: 'Mathématiques'
-            }
-          }
-        }
-      }
-    ];
-    
-    setRecommendations(mockRecommendations);
   };
 
   const generateGreeting = () => {
@@ -268,7 +148,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
   };
 
   const getStreakMessage = () => {
-    const streak = student?.serieJours || 0;
+    const streak = student?.currentStreak || 0;
     if (streak === 0) return "Commence ta série aujourd'hui ! 🌟";
     if (streak === 1) return "Première journée ! Continue ! 🔥";
     if (streak < 7) return `${streak} jours consécutifs ! Super ! 🚀`;
@@ -285,7 +165,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
     }
   };
 
-  if (loading) {
+  if (dataLoading && !student) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
@@ -296,7 +176,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
     );
   }
 
-  if (error || !student) {
+  if (!student) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md">
@@ -305,7 +185,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
             Impossible de charger tes données
           </h2>
           <p className="text-gray-600 mb-4">
-            {error || 'Vérifiez votre connexion internet'}
+            Vérifiez votre connexion internet
           </p>
           <button
             onClick={() => window.location.reload()}
@@ -362,29 +242,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
               <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="text-4xl">
-                    {getMascotEmoji(student.mascotteType)}
+                    🧚‍♀️
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold">
                       {greeting} {student.prenom} ! 🌟
                     </h2>
                     <p className="text-blue-100 text-lg">
-                      {getMascotMessage(student.mascotteType)}
+                      Prêt pour de nouvelles aventures magiques !
                     </p>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-3 gap-4 mt-6">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{student.totalPoints}</div>
+                    <div className="text-2xl font-bold">{student.totalXp}</div>
                     <div className="text-blue-100 text-sm">Points</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{student.serieJours}</div>
+                    <div className="text-2xl font-bold">{student.currentStreak}</div>
                     <div className="text-blue-100 text-sm">Jours</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{MOCK_STATS.successRate}%</div>
+                    <div className="text-2xl font-bold">{stats.successRate}%</div>
                     <div className="text-blue-100 text-sm">Réussite</div>
                   </div>
                 </div>
@@ -398,9 +278,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
               transition={{ delay: 0.2 }}
             >
               <MasteryLevelsCard 
-                competenceProgress={competenceProgress}
-                loading={dataLoading}
-                studentLevel={student.niveauActuel}
+                competenceProgress={[]}
+                loading={progressLoading}
+                studentLevel={student.niveau}
               />
             </motion.div>
 
@@ -411,8 +291,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
               transition={{ delay: 0.25 }}
             >
               <AnalyticsCharts 
-                analyticsData={analyticsData}
-                loading={dataLoading}
+                analyticsData={{ analytics: [], aggregatedMetrics: { totalDays: 0, totalSessionTime: 0, totalExercises: 0, totalCompletedExercises: 0, averageScore: 0, totalXpEarned: 0, totalCompetencesMastered: 0, maxStreakDays: 0, completionRate: 0 } }}
+                loading={statsLoading}
               />
             </motion.div>
 
@@ -435,7 +315,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
                   </button>
                 </div>
 
-                {recommendations.length > 0 ? (
+                {recommendations && recommendations.length > 0 ? (
                   <div className="space-y-3">
                     {recommendations.map((exercise, index) => (
                       <motion.div
@@ -444,26 +324,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 * index }}
                         className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-200"
-                        onClick={() => onStartExercise(exercise)}
+                        onClick={() => console.log('Start exercise', exercise)}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <h4 className="font-medium text-gray-800 mb-1">
-                              {exercise.configuration.question.substring(0, 60)}
-                              {exercise.configuration.question.length > 60 ? '...' : ''}
+                              {exercise.question.substring(0, 60)}
+                              {exercise.question.length > 60 ? '...' : ''}
                             </h4>
                             <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <span className={`px-2 py-1 rounded-full text-xs border ${getDifficultyColor(exercise.difficulte)}`}>
-                                {exercise.difficulte}
+                              <span className={`px-2 py-1 rounded-full text-xs border ${getDifficultyColor(exercise.difficultyLevel.toString())}`}>
+                                Niveau {exercise.difficultyLevel}
                               </span>
                               <span>•</span>
-                              <span>{exercise.xp} XP</span>
-                              {exercise.sousChapitre && (
-                                <>
-                                  <span>•</span>
-                                  <span>{exercise.sousChapitre.chapitre.matiere.nom}</span>
-                                </>
-                              )}
+                              <span>{exercise.xpReward} XP</span>
+                              <span>•</span>
+                              <span>{exercise.type}</span>
                             </div>
                           </div>
                           <div className="text-gray-400 ml-4">
@@ -472,6 +348,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
                         </div>
                       </motion.div>
                     ))}
+                  </div>
+                ) : recommendationsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                    <p className="text-gray-600">Chargement des exercices...</p>
                   </div>
                 ) : (
                   <div className="text-center py-8">
@@ -492,8 +373,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
               transition={{ delay: 0.3 }}
             >
               <AchievementBadges 
-                achievements={achievements}
-                loading={dataLoading}
+                achievements={[]}
+                loading={achievementsLoading}
                 onViewAll={() => onNavigate('/achievements')}
               />
             </motion.div>
@@ -506,7 +387,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
             >
               <PrerequisiteVisualization 
                 studentId={student?.id || 0}
-                currentLevel={student?.niveauActuel || 'CP'}
+                currentLevel={student?.niveau || 'CP'}
                 loading={dataLoading}
               />
             </motion.div>
@@ -618,19 +499,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Exercices terminés</span>
-                    <span className="font-bold text-gray-800">{MOCK_STATS.completedExercises}</span>
+                    <span className="font-bold text-gray-800">{stats.completedExercises}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Taux de réussite</span>
-                    <span className="font-bold text-green-600">{MOCK_STATS.successRate}%</span>
+                    <span className="font-bold text-green-600">{stats.successRate}%</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Temps d'étude</span>
-                    <span className="font-bold text-blue-600">{Math.round(MOCK_STATS.totalTime / 60)}min</span>
+                    <span className="font-bold text-blue-600">{Math.round(stats.totalTime / 60)}min</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Niveau actuel</span>
-                    <span className="font-bold text-purple-600">{student.niveauActuel}</span>
+                    <span className="font-bold text-purple-600">{student.niveau}</span>
                   </div>
                 </div>
               </div>
@@ -645,12 +526,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onStartExercis
               <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-6 text-white shadow-lg">
                 <div className="text-center">
                   <div className="text-3xl mb-2">🏆</div>
-                  <h3 className="text-lg font-bold mb-1">Niveau {student.niveauActuel}</h3>
+                  <h3 className="text-lg font-bold mb-1">Niveau {student.niveau}</h3>
                   <p className="text-yellow-100 text-sm mb-3">
                     Tu progresses bien !
                   </p>
                   <div className="bg-white/20 rounded-full p-2">
-                    <div className="text-2xl font-bold">{student.totalPoints}</div>
+                    <div className="text-2xl font-bold">{student.totalXp}</div>
                     <div className="text-xs">Points totaux</div>
                   </div>
                 </div>

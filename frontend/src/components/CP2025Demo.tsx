@@ -246,7 +246,7 @@ const sampleCP2025Data: CP2025Data = {
   ]
 };
 
-export const cP2025Demo = (): React.ReactElement => {
+export const CP2025Demo = (): React.ReactElement => {
   const cp2025Data = useCP2025Data({ initialData: sampleCP2025Data });
 
   if (cp2025Data.isLoading) {

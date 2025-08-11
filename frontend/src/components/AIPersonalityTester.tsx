@@ -32,7 +32,7 @@ interface TestResult {
   timestamp: number;
 }
 
-const aIPersonalityTester: React.FC = () => {
+const AIPersonalityTester: React.FC = () => {
   const [selectedPersonality, setSelectedPersonality] = useState<PersonalityProfile>({
     extroversion: 0.7,
     patience: 0.6,
@@ -594,4 +594,4 @@ const aIPersonalityTester: React.FC = () => {
   );
 };
 
-export default aIPersonalityTester;
+export default AIPersonalityTester;

@@ -91,7 +91,7 @@ export class ApiService {
       process.env.REACT_APP_API_URL,
       process.env.REACT_APP_API_BASE_URL,
       process.env.REACT_APP_BACKEND_URL,
-      'http://localhost:3003/api', // Default fallback
+      'http://localhost:5000/api', // Default fallback
     ];
 
     for (const url of POSSIBLE_URLS) {
@@ -107,14 +107,14 @@ export class ApiService {
       
       // Development detection
       if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return `${protocol}//${hostname}:3003/api`;
+        return `${protocol}//${hostname}:5000/api`;
       }
       
       // Production fallback
       return `${protocol}//${hostname}/api`;
     }
 
-    return 'http://localhost:3003/api';
+    return 'http://localhost:5000/api';
   }
 
   private setupCacheInvalidationRules(): void {

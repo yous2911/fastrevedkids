@@ -1,5 +1,5 @@
 import React from 'react';
-import { AuthProvider } from './hooks/useAuth';
+import { AuthProvider } from './contexts/FastRevKidsAuth';
 import { SecurityProvider } from './components/SecurityProvider/SecurityProvider';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import { AsyncErrorBoundary } from './components/ErrorBoundary/AsyncErrorBoundary';

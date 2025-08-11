@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/FastRevKidsAuth';
 import { Login } from '../../pages/Login';
 import { LazyComponentLoader } from '../ui/LazyComponentLoader';
 import {
@@ -10,7 +10,7 @@ import {
   AdminPanelLazy
 } from '../../pages/lazy';
 import { preloadRouteComponents } from '../../utils/lazyLoading';
-import { Exercise } from '../../types/api.types';
+import { Exercise } from '../../services/fastrevkids-api.service';
 import SkipLinks from '../accessibility/SkipLinks';
 import AccessibilityTestPanel from '../accessibility/AccessibilityTestPanel';
 import { useDevAccessibilityTesting } from '../../hooks/useAccessibilityTesting';
@@ -28,7 +28,7 @@ import ErrorHandlingTestSuite from '../../pages/ErrorHandlingTestSuite';
 type RouteType = 'dashboard' | 'exercises' | 'profile' | 'progress' | 'admin' | 'exercise' | 'exercise-test' | 'xp-theme-test' | 'wardrobe-test' | 'comprehensive-test' | 'cross-browser-test' | 'error-handling-test';
 
 export const AppRouter: React.FC = () => {
-  const { student, loading, logout, isAuthenticated } = useAuth();
+  const { student, isLoading, logout, isAuthenticated } = useAuth();
   const [currentRoute, setCurrentRoute] = useState<RouteType>('dashboard');
   const [currentExercise, setCurrentExercise] = useState<Exercise | null>(null);
   const [showAccessibilityPanel, setShowAccessibilityPanel] = useState(false);
@@ -51,9 +51,9 @@ export const AppRouter: React.FC = () => {
     }
   }, [student, isAuthenticated]);
 
-  console.log('AppRouter render:', { student, loading, isAuthenticated, currentRoute });
+  console.log('AppRouter render:', { student, isLoading, isAuthenticated, currentRoute });
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-400 to-pink-400">
         <div className="text-white text-2xl font-bold animate-pulse">
@@ -67,18 +67,9 @@ export const AppRouter: React.FC = () => {
     setCurrentRoute(route);
   };
 
-  // Adapter function to safely convert between Exercise types
+  // Adapter function no longer needed - Exercise types now match
   const adaptExerciseForComponents = (exercise: Exercise) => {
-    return {
-      ...exercise,
-      // Ensure all required properties exist with safe defaults
-      createdAt: exercise.createdAt || new Date().toISOString(),
-      updatedAt: exercise.updatedAt || new Date().toISOString(),
-      configuration: {
-        ...exercise.configuration,
-        difficulte: exercise.difficulte // Use the exercise's difficulte
-      }
-    };
+    return exercise;
   };
 
   const getDifficultyColor = (difficulte: string) => {
@@ -174,16 +165,16 @@ export const AppRouter: React.FC = () => {
                       </svg>
                     </button>
                     <div>
-                      <h1 className="text-2xl font-bold text-gray-900">{currentExercise?.titre}</h1>
-                      <p className="text-gray-600">{currentExercise?.consigne}</p>
+                      <h1 className="text-2xl font-bold text-gray-900">{currentExercise?.question}</h1>
+                      <p className="text-gray-600">Exercise {currentExercise?.id}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getDifficultyColor(currentExercise?.difficulte || 'FACILE')}`}>
-                      {currentExercise?.difficulte}
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getDifficultyColor('FACILE')}`}>
+                      Level {currentExercise?.difficultyLevel || 1}
                     </span>
                     <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                      {currentExercise?.xp} XP
+                      {currentExercise?.xpReward} XP
                     </span>
                   </div>
                 </div>
@@ -197,7 +188,7 @@ export const AppRouter: React.FC = () => {
                     onComplete={(result) => {
                       console.log('Exercise completed:', result);
                       // Handle completion - could show results, award XP, etc.
-                      alert(`Félicitations! Vous avez gagné ${currentExercise.xp} XP!`);
+                      alert(`Félicitations! Vous avez gagné ${currentExercise.xpReward} XP!`);
                       setCurrentExercise(null);
                       setCurrentRoute('exercises');
                     }}

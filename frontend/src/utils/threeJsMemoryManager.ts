@@ -4,7 +4,6 @@
  */
 
 import * as THREE from 'three';
-import React, { useRef, useCallback, useEffect } from 'react';
 
 interface ThreeJSResource {
   id: string;
@@ -223,29 +222,27 @@ export class ThreeJSMemoryManager {
   }
 
   /**
-   * Automatic resource disposal for React components
+   * Get resource IDs for manual disposal in React components
    */
-  public useAutoDispose() {
-    const resourceIds = useRef<string[]>([]);
+  public getAutoDisposeHelper() {
+    const resourceIds: string[] = [];
 
-    const registerResource = useCallback(<T>(
+    const registerResource = <T>(
       object: T,
       type: ThreeJSResource['type'],
       id?: string
     ): string => {
       const resourceId = this.register(object, type, id);
-      resourceIds.current.push(resourceId);
+      resourceIds.push(resourceId);
       return resourceId;
-    }, []);
+    };
 
-    useEffect(() => {
-      return () => {
-        resourceIds.current.forEach(id => this.dispose(id));
-        resourceIds.current = [];
-      };
-    }, []);
+    const disposeAll = () => {
+      resourceIds.forEach(id => this.dispose(id));
+      resourceIds.length = 0;
+    };
 
-    return { registerResource };
+    return { registerResource, disposeAll };
   }
 
   private disposeResource(resource: ThreeJSResource): void {
@@ -487,7 +484,7 @@ export class ThreeJSMemoryManager {
  */
 export const useThreeJSMemory = () => {
   const manager = ThreeJSMemoryManager.getInstance();
-  const { registerResource } = manager.useAutoDispose();
+  const { registerResource } = manager.getAutoDisposeHelper();
 
   return {
     register: registerResource,

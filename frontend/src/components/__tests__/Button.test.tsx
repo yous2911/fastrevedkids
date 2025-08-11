@@ -4,6 +4,9 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { MOCK_FRAMER_MOTION, mockUseSound, mockUseHaptic } from '../../tests/mocks';
 
+// Import Button after mocks are set up
+import { Button } from '../ui/Button';
+
 // Mock framer-motion
 jest.mock('framer-motion', () => MOCK_FRAMER_MOTION);
 
@@ -24,9 +27,6 @@ jest.mock('../ui/LoadingSpinner', () => ({
     </div>
   ),
 }), { virtual: true });
-
-// Import Button after mocks are set up
-import { Button } from '../ui/Button';
 
 describe('Button Component', () => {
   let user: ReturnType<typeof userEvent.setup>;

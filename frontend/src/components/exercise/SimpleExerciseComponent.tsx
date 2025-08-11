@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Exercise } from '../../types/api.types';
+import { Exercise } from '../../services/fastrevkids-api.service';
 
 interface SimpleExerciseComponentProps {
   exercise: Exercise;
@@ -18,13 +18,9 @@ export const SimpleExerciseComponent: React.FC<SimpleExerciseComponentProps> = (
   const [showFeedback, setShowFeedback] = useState(false);
   const [attempts, setAttempts] = useState(0);
 
-  // Parse exercise configuration
-  const config = typeof exercise.configuration === 'string' 
-    ? JSON.parse(exercise.configuration) 
-    : exercise.configuration;
-
-  const question = config.question || exercise.titre;
-  const correctAnswer = config.bonneReponse || config.resultat || config.correctAnswer;
+  // Use exercise properties directly from the fastrevkids-api.service Exercise type
+  const question = exercise.question;
+  const correctAnswer = exercise.correctAnswer;
 
   const handleSubmit = () => {
     if (!userAnswer.trim()) return;
@@ -43,7 +39,7 @@ export const SimpleExerciseComponent: React.FC<SimpleExerciseComponentProps> = (
           exerciseId: exercise.id,
           correct: true,
           attempts: attempts + 1,
-          xpEarned: exercise.xp
+          xpEarned: exercise.xpReward
         });
       }, 2000);
     } else {
@@ -82,9 +78,7 @@ export const SimpleExerciseComponent: React.FC<SimpleExerciseComponentProps> = (
         className="text-center"
       >
         <h2 className="text-3xl font-bold text-gray-800 mb-4">{question}</h2>
-        {config.explanation && (
-          <p className="text-gray-600 text-lg">{config.explanation}</p>
-        )}
+        {/* Optional explanation could be added here */}
       </motion.div>
 
       {/* Answer Input */}

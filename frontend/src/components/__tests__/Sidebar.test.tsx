@@ -11,14 +11,7 @@ jest.mock('framer-motion', () => MOCK_FRAMER_MOTION);
 // Mock useApp hook
 const mockDispatch = jest.fn();
 const mockLogout = jest.fn();
-const mockUseApp = jest.fn(() => ({
-  state: {
-    sidebarOpen: false,
-    currentStudent: null as any
-  },
-  dispatch: mockDispatch,
-  logout: mockLogout
-}));
+const mockUseApp = jest.fn();
 
 jest.mock('../../context/AppContext', () => ({
   useApp: mockUseApp

@@ -2,7 +2,7 @@ import React from 'react';
 import { useCP2025Data } from '../hooks/useCP2025Data';
 import { getCompleteCP2025Service } from '../utils/cp2025DataLoader';
 
-export const cP2025UsageExample: React.FC = () => {
+export const CP2025UsageExample: React.FC = () => {
   // Method 1: Using the hook with complete data
   const completeData = getCompleteCP2025Service();
   const cp2025Data = useCP2025Data({ 

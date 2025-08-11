@@ -10,7 +10,14 @@
       "Bash(mkdir:*)",
       "Bash(npm run build:*)",
       "Bash(grep:*)",
-      "Bash(npm test)"
+      "Bash(npm test)",
+      "Bash(copy App.tsx App-Original.tsx)",
+      "Bash(copy App-Updated.tsx App.tsx)",
+      "Bash(cp:*)",
+      "Bash(npm test:*)",
+      "Bash(node:*)",
+      "Bash(npm ls:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }

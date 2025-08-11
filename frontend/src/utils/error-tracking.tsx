@@ -5,6 +5,7 @@
 
 import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
+import { useLocation, useNavigationType, createRoutesFromChildren, matchRoutes } from 'react-router-dom';
 import { getConfig, getCurrentEnvironment, isProduction } from '../config/environment';
 
 interface ErrorContext {
@@ -214,7 +215,7 @@ class ErrorTracker {
 
           // Add context
           if (error.context) {
-            scope.setContext('error_context', error.context);
+            scope.setContext('error_context', error.context as Record<string, any>);
             
             if (error.context.userId) {
               scope.setUser({ id: error.context.userId });
@@ -248,7 +249,7 @@ class ErrorTracker {
           scope.setLevel(level);
           
           if (context) {
-            scope.setContext('message_context', context);
+            scope.setContext('message_context', context as Record<string, any>);
           }
           
           Sentry.captureMessage(message);
@@ -503,6 +504,6 @@ export const withErrorTracking = <P extends object>(Component: React.ComponentTy
       };
     }, []);
 
-    return <Component {...props} ref={ref} />;
+    return <Component {...(props as any)} ref={ref} />;
   });
 };

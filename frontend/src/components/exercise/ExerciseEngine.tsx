@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
 
-import { ExercicePedagogique, TentativeExercice, TentativeResponse } from '../../types/api.types';
-import { useStudentData } from '../../hooks/useStudentData';
-import { useApp } from '../../context/AppContext';
+import { Exercise } from '../../services/fastrevkids-api.service';
+import { ExercicePedagogique } from '../../types/api.types';
+import { useExerciseSubmission } from '../../hooks/useFastRevKidsApi';
+import { useAuth } from '../../contexts/FastRevKidsAuth';
 import { useToast } from '../ui/Toast';
 
 import { Button } from '../ui/Button';
@@ -15,9 +16,8 @@ import { ExerciseTextLibre } from './types/ExerciseTextLibre';
 import { ExerciseDragDrop } from './types/ExerciseDragDrop';
 
 export interface ExerciseEngineProps {
-  exercise: ExercicePedagogique;
-  studentId: number;
-  onComplete: (result: TentativeResponse) => void;
+  exercise: Exercise;
+  onComplete: (result: any) => void;
   onExit: () => void;
   autoSubmit?: boolean;
   showHints?: boolean;
@@ -35,12 +35,51 @@ interface ExerciseState {
   showValidation: boolean;
 }
 
+// Helper function to convert Exercise to ExercicePedagogique format
+const convertToExercicePedagogique = (exercise: Exercise): ExercicePedagogique => {
+  // Map exercise types to the expected format
+  let mappedType: ExercicePedagogique['type'];
+  switch (exercise.type) {
+    case 'MENTAL_MATH':
+      mappedType = 'CALCUL';
+      break;
+    case 'ECRITURE':
+    case 'COMPREHENSION':
+      mappedType = 'TEXTE_LIBRE';
+      break;
+    default:
+      mappedType = exercise.type as ExercicePedagogique['type'];
+      break;
+  }
+
+  return {
+    id: exercise.id,
+    type: mappedType,
+    configuration: {
+      question: exercise.question,
+      choix: exercise.options,
+      bonneReponse: exercise.correctAnswer
+    },
+    xp: exercise.xpReward,
+    difficulte: exercise.difficultyLevel === 1 ? 'FACILE' : exercise.difficultyLevel === 2 ? 'MOYEN' : 'DIFFICILE',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+};
+
 // Helper function to get exercise hints
-const getExerciseHints = (exercise: ExercicePedagogique): string[] => {
+const getExerciseHints = (exercise: Exercise): string[] => {
   const hints: string[] = [];
   
-  if (exercise.configuration.hint) {
-    hints.push(exercise.configuration.hint);
+  if (exercise.hintsText) {
+    try {
+      const hintsArray = Array.isArray(exercise.hintsText) 
+        ? exercise.hintsText 
+        : JSON.parse(exercise.hintsText as string);
+      hints.push(...hintsArray);
+    } catch {
+      hints.push(exercise.hintsText as string);
+    }
   }
   
   // Add contextual hints based on exercise type
@@ -52,6 +91,10 @@ const getExerciseHints = (exercise: ExercicePedagogique): string[] => {
     case 'CALCUL':
       hints.push('Vérifie tes calculs étape par étape');
       hints.push('N\'oublie pas les règles de priorité des opérations');
+      break;
+    case 'MENTAL_MATH':
+      hints.push('Utilise les techniques de calcul mental que tu connais');
+      hints.push('Décompose le calcul si nécessaire');
       break;
     case 'DRAG_DROP':
       hints.push('Associe chaque élément à la bonne catégorie');
@@ -66,35 +109,41 @@ const getExerciseHints = (exercise: ExercicePedagogique): string[] => {
 };
 
 // Helper function to validate answers
-const validateAnswer = (exercise: ExercicePedagogique, answer: any): boolean => {
+const validateAnswer = (exercise: Exercise, answer: any): boolean => {
   if (!answer) return false;
   
-  switch (exercise.type) {
-    case 'QCM':
-      return answer === exercise.configuration.bonneReponse;
-    case 'CALCUL':
-      return Number(answer) === Number(exercise.configuration.resultat);
-    case 'DRAG_DROP':
-      // Validate drag and drop answer structure
-      if (typeof answer !== 'object') return false;
-      // Add more specific validation logic here
-      return true;
-    default:
-      return answer === exercise.configuration.bonneReponse;
+  try {
+    const correctAnswer = exercise.correctAnswer;
+    
+    switch (exercise.type) {
+      case 'QCM':
+        return answer === correctAnswer;
+      case 'CALCUL':
+      case 'MENTAL_MATH':
+        return Number(answer) === Number(correctAnswer);
+      case 'DRAG_DROP':
+        // Validate drag and drop answer structure
+        if (typeof answer !== 'object') return false;
+        return JSON.stringify(answer) === JSON.stringify(correctAnswer);
+      default:
+        return String(answer).toLowerCase().trim() === String(correctAnswer).toLowerCase().trim();
+    }
+  } catch (error) {
+    console.error('Error validating answer:', error);
+    return false;
   }
 };
 
 export const ExerciseEngine: React.FC<ExerciseEngineProps> = memo(({
   exercise,
-  studentId,
   onComplete,
   onExit,
   autoSubmit = false,
   showHints = true,
   timeLimit
 }) => {
-  const { submitExercise } = useStudentData(studentId);
-  const { state } = useApp();
+  const { student } = useAuth();
+  const { submitExercise, isSubmitting } = useExerciseSubmission();
   const { success, error: showError, warning } = useToast();
   
   const [exerciseState, setExerciseState] = useState<ExerciseState>({
@@ -168,24 +217,25 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = memo(({
 
   // Submit exercise attempt
   const handleSubmit = useCallback(async (timeExpired: boolean = false) => {
-    if (exerciseState.isSubmitting || exerciseState.isCompleted) return;
+    if (isSubmitting || exerciseState.isCompleted) return;
     
     if (!exerciseState.currentAnswer && !timeExpired) {
       showError('Veuillez donner une réponse avant de valider');
       return;
     }
 
-    setExerciseState(prev => ({ ...prev, isSubmitting: true, showValidation: true }));
+    setExerciseState(prev => ({ ...prev, showValidation: true }));
 
     try {
-      const attempt: TentativeExercice = {
-        reponse: exerciseState.currentAnswer,
-        reussi: validateAnswer(exercise, exerciseState.currentAnswer),
-        tempsSecondes: exerciseState.timeElapsed,
-        aidesUtilisees: exerciseState.hintsUsed
-      };
-
-      const result = await submitExercise(exercise.id, attempt);
+      const isCorrect = validateAnswer(exercise, exerciseState.currentAnswer);
+      const result = await submitExercise(exercise.id, {
+        score: isCorrect ? 100 : 0,
+        timeSpent: exerciseState.timeElapsed,
+        completed: true,
+        attempts: exerciseState.attempts + 1,
+        hintsUsed: exerciseState.hintsUsed,
+        answerGiven: String(exerciseState.currentAnswer)
+      });
       
       setExerciseState(prev => ({ 
         ...prev, 
@@ -193,29 +243,35 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = memo(({
         attempts: prev.attempts + 1
       }));
 
-      // Show feedback
-      if (result.data.reussi) {
-        success(`Bravo ! +${result.data.pointsGagnes} points`, { duration: 4000 });
-      } else {
-        showError('Pas tout à fait... Réessaye !', { duration: 3000 });
-      }
+      if (result.success) {
+        // Show feedback
+        if (isCorrect) {
+          success(`Bravo ! +${result.xpEarned || exercise.xpReward} XP`, { duration: 4000 });
+        } else {
+          showError('Pas tout à fait... Réessaye !', { duration: 3000 });
+        }
 
-      // Call completion handler after a short delay for feedback
-      setTimeout(() => {
-        onComplete(result);
-      }, result.data.reussi ? 2000 : 1500);
+        // Call completion handler after a short delay for feedback
+        setTimeout(() => {
+          onComplete(result);
+        }, isCorrect ? 2000 : 1500);
+      } else {
+        showError(result.error?.message || 'Erreur lors de la soumission');
+        setExerciseState(prev => ({ ...prev, showValidation: false }));
+      }
 
     } catch (err: any) {
       showError(err.message || 'Erreur lors de la soumission');
-      setExerciseState(prev => ({ ...prev, isSubmitting: false, showValidation: false }));
+      setExerciseState(prev => ({ ...prev, showValidation: false }));
     }
   }, [
     exercise, 
     exerciseState.currentAnswer, 
     exerciseState.timeElapsed, 
     exerciseState.hintsUsed,
-    exerciseState.isSubmitting,
+    exerciseState.attempts,
     exerciseState.isCompleted,
+    isSubmitting,
     submitExercise, 
     onComplete, 
     success, 
@@ -243,12 +299,12 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = memo(({
 
   // Memoized common props for exercise components
   const exerciseComponentProps = useMemo(() => ({
-    exercise,
+    exercise: convertToExercicePedagogique(exercise),
     onAnswerChange: handleAnswerChange,
-    disabled: exerciseState.isSubmitting || exerciseState.isCompleted,
+    disabled: isSubmitting || exerciseState.isCompleted,
     currentAnswer: exerciseState.currentAnswer,
     showValidation: exerciseState.showValidation
-  }), [exercise, handleAnswerChange, exerciseState.isSubmitting, exerciseState.isCompleted, exerciseState.currentAnswer, exerciseState.showValidation]);
+  }), [exercise, handleAnswerChange, isSubmitting, exerciseState.isCompleted, exerciseState.currentAnswer, exerciseState.showValidation]);
 
   // Memoized render appropriate exercise component
   const renderExerciseComponent = useMemo(() => {
@@ -256,18 +312,13 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = memo(({
       case 'QCM':
         return <ExerciseQCM {...exerciseComponentProps} />;
       case 'CALCUL':
+      case 'MENTAL_MATH':
         return <ExerciseCalcul {...exerciseComponentProps} />;
-      case 'TEXTE_LIBRE':
-        return <ExerciseTextLibre {...exerciseComponentProps} />;
       case 'DRAG_DROP':
         return <ExerciseDragDrop {...exerciseComponentProps} />;
-      case 'CONJUGAISON':
-        return <ExerciseTextLibre {...exerciseComponentProps} />;
       case 'LECTURE':
-        return <ExerciseTextLibre {...exerciseComponentProps} />;
-      case 'GEOMETRIE':
-        return <ExerciseTextLibre {...exerciseComponentProps} />;
-      case 'PROBLEME':
+      case 'ECRITURE':
+      case 'COMPREHENSION':
         return <ExerciseTextLibre {...exerciseComponentProps} />;
       default:
         return (
@@ -297,7 +348,7 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = memo(({
                   Exercice {exercise.type}
                 </h1>
                 <p className="text-sm text-gray-600">
-                  Difficulté: {exercise.difficulte} • {exercise.xp} XP
+                  Difficulté: {exercise.difficultyLevel} • {exercise.xpReward} XP
                 </p>
               </div>
             </div>
@@ -365,10 +416,10 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = memo(({
             {!autoSubmit && (
               <button
                 onClick={() => handleSubmit()}
-                disabled={!exerciseState.currentAnswer || exerciseState.isSubmitting || exerciseState.isCompleted}
+                disabled={!exerciseState.currentAnswer || isSubmitting || exerciseState.isCompleted}
                 className="min-w-32 flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {exerciseState.isSubmitting ? (
+                {isSubmitting ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : exerciseState.isCompleted ? (
                   <>
@@ -389,7 +440,6 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = memo(({
   // Custom comparison for React.memo
   return (
     prevProps.exercise.id === nextProps.exercise.id &&
-    prevProps.studentId === nextProps.studentId &&
     prevProps.autoSubmit === nextProps.autoSubmit &&
     prevProps.showHints === nextProps.showHints &&
     prevProps.timeLimit === nextProps.timeLimit

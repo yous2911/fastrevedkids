@@ -12,6 +12,9 @@ import { getConfig, getCdnUrl } from '../config/environment';
 import { getErrorTracker } from './error-tracking';
 import { getPerformanceMonitor } from './performance-monitoring';
 
+// Import React for hooks
+import React from 'react';
+
 interface AssetCacheEntry {
   asset: any;
   lastUsed: number;
@@ -194,7 +197,7 @@ class ThreeJSAssetManager {
     // Check cache first
     const cached = this.getFromCache(cacheKey);
     if (cached) {
-      return cached.clone();
+      return (cached as any).clone();
     }
 
     const modelUrl = getCdnUrl(`/models/sparky/${variant}.gltf`);
@@ -263,7 +266,7 @@ class ThreeJSAssetManager {
       if (options.wrapS) texture.wrapS = options.wrapS;
       if (options.wrapT) texture.wrapT = options.wrapT;
       if (options.minFilter) texture.minFilter = options.minFilter;
-      if (options.magFilter) texture.magFilter = options.magFilter;
+      if (options.magFilter) texture.magFilter = options.magFilter as any;
 
       // Optimize texture
       this.optimizeTexture(texture);
@@ -310,8 +313,8 @@ class ThreeJSAssetManager {
       geometry.computeBoundingSphere();
       
       // Merge vertices if possible (reduces draw calls)
-      if (typeof geometry.mergeVertices === 'function') {
-        geometry.mergeVertices();
+      if (typeof (geometry as any).mergeVertices === 'function') {
+        (geometry as any).mergeVertices();
       }
       
       // Dispose of unused attributes
@@ -629,6 +632,3 @@ export const useThreeJSAssets = () => {
     getCacheStats: manager.getCacheStats.bind(manager),
   };
 };
-
-// Import React for hooks
-import React from 'react';
