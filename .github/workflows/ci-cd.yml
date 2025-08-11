@@ -63,10 +63,11 @@ jobs:
         REDIS_URL: redis://localhost:6379
 
     - name: Upload backend coverage
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./backend/coverage/lcov.info
         flags: backend
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   test-frontend:
     runs-on: ubuntu-latest
@@ -105,10 +106,11 @@ jobs:
         CI: true
 
     - name: Upload frontend coverage
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./frontend/coverage/lcov.info
         flags: frontend
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   security-scan:
     runs-on: ubuntu-latest

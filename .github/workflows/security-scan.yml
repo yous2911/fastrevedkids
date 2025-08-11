@@ -42,7 +42,7 @@ jobs:
         npm audit --audit-level high --json > frontend-audit.json || true
 
     - name: Upload audit results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: audit-results
         path: |

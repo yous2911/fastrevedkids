@@ -50,6 +50,7 @@
     "lint:security": "eslint src --ext .ts,.tsx,.js,.jsx --config .eslintrc.security.json",
     "type-check": "tsc --noEmit",
     "format": "prettier --write src/**/*.{ts,tsx,js,jsx,css,md}",
+    "format:check": "prettier --check src/**/*.{ts,tsx,js,jsx,css,md}",
     "analyze": "npm run build:analyze && npx webpack-bundle-analyzer build/static/js/*.js",
     "analyze:security": "npm run build && node scripts/security-analysis.js",
     "optimize:bundle": "node scripts/bundle-optimizer.js",
