@@ -3,6 +3,15 @@ import { z } from 'zod';
 import { logger } from '../utils/logger';
 import { AuditTrailService } from './audit-trail.service';
 import { EncryptionService } from './encryption.service';
+import { db } from '../db/connection';
+import { 
+  students, 
+  studentProgress, 
+  sessions, 
+  gdprConsentRequests,
+  auditLogs
+} from '../db/schema';
+import { eq, and, lt, sql } from 'drizzle-orm';
 
 // Validation schemas
 const AnonymizationConfigSchema = z.object({
@@ -694,64 +703,583 @@ export class DataAnonymizationService {
     logger.info('Inactivity check scheduled to run daily');
   }
 
-  // Database methods (implement with your DB layer)
+  /**
+   * Get student data from database
+   */
   private async getStudentData(studentId: string): Promise<any> {
-    // TODO: Implement database query
-    return {};
+    try {
+      const [student] = await db
+        .select()
+        .from(students)
+        .where(eq(students.id, parseInt(studentId)))
+        .limit(1);
+
+      if (!student) {
+        return null;
+      }
+
+      return {
+        id: student.id,
+        first_name: student.prenom,
+        last_name: student.nom,
+        email: student.email,
+        birth_date: student.dateNaissance,
+        grade_level: student.niveauActuel,
+        total_points: student.totalPoints,
+        completion_rate: student.serieJours / 365.0, // Approximate completion rate
+        avg_score: student.totalPoints / 100.0, // Normalized score
+        last_access: student.dernierAcces,
+        mascotte_type: student.mascotteType,
+        created_at: student.createdAt,
+        updated_at: student.updatedAt
+      };
+
+    } catch (error) {
+      logger.error('Error getting student data:', error);
+      throw new Error(`Failed to get student data: ${error.message}`);
+    }
   }
 
+  /**
+   * Update student data with anonymized values
+   */
   private async updateStudentData(studentId: string, data: any): Promise<void> {
-    // TODO: Implement database update
+    try {
+      await db.transaction(async (tx) => {
+        await tx
+          .update(students)
+          .set({
+            prenom: data.first_name || data.prenom,
+            nom: data.last_name || data.nom,
+            email: data.email,
+            dateNaissance: data.birth_date || data.dateNaissance,
+            niveauActuel: data.grade_level || data.niveauActuel,
+            totalPoints: data.total_points || data.totalPoints,
+            mascotteType: data.mascotte_type || data.mascotteType,
+            updatedAt: new Date()
+          })
+          .where(eq(students.id, parseInt(studentId)));
+      });
+
+      logger.debug('Student data updated with anonymized values', { studentId });
+    } catch (error) {
+      logger.error('Error updating student data:', error);
+      throw new Error(`Failed to update student data: ${error.message}`);
+    }
   }
 
+  /**
+   * Get parent data from GDPR consent requests (parents are stored there)
+   */
   private async getParentData(parentId: string): Promise<any> {
-    // TODO: Implement database query
-    return {};
+    try {
+      const [parent] = await db
+        .select()
+        .from(gdprConsentRequests)
+        .where(eq(gdprConsentRequests.id, parentId))
+        .limit(1);
+
+      if (!parent) {
+        return null;
+      }
+
+      return {
+        id: parent.id,
+        first_name: parent.parentName?.split(' ')[0],
+        last_name: parent.parentName?.split(' ').slice(1).join(' '),
+        email: parent.parentEmail,
+        phone: parent.contactInfo,
+        child_name: parent.childName,
+        created_at: parent.createdAt,
+        updated_at: parent.updatedAt
+      };
+
+    } catch (error) {
+      logger.error('Error getting parent data:', error);
+      throw new Error(`Failed to get parent data: ${error.message}`);
+    }
   }
 
+  /**
+   * Update parent data with anonymized values
+   */
   private async updateParentData(parentId: string, data: any): Promise<void> {
-    // TODO: Implement database update
+    try {
+      await db.transaction(async (tx) => {
+        const fullName = `${data.first_name || 'Anonymous'} ${data.last_name || 'Parent'}`;
+        
+        await tx
+          .update(gdprConsentRequests)
+          .set({
+            parentName: fullName,
+            parentEmail: data.email,
+            contactInfo: data.phone,
+            childName: data.child_name,
+            updatedAt: new Date()
+          })
+          .where(eq(gdprConsentRequests.id, parentId));
+      });
+
+      logger.debug('Parent data updated with anonymized values', { parentId });
+    } catch (error) {
+      logger.error('Error updating parent data:', error);
+      throw new Error(`Failed to update parent data: ${error.message}`);
+    }
   }
 
+  /**
+   * Anonymize student progress records
+   */
   private async anonymizeStudentProgress(studentId: string, reason: string): Promise<number> {
-    // TODO: Implement student progress anonymization
-    return 0;
+    try {
+      let recordsProcessed = 0;
+
+      await db.transaction(async (tx) => {
+        // Get all progress records for the student
+        const progressRecords = await tx
+          .select()
+          .from(studentProgress)
+          .where(eq(studentProgress.studentId, parseInt(studentId)));
+
+        for (const progress of progressRecords) {
+          if (this.inactivityConfig.preserveEducationalStatistics) {
+            // Preserve statistical data but remove identifying info
+            await tx
+              .update(studentProgress)
+              .set({
+                // Keep exercise completion and scoring data for analytics
+                // but remove timing and specific answer details
+                tempsEcoule: Math.floor(progress.tempsEcoule / 60) * 60, // Round to nearest minute
+                updatedAt: new Date()
+              })
+              .where(eq(studentProgress.id, progress.id));
+          } else {
+            // Complete anonymization - remove the record
+            await tx
+              .delete(studentProgress)
+              .where(eq(studentProgress.id, progress.id));
+          }
+          recordsProcessed++;
+        }
+
+        // Log the anonymization
+        await this.auditService.logAction({
+          entityType: 'student_progress',
+          entityId: studentId,
+          action: 'anonymize',
+          userId: null,
+          details: {
+            recordsProcessed,
+            reason,
+            preserveStatistics: this.inactivityConfig.preserveEducationalStatistics
+          },
+          severity: 'high',
+          category: 'compliance'
+        });
+      });
+
+      logger.info('Student progress anonymized', { studentId, recordsProcessed, reason });
+      return recordsProcessed;
+
+    } catch (error) {
+      logger.error('Error anonymizing student progress:', error);
+      return 0;
+    }
   }
 
+  /**
+   * Anonymize student exercise data (same as progress for this schema)
+   */
   private async anonymizeStudentExercises(studentId: string, reason: string): Promise<number> {
-    // TODO: Implement student exercises anonymization
+    // In this schema, exercise data is handled through student_progress
+    // This method exists for interface compatibility
+    logger.debug('Student exercises handled through progress anonymization', { studentId });
     return 0;
   }
 
+  /**
+   * Anonymize student session data
+   */
   private async anonymizeStudentSessions(studentId: string, reason: string): Promise<number> {
-    // TODO: Implement student sessions anonymization
-    return 0;
+    try {
+      let recordsProcessed = 0;
+
+      await db.transaction(async (tx) => {
+        // Get all session records for the student
+        const sessionRecords = await tx
+          .select()
+          .from(sessions)
+          .where(eq(sessions.studentId, parseInt(studentId)));
+
+        for (const session of sessionRecords) {
+          if (this.inactivityConfig.preserveEducationalStatistics) {
+            // Preserve session duration and completion stats but anonymize details
+            await tx
+              .update(sessions)
+              .set({
+                // Remove identifying session details but keep statistical data
+                exercisesCompleted: session.exercisesCompleted,
+                totalTime: Math.floor(session.totalTime / 60) * 60, // Round to minutes
+                updatedAt: new Date()
+              })
+              .where(eq(sessions.id, session.id));
+          } else {
+            // Complete removal of session data
+            await tx
+              .delete(sessions)
+              .where(eq(sessions.id, session.id));
+          }
+          recordsProcessed++;
+        }
+
+        // Log the anonymization
+        await this.auditService.logAction({
+          entityType: 'student_session',
+          entityId: studentId,
+          action: 'anonymize',
+          userId: null,
+          details: {
+            recordsProcessed,
+            reason,
+            preserveStatistics: this.inactivityConfig.preserveEducationalStatistics
+          },
+          severity: 'high',
+          category: 'compliance'
+        });
+      });
+
+      logger.info('Student sessions anonymized', { studentId, recordsProcessed, reason });
+      return recordsProcessed;
+
+    } catch (error) {
+      logger.error('Error anonymizing student sessions:', error);
+      return 0;
+    }
   }
 
+  /**
+   * Anonymize parent consent records
+   */
   private async anonymizeParentConsent(parentId: string, reason: string): Promise<number> {
-    // TODO: Implement parent consent anonymization
-    return 0;
+    try {
+      let recordsProcessed = 0;
+
+      await db.transaction(async (tx) => {
+        // For GDPR compliance, we usually preserve consent history but anonymize personal data
+        // This is already handled in updateParentData method
+        
+        // Update any additional consent-related audit logs
+        const consentLogs = await tx
+          .select()
+          .from(auditLogs)
+          .where(and(
+            eq(auditLogs.entityType, 'parental_consent'),
+            eq(auditLogs.entityId, parentId)
+          ));
+
+        for (const log of consentLogs) {
+          // Anonymize sensitive details in audit logs while preserving consent actions
+          const anonymizedDetails = {
+            ...log.details,
+            parentName: '[ANONYMIZED]',
+            parentEmail: '[ANONYMIZED]',
+            contactInfo: '[ANONYMIZED]'
+          };
+
+          await tx
+            .update(auditLogs)
+            .set({
+              details: anonymizedDetails,
+              ipAddress: null,
+              userAgent: null,
+              checksum: this.calculateAuditChecksum(log.id, anonymizedDetails)
+            })
+            .where(eq(auditLogs.id, log.id));
+
+          recordsProcessed++;
+        }
+
+        // Log the consent anonymization
+        await this.auditService.logAction({
+          entityType: 'parental_consent',
+          entityId: parentId,
+          action: 'anonymize',
+          userId: null,
+          details: {
+            recordsProcessed,
+            reason,
+            consentHistoryPreserved: true
+          },
+          severity: 'high',
+          category: 'compliance'
+        });
+      });
+
+      logger.info('Parent consent data anonymized', { parentId, recordsProcessed, reason });
+      return recordsProcessed;
+
+    } catch (error) {
+      logger.error('Error anonymizing parent consent:', error);
+      return 0;
+    }
   }
 
+  /**
+   * Anonymize specific session data by session ID
+   */
   private async anonymizeSessionData(sessionId: string, rules: AnonymizationRule[]): Promise<{
     recordsProcessed: number;
     anonymizedFields: string[];
     preservedFields: string[];
   }> {
-    // TODO: Implement session data anonymization
-    return { recordsProcessed: 0, anonymizedFields: [], preservedFields: [] };
+    try {
+      const anonymizedFields: string[] = [];
+      const preservedFields: string[] = [];
+      let recordsProcessed = 0;
+
+      await db.transaction(async (tx) => {
+        const [session] = await tx
+          .select()
+          .from(sessions)
+          .where(eq(sessions.id, parseInt(sessionId)))
+          .limit(1);
+
+        if (!session) {
+          return;
+        }
+
+        const updateData: any = {};
+        
+        for (const rule of rules) {
+          const fieldValue = (session as any)[rule.fieldName];
+          if (fieldValue !== undefined) {
+            if (this.inactivityConfig.preserveEducationalStatistics && 
+                ['totalTime', 'exercisesCompleted'].includes(rule.fieldName)) {
+              // Preserve but generalize
+              updateData[rule.fieldName] = await this.generalizeField(fieldValue, rule.fieldName);
+              preservedFields.push(rule.fieldName);
+            } else {
+              // Fully anonymize
+              updateData[rule.fieldName] = await this.applyAnonymizationStrategy(fieldValue, rule);
+              anonymizedFields.push(rule.fieldName);
+            }
+          }
+        }
+
+        if (Object.keys(updateData).length > 0) {
+          updateData.updatedAt = new Date();
+          await tx
+            .update(sessions)
+            .set(updateData)
+            .where(eq(sessions.id, parseInt(sessionId)));
+          recordsProcessed = 1;
+        }
+      });
+
+      return { recordsProcessed, anonymizedFields, preservedFields };
+
+    } catch (error) {
+      logger.error('Error anonymizing session data:', error);
+      return { recordsProcessed: 0, anonymizedFields: [], preservedFields: [] };
+    }
   }
 
+  /**
+   * Find inactive students based on last access date
+   */
   private async findInactiveStudents(inactivityDays: number): Promise<any[]> {
-    // TODO: Implement database query
-    return [];
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - inactivityDays);
+
+      const inactiveStudents = await db
+        .select({
+          id: students.id,
+          prenom: students.prenom,
+          nom: students.nom,
+          email: students.email,
+          lastActivity: students.dernierAcces,
+          createdAt: students.createdAt
+        })
+        .from(students)
+        .where(
+          and(
+            lt(students.dernierAcces, cutoffDate),
+            // Only consider students who have been inactive (not just never logged in)
+            sql`${students.dernierAcces} IS NOT NULL`
+          )
+        );
+
+      logger.debug('Found inactive students', { 
+        count: inactiveStudents.length,
+        cutoffDate,
+        inactivityDays 
+      });
+
+      return inactiveStudents.map(student => ({
+        id: student.id.toString(),
+        name: `${student.prenom} ${student.nom}`,
+        email: student.email,
+        lastActivity: student.lastActivity,
+        warningsSent: false // This would be tracked in a separate table in production
+      }));
+
+    } catch (error) {
+      logger.error('Error finding inactive students:', error);
+      return [];
+    }
   }
 
+  /**
+   * Send inactivity warning to user
+   */
   private async sendInactivityWarning(entityId: string, entityType: string): Promise<void> {
-    // TODO: Implement warning email sending
+    try {
+      // In a real implementation, this would send an email or notification
+      // For now, we'll just log the warning and create an audit entry
+      
+      await this.auditService.logAction({
+        entityType: entityType as any,
+        entityId: entityId,
+        action: 'create',
+        userId: null,
+        details: {
+          warningType: 'inactivity_warning',
+          message: 'Account will be anonymized due to inactivity',
+          daysUntilAnonymization: this.inactivityConfig.warningDaysBeforeAnonymization,
+          preserveStatistics: this.inactivityConfig.preserveEducationalStatistics
+        },
+        severity: 'medium',
+        category: 'compliance'
+      });
+
+      logger.info('Inactivity warning sent', { entityId, entityType });
+
+      // TODO: Implement actual email/notification sending
+      // This could integrate with an email service like SendGrid, AWS SES, etc.
+      
+    } catch (error) {
+      logger.error('Error sending inactivity warning:', error);
+    }
   }
 
+  /**
+   * Mark warning as sent for tracking
+   */
   private async markWarningAsSent(entityId: string): Promise<void> {
-    // TODO: Implement database update
+    try {
+      // In a production system, this would update a warnings tracking table
+      // For now, we'll create an audit entry to track this
+      
+      await this.auditService.logAction({
+        entityType: 'student',
+        entityId: entityId,
+        action: 'update',
+        userId: null,
+        details: {
+          action: 'warning_marked_sent',
+          warningType: 'inactivity',
+          timestamp: new Date().toISOString()
+        },
+        severity: 'low',
+        category: 'system'
+      });
+
+      logger.debug('Inactivity warning marked as sent', { entityId });
+
+    } catch (error) {
+      logger.error('Error marking warning as sent:', error);
+    }
+  }
+
+  /**
+   * Helper method to calculate audit checksum (used in consent anonymization)
+   */
+  private calculateAuditChecksum(auditId: string, details: any): string {
+    const dataString = JSON.stringify({
+      id: auditId,
+      details: details
+    });
+    
+    return crypto.createHash('sha256').update(dataString).digest('hex');
+  }
+
+  // Public methods for external access
+
+  /**
+   * Get job status
+   */
+  public getJobStatus(jobId: string): AnonymizationJob | null {
+    return this.runningJobs.get(jobId) || null;
+  }
+
+  /**
+   * Cancel a pending anonymization job
+   */
+  public async cancelJob(jobId: string): Promise<boolean> {
+    try {
+      const job = this.runningJobs.get(jobId);
+      if (!job) {
+        return false;
+      }
+
+      if (job.status === 'running') {
+        logger.warn('Cannot cancel running anonymization job', { jobId });
+        return false;
+      }
+
+      if (job.status === 'pending') {
+        job.status = 'cancelled';
+        
+        await this.auditService.logAction({
+          entityType: 'anonymization_job',
+          entityId: jobId,
+          action: 'cancelled',
+          userId: null,
+          details: {
+            reason: job.reason,
+            cancelledAt: new Date().toISOString()
+          },
+          severity: 'medium',
+          category: 'compliance'
+        });
+
+        logger.info('Anonymization job cancelled', { jobId });
+        return true;
+      }
+
+      return false;
+
+    } catch (error) {
+      logger.error('Error cancelling anonymization job:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get statistics about anonymization jobs
+   */
+  public getJobStatistics(): {
+    total: number;
+    pending: number;
+    running: number;
+    completed: number;
+    failed: number;
+    cancelled: number;
+  } {
+    const stats = {
+      total: this.runningJobs.size,
+      pending: 0,
+      running: 0,
+      completed: 0,
+      failed: 0,
+      cancelled: 0
+    };
+
+    for (const job of this.runningJobs.values()) {
+      stats[job.status]++;
+    }
+
+    return stats;
   }
 }

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { FileUploadService } from '../services/file-upload.service';
 import { ImageProcessingService } from '../services/image-processing.service';
 import { StorageService } from '../services/storage.service';
+import { FileValidationService } from '../services/file-validation.service';
 import { 
   UploadRequest, 
   FileCategory, 
@@ -128,24 +129,60 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
 
         // Extract files from multipart data
         const files: any[] = [];
+        const validationErrors: string[] = [];
+        
         for (const [key, value] of Object.entries(data)) {
           if (key.startsWith('file') && value && typeof value === 'object' && 'data' in value) {
             const file = value as any;
+            
+            // Validation sécurisée avec magic bytes
+            const validationResult = FileValidationService.validateFile(
+              file.data,
+              file.filename,
+              file.mimetype,
+              DEFAULT_UPLOAD_CONFIG.maxFileSize
+            );
+            
+            if (!validationResult.isValid) {
+              validationErrors.push(`${file.filename}: ${validationResult.errors.join(', ')}`);
+              logger.warn('File validation failed', {
+                filename: file.filename,
+                declaredType: file.mimetype,
+                errors: validationResult.errors,
+                ip: request.ip
+              });
+              continue;
+            }
+            
+            if (validationResult.warnings.length > 0) {
+              logger.warn('File validation warnings', {
+                filename: file.filename,
+                warnings: validationResult.warnings
+              });
+            }
+
             files.push({
               fieldname: key,
               originalname: file.filename,
               encoding: file.encoding,
-              mimetype: file.mimetype,
+              mimetype: validationResult.detectedType || file.mimetype, // Utiliser le type détecté
               buffer: file.data,
               size: file.data.length
             });
           }
         }
 
+        if (validationErrors.length > 0) {
+          return reply.status(400).send({
+            success: false,
+            errors: validationErrors
+          });
+        }
+
         if (files.length === 0) {
           return reply.status(400).send({
             success: false,
-            errors: ['No files provided']
+            errors: ['No valid files provided']
           });
         }
 
@@ -556,11 +593,17 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
           });
         }
 
-        // Verify it's an image
-        if (!file.mimetype.startsWith('image/')) {
+        // Verify it's an image with strict validation
+        const validationResult = FileValidationService.validateFile(
+          Buffer.from([]), // On a déjà le fichier stocké, pas besoin du buffer ici
+          file.filename,
+          file.mimetype
+        );
+        
+        if (!file.mimetype.startsWith('image/') || !FileValidationService.isAllowedMimeType(file.mimetype)) {
           return reply.status(400).send({
             success: false,
-            error: 'File is not an image'
+            error: 'File type not allowed for image processing'
           });
         }
 

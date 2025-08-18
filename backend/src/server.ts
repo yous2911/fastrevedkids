@@ -7,7 +7,17 @@ import { connectDatabase, disconnectDatabase } from './db/connection';
 
 // Build Fastify instance
 const fastify = Fastify({
-  logger: logger,
+  logger: {
+    level: process.env.LOG_LEVEL || 'info',
+    transport: process.env.NODE_ENV === 'development' ? {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'HH:MM:ss Z',
+        ignore: 'pid,hostname',
+      },
+    } : undefined,
+  },
   trustProxy: true,
   bodyLimit: 10485760, // 10MB
   keepAliveTimeout: 5000,

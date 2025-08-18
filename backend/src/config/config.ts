@@ -29,8 +29,7 @@ if (result.error) {
 }
 
 console.log('✅ Loaded environment from:', envPath);
-console.log('✅ PORT from env.backend:', process.env.PORT);
-console.log('✅ REDIS_ENABLED from env.backend:', process.env.REDIS_ENABLED);
+// Configuration chargée - variables sensibles non loggées pour la sécurité
 
 // Flexible configuration schema with sensible defaults
 const configSchema = z.object({

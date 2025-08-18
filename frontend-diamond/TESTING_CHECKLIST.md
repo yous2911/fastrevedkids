@@ -222,3 +222,4 @@ npm run test:performance
 ---
 
 *Complete this checklist to ensure FastRevEd Kids is ready for production deployment!* 🚀
+

@@ -6,7 +6,7 @@
 import bcrypt from 'bcrypt';
 import { db } from '../db/connection';
 import { students } from '../db/schema';
-import { eq, and, lt } from 'drizzle-orm';
+import { eq, and, lt, gt } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
@@ -405,7 +405,7 @@ export class AuthService {
       .where(
         and(
           eq(students.passwordResetToken, token),
-          lt(students.passwordResetExpires, new Date())
+          gt(students.passwordResetExpires, new Date())
         )
       )
       .limit(1);

@@ -150,3 +150,4 @@ The FastRevEd Kids educational platform backend is now **fully functional** and 
 ---
 
 *FastRevEd Kids - Empowering young minds through interactive learning* 🚀
+

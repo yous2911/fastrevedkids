@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  backend-prod:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis-prod:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+    depends_on:
+      - redis-prod
+      - mysql-prod
+    networks:
+      - prod-network
+    restart: unless-stopped
+
+  frontend-main-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=${API_URL}
+      - REACT_APP_ENVIRONMENT=production
+      - REACT_APP_APP_TYPE=main
+    networks:
+      - prod-network
+    restart: unless-stopped
+
+  frontend-diamond-prod:
+    build:
+      context: ./frontend-diamond
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "3001:3001"
+    environment:
+      - REACT_APP_API_URL=${API_URL}
+      - REACT_APP_ENVIRONMENT=production
+      - REACT_APP_APP_TYPE=diamond
+    networks:
+      - prod-network
+    restart: unless-stopped
+
+  nginx-proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend-main-prod
+      - frontend-diamond-prod
+    networks:
+      - prod-network
+    restart: unless-stopped
+
+  redis-prod:
+    image: redis:7-alpine
+    volumes:
+      - redis-prod-data:/data
+    networks:
+      - prod-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  mysql-prod:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql-prod-data:/var/lib/mysql
+      - ./backend/scripts:/docker-entrypoint-initdb.d
+    networks:
+      - prod-network
+    restart: unless-stopped
+
+volumes:
+  redis-prod-data:
+  mysql-prod-data:
+
+networks:
+  prod-network:
+    driver: bridge

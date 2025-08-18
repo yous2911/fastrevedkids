@@ -34,6 +34,7 @@ export async function build() {
     await fastify.register(import('./routes/gdpr'), { prefix: '/api/gdpr' });
     await fastify.register(import('./routes/auth'), { prefix: '/api/auth' });
     await fastify.register(import('./routes/students'), { prefix: '/api/students' });
+    await fastify.register(import('./routes/exercises'), { prefix: '/api/exercises' });
     await fastify.register(import('./routes/monitoring'), { prefix: '/api/monitoring' });
   } catch (error) {
     console.warn('Route registration warning:', error);

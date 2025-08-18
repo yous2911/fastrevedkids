@@ -16,9 +16,6 @@ const poolConfig = {
   
   // Connection pool settings
   connectionLimit: dbConfig.connectionLimit,
-  acquireTimeout: 60000,        // 60 seconds to get connection
-  timeout: 60000,               // 60 seconds query timeout
-  reconnect: true,              // Auto-reconnect
   
   // Performance optimizations
   multipleStatements: false,    // Security: prevent SQL injection via multiple statements
@@ -34,26 +31,11 @@ const poolConfig = {
       key: process.env.DB_SSL_KEY,
       cert: process.env.DB_SSL_CERT
     } : undefined,
-    
-    // Connection management
-    idleTimeout: 300000,        // 5 minutes idle timeout
-    maxIdle: 10,                // Maximum idle connections
-    
-    // Retry configuration
-    maxReconnects: 3,
-    reconnectDelay: 2000,       // 2 seconds between reconnect attempts
-    
-    // Query optimizations
-    trace: false,               // Disable tracing in production
-    debug: false,               // Disable debug in production
   }),
   
   // Development settings
   ...(!isProduction && {
-    debug: ['ComQueryPacket', 'RowDataPacket'],
-    trace: true,
-    idleTimeout: 60000,         // 1 minute idle timeout for dev
-    maxIdle: 2,                 // Fewer idle connections for dev
+    debug: false,
   }),
   
   // Charset and timezone

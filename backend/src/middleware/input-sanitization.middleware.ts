@@ -162,8 +162,26 @@ export class InputSanitizationService {
       return true;
     }
 
-    // Skip file upload routes (handled separately)
+    // Skip file upload routes seulement si Content-Type approprié
     if (route.includes('/upload') || route.includes('/files/')) {
+      const contentType = request.headers['content-type'] || '';
+      
+      // Autoriser seulement multipart/form-data pour uploads et JSON pour autres opérations
+      if (route.includes('/upload') && !contentType.startsWith('multipart/form-data')) {
+        return false; // Ne pas skip, forcer la validation
+      }
+      
+      if (route.includes('/files/') && request.method === 'GET') {
+        return true; // OK pour téléchargements
+      }
+      
+      if (route.includes('/files/') && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
+        // Vérifier que c'est du JSON pour operations sur metadata
+        if (!contentType.includes('application/json')) {
+          return false; // Forcer validation si pas JSON
+        }
+      }
+      
       return true;
     }
 

@@ -14,7 +14,7 @@ services:
       - DATABASE_URL=file:./reved_kids.db
       - REDIS_URL=redis://redis-dev:6379
       - JWT_SECRET=dev-secret-change-in-production
-      - CORS_ORIGIN=http://localhost:3000
+      - CORS_ORIGIN=http://localhost:3000,http://localhost:3001
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -26,7 +26,7 @@ services:
     restart: unless-stopped
     command: npm run dev
 
-  frontend-dev:
+  frontend-main-dev:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
@@ -36,9 +36,33 @@ services:
     environment:
       - REACT_APP_API_URL=http://localhost:3003
       - REACT_APP_ENVIRONMENT=development
+      - REACT_APP_APP_TYPE=main
       - WATCHPACK_POLLING=true
     volumes:
       - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend-dev
+    networks:
+      - dev-network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  frontend-diamond-dev:
+    build:
+      context: ./frontend-diamond
+      dockerfile: Dockerfile.dev
+      target: development
+    ports:
+      - "3001:3001"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3003
+      - REACT_APP_ENVIRONMENT=development
+      - REACT_APP_APP_TYPE=diamond
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./frontend-diamond:/app
       - /app/node_modules
     depends_on:
       - backend-dev

@@ -202,6 +202,106 @@ export const fileVariants = mysqlTable('file_variants', {
 export const progress = studentProgress;
 
 // =============================================================================
+// AUDIT TRAIL TABLES  
+// =============================================================================
+
+// Audit logs table for compliance tracking
+export const auditLogs = mysqlTable('audit_logs', {
+  id: varchar('id', { length: 36 }).primaryKey(), // UUID
+  entityType: varchar('entity_type', { length: 50 }).notNull(),
+  entityId: varchar('entity_id', { length: 100 }).notNull(),
+  action: varchar('action', { length: 50 }).notNull(),
+  userId: varchar('user_id', { length: 36 }),
+  parentId: varchar('parent_id', { length: 36 }),
+  studentId: varchar('student_id', { length: 36 }),
+  details: json('details').notNull(),
+  ipAddress: varchar('ip_address', { length: 45 }),
+  userAgent: text('user_agent'),
+  timestamp: timestamp('timestamp').notNull().defaultNow(),
+  severity: varchar('severity', { length: 20 }).notNull().default('medium'),
+  category: varchar('category', { length: 50 }),
+  sessionId: varchar('session_id', { length: 100 }),
+  correlationId: varchar('correlation_id', { length: 36 }),
+  checksum: varchar('checksum', { length: 64 }).notNull(),
+  encrypted: boolean('encrypted').default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+// Security alerts table
+export const securityAlerts = mysqlTable('security_alerts', {
+  id: varchar('id', { length: 36 }).primaryKey(),
+  type: varchar('type', { length: 50 }).notNull(),
+  severity: varchar('severity', { length: 20 }).notNull(),
+  entityType: varchar('entity_type', { length: 50 }).notNull(),
+  entityId: varchar('entity_id', { length: 100 }).notNull(),
+  description: text('description').notNull(),
+  detectedAt: timestamp('detected_at').notNull().defaultNow(),
+  auditEntries: json('audit_entries').notNull(),
+  resolved: boolean('resolved').default(false),
+  resolvedAt: timestamp('resolved_at'),
+  resolvedBy: varchar('resolved_by', { length: 36 }),
+  metadata: json('metadata'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+});
+
+// Compliance reports table
+export const complianceReports = mysqlTable('compliance_reports', {
+  id: varchar('id', { length: 36 }).primaryKey(),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  generatedBy: varchar('generated_by', { length: 36 }).notNull(),
+  generatedAt: timestamp('generated_at').notNull().defaultNow(),
+  periodStart: timestamp('period_start').notNull(),
+  periodEnd: timestamp('period_end').notNull(),
+  filters: json('filters'),
+  totalEntries: int('total_entries').notNull().default(0),
+  categories: json('categories'),
+  topActions: json('top_actions'),
+  securityAlerts: int('security_alerts').default(0),
+  complianceIssues: json('compliance_issues'),
+  exportFormat: varchar('export_format', { length: 20 }).notNull(),
+  filePath: varchar('file_path', { length: 500 }),
+  status: varchar('status', { length: 20 }).default('completed'),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+// Data retention policy table
+export const retentionPolicies = mysqlTable('retention_policies', {
+  id: varchar('id', { length: 36 }).primaryKey(),
+  policyName: varchar('policy_name', { length: 100 }).notNull(),
+  entityType: varchar('entity_type', { length: 50 }).notNull(),
+  retentionPeriodDays: int('retention_period_days').notNull(),
+  triggerCondition: varchar('trigger_condition', { length: 50 }).notNull(),
+  action: varchar('action', { length: 20 }).notNull(),
+  priority: varchar('priority', { length: 20 }).notNull().default('medium'),
+  active: boolean('active').default(true),
+  legalBasis: text('legal_basis'),
+  exceptions: json('exceptions'),
+  notificationDays: int('notification_days').default(30),
+  lastExecuted: timestamp('last_executed'),
+  recordsProcessed: int('records_processed').default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+});
+
+// Retention schedule table  
+export const retentionSchedules = mysqlTable('retention_schedules', {
+  id: varchar('id', { length: 36 }).primaryKey(),
+  entityType: varchar('entity_type', { length: 50 }).notNull(),
+  entityId: varchar('entity_id', { length: 100 }).notNull(),
+  policyId: varchar('policy_id', { length: 36 }).notNull(),
+  scheduledDate: timestamp('scheduled_date').notNull(),
+  action: varchar('action', { length: 20 }).notNull(),
+  priority: varchar('priority', { length: 20 }).notNull(),
+  notificationSent: boolean('notification_sent').default(false),
+  completed: boolean('completed').default(false),
+  completedAt: timestamp('completed_at'),
+  errors: json('errors'),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+// =============================================================================
 // TYPE EXPORTS
 // =============================================================================
 
@@ -227,6 +327,18 @@ export type GdprConsentRequest = InferSelectModel<typeof gdprConsentRequests>;
 export type NewGdprConsentRequest = InferInsertModel<typeof gdprConsentRequests>;
 export type GdprDataProcessingLog = InferSelectModel<typeof gdprDataProcessingLog>;
 export type NewGdprDataProcessingLog = InferInsertModel<typeof gdprDataProcessingLog>;
+
+// Audit types
+export type AuditLog = InferSelectModel<typeof auditLogs>;
+export type NewAuditLog = InferInsertModel<typeof auditLogs>;
+export type SecurityAlert = InferSelectModel<typeof securityAlerts>;
+export type NewSecurityAlert = InferInsertModel<typeof securityAlerts>;
+export type ComplianceReport = InferSelectModel<typeof complianceReports>;
+export type NewComplianceReport = InferInsertModel<typeof complianceReports>;
+export type RetentionPolicy = InferSelectModel<typeof retentionPolicies>;
+export type NewRetentionPolicy = InferInsertModel<typeof retentionPolicies>;
+export type RetentionSchedule = InferSelectModel<typeof retentionSchedules>;
+export type NewRetentionSchedule = InferInsertModel<typeof retentionSchedules>;
 
 // =============================================================================
 // RELATIONS

@@ -2,6 +2,12 @@ import crypto from 'crypto';
 import { z } from 'zod';
 import { logger } from '../utils/logger';
 import { EncryptionService } from './encryption.service';
+import { db } from '../db/connection';
+import { auditLogs, securityAlerts, complianceReports } from '../db/schema';
+import { eq, and, gte, lte, desc, asc, inArray, sql, count } from 'drizzle-orm';
+import fs from 'fs/promises';
+import path from 'path';
+import { createObjectCsvWriter } from 'csv-writer';
 
 // Validation schemas
 const AuditActionSchema = z.object({
@@ -678,53 +684,457 @@ export class AuditTrailService {
     logger.info('Audit trail system initialized');
   }
 
-  // Database methods (implement with your DB layer)
+  /**
+   * Store audit entry in database with transaction safety
+   */
   private async storeAuditEntry(entry: AuditLogEntry): Promise<void> {
-    // TODO: Implement database storage
+    try {
+      await db.transaction(async (tx) => {
+        await tx.insert(auditLogs).values({
+          id: entry.id,
+          entityType: entry.entityType,
+          entityId: entry.entityId,
+          action: entry.action,
+          userId: entry.userId,
+          parentId: entry.parentId,
+          studentId: entry.studentId,
+          details: entry.details,
+          ipAddress: entry.ipAddress,
+          userAgent: entry.userAgent,
+          timestamp: entry.timestamp,
+          severity: entry.severity,
+          category: entry.category,
+          sessionId: entry.sessionId,
+          correlationId: entry.correlationId,
+          checksum: entry.checksum,
+          encrypted: entry.encrypted
+        });
+      });
+
+      logger.debug('Audit entry stored successfully', { auditId: entry.id });
+    } catch (error) {
+      logger.error('Failed to store audit entry:', error);
+      throw new Error(`Failed to store audit entry: ${error.message}`);
+    }
   }
 
+  /**
+   * Execute audit query with optimized database access
+   */
   private async executeAuditQuery(filters: Record<string, any>, query: z.infer<typeof AuditQuerySchema>): Promise<{
     entries: AuditLogEntry[];
     total: number;
   }> {
-    // TODO: Implement database query
-    return { entries: [], total: 0 };
+    try {
+      // Build WHERE conditions dynamically
+      const conditions = [];
+      
+      if (filters.entityType) {
+        conditions.push(eq(auditLogs.entityType, filters.entityType));
+      }
+      if (filters.entityId) {
+        conditions.push(eq(auditLogs.entityId, filters.entityId));
+      }
+      if (filters.action) {
+        conditions.push(eq(auditLogs.action, filters.action));
+      }
+      if (filters.userId) {
+        conditions.push(eq(auditLogs.userId, filters.userId));
+      }
+      if (filters.studentId) {
+        conditions.push(eq(auditLogs.studentId, filters.studentId));
+      }
+      if (filters.category) {
+        conditions.push(eq(auditLogs.category, filters.category));
+      }
+      if (filters.severity?.$in) {
+        conditions.push(inArray(auditLogs.severity, filters.severity.$in));
+      }
+      if (filters.timestamp) {
+        if (filters.timestamp.$gte) {
+          conditions.push(gte(auditLogs.timestamp, filters.timestamp.$gte));
+        }
+        if (filters.timestamp.$lte) {
+          conditions.push(lte(auditLogs.timestamp, filters.timestamp.$lte));
+        }
+      }
+
+      // Get total count
+      const [totalResult] = await db
+        .select({ count: count() })
+        .from(auditLogs)
+        .where(conditions.length > 0 ? and(...conditions) : undefined);
+      
+      const total = totalResult?.count || 0;
+
+      // Get entries with pagination
+      const dbResults = await db
+        .select()
+        .from(auditLogs)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(auditLogs.timestamp))
+        .limit(query.limit)
+        .offset(query.offset);
+
+      // Convert to AuditLogEntry format
+      const entries: AuditLogEntry[] = dbResults.map(row => ({
+        id: row.id,
+        entityType: row.entityType,
+        entityId: row.entityId,
+        action: row.action,
+        userId: row.userId,
+        parentId: row.parentId || undefined,
+        studentId: row.studentId || undefined,
+        details: row.details as Record<string, any>,
+        ipAddress: row.ipAddress || undefined,
+        userAgent: row.userAgent || undefined,
+        timestamp: row.timestamp,
+        severity: row.severity as any,
+        category: row.category || undefined,
+        sessionId: row.sessionId || undefined,
+        correlationId: row.correlationId || undefined,
+        checksum: row.checksum,
+        encrypted: row.encrypted || false
+      }));
+
+      logger.debug('Audit query executed', { 
+        filtersCount: Object.keys(filters).length,
+        total,
+        returned: entries.length 
+      });
+
+      return { entries, total };
+
+    } catch (error) {
+      logger.error('Error executing audit query:', error);
+      throw new Error(`Failed to execute audit query: ${error.message}`);
+    }
   }
 
+  /**
+   * Get single audit entry by ID
+   */
   private async getAuditEntry(auditId: string): Promise<AuditLogEntry | null> {
-    // TODO: Implement database query
-    return null;
+    try {
+      const [result] = await db
+        .select()
+        .from(auditLogs)
+        .where(eq(auditLogs.id, auditId))
+        .limit(1);
+
+      if (!result) {
+        return null;
+      }
+
+      return {
+        id: result.id,
+        entityType: result.entityType,
+        entityId: result.entityId,
+        action: result.action,
+        userId: result.userId,
+        parentId: result.parentId || undefined,
+        studentId: result.studentId || undefined,
+        details: result.details as Record<string, any>,
+        ipAddress: result.ipAddress || undefined,
+        userAgent: result.userAgent || undefined,
+        timestamp: result.timestamp,
+        severity: result.severity as any,
+        category: result.category || undefined,
+        sessionId: result.sessionId || undefined,
+        correlationId: result.correlationId || undefined,
+        checksum: result.checksum,
+        encrypted: result.encrypted || false
+      };
+
+    } catch (error) {
+      logger.error('Error getting audit entry:', error);
+      throw new Error(`Failed to get audit entry: ${error.message}`);
+    }
   }
 
+  /**
+   * Update audit entry (mainly for anonymization)
+   */
   private async updateAuditEntry(entry: AuditLogEntry): Promise<void> {
-    // TODO: Implement database update
+    try {
+      await db.transaction(async (tx) => {
+        await tx
+          .update(auditLogs)
+          .set({
+            details: entry.details,
+            ipAddress: entry.ipAddress,
+            userAgent: entry.userAgent,
+            checksum: entry.checksum,
+            encrypted: entry.encrypted
+          })
+          .where(eq(auditLogs.id, entry.id));
+      });
+
+      logger.debug('Audit entry updated successfully', { auditId: entry.id });
+    } catch (error) {
+      logger.error('Error updating audit entry:', error);
+      throw new Error(`Failed to update audit entry: ${error.message}`);
+    }
   }
 
+  /**
+   * Get audit entries for a specific time period
+   */
   private async getAuditEntriesForPeriod(startDate: Date, endDate: Date, entityType?: string): Promise<AuditLogEntry[]> {
-    // TODO: Implement database query
-    return [];
+    try {
+      const conditions = [
+        gte(auditLogs.timestamp, startDate),
+        lte(auditLogs.timestamp, endDate)
+      ];
+
+      if (entityType) {
+        conditions.push(eq(auditLogs.entityType, entityType));
+      }
+
+      const results = await db
+        .select()
+        .from(auditLogs)
+        .where(and(...conditions))
+        .orderBy(desc(auditLogs.timestamp))
+        .limit(10000); // Reasonable limit for reports
+
+      return results.map(row => ({
+        id: row.id,
+        entityType: row.entityType,
+        entityId: row.entityId,
+        action: row.action,
+        userId: row.userId,
+        parentId: row.parentId || undefined,
+        studentId: row.studentId || undefined,
+        details: row.details as Record<string, any>,
+        ipAddress: row.ipAddress || undefined,
+        userAgent: row.userAgent || undefined,
+        timestamp: row.timestamp,
+        severity: row.severity as any,
+        category: row.category || undefined,
+        sessionId: row.sessionId || undefined,
+        correlationId: row.correlationId || undefined,
+        checksum: row.checksum,
+        encrypted: row.encrypted || false
+      }));
+
+    } catch (error) {
+      logger.error('Error getting audit entries for period:', error);
+      throw new Error(`Failed to get audit entries for period: ${error.message}`);
+    }
   }
 
+  /**
+   * Get recent student access attempts for anomaly detection
+   */
   private async getRecentStudentAccesses(studentId: string, hours: number): Promise<AuditLogEntry[]> {
-    // TODO: Implement database query
-    return [];
+    try {
+      const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000));
+
+      const results = await db
+        .select()
+        .from(auditLogs)
+        .where(and(
+          eq(auditLogs.entityId, studentId),
+          eq(auditLogs.entityType, 'student'),
+          eq(auditLogs.action, 'read'),
+          gte(auditLogs.timestamp, cutoffTime)
+        ))
+        .orderBy(desc(auditLogs.timestamp));
+
+      return results.map(row => ({
+        id: row.id,
+        entityType: row.entityType,
+        entityId: row.entityId,
+        action: row.action,
+        userId: row.userId,
+        parentId: row.parentId || undefined,
+        studentId: row.studentId || undefined,
+        details: row.details as Record<string, any>,
+        ipAddress: row.ipAddress || undefined,
+        userAgent: row.userAgent || undefined,
+        timestamp: row.timestamp,
+        severity: row.severity as any,
+        category: row.category || undefined,
+        sessionId: row.sessionId || undefined,
+        correlationId: row.correlationId || undefined,
+        checksum: row.checksum,
+        encrypted: row.encrypted || false
+      }));
+
+    } catch (error) {
+      logger.error('Error getting recent student accesses:', error);
+      return []; // Don't throw - this is for security detection
+    }
   }
 
+  /**
+   * Get failed login attempts for security monitoring
+   */
   private async getFailedLoginAttempts(ipAddress: string, hours: number): Promise<AuditLogEntry[]> {
-    // TODO: Implement database query
-    return [];
+    try {
+      const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000));
+
+      const results = await db
+        .select()
+        .from(auditLogs)
+        .where(and(
+          eq(auditLogs.ipAddress, ipAddress),
+          eq(auditLogs.action, 'access_denied'),
+          eq(auditLogs.entityType, 'user_session'),
+          gte(auditLogs.timestamp, cutoffTime)
+        ))
+        .orderBy(desc(auditLogs.timestamp));
+
+      return results.map(row => ({
+        id: row.id,
+        entityType: row.entityType,
+        entityId: row.entityId,
+        action: row.action,
+        userId: row.userId,
+        parentId: row.parentId || undefined,
+        studentId: row.studentId || undefined,
+        details: row.details as Record<string, any>,
+        ipAddress: row.ipAddress || undefined,
+        userAgent: row.userAgent || undefined,
+        timestamp: row.timestamp,
+        severity: row.severity as any,
+        category: row.category || undefined,
+        sessionId: row.sessionId || undefined,
+        correlationId: row.correlationId || undefined,
+        checksum: row.checksum,
+        encrypted: row.encrypted || false
+      }));
+
+    } catch (error) {
+      logger.error('Error getting failed login attempts:', error);
+      return []; // Don't throw - this is for security detection
+    }
   }
 
+  /**
+   * Store security alert in database
+   */
   private async storeSecurityAlert(alert: SecurityAlert): Promise<void> {
-    // TODO: Implement security alert storage
+    try {
+      await db.transaction(async (tx) => {
+        await tx.insert(securityAlerts).values({
+          id: alert.id,
+          type: alert.type,
+          severity: alert.severity,
+          entityType: alert.entityType,
+          entityId: alert.entityId,
+          description: alert.description,
+          detectedAt: alert.detectedAt,
+          auditEntries: alert.auditEntries,
+          resolved: alert.resolved,
+          resolvedAt: alert.resolvedAt,
+          resolvedBy: alert.resolvedBy,
+          metadata: {}
+        });
+      });
+
+      logger.info('Security alert stored', { alertId: alert.id, type: alert.type });
+    } catch (error) {
+      logger.error('Error storing security alert:', error);
+      // Don't throw - alert storage failure shouldn't break main flow
+    }
   }
 
+  /**
+   * Notify security team about alert (email, slack, etc.)
+   */
   private async notifySecurityTeam(alert: SecurityAlert): Promise<void> {
-    // TODO: Implement security team notification
+    try {
+      // Log alert for immediate monitoring
+      logger.warn(`SECURITY ALERT: ${alert.type}`, {
+        alertId: alert.id,
+        severity: alert.severity,
+        entityType: alert.entityType,
+        entityId: alert.entityId,
+        description: alert.description,
+        detectedAt: alert.detectedAt
+      });
+
+      // TODO: Implement actual notification (email, Slack webhook, etc.)
+      // For now, ensure it's logged at warn level for monitoring systems
+      
+    } catch (error) {
+      logger.error('Error notifying security team:', error);
+      // Don't throw - notification failure shouldn't break main flow
+    }
   }
 
+  /**
+   * Export compliance report to file
+   */
   private async exportReport(report: AuditReport, entries: AuditLogEntry[], format: string): Promise<string> {
-    // TODO: Implement report export
-    return '';
+    try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const fileName = `compliance-report-${report.id}-${timestamp}`;
+      const reportsDir = path.join(process.cwd(), 'reports');
+      
+      // Ensure reports directory exists
+      await fs.mkdir(reportsDir, { recursive: true });
+
+      if (format === 'csv') {
+        const filePath = path.join(reportsDir, `${fileName}.csv`);
+        
+        const csvWriter = createObjectCsvWriter({
+          path: filePath,
+          header: [
+            { id: 'id', title: 'ID' },
+            { id: 'timestamp', title: 'Timestamp' },
+            { id: 'entityType', title: 'Entity Type' },
+            { id: 'entityId', title: 'Entity ID' },
+            { id: 'action', title: 'Action' },
+            { id: 'userId', title: 'User ID' },
+            { id: 'severity', title: 'Severity' },
+            { id: 'category', title: 'Category' },
+            { id: 'ipAddress', title: 'IP Address' }
+          ]
+        });
+
+        const csvData = entries.map(entry => ({
+          id: entry.id,
+          timestamp: entry.timestamp.toISOString(),
+          entityType: entry.entityType,
+          entityId: entry.entityId,
+          action: entry.action,
+          userId: entry.userId || '',
+          severity: entry.severity,
+          category: entry.category || '',
+          ipAddress: entry.ipAddress || ''
+        }));
+
+        await csvWriter.writeRecords(csvData);
+        
+        logger.info('CSV report exported', { filePath, entriesCount: csvData.length });
+        return filePath;
+
+      } else if (format === 'json') {
+        const filePath = path.join(reportsDir, `${fileName}.json`);
+        
+        const reportData = {
+          report,
+          entries: entries.map(entry => ({
+            ...entry,
+            details: entry.encrypted ? '[ENCRYPTED]' : entry.details
+          }))
+        };
+
+        await fs.writeFile(filePath, JSON.stringify(reportData, null, 2));
+        
+        logger.info('JSON report exported', { filePath, entriesCount: entries.length });
+        return filePath;
+
+      } else {
+        throw new Error(`Unsupported export format: ${format}`);
+      }
+
+    } catch (error) {
+      logger.error('Error exporting report:', error);
+      throw new Error(`Failed to export report: ${error.message}`);
+    }
   }
 }

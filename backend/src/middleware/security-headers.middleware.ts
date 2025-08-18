@@ -97,7 +97,7 @@ export class SecurityHeadersService {
           'block-all-mixed-content': []
         },
         useNonce: true,
-        reportOnly: process.env.NODE_ENV === 'development'
+        reportOnly: false // CSP toujours actif pour la sécurité
       },
       hsts: {
         enabled: process.env.NODE_ENV === 'production',

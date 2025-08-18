@@ -5,6 +5,7 @@
 
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { AuthService } from '../services/auth.service';
+import { createSecureAuthRateLimiter } from '../services/secure-rate-limiter.service';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -159,48 +160,10 @@ export async function authenticateAdminMiddleware(
 }
 
 /**
- * Rate limiting middleware for authentication endpoints
+ * Rate limiting middleware sécurisé pour les endpoints d'authentification
  */
-export async function authRateLimitMiddleware(
-  request: FastifyRequest,
-  reply: FastifyReply
-) {
-  const key = `auth_attempts:${request.ip}`;
-  const maxAttempts = 5;
-  const windowMs = 15 * 60 * 1000; // 15 minutes
-
-  // In production, use Redis for distributed rate limiting
-  // For now, use in-memory store
-  const attempts = global.authAttempts = global.authAttempts || new Map();
-  
-  const now = Date.now();
-  const userAttempts = attempts.get(key) || { count: 0, resetTime: now + windowMs };
-
-  // Reset if window expired
-  if (now > userAttempts.resetTime) {
-    userAttempts.count = 0;
-    userAttempts.resetTime = now + windowMs;
-  }
-
-  // Check if limit exceeded
-  if (userAttempts.count >= maxAttempts) {
-    const remainingTime = Math.ceil((userAttempts.resetTime - now) / 1000);
-    
-    return reply.status(429).send({
-      success: false,
-      error: {
-        message: `Trop de tentatives de connexion. Réessayez dans ${remainingTime} secondes.`,
-        code: 'RATE_LIMIT_EXCEEDED',
-        retryAfter: remainingTime,
-      },
-    });
-  }
-
-  // Increment attempts
-  userAttempts.count++;
-  attempts.set(key, userAttempts);
-}
-
-declare global {
-  var authAttempts: Map<string, { count: number; resetTime: number }> | undefined;
-}
+export const authRateLimitMiddleware = createSecureAuthRateLimiter({
+  maxAttempts: 5,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  blockDuration: 60 * 60 * 1000, // 1 heure de blocage après dépassement
+});
