@@ -84,7 +84,7 @@ interface Achievement {
   type: 'streak' | 'points' | 'subject' | 'level';
 }
 
-const studentDashboard: React.FC<StudentDashboardProps> = ({ 
+const StudentDashboard: React.FC<StudentDashboardProps> = ({ 
   student, 
   stats, 
   onStartExercise,
@@ -720,4 +720,4 @@ const goalCard: React.FC<GoalCardProps> = ({
   );
 };
 
-export default studentDashboard; 
+export default StudentDashboard; 

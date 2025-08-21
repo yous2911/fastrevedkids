@@ -25,42 +25,42 @@ export const FocusedLayout: React.FC<FocusedLayoutProps> = ({
   const [showPauseDialog, setShowPauseDialog] = useState(false);
   const [sessionStartTime] = useState(Date.now());
 
-  // Only show kiosk mode UI when kiosk mode is active
-  if (!isActive) {
-    return <>{children}</>;
-  }
-
-  const getSessionProgress = () => {
+  const getSessionProgress = useCallback(() => {
     if (!sessionDuration) return 0;
     const elapsed = (Date.now() - sessionStartTime) / 1000 / 60; // minutes
     return Math.min((elapsed / sessionDuration) * 100, 100);
-  };
+  }, [sessionDuration, sessionStartTime]);
 
-  const getTimeRemaining = () => {
+  const getTimeRemaining = useCallback(() => {
     if (!sessionDuration) return '';
     const elapsed = (Date.now() - sessionStartTime) / 1000 / 60; // minutes
     const remaining = Math.max(sessionDuration - elapsed, 0);
     const minutes = Math.floor(remaining);
     const seconds = Math.floor((remaining - minutes) * 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
+  }, [sessionDuration, sessionStartTime]);
 
-  const handlePause = () => {
+  const handlePause = useCallback(() => {
     if (allowPause) {
       setShowPauseDialog(true);
     }
-  };
+  }, [allowPause]);
 
-  const handleResume = () => {
+  const handleResume = useCallback(() => {
     setIsPaused(false);
-  };
+  }, []);
 
-  // Check for session end
+  // Check for session end - moved before conditional return
   useEffect(() => {
     if (sessionDuration && getSessionProgress() >= 100) {
       onSessionEnd?.();
     }
-  }, [sessionDuration, onSessionEnd]);
+  }, [sessionDuration, onSessionEnd, getSessionProgress]);
+
+  // Only show kiosk mode UI when kiosk mode is active
+  if (!isActive) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">

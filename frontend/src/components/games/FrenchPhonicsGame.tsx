@@ -100,6 +100,101 @@ export const FrenchPhonicsGame: React.FC = () => {
     }
   }, [startTime, isCompleted]);
 
+  // Drag and drop handlers - moved before conditional returns
+  const handleDragStart = useCallback((block: MagicBlock) => {
+    setDraggedBlock(block);
+    playSound('click');
+    triggerHaptic('light');
+    
+    setDropZones(prev => prev.map(zone => ({
+      ...zone,
+      magneticField: zone.acceptedTypes.includes(block.type),
+      isActive: zone.acceptedTypes.includes(block.type)
+    })));
+  }, [playSound, triggerHaptic]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+  }, []);
+
+  // Check completion function - declare before use
+  const checkCompletion = useCallback(() => {
+    setTimeout(() => {
+      const updatedZones = dropZones.filter(zone => zone.currentBlock !== null);
+      
+      if (updatedZones.length === (currentChallenge?.dropZones?.length || 0)) {
+        const allCorrect = currentChallenge?.type === 'creativity' || 
+                          updatedZones.every(zone => zone.isCorrect);
+        
+        if (allCorrect) {
+          setIsCompleted(true);
+          playSound('levelup');
+          triggerHaptic('success');
+          
+          setPlayerProgress(prev => ({
+            ...prev,
+            totalCrystals: prev.totalCrystals + 10,
+            totalMagicPoints: prev.totalMagicPoints + 50,
+            currentStreak: prev.currentStreak + 1,
+            defisReussis: new Set([...prev.defisReussis, currentChallenge?.id || ''])
+          }));
+        } else {
+          setPlayerProgress(prev => ({
+            ...prev,
+            totalCrystals: prev.totalCrystals + 1,
+            currentStreak: 0
+          }));
+        }
+      }
+    }, 100);
+  }, [dropZones, currentChallenge, timeElapsed, playSound, triggerHaptic]);
+
+  // Proper drop handling with validation
+  const handleDrop = useCallback((e: React.DragEvent, zoneId: string) => {
+    e.preventDefault();
+    
+    if (!draggedBlock) return;
+    
+    const zone = dropZones.find(z => z.id === zoneId);
+    if (!zone) return;
+    
+    // Check if item is accepted in this zone
+    if (zone.acceptedTypes && !zone.acceptedTypes.includes(draggedBlock.type)) {
+      return;
+    }
+    
+    // Update drop zones
+    const updatedZones = dropZones.map(z => 
+      z.id === zoneId 
+        ? { ...z, currentBlock: draggedBlock, isCorrect: true }
+        : z.currentBlock?.id === draggedBlock.id 
+          ? { ...z, currentBlock: null, isCorrect: false }
+          : z
+    );
+    
+    setDropZones(updatedZones);
+    setAvailableBlocks(prev => prev.filter(b => b.id !== draggedBlock.id));
+    setDraggedBlock(null);
+    
+    checkCompletion();
+  }, [draggedBlock, dropZones, checkCompletion]);
+
+  const nextChallenge = useCallback(() => {
+    if (currentChallengeIndex < challenges.length - 1) {
+      setCurrentChallengeIndex(prev => prev + 1);
+    } else {
+      setCurrentChallengeIndex(0);
+    }
+  }, [currentChallengeIndex, challenges.length]);
+
+  const prevChallenge = useCallback(() => {
+    if (currentChallengeIndex > 0) {
+      setCurrentChallengeIndex(prev => prev - 1);
+    } else {
+      setCurrentChallengeIndex(challenges.length - 1);
+    }
+  }, [currentChallengeIndex, challenges.length]);
+
   const resetChallenge = useCallback(() => {
     if (!currentChallenge) return;
     
@@ -204,117 +299,6 @@ export const FrenchPhonicsGame: React.FC = () => {
       </div>
     );
   }
-
-  // Drag and drop handlers
-  const handleDragStart = useCallback((block: MagicBlock) => {
-    setDraggedBlock(block);
-    playSound('click');
-    triggerHaptic('light');
-    
-    setDropZones(prev => prev.map(zone => ({
-      ...zone,
-      magneticField: zone.acceptedTypes.includes(block.type),
-      isActive: zone.acceptedTypes.includes(block.type)
-    })));
-  }, [playSound, triggerHaptic]);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-  }, []);
-
-  // Check completion function - declare before use
-  const checkCompletion = useCallback(() => {
-    setTimeout(() => {
-      const updatedZones = dropZones.filter(zone => zone.currentBlock !== null);
-      
-      if (updatedZones.length === (currentChallenge.dropZones?.length || 0)) {
-        const allCorrect = currentChallenge.type === 'creativity' || 
-                          updatedZones.every(zone => zone.isCorrect);
-        
-        // Record challenge result in session
-        const CHALLENGE_RESULT = {
-          challengeId: currentChallenge.id,
-          targetWord: currentChallenge.targetWord || '',
-          isCorrect: allCorrect,
-          timeSpent: timeElapsed,
-          attempts: 1, // Could track multiple attempts
-          mistakeType: allCorrect ? undefined : 'assembly'
-        };
-        
-        if (allCorrect) {
-          setIsCompleted(true);
-          playSound('levelup');
-          triggerHaptic('success');
-          
-          setPlayerProgress(prev => ({
-            ...prev,
-            totalCrystals: prev.totalCrystals + 10,
-            totalMagicPoints: prev.totalMagicPoints + 50,
-            currentStreak: prev.currentStreak + 1,
-            defisReussis: new Set([...prev.defisReussis, currentChallenge.id])
-          }));
-        } else {
-          // Record mistake for spaced repetition
-          const attemptedAnswer = updatedZones
-            .map(zone => zone.currentBlock?.content || '')
-            .join('');
-          
-          // Update progress with mistake
-          setPlayerProgress(prev => ({
-            ...prev,
-            totalCrystals: prev.totalCrystals + 1,
-            currentStreak: 0 // Reset streak on mistake
-          }));
-        }
-      }
-    }, 100);
-  }, [dropZones, currentChallenge, timeElapsed, playSound, triggerHaptic]);
-
-  // Proper drop handling with validation
-  const handleDrop = useCallback((e: React.DragEvent, zoneId: string) => {
-    e.preventDefault();
-    
-    if (!draggedBlock) return;
-    
-    const zone = dropZones.find(z => z.id === zoneId);
-    if (!zone) return;
-    
-    // Check if item is accepted in this zone
-    if (zone.acceptedTypes && !zone.acceptedTypes.includes(draggedBlock.type)) {
-      return;
-    }
-    
-    // Update drop zones
-    const updatedZones = dropZones.map(z => 
-      z.id === zoneId 
-        ? { ...z, currentBlock: draggedBlock, isCorrect: true }
-        : z.currentBlock?.id === draggedBlock.id 
-          ? { ...z, currentBlock: null, isCorrect: false }
-          : z
-    );
-    
-    setDropZones(updatedZones);
-    setAvailableBlocks(prev => prev.filter(b => b.id !== draggedBlock.id));
-    setDraggedBlock(null);
-    
-    checkCompletion();
-  }, [draggedBlock, dropZones, checkCompletion]);
-
-  const nextChallenge = useCallback(() => {
-    if (currentChallengeIndex < challenges.length - 1) {
-      setCurrentChallengeIndex(prev => prev + 1);
-    } else {
-      setCurrentChallengeIndex(0);
-    }
-  }, [currentChallengeIndex, challenges.length]);
-
-  const prevChallenge = useCallback(() => {
-    if (currentChallengeIndex > 0) {
-      setCurrentChallengeIndex(prev => prev - 1);
-    } else {
-      setCurrentChallengeIndex(challenges.length - 1);
-    }
-  }, [currentChallengeIndex, challenges.length]);
 
   const formatTime = (ms: number): string => {
     const seconds = Math.floor(ms / 1000);

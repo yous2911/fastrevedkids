@@ -8,6 +8,9 @@ import { BrowserTracing } from '@sentry/tracing';
 import { useLocation, useNavigationType, createRoutesFromChildren, matchRoutes } from 'react-router-dom';
 import { getConfig, getCurrentEnvironment, isProduction } from '../config/environment';
 
+// React Error Boundary HOC
+import React from 'react';
+
 interface ErrorContext {
   userId?: string;
   userRole?: string;
@@ -490,9 +493,6 @@ export const captureMessage = (message: string, level?: 'info' | 'warning' | 'er
 export const addBreadcrumb = (message: string, category?: string): void => {
   getErrorTracker().addBreadcrumb(message, category);
 };
-
-// React Error Boundary HOC
-import React from 'react';
 
 export const withErrorTracking = <P extends object>(Component: React.ComponentType<P>) => {
   return React.forwardRef<any, P>((props, ref) => {
