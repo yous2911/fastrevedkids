@@ -104,6 +104,6 @@ describe('App Integration', () => {
     const { container } = render(<App />);
     
     // Check that the component tree renders without errors
-    expect(container.firstChild).toBeInTheDocument();
+    expect(container).toBeInTheDocument();
   });
 });

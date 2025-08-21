@@ -306,7 +306,7 @@ describe('Input Component', () => {
 
     it('should handle container className', () => {
       render(<Input containerClassName="custom-container" />);
-      const container = screen.getByRole('textbox').closest('div');
+      const container = screen.getByRole('textbox').parentElement;
       expect(container).toHaveClass('custom-container');
     });
   });

@@ -343,19 +343,19 @@ export class ApiService {
           
           // Handle authentication errors with automatic token refresh
           if (response.status === 401 && !ApiService.refreshInProgress) {
-            console.log('🔑 Authentication failed, attempting token refresh...');
+            // Authentication failed, attempting token refresh (sensitive operation)
             
             try {
               ApiService.refreshInProgress = true;
               const refreshed = await this.refreshAuthToken();
               
               if (refreshed) {
-                console.log('✅ Token refreshed successfully, retrying request...');
+                // Token refreshed successfully, retrying request
                 // Retry the request with the new token
                 continue;
               }
             } catch (refreshError) {
-              console.error('❌ Token refresh failed:', refreshError);
+              // Token refresh failed - auth state cleared
               // Clear any stored auth state
               this.clearAuthState();
             } finally {
@@ -550,12 +550,12 @@ export class ApiService {
   // Authentication management
   setAuthToken(token: string): void {
     this.defaultHeaders['Authorization'] = `Bearer ${token}`;
-    console.log('🔐 Auth token set');
+    // Auth token configured securely
   }
 
   removeAuthToken(): void {
     delete this.defaultHeaders['Authorization'];
-    console.log('🔓 Auth token removed');
+    // Auth token removed
   }
 
   // URL management
@@ -764,14 +764,14 @@ export class ApiService {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('🔄 Token refresh successful');
+        // Token refresh successful
         return true;
       } else {
-        console.error('❌ Token refresh failed:', response.status, response.statusText);
+        // Token refresh failed - invalid response
         return false;
       }
     } catch (error) {
-      console.error('❌ Token refresh error:', error);
+      // Token refresh error - network or server issue
       return false;
     }
   }
