@@ -14,14 +14,14 @@ const mockUseApp = jest.fn(() => ({
   }
 }));
 
-jest.mock('../../context/AppContext', () => ({
-  useApp: mockUseApp
-}));
-
 // Mock useToast hook
 const mockToastContainer = jest.fn(() => <div data-testid="toast-container" />);
 const mockUseToast = jest.fn(() => ({
   ToastContainer: mockToastContainer
+}));
+
+jest.mock('../../context/AppContext', () => ({
+  useApp: mockUseApp
 }));
 
 jest.mock('../ui/Toast', () => ({

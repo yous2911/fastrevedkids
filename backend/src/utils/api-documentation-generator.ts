@@ -84,13 +84,13 @@ export class APIDocumentationGenerator {
                   properties: {
                     prenom: { type: 'string', example: 'Alice' },
                     nom: { type: 'string', example: 'Dupont' },
-                    motDePasse: { type: 'string', example: 'password123' }
+                    motDePasse: { type: 'string', example: 'SecurePass2024!' }
                   }
                 },
                 example: {
                   prenom: 'Alice',
                   nom: 'Dupont',
-                  motDePasse: 'password123'
+                  motDePasse: 'SecurePass2024!'
                 }
               }
             }

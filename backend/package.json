@@ -23,6 +23,8 @@
     "test:clean": "rimraf coverage .vitest",
     "test:quick": "node scripts/test-simple.js",
     "test:integration": "cross-env NODE_ENV=test vitest run src/tests/integration-quick.test.ts",
+    "check:infrastructure": "tsx scripts/infrastructure-readiness-check.ts",
+    "setup:audio": "powershell -ExecutionPolicy Bypass -File scripts/setup-audio-simple.ps1",
     "db:generate": "drizzle-kit generate:sqlite",
     "db:migrate": "tsx src/db/migrate.ts up",
     "db:migrate:down": "tsx src/db/migrate.ts down",

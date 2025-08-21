@@ -1,0 +1,61 @@
+# MySQL Security Configuration for RevEd Kids Production
+# This configuration enhances MySQL security and performance
+
+[mysqld]
+# Security settings
+skip-show-database
+skip-symbolic-links
+secure_file_priv = /var/lib/mysql-files/
+
+# Disable dangerous functions
+local_infile = 0
+
+# Connection security
+bind-address = 0.0.0.0
+skip-name-resolve
+max_connections = 200
+max_user_connections = 50
+
+# Logging for security audit
+general_log = 1
+general_log_file = /var/log/mysql/general.log
+log_error = /var/log/mysql/error.log
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+
+# Performance and reliability
+innodb_buffer_pool_size = 256M
+innodb_flush_log_at_trx_commit = 1
+innodb_file_per_table = 1
+innodb_open_files = 300
+
+# Query cache disabled (deprecated in MySQL 8.0)
+query_cache_type = 0
+query_cache_size = 0
+
+# SQL Mode for strict operations
+sql_mode = STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER
+
+# Character set
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# Timeout settings
+interactive_timeout = 300
+wait_timeout = 300
+connect_timeout = 10
+
+# Binary logging for replication and recovery
+log-bin = mysql-bin
+expire_logs_days = 7
+max_binlog_size = 100M
+
+# Security plugins (if available)
+validate_password = FORCE_PLUS_PERMANENT
+
+[mysql]
+default-character-set = utf8mb4
+
+[client]
+default-character-set = utf8mb4

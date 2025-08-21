@@ -152,26 +152,26 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleChange}
-          whileFocus={animated ? { scale: 1.02 } : undefined}
+          animate={animated && isFocused ? { scale: 1.02 } : { scale: 1 }}
           {...(props as any)}
         />
 
         {/* Right Icon/Status */}
         <div className={`
-          absolute inset-y-0 right-0 flex items-center pointer-events-none
+          absolute inset-y-0 right-0 flex items-center
           ${size === 'sm' ? 'pr-2' : size === 'lg' ? 'pr-4' : size === 'xl' ? 'pr-5' : 'pr-3'}
         `}>
           {loading ? (
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"
+              className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full pointer-events-none"
             />
           ) : success ? (
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="text-green-500"
+              className="text-green-500 pointer-events-none"
             >
               ✓
             </motion.div>
@@ -179,12 +179,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="text-red-500"
+              className="text-red-500 pointer-events-none"
             >
               ⚠
             </motion.div>
           ) : rightIcon ? (
-            <div className="text-gray-400">
+            <div className="text-gray-400 pointer-events-auto">
               {rightIcon}
             </div>
           ) : null}
@@ -368,7 +368,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
           onChange={handleChange}
           value={value}
           maxLength={maxLength}
-          whileFocus={animated ? { scale: 1.01 } : undefined}
+          animate={animated && isFocused ? { scale: 1.01 } : { scale: 1 }}
           {...(props as any)}
         />
 

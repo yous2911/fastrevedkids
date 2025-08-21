@@ -24,7 +24,7 @@ const testWithBackend = (name: string, testFn: () => Promise<void>) => {
   it(name, async () => {
     const available = await isBackendAvailable();
     if (!available) {
-      console.warn(`⚠️ Skipping "${name}" - Backend not running`);
+      console.log(`⚠️ Skipping "${name}" - Backend not running (this is expected in CI)`);
       return;
     }
     await testFn();
@@ -32,9 +32,14 @@ const testWithBackend = (name: string, testFn: () => Promise<void>) => {
 };
 
 describe('StudentService - Real Database Integration', () => {
+  let backendAvailable = false;
+
   beforeAll(async () => {
-    // Give backend time to start if needed
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Check if backend is available
+    backendAvailable = await isBackendAvailable();
+    if (!backendAvailable) {
+      console.log('📝 Backend not available - skipping integration tests (expected in CI/unit test mode)');
+    }
   });
 
   describe('getStudent', () => {
