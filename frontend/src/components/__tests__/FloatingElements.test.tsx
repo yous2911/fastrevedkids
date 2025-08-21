@@ -90,7 +90,7 @@ describe('SparkleElements Component', () => {
 
     it('should handle empty children', () => {
       render(<SparkleElements>{null}</SparkleElements>);
-      const container = document.querySelector('.relative');
+      const container = screen.getByTestId('sparkle-container') || document.body.firstElementChild;
       expect(container).toBeInTheDocument();
     });
   });

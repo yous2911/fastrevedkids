@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 
 interface Particle {
   id: number;
@@ -104,7 +104,7 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
   const config = INTENSITY_CONFIG[intensity];
 
   // Particle type configurations
-  const getParticleConfig = (type: string) => {
+  const getParticleConfig = useCallback((type: string) => {
     switch (type) {
       case 'fire':
         return {
@@ -184,9 +184,18 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
           glow: true
         };
       default:
-        return getParticleConfig('magic');
+        return {
+          colors: [
+            { r: 138, g: 43, b: 226, a: 1 },
+            { r: 75, g: 0, b: 130, a: 0.8 },
+            { r: 148, g: 0, b: 211, a: 0.6 }
+          ],
+          physics: { gravity: -0.1, friction: 0.97, elasticity: 0.6 },
+          behavior: 'normal' as const,
+          glow: true
+        };
     }
-  };
+  }, []);
 
   // Create particle with advanced properties
   const createParticle = useCallback((x: number, y: number): Particle => {

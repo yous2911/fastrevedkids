@@ -51,7 +51,7 @@ describe('Header Component', () => {
     it('should render header with default props', () => {
       render(<Header />);
       
-      const header = document.querySelector('header');
+      const header = screen.getByRole('banner');
       expect(header).toBeInTheDocument();
     });
 
@@ -71,7 +71,7 @@ describe('Header Component', () => {
     it('should apply custom className', () => {
       render(<Header className="custom-header" />);
       
-      const header = document.querySelector('header');
+      const header = screen.getByRole('banner');
       expect(header).toHaveClass('custom-header');
     });
   });
@@ -306,7 +306,7 @@ describe('Header Component', () => {
     it('should have proper header layout classes', () => {
       render(<Header />);
       
-      const header = document.querySelector('header');
+      const header = screen.getByRole('banner');
       expect(header).toHaveClass(
         'bg-white',
         'shadow-md',
