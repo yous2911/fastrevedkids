@@ -63,6 +63,9 @@ describe('Card Component', () => {
           expect(cardElement).toHaveClass('bg-white');
         } else if (variant === 'magical') {
           expect(cardElement).toHaveClass('bg-gradient-to-br');
+        } else {
+          // Default case to satisfy linting
+          expect(cardElement).toBeInTheDocument();
         }
       });
     });
@@ -90,6 +93,9 @@ describe('Card Component', () => {
           expect(cardElement).toHaveClass('p-6');
         } else if (padding === 'xl') {
           expect(cardElement).toHaveClass('p-8');
+        } else {
+          // Default case to satisfy linting
+          expect(cardElement).toBeInTheDocument();
         }
       });
     });

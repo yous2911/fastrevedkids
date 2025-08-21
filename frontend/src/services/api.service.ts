@@ -135,10 +135,7 @@ export class ApiService {
   }
 
   private logConnectionInfo(): void {
-    console.log(`🔗 API Service initialized`);
-    console.log(`📍 Base URL: ${this.baseURL}`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`⚡ Smart caching enabled with ${this.cacheInvalidationRules.size} invalidation rules`);
+    // Removed console logs for security - no sensitive data exposure
   }
 
   // Enhanced intelligent cache management

@@ -98,71 +98,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const [loading, setLoading] = useState(false);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
 
-  // Mock recommended exercises
-  const mockRecommendedExercises: DashboardExercise[] = [
-    {
-      id: 1,
-      titre: "Addition magique",
-      type: "calcul",
-      niveau: "CP",
-      difficulte: 1,
-      pointsReussite: 10,
-      matiere: "Mathématiques",
-      description: "Apprends les additions avec des objets magiques !",
-      estimatedTime: 5
-    },
-    {
-      id: 2,
-      titre: "Lecture enchantée",
-      type: "lecture",
-      niveau: "CP", 
-      difficulte: 1,
-      pointsReussite: 8,
-      matiere: "Français",
-      description: "Lis des mots magiques et découvre leur pouvoir !",
-      estimatedTime: 8
-    },
-    {
-      id: 3,
-      titre: "Les formes mystérieuses",
-      type: "geometrie",
-      niveau: "CP",
-      difficulte: 2,
-      pointsReussite: 12,
-      matiere: "Mathématiques", 
-      description: "Explore le monde des formes géométriques !",
-      estimatedTime: 6
-    }
-  ];
-
-  // Mock achievements
-  const mockAchievements: Achievement[] = [
-    {
-      id: '1',
-      title: 'Série de 7 jours !',
-      description: 'Tu as fait des exercices pendant 7 jours consécutifs',
-      icon: '🔥',
-      date: 'Il y a 2 jours',
-      type: 'streak'
-    },
-    {
-      id: '2',
-      title: '100 points en maths',
-      description: 'Tu as gagné 100 points en mathématiques',
-      icon: '⭐',
-      date: 'Il y a 5 jours',
-      type: 'points'
-    },
-    {
-      id: '3',
-      title: 'Niveau 2 atteint !',
-      description: 'Félicitations pour avoir atteint le niveau 2',
-      icon: '🏆',
-      date: 'Il y a 1 semaine',
-      type: 'level'
-    }
-  ];
-
   // Generate dynamic greeting
   useEffect(() => {
     const hour = new Date().getHours();
@@ -178,9 +113,74 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
       setGreeting(`Bonne soirée ${name} ! 🌙`);
     }
 
+    // Mock recommended exercises
+    const mockRecommendedExercises: DashboardExercise[] = [
+      {
+        id: 1,
+        titre: "Addition magique",
+        type: "calcul",
+        niveau: "CP",
+        difficulte: 1,
+        pointsReussite: 10,
+        matiere: "Mathématiques",
+        description: "Apprends les additions avec des objets magiques !",
+        estimatedTime: 5
+      },
+      {
+        id: 2,
+        titre: "Lecture enchantée",
+        type: "lecture",
+        niveau: "CP", 
+        difficulte: 1,
+        pointsReussite: 8,
+        matiere: "Français",
+        description: "Lis des mots magiques et découvre leur pouvoir !",
+        estimatedTime: 8
+      },
+      {
+        id: 3,
+        titre: "Les formes mystérieuses",
+        type: "geometrie",
+        niveau: "CP",
+        difficulte: 2,
+        pointsReussite: 12,
+        matiere: "Mathématiques", 
+        description: "Explore le monde des formes géométriques !",
+        estimatedTime: 6
+      }
+    ];
+
+    // Mock achievements
+    const mockAchievements: Achievement[] = [
+      {
+        id: '1',
+        title: 'Série de 7 jours !',
+        description: 'Tu as fait des exercices pendant 7 jours consécutifs',
+        icon: '🔥',
+        date: 'Il y a 2 jours',
+        type: 'streak'
+      },
+      {
+        id: '2',
+        title: '100 points en maths',
+        description: 'Tu as gagné 100 points en mathématiques',
+        icon: '⭐',
+        date: 'Il y a 5 jours',
+        type: 'points'
+      },
+      {
+        id: '3',
+        title: 'Niveau 2 atteint !',
+        description: 'Félicitations pour avoir atteint le niveau 2',
+        icon: '🏆',
+        date: 'Il y a 1 semaine',
+        type: 'level'
+      }
+    ];
+
     setRecommendedExercises(mockRecommendedExercises);
     setAchievements(mockAchievements);
-  }, [student.prenom, mockRecommendedExercises, mockAchievements]);
+  }, [student.prenom]);
 
   // Show celebration for high streak
   useEffect(() => {
