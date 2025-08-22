@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Card } from '../ui';
 
 interface Prerequisite {
   id: number;
@@ -151,7 +152,7 @@ const PrerequisiteVisualization: React.FC<PrerequisiteVisualizationProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+    <Card variant="default" padding="lg" rounded="2xl">
       <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
         🔗 Prérequis
       </h3>
@@ -287,7 +288,7 @@ const PrerequisiteVisualization: React.FC<PrerequisiteVisualizationProps> = ({
           <p className="text-gray-600 text-sm">Aucun prérequis à afficher</p>
         </div>
       )}
-    </div>
+    </Card>
   );
 };
 

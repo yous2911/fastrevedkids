@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'large';
   variant?: 'primary' | 'secondary' | 'white';
   message?: string;

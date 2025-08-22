@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useKioskMode } from '../../hooks/useKioskMode';
 import { useApp } from '../../context/AppContext';
+import { Card, Button } from '../ui';
 
 interface FocusedLayoutProps {
   children: React.ReactNode;
@@ -99,32 +100,24 @@ export const FocusedLayout: React.FC<FocusedLayoutProps> = ({
             
             {/* Pause Button */}
             {allowPause && (
-              <motion.button
+              <Button
                 onClick={handlePause}
-                className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                variant="primary"
+                size="sm"
+                icon="⏸️"
                 disabled={isPaused}
-              >
-                <span className="text-lg">⏸️</span>
-              </motion.button>
+                animated={true}
+              />
             )}
 
             {/* Sound Toggle */}
-            <motion.button
+            <Button
               onClick={() => {}}
-              className={`
-                p-2 rounded-lg transition-colors
-                ${state.soundEnabled 
-                  ? 'bg-green-500 text-white hover:bg-green-600' 
-                  : 'bg-gray-300 text-gray-600 hover:bg-gray-400'
-                }
-              `}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <span className="text-lg">{state.soundEnabled ? '🔊' : '🔇'}</span>
-            </motion.button>
+              variant={state.soundEnabled ? 'success' : 'secondary'}
+              size="sm"
+              icon={state.soundEnabled ? '🔊' : '🔇'}
+              animated={true}
+            />
           </div>
         </div>
       </div>
@@ -137,19 +130,13 @@ export const FocusedLayout: React.FC<FocusedLayoutProps> = ({
           <div className="w-full max-w-6xl mx-auto h-full">
             
             {/* Content Container with Focus Effects */}
-            <motion.div
-              className="h-full bg-white bg-opacity-95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5 }}
+            <Card
+              variant="magical"
+              padding="none"
+              rounded="2xl"
+              animated={true}
+              className="h-full bg-opacity-95 backdrop-blur-sm overflow-hidden"
             >
-              
-              {/* Ambient Border Animation */}
-              <div className="absolute inset-0 rounded-2xl">
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-20 animate-pulse" />
-                <div className="absolute inset-[2px] rounded-2xl bg-white" />
-              </div>
-              
               {/* Content */}
               <div className="relative z-10 h-full overflow-auto">
                 {isPaused ? (
@@ -168,14 +155,15 @@ export const FocusedLayout: React.FC<FocusedLayoutProps> = ({
                       <p className="text-gray-600 mb-8">
                         Prends le temps dont tu as besoin, puis continue quand tu es prêt !
                       </p>
-                      <motion.button
+                      <Button
                         onClick={handleResume}
-                        className="px-8 py-4 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        variant="magical"
+                        size="lg"
+                        icon="🎯"
+                        animated={true}
                       >
                         Continuer l'apprentissage
-                      </motion.button>
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -184,7 +172,7 @@ export const FocusedLayout: React.FC<FocusedLayoutProps> = ({
                   </div>
                 )}
               </div>
-            </motion.div>
+            </Card>
           </div>
         </div>
 

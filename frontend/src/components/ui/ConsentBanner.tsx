@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Button } from './Button';
+import { Button } from './index';
 
 interface ConsentBannerProps {
   onAccept: () => void;

@@ -292,4 +292,5 @@ const AdvancedParticleEngine: React.FC<AdvancedParticleEngineProps> = ({
   );
 };
 
+export { AdvancedParticleEngine };
 export default AdvancedParticleEngine; 

@@ -1,7 +1,7 @@
 // src/components/dashboard/studentDashboard.tsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '../ui/Button';
+import { Button, Card, Badge } from '../ui';
 import { 
   BookOpen, 
   Trophy, 
@@ -545,45 +545,48 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <Card variant="default" padding="lg" rounded="2xl">
               <h2 className="text-lg font-bold text-gray-800 mb-4">
                 ⚡ Actions rapides
               </h2>
               <div className="space-y-3">
                 <Button 
                   onClick={onContinueProgress}
-                  variant="ghost"
+                  variant="primary"
                   size="lg"
-                  className="w-full bg-purple-100 text-purple-700 p-3 rounded-lg hover:bg-purple-200 transition-colors flex items-center gap-3"
+                  icon={<PlayCircle className="h-5 w-5" />}
+                  fullWidth
+                  animated={true}
                 >
-                  <PlayCircle className="h-5 w-5" />
-                  <span>Continuer où j'en étais</span>
+                  Continuer où j'en étais
                 </Button>
                 
                 <Button 
                   onClick={onReviewMistakes}
-                  variant="ghost"
+                  variant="secondary"
                   size="lg"
-                  className="w-full bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-3"
+                  icon={<Target className="h-5 w-5" />}
+                  fullWidth
+                  animated={true}
                 >
-                  <Target className="h-5 w-5" />
-                  <span>Réviser mes erreurs</span>
+                  Réviser mes erreurs
                 </Button>
                 
                 <Button 
                   onClick={onViewTrophies}
-                  variant="ghost"
+                  variant="success"
                   size="lg"
-                  className="w-full bg-green-100 text-green-700 p-3 rounded-lg hover:bg-green-200 transition-colors flex items-center gap-3"
+                  icon={<Trophy className="h-5 w-5" />}
+                  fullWidth
+                  animated={true}
                 >
-                  <Trophy className="h-5 w-5" />
-                  <span>Voir mes trophées</span>
+                  Voir mes trophées
                 </Button>
               </div>
-            </div>
+            </Card>
 
             {/* Achievements Preview */}
-            <div className="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl shadow-lg p-6">
+            <Card variant="magical" padding="lg" rounded="2xl" className="bg-gradient-to-br from-yellow-100 to-orange-100">
               <h2 className="text-lg font-bold text-gray-800 mb-4">
                 🏆 Derniers succès
               </h2>
@@ -603,7 +606,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   </motion.div>
                 ))}
               </div>
-            </div>
+            </Card>
           </div>
         </div>
 

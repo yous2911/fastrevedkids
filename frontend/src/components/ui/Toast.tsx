@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button, Badge } from './index';
 
 // =====================================================
 // TOAST HOOK AND COMPONENT
@@ -60,7 +61,6 @@ export const Toast: React.FC<ToastProps> = ({
       animate={{ opacity: 1, x: 0, y: 0 }}
       exit={{ opacity: 0, x: position.includes('right') ? 100 : -100 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      {...props}
     >
       <div className={`${TYPE_STYLES[type]} text-white p-4 rounded-xl shadow-lg border-l-4 flex items-center gap-3`}>
         <span className="text-lg">{TYPE_ICONS[type]}</span>

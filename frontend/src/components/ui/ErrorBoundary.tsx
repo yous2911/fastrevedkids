@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { ApiError } from '../../types/api.types';
+import { Button, Card } from './index';
 
 interface Props {
   children: ReactNode;
@@ -66,7 +67,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
           <div className="max-w-md w-full mx-4">
-            <div className="bg-white rounded-xl shadow-lg p-6 text-center">
+            <Card variant="default" padding="lg" rounded="xl" className="text-center">
               <div className="text-6xl mb-4">🚨</div>
               <h2 className="text-xl font-bold text-gray-800 mb-2">
                 Oops ! Une erreur s'est produite
@@ -88,20 +89,26 @@ export class ErrorBoundary extends Component<Props, State> {
               )}
 
               <div className="space-y-2">
-                <button
+                <Button
                   onClick={this.handleRetry}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  variant="primary"
+                  size="md"
+                  fullWidth
+                  animated={true}
                 >
                   Réessayer
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => window.location.reload()}
-                  className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
+                  variant="secondary"
+                  size="md"
+                  fullWidth
+                  animated={true}
                 >
                   Recharger la page
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           </div>
         </div>
       );

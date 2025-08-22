@@ -18,6 +18,7 @@ import {
   useHighContrast,
   getAccessibleColor
 } from '../utils/accessibility';
+import { Card, Button, Badge } from './ui';
 import '../styles/wcagColors.css';
 
 // Wardrobe Component
@@ -225,9 +226,12 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
   };
 
   return (
-    <div 
+    <Card 
       ref={wardrobeContainerRef}
-      className="bg-white rounded-2xl shadow-2xl p-6 max-w-4xl mx-auto"
+      variant="elevated"
+      padding="lg"
+      rounded="2xl"
+      className="max-w-4xl mx-auto"
       role="region"
       aria-label="Système de garde-robe"
       onKeyDown={handleGlobalKeyDown}
@@ -540,7 +544,7 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
             })}
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export interface CardProps {
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   variant?: 'default' | 'elevated' | 'outlined' | 'magical';
@@ -36,7 +36,7 @@ const ROUNDED_CLASSES = {
   '3xl': 'rounded-3xl'
 };
 
-export const Card: React.FC<CardProps> = ({
+export const Card = React.forwardRef<HTMLDivElement, CardProps>(({
   children,
   className = '',
   variant = 'default',
@@ -46,7 +46,7 @@ export const Card: React.FC<CardProps> = ({
   hoverable = false,
   onClick,
   ...props
-}) => {
+}, ref) => {
   const BASE_CLASSES = 'transition-all duration-200';
   const hoverClasses = hoverable ? 'hover:shadow-lg cursor-pointer' : '';
   
@@ -62,6 +62,7 @@ export const Card: React.FC<CardProps> = ({
   if (animated) {
     return (
       <motion.div
+        ref={ref}
         className={CLASSES}
         onClick={onClick}
         initial={{ opacity: 0, y: 20 }}
@@ -77,8 +78,8 @@ export const Card: React.FC<CardProps> = ({
   }
 
   return (
-    <div className={CLASSES} onClick={onClick} {...props}>
+    <div ref={ref} className={CLASSES} onClick={onClick} {...props}>
       {children}
     </div>
   );
-}; 
+}); 

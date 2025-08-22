@@ -510,4 +510,5 @@ const RobustXPSystem: React.FC<RobustXPSystemProps> = ({
   );
 };
 
+export { RobustXPSystem };
 export default RobustXPSystem;

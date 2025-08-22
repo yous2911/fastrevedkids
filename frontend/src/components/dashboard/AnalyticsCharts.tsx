@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { Card } from '../ui';
 
 interface AnalyticsData {
   analytics: Array<{
@@ -113,7 +114,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ analyticsData, loadin
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+      <Card variant="default" padding="lg" rounded="2xl">
         <div className="animate-pulse">
           <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
           <div className="grid grid-cols-2 gap-4">
@@ -123,12 +124,12 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ analyticsData, loadin
             <div className="h-20 bg-gray-200 rounded"></div>
           </div>
         </div>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+    <Card variant="default" padding="lg" rounded="2xl">
       <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
         📊 Analyse des performances
       </h3>
@@ -321,7 +322,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ analyticsData, loadin
           <p className="text-gray-600">Commencez des exercices pour voir vos statistiques !</p>
         </div>
       )}
-    </div>
+    </Card>
   );
 };
 

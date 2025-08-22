@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WardrobeItem } from '../../services/fastrevkids-api.service';
 import { useWardrobe } from '../../hooks/useFastRevKidsApi';
+import { Card, Button } from '../ui';
 
 // ==========================================
 // MASCOT WARDROBE - SYSTÈME DE COLLECTION
@@ -69,7 +70,7 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-2xl shadow-lg p-6 ${className}`}>
+    <Card variant="default" padding="lg" rounded="2xl" className={className}>
       {/* Header */}
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -83,20 +84,16 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
       {/* Categories */}
       <div className="flex justify-center mb-6 space-x-2">
         {categories.map((category) => (
-          <motion.button
+          <Button
             key={category.type}
             onClick={() => setSelectedCategory(category.type)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              selectedCategory === category.type
-                ? 'bg-purple-100 text-purple-700 shadow-md'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            variant={selectedCategory === category.type ? 'primary' : 'secondary'}
+            size="sm"
+            icon={category.emoji}
+            animated={true}
           >
-            <span className="mr-2">{category.emoji}</span>
             {category.label}
-          </motion.button>
+          </Button>
         ))}
       </div>
 
@@ -243,23 +240,27 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
           {selectedItem.isUnlocked && (
             <div className="mt-4 flex space-x-2">
               {isItemEquipped(selectedItem) ? (
-                <motion.button
+                <Button
                   onClick={() => handleUnequipItem(selectedItem)}
-                  className="flex-1 bg-red-500 text-white py-2 rounded-lg font-medium"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  variant="danger"
+                  size="md"
+                  icon="❌"
+                  animated={true}
+                  fullWidth
                 >
                   Retirer
-                </motion.button>
+                </Button>
               ) : (
-                <motion.button
+                <Button
                   onClick={() => handleEquipItem(selectedItem)}
-                  className="flex-1 bg-purple-600 text-white py-2 rounded-lg font-medium"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  variant="magical"
+                  size="md"
+                  icon="✨"
+                  animated={true}
+                  fullWidth
                 >
                   Équiper
-                </motion.button>
+                </Button>
               )}
             </div>
           )}
@@ -285,6 +286,6 @@ export const MascotWardrobe: React.FC<MascotWardrobeProps> = ({
           })}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }; 

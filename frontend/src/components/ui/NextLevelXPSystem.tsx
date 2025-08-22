@@ -1057,4 +1057,5 @@ const NextLevelXPSystem: React.FC<NextLevelXPSystemProps> = ({
   );
 };
 
+export { NextLevelXPSystem };
 export default NextLevelXPSystem; 

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '../ui/Button';
+import { Button, Card } from '../ui';
 import { Exercise } from '../../services/fastrevkids-api.service';
 import { ExercicePedagogique } from '../../types/api.types';
 import { useExerciseSubmission } from '../../hooks/useFastRevKidsApi';
@@ -388,9 +388,9 @@ export const ExerciseEngine: React.FC<ExerciseEngineProps> = memo(({
 
       {/* Exercise Content */}
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white shadow-xl border border-purple-200 rounded-lg p-6">
+        <Card variant="default" padding="lg" rounded="lg" className="shadow-xl border border-purple-200">
           {renderExerciseComponent}
-        </div>
+        </Card>
       </div>
 
       {/* Action Bar */}

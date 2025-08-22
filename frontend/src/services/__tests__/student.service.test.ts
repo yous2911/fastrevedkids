@@ -2,6 +2,14 @@
 // Using actual database instead of mocks
 import { studentService } from '../student.service';
 
+// Mock API service for isolated tests
+const mockApiService = {
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn(),
+};
+
 // Test configuration
 const TEST_CONFIG = {
   BACKEND_URL: 'http://localhost:3003',

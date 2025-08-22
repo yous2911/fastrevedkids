@@ -99,7 +99,7 @@ describe('Integration Tests - Real Database', () => {
 
   describe('Exercise Service Integration', () => {
     conditionalTest('should fetch exercises from database', async () => {
-      const result = await exerciseService.getExercises({ limit: 5 });
+      const result = await exerciseService.getRandomExercise({ limit: 5 });
       
       expect(result.success).toBe(true);
       if (result.success) {
@@ -116,7 +116,7 @@ describe('Integration Tests - Real Database', () => {
     });
 
     conditionalTest('should fetch random exercises for practice', async () => {
-      const result = await exerciseService.getRandomExercises(3);
+      const result = await exerciseService.getRandomExercise(3);
       
       expect(result.success).toBe(true);
       if (result.success) {
@@ -152,7 +152,7 @@ describe('Integration Tests - Real Database', () => {
     });
 
     conditionalTest('should have proper exercise data structure', async () => {
-      const result = await exerciseService.getExercises({ limit: 1 });
+      const result = await exerciseService.getRandomExercise({ limit: 1 });
       
       if (result.success && result.data.length > 0) {
         const exercise = result.data[0];
@@ -228,7 +228,7 @@ describe('Integration Tests - Real Database', () => {
 
     conditionalTest('should have consistent XP calculations', async () => {
       const studentResult = await studentService.getStudent(TEST_CONFIG.STUDENT_ID);
-      const exercisesResult = await exerciseService.getExercises({ limit: 10 });
+      const exercisesResult = await exerciseService.getRandomExercise({ limit: 10 });
       
       if (studentResult.success && exercisesResult.success) {
         const student = studentResult.data;
@@ -293,7 +293,7 @@ if (typeof describe === 'undefined') {
       console.log('Student test:', studentResult.success ? '✅' : '❌');
       
       // Test exercise service
-      const exerciseResult = await exerciseService.getExercises({ limit: 5 });
+      const exerciseResult = await exerciseService.getRandomExercise({ limit: 5 });
       console.log('Exercise test:', exerciseResult.success ? '✅' : '❌');
       
       console.log('🎉 Manual integration tests completed');

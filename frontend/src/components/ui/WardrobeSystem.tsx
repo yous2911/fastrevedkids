@@ -549,4 +549,5 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
   );
 };
 
+export { WardrobeSystem };
 export default WardrobeSystem; 

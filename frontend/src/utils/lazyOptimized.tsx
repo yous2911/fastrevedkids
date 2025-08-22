@@ -3,7 +3,7 @@
  * Handles component chunking, preloading, and intelligent loading strategies
  */
 
-import React, { Suspense, lazy, ComponentType, ReactNode, useState, useEffect, useRef, useCallback } from 'react';
+import React, { Suspense, lazy, ComponentType, ReactNode, useState, useEffect, useRef, useCallback, LazyExoticComponent } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
 
