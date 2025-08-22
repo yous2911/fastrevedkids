@@ -3,8 +3,9 @@
  * Comprehensive testing and debugging tool for wardrobe items, equipment combinations, and visual effects
  */
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/Button';
 
 interface WardrobeItem {
   id: string;
@@ -528,29 +529,28 @@ export const WardrobeTestingInterface: React.FC<WardrobeTestingInterfaceProps> =
           </div>
         </div>
         <div className="flex gap-2">
-          <button
+          <Button
             onClick={handleRunAllTests}
             disabled={isTestRunning}
-            className={`px-3 py-1 rounded text-sm font-medium ${
-              isTestRunning 
-                ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
-                : 'bg-green-600 hover:bg-green-500'
-            }`}
+            variant="success"
+            size="sm"
           >
             {isTestRunning ? '🧪 Testing...' : '🧪 Run All Tests'}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setEquippedItems([])}
-            className="px-3 py-1 bg-red-600 hover:bg-red-500 rounded text-sm font-medium"
+            variant="danger"
+            size="sm"
           >
             Clear All
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onClose}
-            className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm font-medium"
+            variant="secondary"
+            size="sm"
           >
             ✕
-          </button>
+          </Button>
         </div>
       </div>
 

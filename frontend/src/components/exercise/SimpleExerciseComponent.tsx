@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/Button';
 import { Exercise } from '../../services/fastrevkids-api.service';
 
 interface SimpleExerciseComponentProps {
@@ -100,13 +101,14 @@ export const SimpleExerciseComponent: React.FC<SimpleExerciseComponentProps> = (
           />
         </div>
 
-        <button
+        <Button
           onClick={handleSubmit}
           disabled={!userAnswer.trim() || showFeedback}
-          className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          variant="primary"
+          size="lg"
         >
           Valider
-        </button>
+        </Button>
       </motion.div>
 
       {/* Feedback */}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../components/ui/Button';
 import { ExerciseEngine } from '../components/exercise/ExerciseEngine';
 import { SimpleExerciseComponent } from '../components/exercise/SimpleExerciseComponent';
 import { useAuth } from '../contexts/FastRevKidsAuth';
@@ -302,18 +303,20 @@ export const ExerciseEngineTest: React.FC = () => {
         </div>
 
         <div className="mt-6 flex gap-4">
-          <button
+          <Button
             onClick={resetTest}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            variant="primary"
+            size="md"
           >
             🔄 Reset Test
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setShowResults(false)}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            variant="secondary"
+            size="md"
           >
             ← Back to Exercises
-          </button>
+          </Button>
         </div>
       </motion.div>
     );

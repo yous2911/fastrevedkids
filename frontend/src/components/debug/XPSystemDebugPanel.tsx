@@ -3,8 +3,9 @@
  * Comprehensive debugging interface IFor XP system physics and visual parameters
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/Button';
 
 interface XPPhysicsParams {
   // Particle Physics
@@ -270,26 +271,27 @@ export const XPSystemDebugPanel: React.FC<XPSystemDebugPanelProps> = ({
           </div>
         </div>
         <div className="flex gap-2">
-          <button
+          <Button
             onClick={() => setIsRecording(!isRecording)}
-            className={`px-3 py-1 rounded text-sm font-medium ${
-              isRecording ? 'bg-red-500 hover:bg-red-400' : 'bg-gray-600 hover:bg-gray-500'
-            }`}
+            variant={isRecording ? 'danger' : 'secondary'}
+            size="sm"
           >
             {isRecording ? '⏹ Recording' : '⏺ Record'}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={resetToDefaults}
-            className="px-3 py-1 bg-yellow-600 hover:bg-yellow-500 rounded text-sm font-medium"
+            variant="warning"
+            size="sm"
           >
             Reset
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onClose}
-            className="px-3 py-1 bg-red-600 hover:bg-red-500 rounded text-sm font-medium"
+            variant="danger"
+            size="sm"
           >
             ✕
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -350,13 +352,15 @@ export const XPSystemDebugPanel: React.FC<XPSystemDebugPanelProps> = ({
                 { label: 'Particle Burst', action: () => triggerTestEvent('particle_burst') },
                 { label: 'Reset XP', action: () => triggerTestEvent('reset_xp') }
               ].map(action => (
-                <button
+                <Button
                   key={action.label}
                   onClick={action.action}
-                  className="w-full text-xs p-2 bg-gray-600 hover:bg-gray-500 rounded text-left"
+                  variant="secondary"
+                  size="sm"
+                  className="w-full text-xs p-2 text-left"
                 >
                   {action.label}
-                </button>
+                </Button>
               ))}
             </div>
           </div>

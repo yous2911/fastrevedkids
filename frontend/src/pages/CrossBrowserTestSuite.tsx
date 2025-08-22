@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../components/ui/Button';
 import { browserCompat, isWebGLSupported, requiresFallback } from '../utils/browserCompatibility';
 import CrossBrowserMascot3D from '../components/CrossBrowserMascot3D';
 import Canvas2DRenderer from '../components/fallback/Canvas2DRenderer';
@@ -499,24 +500,22 @@ const CrossBrowserTestSuite: React.FC = () => {
             </div>
             
             <div className="flex gap-4">
-              <button
+              <Button
                 onClick={runAllTests}
                 disabled={isRunningTests}
-                className={`px-6 py-2 rounded font-medium ${
-                  isRunningTests 
-                    ? 'bg-slate-600 text-slate-400 cursor-not-allowed' 
-                    : 'bg-blue-600 hover:bg-blue-500 text-white'
-                }`}
+                variant="primary"
+                size="md"
               >
                 {isRunningTests ? 'Running Tests...' : 'Run All Tests'}
-              </button>
+              </Button>
               
-              <button
+              <Button
                 onClick={simulateContextLoss}
-                className="px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded font-medium"
+                variant="warning"
+                size="md"
               >
                 Simulate Context Loss
-              </button>
+              </Button>
             </div>
           </div>
         </div>

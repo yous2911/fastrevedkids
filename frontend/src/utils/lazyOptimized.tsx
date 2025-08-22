@@ -3,7 +3,9 @@
  * Handles component chunking, preloading, and intelligent loading strategies
  */
 
-import React, { ComponentType, LazyExoticComponent, Suspense } from 'react';
+import React, { Suspense, lazy, ComponentType, ReactNode, useState, useEffect, useRef, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { Button } from '../components/ui/Button';
 
 interface LazyLoadConfig {
   preload?: boolean;
@@ -351,12 +353,13 @@ export function withLazyLoading<P extends object>(
             <p className="font-medium">Failed to load component</p>
             <p className="text-sm text-gray-500 mt-1">{error.message}</p>
           </div>
-          <button
+          <Button
             onClick={handleRetry}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            variant="primary"
+            size="md"
           >
             Try Again
-          </button>
+          </Button>
         </div>
       );
     }

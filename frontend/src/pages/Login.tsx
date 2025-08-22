@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/FastRevKidsAuth';
+import { Button } from '../components/ui/Button';
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -173,30 +174,28 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 </div>
 
                 {/* Submit Button */}
-                <button
+                <Button
                   onClick={handleLogin}
                   disabled={isSubmitting || authLoading || !formData.prenom.trim() || !formData.nom.trim()}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+                  variant="magical"
+                  size="lg"
+                  loading={isSubmitting || authLoading}
+                  className="w-full"
                 >
-                  {(isSubmitting || authLoading) ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Connexion...
-                    </>
-                  ) : (
-                    'Se connecter ✨'
-                  )}
-                </button>
+                  Se connecter ✨
+                </Button>
 
                 {/* Student Selection Toggle */}
                 {students.length > 0 && (
                   <div className="text-center">
-                    <button
+                    <Button
                       onClick={() => setShowStudentSelect(true)}
-                      className="text-blue-200 hover:text-white text-sm underline transition-colors"
+                      variant="ghost"
+                      size="sm"
+                      className="text-blue-200 hover:text-white underline"
                     >
                       Ou choisis ton profil ({students.length} élèves)
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -206,12 +205,14 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   <h2 className="text-xl font-bold text-white mb-2">
                     Choisis ton profil
                   </h2>
-                  <button
+                  <Button
                     onClick={() => setShowStudentSelect(false)}
-                    className="text-blue-200 hover:text-white text-sm underline"
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-200 hover:text-white underline"
                   >
                     ← Revenir à la connexion
-                  </button>
+                  </Button>
                 </div>
 
                 {error && (
@@ -228,10 +229,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <button
+                      <Button
                         onClick={() => handleStudentSelect(student)}
                         disabled={isSubmitting || authLoading}
-                        className="w-full p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition-all text-left group disabled:opacity-50"
+                        variant="ghost"
+                        size="lg"
+                        className="w-full p-4 bg-white/10 border border-white/20 hover:bg-white/20 text-left group disabled:opacity-50"
                       >
                         <div className="flex items-center gap-3">
                           <div className="text-2xl">
@@ -249,7 +252,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                             →
                           </div>
                         </div>
-                      </button>
+                      </Button>
                     </motion.div>
                   ))}
                 </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../components/ui/Button';
 import NextLevelXPSystem from '../components/ui/NextLevelXPSystem';
 import CrossBrowserMascot3D from '../components/CrossBrowserMascot3D';
 import MascotWardrobe3D from '../components/MascotWardrobe3D';
@@ -290,30 +291,29 @@ const ComprehensiveTestSuite: React.FC = () => {
           
           {/* Test Controls */}
           <div className="flex flex-wrap justify-center gap-4 mb-4">
-            <button
+            <Button
               onClick={() => setIsAutoTesting(!isAutoTesting)}
-              className={`px-6 py-2 rounded font-medium ${
-                isAutoTesting 
-                  ? 'bg-red-600 hover:bg-red-500 text-white' 
-                  : 'bg-green-600 hover:bg-green-500 text-white'
-              }`}
+                             variant={isAutoTesting ? 'danger' : 'success'}
+              size="md"
             >
               {isAutoTesting ? 'Stop Auto Test' : 'Start Auto Test'}
-            </button>
+            </Button>
             
-            <button
+            <Button
               onClick={() => setCurrentTest((prev) => (prev + 1) % testScenarios.length)}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium"
+              variant="primary"
+              size="md"
             >
               Next Test ({currentTest + 1}/{testScenarios.length})
-            </button>
+            </Button>
             
-            <button
+            <Button
               onClick={() => setTestResults({})}
-              className="px-6 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded font-medium"
+              variant="secondary"
+              size="md"
             >
               Clear Results
-            </button>
+            </Button>
           </div>
 
           {/* Performance Metrics */}

@@ -6,6 +6,7 @@ import PhysicsSystemManager from '../components/physics/PhysicsSystemManager';
 import RobustXPSystem from '../components/ui/RobustXPSystem';
 import CrossBrowserMascot3D from '../components/CrossBrowserMascot3D';
 import { browserCompat } from '../utils/browserCompatibility';
+import { Button } from '../components/ui/Button';
 
 interface ErrorTest {
   id: string;
@@ -272,23 +273,21 @@ const ErrorHandlingTestSuite: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-white text-xl font-bold">🧪 Test Controls</h2>
             <div className="flex gap-4">
-              <button
+              <Button
                 onClick={runAllTests}
                 disabled={isAutoTesting}
-                className={`px-6 py-2 rounded font-medium ${
-                  isAutoTesting 
-                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
-                    : 'bg-red-600 hover:bg-red-500 text-white'
-                }`}
+                variant="danger"
+                size="md"
               >
                 {isAutoTesting ? 'Running All Tests...' : 'Run All Tests'}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={clearResults}
-                className="px-6 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded font-medium"
+                variant="secondary"
+                size="md"
               >
                 Clear Results
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -358,17 +357,18 @@ const ErrorHandlingTestSuite: React.FC = () => {
                 <CrashingComponent />
               </div>
             </ThreeDErrorBoundary>
-            <button
+            <Button
               onClick={() => setShowErrorComponent(!showErrorComponent)}
-              className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded text-sm"
+              variant="danger"
+              size="sm"
             >
               {showErrorComponent ? 'Fix Component' : 'Crash Component'}
-            </button>
+            </Button>
           </div>
 
           {/* Fallback UI Test */}
           <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-white text-lg font-bold mb-4">🎨 Fallback UI Test</h3>
+            <h3 className="text-white text-lg font-bold mb-4">�� Fallback UI Test</h3>
             <FallbackUISystem
               mascotType="dragon"
               emotion="oops"

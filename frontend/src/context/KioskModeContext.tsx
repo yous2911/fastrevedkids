@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../components/ui/Button';
 import { useKioskMode } from '../hooks/useKioskMode';
 import { useSound } from '../hooks/useSound';
 import { useHaptic } from '../hooks/useHaptic';
@@ -223,12 +224,13 @@ export const KioskModeProvider: React.FC<KioskModeProviderProps> = ({
                     <br />
                     Veuillez patienter 1 minute.
                   </p>
-                  <button
+                  <Button
                     onClick={() => setShowExitDialog(false)}
-                    className="mt-4 px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    variant="secondary"
+                    size="md"
                   >
                     Fermer
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -249,22 +251,26 @@ export const KioskModeProvider: React.FC<KioskModeProviderProps> = ({
                   )}
 
                   <div className="flex gap-3">
-                    <button
+                    <Button
                       onClick={() => {
                         setShowExitDialog(false);
                         setExitCodeInput('');
                       }}
-                      className="flex-1 px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-semibold"
+                      variant="secondary"
+                      size="lg"
+                      className="flex-1"
                     >
                       Annuler
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={handleExitSubmit}
                       disabled={!exitCodeInput}
-                      className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-semibold"
+                      variant="primary"
+                      size="lg"
+                      className="flex-1"
                     >
                       Confirmer
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}

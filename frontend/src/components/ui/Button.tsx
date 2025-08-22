@@ -1,255 +1,61 @@
-import React, { forwardRef, useCallback } from 'react';
-import { motion, MotionProps } from 'framer-motion';
-import { LoadingSpinner } from './LoadingSpinner';
-import { useSound } from '../../hooks/useSound';
-import { useHaptic } from '../../hooks/useHaptic';
+import React, { forwardRef, ButtonHTMLAttributes } from 'react';
+import { motion } from 'framer-motion';
 
-export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'icon'> {
-  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'ghost' | 'magical' | 'outline';
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'magical' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
   loading?: boolean;
-  icon?: React.ReactNode;
-  iconPosition?: 'left' | 'right';
-  fullWidth?: boolean;
-  animated?: boolean;
-  motionProps?: MotionProps;
-  // Nouvelles props pour l'audio/haptique
-  soundEnabled?: boolean;
-  hapticEnabled?: boolean;
-  soundVolume?: number;
-  hapticIntensity?: number;
-  playHoverSound?: boolean;
-  sparkyReaction?: boolean; // Si true, Sparky réagit au clic
 }
 
-const VARIANT_CLASSES = {
-  primary: 'bg-gradient-to-r from-magical-violet to-magical-blue hover:from-magical-violet-light hover:to-magical-blue-light text-white shadow-magical hover:shadow-magical-lg',
-  secondary: 'bg-gradient-to-r from-neutral-200 to-neutral-300 hover:from-neutral-300 hover:to-neutral-400 text-neutral-800 shadow-md hover:shadow-lg',
-  success: 'bg-gradient-to-r from-success-500 to-magical-green hover:from-success-400 hover:to-magical-green-light text-white shadow-success-glow hover:shadow-lg',
-  warning: 'bg-gradient-to-r from-energy-500 to-magical-yellow hover:from-energy-400 hover:to-magical-yellow-light text-white shadow-energy-glow hover:shadow-lg',
-  danger: 'bg-gradient-to-r from-fun-500 to-magical-pink hover:from-fun-400 hover:to-magical-pink-light text-white shadow-fun-glow hover:shadow-lg',
-  ghost: 'bg-transparent hover:bg-magical-violet-glow text-magical-violet border-2 border-magical-violet hover:border-magical-violet-light',
-  magical: 'bg-gradient-to-r from-magical-violet via-magical-blue to-magical-green hover:from-magical-pink hover:via-magical-violet hover:to-magical-blue text-white shadow-sparkle hover:shadow-magical-lg animate-gradient-shift',
-  outline: 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-200'
-};
-
-const SIZE_CLASSES = {
-  sm: 'px-3 py-1.5 text-sm rounded-lg',
-  md: 'px-4 py-2 text-base rounded-magical',
-  lg: 'px-6 py-3 text-lg rounded-magical',
-  xl: 'px-8 py-4 text-xl rounded-magical'
-};
-
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
+  className = '',
   variant = 'primary',
   size = 'md',
-  loading = false,
-  icon,
-  iconPosition = 'left',
-  fullWidth = false,
-  animated = true,
-  motionProps,
-  className = '',
   children,
+  loading = false,
   disabled,
-  soundEnabled = true,
-  hapticEnabled = true,
-  soundVolume = 1,
-  hapticIntensity = 1,
-  playHoverSound = false,
-  sparkyReaction = false,
-  onClick,
-  onMouseEnter,
-  onMouseLeave,
   ...props
 }, ref) => {
-  const { playSound } = useSound();
-  const { triggerHaptic } = useHaptic();
-
-  const BASE_CLASSES = 'font-magical font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magical-violet disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform-gpu';
+  const baseStyles = 'inline-flex items-center justify-center font-bold rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed';
   
-  const CLASSES = [
-    BASE_CLASSES,
-    VARIANT_CLASSES[variant],
-    SIZE_CLASSES[size],
-    fullWidth ? 'w-full' : '',
-    'hover:scale-105 active:scale-95', // Effet de scale magique
-    className
-  ].filter(Boolean).join(' ');
+  const variantStyles = {
+    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-md hover:shadow-lg',
+    secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500 shadow-md hover:shadow-lg',
+    success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 shadow-md hover:shadow-lg',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-md hover:shadow-lg',
+    warning: 'bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500 shadow-md hover:shadow-lg',
+    magical: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 focus:ring-purple-500 shadow-lg hover:shadow-xl border-2 border-white/20',
+    ghost: 'bg-transparent hover:bg-white/10 focus:ring-white/20'
+  };
 
-  const isDisabled = disabled || loading;
+  const sizeStyles = {
+    sm: 'px-3 py-2 text-sm',
+    md: 'px-4 py-2 text-base',
+    lg: 'px-6 py-3 text-lg'
+  };
 
-  const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    if (isDisabled) return;
-
-    // Sons et haptiques
-    if (soundEnabled) {
-      if (variant === 'success') {
-        playSound('success');
-      } else if (variant === 'danger') {
-        playSound('error');
-      } else if (variant === 'magical') {
-        playSound('sparkle');
-      } else {
-        playSound('click');
-      }
-
-      // Réaction de Sparky si activée
-      if (sparkyReaction) {
-        setTimeout(() => {
-          playSound('reward');
-        }, 200);
-      }
-    }
-
-    if (hapticEnabled) {
-      if (variant === 'success') {
-        triggerHaptic('success');
-      } else if (variant === 'danger') {
-        triggerHaptic('error');
-      } else if (variant === 'magical') {
-        triggerHaptic('medium');
-      } else {
-        triggerHaptic('light');
-      }
-    }
-
-    onClick?.(e);
-  }, [isDisabled, soundEnabled, hapticEnabled, variant, soundVolume, hapticIntensity, sparkyReaction, playSound, triggerHaptic, onClick]);
-
-  const handleMouseEnter = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    if (isDisabled) return;
-
-    // Son de hover si activé
-    if (playHoverSound && soundEnabled) {
-      playSound('click');
-    }
-
-    // Haptique léger au hover
-    if (hapticEnabled) {
-      triggerHaptic('light');
-    }
-
-    onMouseEnter?.(e);
-  }, [isDisabled, playHoverSound, soundEnabled, hapticEnabled, soundVolume, hapticIntensity, playSound, triggerHaptic, onMouseEnter]);
-
-  const handleMouseLeave = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    onMouseLeave?.(e);
-  }, [onMouseLeave]);
-
-  const buttonContent = (
-    <>
-      {loading && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2 }}
-        >
-          <LoadingSpinner size="sm" variant="white" />
-        </motion.div>
-      )}
-      {!loading && icon && iconPosition === 'left' && (
-        <motion.span
-          className="flex-shrink-0"
-          whileHover={{ scale: 1.1, rotate: 5 }}
-          transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        >
-          {icon}
-        </motion.span>
-      )}
-      <span className="font-medium">{children}</span>
-      {!loading && icon && iconPosition === 'right' && (
-        <motion.span
-          className="flex-shrink-0"
-          whileHover={{ scale: 1.1, rotate: -5 }}
-          transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        >
-          {icon}
-        </motion.span>
-      )}
-    </>
-  );
-
-  if (animated) {
-    return (
-      <motion.button
-        ref={ref}
-        className={CLASSES}
-        disabled={isDisabled}
-        onClick={handleClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        whileHover={!isDisabled ? { 
-          scale: 1.05,
-          boxShadow: variant === 'magical' 
-            ? '0 0 30px rgba(255, 105, 180, 0.6), 0 0 60px rgba(255, 105, 180, 0.3)'
-            : '0 8px 25px rgba(138, 43, 226, 0.4)'
-        } : undefined}
-        whileTap={!isDisabled ? { 
-          scale: 0.95,
-          transition: { duration: 0.1 }
-        } : undefined}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 400, 
-          damping: 17,
-          opacity: { duration: 0.2 },
-          y: { duration: 0.3 }
-        }}
-        {...motionProps}
-        {...(props as any)}
-      >
-        {buttonContent}
-        
-        {/* Effet de particules magiques pour le variant magical */}
-        {variant === 'magical' && !isDisabled && (
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            initial={{ opacity: 0 }}
-            whileHover={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            {[...Array(6)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-1 h-1 bg-white rounded-full"
-                style={{
-                  left: `${20 + i * 10}%`,
-                  top: `${20 + (i % 2) * 60}%`,
-                }}
-                animate={{
-                  scale: [0, 1, 0],
-                  opacity: [0, 1, 0],
-                  y: [0, -10, 0],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  delay: i * 0.2,
-                  ease: "easeInOut"
-                }}
-              />
-            ))}
-          </motion.div>
-        )}
-      </motion.button>
-    );
-  }
+  const buttonStyles = `${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`;
 
   return (
-    <button
+    <motion.button
       ref={ref}
-      className={CLASSES}
-      disabled={isDisabled}
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className={buttonStyles}
+      disabled={disabled || loading}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.2 }}
       {...props}
     >
-      {buttonContent}
-    </button>
+      {loading ? (
+        <div className="flex items-center">
+          <div className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+          Chargement...
+        </div>
+      ) : (
+        children
+      )}
+    </motion.button>
   );
 });
 

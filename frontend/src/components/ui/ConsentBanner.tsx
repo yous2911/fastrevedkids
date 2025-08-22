@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Button } from './Button';
 
 interface ConsentBannerProps {
   onAccept: () => void;
@@ -28,18 +29,20 @@ export const ConsentBanner: React.FC<ConsentBannerProps> = ({
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
         <p className="text-sm text-gray-700 flex-1">{message}</p>
         <div className="flex gap-3">
-          <button
+          <Button
             onClick={onDecline}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            variant="ghost"
+            size="sm"
           >
             Refuser
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onAccept}
-            className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            variant="primary"
+            size="sm"
           >
             Accepter
-          </button>
+          </Button>
         </div>
       </div>
     </motion.div>

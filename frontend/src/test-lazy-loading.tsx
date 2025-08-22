@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from './components/ui/Button';
 import { LazyComponentLoader } from './components/ui/LazyComponentLoader';
 import { DashboardLazy, ExercisesLazy } from './pages/lazy';
 
@@ -11,18 +12,20 @@ export const TestLazyLoading: React.FC = () => {
       <div className="p-4 bg-gray-100">
         <h1>Lazy Loading Test</h1>
         <div className="space-x-2">
-          <button 
+          <Button 
             onClick={() => setCurrentView('dashboard')}
-            className="px-4 py-2 bg-blue-500 text-white rounded"
+            variant="primary"
+            size="md"
           >
             Dashboard
-          </button>
-          <button 
+          </Button>
+          <Button 
             onClick={() => setCurrentView('exercises')}
-            className="px-4 py-2 bg-green-500 text-white rounded"
+            variant="success"
+            size="md"
           >
             Exercises
-          </button>
+          </Button>
         </div>
       </div>
 

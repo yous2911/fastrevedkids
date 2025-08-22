@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../components/ui/Button';
 import NextLevelXPSystem from '../components/ui/NextLevelXPSystem';
 
 type ThemeType = 'default' | 'magic' | 'fire' | 'water' | 'crystal' | 'rainbow';
@@ -139,44 +141,51 @@ const XPSystemThemeTest: React.FC = () => {
                   </button>
                 ))}
               </div>
-              <button
+              <Button
                 onClick={() => setCurrentSize(getResponsiveSize())}
-                className="mt-2 px-3 py-2 rounded text-sm bg-green-600 text-white hover:bg-green-500"
+                variant="success"
+                size="sm"
               >
                 Auto Responsive ({getResponsiveSize()})
-              </button>
+              </Button>
             </div>
 
             {/* Test Actions */}
             <div>
               <h3 className="text-white text-lg mb-3">Test Actions</h3>
               <div className="space-y-2">
-                <button
+                <Button
                   onClick={() => handleXPGain(50)}
-                  className="w-full px-3 py-2 rounded text-sm bg-green-600 text-white hover:bg-green-500"
+                  variant="success"
+                  size="sm"
+                  className="w-full"
                 >
                   Gain 50 XP
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => handleXPGain(100)}
-                  className="w-full px-3 py-2 rounded text-sm bg-green-700 text-white hover:bg-green-600"
+                  variant="success"
+                  size="sm"
+                  className="w-full"
                 >
                   Gain 100 XP
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={triggerRerender}
-                  className="w-full px-3 py-2 rounded text-sm bg-orange-600 text-white hover:bg-orange-500"
+                  variant="warning"
+                  size="sm"
+                  className="w-full"
                 >
                   Force Re-render ({forceRerender})
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setAutoCycle(!autoCycle)}
-                  className={`w-full px-3 py-2 rounded text-sm ${
-                    autoCycle ? 'bg-red-600 hover:bg-red-500' : 'bg-indigo-600 hover:bg-indigo-500'
-                  } text-white`}
+                  variant={autoCycle ? 'danger' : 'primary'}
+                  size="sm"
+                  className="w-full"
                 >
                   {autoCycle ? 'Stop Auto-Cycle' : 'Start Auto-Cycle'}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ReactNode, ErrorInfo } from 'react';
+import { Button } from '../ui/Button';
 import { reportError } from '../../utils/sentry';
 
 interface Props {
@@ -77,19 +78,23 @@ const DefaultErrorFallback: React.FC<{ error?: Error }> = ({ error }) => (
       )}
       
       <div className="space-y-3">
-        <button 
+        <Button 
           onClick={() => window.location.reload()}
-          className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          variant="primary"
+          size="lg"
+          className="w-full"
         >
           Reload Page
-        </button>
+        </Button>
         
-        <button 
+        <Button 
           onClick={() => window.location.href = '/'}
-          className="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+          variant="secondary"
+          size="lg"
+          className="w-full"
         >
           Go Home
-        </button>
+        </Button>
       </div>
     </div>
   </div>

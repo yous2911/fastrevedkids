@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/Button';
 import { browserCompat } from '../../utils/browserCompatibility';
 import Canvas2DRenderer from './Canvas2DRenderer';
 
@@ -197,19 +198,21 @@ export const FallbackUISystem: React.FC<FallbackUIProps> = ({
             >
               <div className="flex gap-2 justify-center">
                 {fallbackInfo.canRetry && onRetry && (
-                  <button
+                  <Button
                     onClick={handleRetry}
-                    className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded-lg font-medium"
+                    variant="primary"
+                    size="sm"
                   >
                     Retry 3D
-                  </button>
+                  </Button>
                 )}
-                <button
+                <Button
                   onClick={handleAcceptFallback}
-                  className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white text-xs rounded-lg font-medium"
+                  variant="secondary"
+                  size="sm"
                 >
                   Use 2D
-                </button>
+                </Button>
               </div>
             </motion.div>
           )}

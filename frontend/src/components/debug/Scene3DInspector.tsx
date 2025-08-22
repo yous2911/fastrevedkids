@@ -3,8 +3,9 @@
  * Comprehensive debugging tool for 3D scene inspection, mascot positioning, and camera controls
  */
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/Button';
 
 interface Vector3 {
   x: number;
@@ -355,28 +356,27 @@ export const Scene3DInspector: React.FC<Scene3DInspectorProps> = ({
           </div>
         </div>
         <div className="flex gap-2">
-          <button
+          <Button
             onClick={() => setIsGridVisible(!isGridVisible)}
-            className={`px-3 py-1 rounded text-sm font-medium ${
-              isGridVisible ? 'bg-green-500 hover:bg-green-400' : 'bg-gray-600 hover:bg-gray-500'
-            }`}
+            variant="success"
+            size="sm"
           >
             {isGridVisible ? '⊞ Grid On' : '⊡ Grid Off'}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setIsWireframeMode(!isWireframeMode)}
-            className={`px-3 py-1 rounded text-sm font-medium ${
-              isWireframeMode ? 'bg-orange-500 hover:bg-orange-400' : 'bg-gray-600 hover:bg-gray-500'
-            }`}
+            variant="warning"
+            size="sm"
           >
             {isWireframeMode ? '◈ Wireframe' : '◆ Solid'}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onClose}
-            className="px-3 py-1 bg-red-600 hover:bg-red-500 rounded text-sm font-medium"
+            variant="danger"
+            size="sm"
           >
             ✕
-          </button>
+          </Button>
         </div>
       </div>
 

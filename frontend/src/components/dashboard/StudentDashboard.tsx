@@ -1,6 +1,7 @@
 // src/components/dashboard/studentDashboard.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/Button';
 import { 
   BookOpen, 
   Trophy, 
@@ -488,14 +489,16 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
                           {exercise.pointsReussite} points
                         </span>
                       </div>
-                      <button
+                      <Button
                         onClick={() => handleExerciseStart(exercise.id)}
-                        className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                        variant="magical"
+                        size="md"
                         disabled={loading}
+                        loading={loading}
                       >
                         <PlayCircle className="h-4 w-4" />
-                        {loading ? 'Chargement...' : 'Commencer'}
-                      </button>
+                        Commencer
+                      </Button>
                     </div>
                   </motion.div>
                 ))}
@@ -547,29 +550,35 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 ⚡ Actions rapides
               </h2>
               <div className="space-y-3">
-                <button 
+                <Button 
                   onClick={onContinueProgress}
+                  variant="ghost"
+                  size="lg"
                   className="w-full bg-purple-100 text-purple-700 p-3 rounded-lg hover:bg-purple-200 transition-colors flex items-center gap-3"
                 >
                   <PlayCircle className="h-5 w-5" />
                   <span>Continuer où j'en étais</span>
-                </button>
+                </Button>
                 
-                <button 
+                <Button 
                   onClick={onReviewMistakes}
+                  variant="ghost"
+                  size="lg"
                   className="w-full bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-3"
                 >
                   <Target className="h-5 w-5" />
                   <span>Réviser mes erreurs</span>
-                </button>
+                </Button>
                 
-                <button 
+                <Button 
                   onClick={onViewTrophies}
+                  variant="ghost"
+                  size="lg"
                   className="w-full bg-green-100 text-green-700 p-3 rounded-lg hover:bg-green-200 transition-colors flex items-center gap-3"
                 >
                   <Trophy className="h-5 w-5" />
                   <span>Voir mes trophées</span>
-                </button>
+                </Button>
               </div>
             </div>
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { Button } from '../components/ui/Button';
 
 // Interface types for better TypeScript support
 interface GameResult {
@@ -418,12 +419,13 @@ const MiniGamesDemo: React.FC = () => {
       <div className="max-w-2xl mx-auto p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-800">{game.title}</h2>
-          <button
+          <Button
             onClick={() => setCurrentGame(null)}
-            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+            variant="secondary"
+            size="md"
           >
             ← Retour
-          </button>
+          </Button>
         </div>
         <GameComponent onComplete={handleGameComplete} />
       </div>
