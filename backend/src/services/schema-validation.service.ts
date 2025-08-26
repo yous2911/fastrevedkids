@@ -135,7 +135,7 @@ class SchemaValidationService {
   private schemaPath: string;
   private validationHistory: ValidationResult[] = [];
   private driftHistory: SchemaDrift[] = [];
-  private scheduledTasks = new Map<string, cron.ScheduledTask>();
+  private scheduledTasks = new Map<string, any>();
   private isInitialized = false;
 
   constructor() {
@@ -825,7 +825,7 @@ class SchemaValidationService {
       } catch (error) {
         logger.error('Scheduled schema validation failed', { error });
       }
-    }, { scheduled: true, name: 'schema-validation' });
+    }, { name: 'schema-validation' });
 
     this.scheduledTasks.set('validation', validationTask);
     logger.info('Scheduled schema validation configured');
@@ -845,7 +845,7 @@ class SchemaValidationService {
       } catch (error) {
         logger.error('Schema drift detection failed', { error });
       }
-    }, { scheduled: true, name: 'drift-monitoring' });
+    }, { name: 'drift-monitoring' });
 
     this.scheduledTasks.set('drift', driftTask);
     logger.info('Schema drift monitoring configured');

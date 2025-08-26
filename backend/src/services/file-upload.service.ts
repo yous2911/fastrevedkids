@@ -187,7 +187,16 @@ export class FileUploadService {
     }
 
     // Store file metadata in database
-    await this.storageService.saveFileMetadata(uploadedFile);
+    const simpleFile = {
+      id: parseInt(uploadedFile.id),
+      filename: uploadedFile.filename,
+      originalname: uploadedFile.originalName,
+      size: uploadedFile.size,
+      path: uploadedFile.path,
+      checksum: uploadedFile.checksum,
+      category: uploadedFile.category
+    };
+    await this.storageService.saveFileMetadata(simpleFile);
     
     logger.info('File uploaded successfully', {
       fileId,
@@ -197,7 +206,12 @@ export class FileUploadService {
       uploadedBy
     });
 
-    return uploadedFile;
+    // Return the full UploadedFile with required fields
+    return {
+      ...uploadedFile,
+      mimetype: uploadedFile.mimetype || 'application/octet-stream',
+      uploadedAt: new Date()
+    };
   }
 
   /**
@@ -403,7 +417,26 @@ export class FileUploadService {
   }
 
   private async checkForDuplicate(checksum: string): Promise<UploadedFile | null> {
-    return await this.storageService.findFileByChecksum(checksum);
+    const simpleFile = await this.storageService.findFileByChecksum(checksum);
+    if (!simpleFile) return null;
+    
+    // Convert SimpleUploadedFile to UploadedFile
+    return {
+      id: String(simpleFile.id),
+      originalName: simpleFile.originalName || simpleFile.filename,
+      filename: simpleFile.filename,
+      mimetype: 'application/octet-stream',
+      size: simpleFile.size || 0,
+      path: simpleFile.path || '',
+      url: '',
+      metadata: {},
+      uploadedBy: '0',
+      uploadedAt: new Date(),
+      category: (simpleFile.category as any) || 'document',
+      isPublic: false,
+      status: 'active' as any,
+      checksum: simpleFile.checksum || ''
+    };
   }
 
   private shouldProcessInBackground(file: UploadedFile): boolean {
@@ -439,7 +472,27 @@ export class FileUploadService {
    * Get file by ID
    */
   async getFile(fileId: string): Promise<UploadedFile | null> {
-    return await this.storageService.getFileById(fileId);
+    const file = await this.storageService.getFileById(fileId);
+    if (!file) return null;
+    
+    // Convert SimpleUploadedFile to UploadedFile
+    return {
+      id: String(file.id),
+      originalName: file.originalName || file.filename,
+      filename: file.filename,
+      mimetype: file.mimeType || 'application/octet-stream',
+      size: file.size || 0,
+      path: file.path || '',
+      url: file.url || '',
+      thumbnailUrl: file.thumbnailUrl,
+      metadata: file.metadata ? JSON.parse(file.metadata) : {},
+      uploadedBy: String(file.uploadedBy || 0),
+      uploadedAt: new Date(),
+      category: (file.category as any) || 'document',
+      isPublic: file.isPublic || false,
+      status: (file.status as any) || 'active',
+      checksum: file.checksum || ''
+    };
   }
 
   /**
@@ -470,7 +523,7 @@ export class FileUploadService {
       }
 
       // Update database
-      await this.storageService.markFileAsDeleted(fileId);
+      await this.storageService.markFileAsDeleted(parseInt(fileId));
 
       logger.info('File deleted successfully', { fileId, userId });
       return true;
@@ -491,6 +544,6 @@ export class FileUploadService {
    * Cleanup expired files
    */
   async cleanupExpiredFiles(maxAge: number = 30): Promise<number> {
-    return await this.storageService.cleanupExpiredFiles(maxAge);
+    return await this.storageService.cleanupExpiredFiles();
   }
 }

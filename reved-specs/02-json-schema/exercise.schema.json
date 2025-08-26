@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://reved.ai/schemas/exercise.schema.v4.json",
+  "title": "RevEd Exercise",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "exercise_id",
+    "skill_id",
+    "difficulty_level",
+    "exercise_type",
+    "question_text",
+    "step_by_step_solution",
+    "key_concept_takeaway",
+    "version",
+    "locale",
+    "xp_reward",
+    "hint_penalty",
+    "tags",
+    "generator_meta",
+    "judge_scores",
+    "visibility"
+  ],
+  "properties": {
+    "exercise_id": { "type": "string", "minLength": 3 },
+    "version": { "type": "integer", "minimum": 1 },
+    "revision_notes": { "type": "string" },
+
+    "skill_id": { "type": "string", "minLength": 3 },
+    "source_skill_path": { "type": "string" },
+
+    "difficulty_level": { "type": "integer", "minimum": 1, "maximum": 6 },
+    "exercise_type": { "type": "string", "enum": ["QCM", "QCM_Image", "Fill_in_the_Blank", "Drag_and_Drop", "Schema_Drawing", "Handwriting"] },
+
+    "locale": { "type": "string", "pattern": "^[a-z]{2}-[A-Z]{2}$" },
+    "age_target": {
+      "oneOf": [
+        { "type": "integer", "minimum": 3, "maximum": 20 },
+        {
+          "type": "object",
+          "required": ["min", "max"],
+          "additionalProperties": false,
+          "properties": {
+            "min": { "type": "integer", "minimum": 3, "maximum": 20 },
+            "max": { "type": "integer", "minimum": 3, "maximum": 20 }
+          }
+        }
+      ]
+    },
+    "time_limit_seconds": { "type": "integer", "minimum": 10 },
+
+    "question_text": { "type": "string", "minLength": 1 },
+    "question_audio_url": { "type": ["string", "null"] },
+    "image_prompt": { "type": ["string", "null"] },
+    "image_url": { "type": ["string", "null"] },
+
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "text": { "type": ["string", "null"] },
+          "image_prompt": { "type": ["string", "null"] },
+          "image_url": { "type": ["string", "null"] }
+        }
+      },
+      "default": []
+    },
+
+    "correct_option_id": { "type": ["string", "null"] },
+    "correct_answer": { "type": ["string", "null"] },
+
+    "step_by_step_solution": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["step", "explanation_text"],
+        "properties": {
+          "step": { "type": "integer", "minimum": 1 },
+          "explanation_text": { "type": "string", "minLength": 1 },
+          "explanation_audio_url": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "key_concept_takeaway": { "type": "string", "minLength": 1 },
+
+    "xp_reward": { "type": "integer", "minimum": 0 },
+    "hint_penalty": { "type": "integer", "minimum": 0 },
+
+    "tags": { "type": "array", "items": { "type": "string" } },
+
+    "generator_meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model"],
+      "properties": {
+        "model": { "type": "string" },
+        "model_params": { "type": "object" },
+        "seed": { "type": ["integer", "null"] },
+        "timestamp": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+
+    "judge_scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["clarity", "factuality", "age_fit", "overall", "justification"],
+      "properties": {
+        "clarity": { "type": "number", "minimum": 0, "maximum": 10 },
+        "factuality": { "type": "number", "minimum": 0, "maximum": 10 },
+        "age_fit": { "type": "number", "minimum": 0, "maximum": 10 },
+        "overall": { "type": "number", "minimum": 0, "maximum": 10 },
+        "justification": { "type": "string" }
+      }
+    },
+
+    "reviewer": { "type": ["string", "null"] },
+    "review_date": { "type": ["string", "null"], "format": "date-time" },
+
+    "content_hash": { "type": ["string", "null"] },
+
+    "license": { "type": ["string", "null"] },
+    "visibility": { "type": "string", "enum": ["public", "internal", "experimental"] }
+  },
+
+  "allOf": [
+    {
+      "if": { "properties": { "exercise_type": { "const": "QCM" } } },
+      "then": {
+        "required": ["options", "correct_option_id"],
+        "properties": {
+          "options": { "minItems": 2 },
+          "correct_option_id": { "type": "string" },
+          "correct_answer": { "const": null }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "exercise_type": { "const": "Fill_in_the_Blank" } } },
+      "then": {
+        "required": ["correct_answer"],
+        "properties": {
+          "correct_option_id": { "const": null }
+        }
+      }
+    }
+  ]
+}

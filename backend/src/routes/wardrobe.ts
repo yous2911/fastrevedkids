@@ -64,8 +64,19 @@ export default async function wardrobeRoutes(fastify: FastifyInstance) {
           });
         }
 
+        // Build where conditions
+        let whereConditions = [eq(wardrobeItems.isActive, true)];
+        
+        // Apply filters
+        if (type) {
+          whereConditions.push(eq(wardrobeItems.type, type as any));
+        }
+        if (rarity) {
+          whereConditions.push(eq(wardrobeItems.rarity, rarity as any));
+        }
+
         // Get student's wardrobe items with unlock status
-        let query = db
+        const query = db
           .select({
             id: wardrobeItems.id,
             name: wardrobeItems.name,
@@ -95,15 +106,7 @@ export default async function wardrobeRoutes(fastify: FastifyInstance) {
               eq(studentWardrobe.studentId, parseInt(studentId))
             )
           )
-          .where(eq(wardrobeItems.isActive, true));
-
-        // Apply filters
-        if (type) {
-          query = query.where(and(eq(wardrobeItems.isActive, true), eq(wardrobeItems.type, type as any)));
-        }
-        if (rarity) {
-          query = query.where(and(eq(wardrobeItems.isActive, true), eq(wardrobeItems.rarity, rarity as any)));
-        }
+          .where(and(...whereConditions));
 
         const allItems = await query;
 
@@ -362,18 +365,27 @@ export default async function wardrobeRoutes(fastify: FastifyInstance) {
 
         const item = studentItem[0];
 
+        // Get items of the same type to unequip
+        const sameTypeItems = await db
+          .select({ itemId: wardrobeItems.id })
+          .from(wardrobeItems)
+          .where(eq(wardrobeItems.type, item.itemType));
+          
+        const sameTypeItemIds = sameTypeItems.map(item => item.itemId);
+
         // Unequip other items of the same type (only one hat, one clothing, etc.)
-        await db
-          .update(studentWardrobe)
-          .set({
-            isEquipped: false,
-            equippedAt: null
-          })
-          .where(and(
-            eq(studentWardrobe.studentId, parseInt(studentId)),
-            eq(wardrobeItems.type, item.itemType)
-          ))
-          .innerJoin(wardrobeItems, eq(studentWardrobe.itemId, wardrobeItems.id));
+        if (sameTypeItemIds.length > 0) {
+          await db
+            .update(studentWardrobe)
+            .set({
+              isEquipped: false,
+              equippedAt: null
+            })
+            .where(and(
+              eq(studentWardrobe.studentId, parseInt(studentId)),
+              sql`${studentWardrobe.itemId} IN (${sameTypeItemIds.join(',')})`
+            ));
+        }
 
         // Equip the selected item
         await db

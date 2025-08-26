@@ -22,11 +22,7 @@ class GdprService {
       studentId: data.studentId || null,
       action: data.action,
       dataType: data.dataType,
-      description: data.description,
-      ipAddress: data.ipAddress || null,
-      userAgent: data.userAgent || null,
-      requestId: data.requestId || null,
-      metadata: '{}',
+      details: data.description,
       createdAt: new Date(),
     };
 
@@ -86,7 +82,7 @@ class GdprService {
       })
       .where(eq(students.id, studentId));
 
-    affectedRecords += studentResult.changes || 0;
+    affectedRecords += (studentResult as any).changes || 0;
 
     return { success: true, affectedRecords };
   }
@@ -96,19 +92,19 @@ class GdprService {
 
     // Supprimer dans l'ordre inverse des dépendances
     const filesResult = await this.db.delete(gdprFiles).where(eq(gdprFiles.studentId, studentId));
-    affectedRecords += filesResult.changes || 0;
+    affectedRecords += (filesResult as any).changes || 0;
 
     const revisionsResult = await this.db.delete(revisions).where(eq(revisions.studentId, studentId));
-    affectedRecords += revisionsResult.changes || 0;
+    affectedRecords += (revisionsResult as any).changes || 0;
 
     const sessionsResult = await this.db.delete(sessions).where(eq(sessions.studentId, studentId));
-    affectedRecords += sessionsResult.changes || 0;
+    affectedRecords += (sessionsResult as any).changes || 0;
 
     const progressResult = await this.db.delete(studentProgress).where(eq(studentProgress.studentId, studentId));
-    affectedRecords += progressResult.changes || 0;
+    affectedRecords += (progressResult as any).changes || 0;
 
     const studentResult = await this.db.delete(students).where(eq(students.id, studentId));
-    affectedRecords += studentResult.changes || 0;
+    affectedRecords += (studentResult as any).changes || 0;
 
     return { success: true, affectedRecords };
   }

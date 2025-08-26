@@ -75,7 +75,7 @@ class DataArchivingService {
   private config: ArchivingConfig;
   private jobs = new Map<string, ArchiveJob>();
   private currentJob: ArchiveJob | null = null;
-  private scheduledTasks = new Map<string, cron.ScheduledTask>();
+  private scheduledTasks = new Map<string, any>();
   private isInitialized = false;
 
   constructor() {
@@ -251,7 +251,6 @@ class DataArchivingService {
         logger.error('Scheduled archiving failed', { error });
       }
     }, {
-      scheduled: true,
       name: 'data-archiving',
       timezone: 'UTC'
     });

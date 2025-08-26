@@ -890,7 +890,7 @@ class PerformanceBenchmarkService {
     return new Map(this.baselines);
   }
 
-  isRunning(): boolean {
+  isBenchmarkRunning(): boolean {
     return this.isRunning;
   }
 

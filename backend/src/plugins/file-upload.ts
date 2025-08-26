@@ -161,7 +161,7 @@ const fileUploadPlugin: FastifyPluginAsync<FileUploadPluginOptions> = async (
       },
       handler: async (request, reply) => {
         try {
-          const storageHealth = await storageService.getStorageHealth();
+          const storageHealth = await storageService.getStorageStats();
           
           return reply.send({
             status: 'healthy',
@@ -205,13 +205,14 @@ const fileUploadPlugin: FastifyPluginAsync<FileUploadPluginOptions> = async (
       preHandler: [fastify.authenticate], // TODO: Add admin authorization when available
       handler: async (request, reply) => {
         try {
-          const result = await storageService.optimizeStorage();
+          const deletedCount = await storageService.cleanupOldFiles(30);
           
-          logger.info('Storage optimization completed', result);
+          logger.info('Storage optimization completed', { deletedCount });
           
           return reply.send({
             success: true,
-            ...result
+            deletedCount,
+            spaceReclaimed: deletedCount * 1000 // Rough estimate
           });
         } catch (error) {
           logger.error('Storage optimization failed:', error);

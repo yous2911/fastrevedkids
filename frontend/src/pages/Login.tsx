@@ -21,20 +21,27 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   // Load existing students on mount
   useEffect(() => {
+    console.log('🔍 Login component mounted');
     loadStudents();
   }, []);
 
   const loadStudents = async () => {
+    console.log('🔍 Loading students from API...');
     try {
-      const response = await fetch('http://localhost:5000/api/students');
+      const response = await fetch('http://localhost:3003/api/students');
+      console.log('🔍 API Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('🔍 API Response data:', data);
         if (data.success && data.data) {
           setStudents(data.data);
+          console.log('🔍 Students loaded:', data.data.length);
         }
+      } else {
+        console.error('🔍 API Error:', response.status, response.statusText);
       }
     } catch (err) {
-      console.error('Failed to load students:', err);
+      console.error('🔍 Failed to load students:', err);
     }
   };
 
@@ -98,8 +105,15 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     { emoji: '🦉', name: 'owl' }
   ];
 
+  console.log('🔍 Login component rendering, students:', students.length, 'showStudentSelect:', showStudentSelect);
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-6">
+      {/* DEBUG: Simple test div */}
+      <div style={{position: 'fixed', top: '10px', left: '10px', background: 'red', color: 'white', padding: '10px', zIndex: 9999}}>
+        DEBUG: Login component is rendering! Students: {students.length}
+      </div>
+      
       <div className="max-w-md w-full">
         {/* Header */}
         <motion.div

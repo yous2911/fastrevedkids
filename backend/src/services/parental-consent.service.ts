@@ -527,7 +527,7 @@ export class ParentalConsentService {
         await this.anonymizationService.scheduleAnonymization({
           entityType: 'student',
           entityId: studentRecord.id.toString(),
-          reason: 'parental_consent_revoked',
+          reason: 'consent_withdrawal',
           preserveStatistics: false, // Complete anonymization
           immediateExecution: true,
           notifyUser: false // Don't notify as consent was revoked
@@ -544,7 +544,7 @@ export class ParentalConsentService {
       await this.auditService.logAction({
         entityType: 'parental_consent',
         entityId: consent.id,
-        action: 'data_anonymized',
+        action: 'anonymize',
         userId: null,
         details: {
           reason: 'consent_revoked',
@@ -626,7 +626,7 @@ export class ParentalConsentService {
         await this.auditService.logAction({
           entityType: 'parental_consent',
           entityId: consent.id,
-          action: 'stored',
+          action: 'create',
           userId: null,
           details: {
             parentName: consent.parentName,
@@ -680,7 +680,7 @@ export class ParentalConsentService {
         await this.auditService.logAction({
           entityType: 'parental_consent',
           entityId: id,
-          action: 'updated',
+          action: 'update',
           userId: null,
           details: {
             updates,

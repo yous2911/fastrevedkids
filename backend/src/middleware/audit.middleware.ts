@@ -290,7 +290,7 @@ export class AuditMiddleware {
       case 'detailed':
         return {
           ...baseDetails,
-          route: request.routerPath,
+          route: request.url,
           params: request.params,
           query: request.query,
           userAgent: request.headers['user-agent']
@@ -299,7 +299,7 @@ export class AuditMiddleware {
       case 'full':
         return {
           ...baseDetails,
-          route: request.routerPath,
+          route: request.url,
           params: request.params,
           query: request.query,
           headers: request.headers,

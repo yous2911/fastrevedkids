@@ -103,12 +103,13 @@ const eventLoopLag = new prometheus.Histogram({
 const customMetrics = new Map<string, prometheus.Counter | prometheus.Gauge | prometheus.Histogram>();
 
 // Initialize monitoring
-export const initializeMonitoring = (app: FastifyInstance) => {
+export const initializeMonitoring = (app: FastifyInstance): void => {
   // Register metrics endpoint
-  app.get('/metrics', async (request: FastifyRequest, reply: FastifyReply): Promise<string | void> => {
+  app.get('/metrics', async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     try {
       reply.header('Content-Type', register.contentType);
-      return await register.metrics();
+      const metrics = await register.metrics();
+      return reply.send(metrics);
     } catch (error) {
       logger.error('Error generating metrics', { error });
       return reply.status(500).send({ error: 'Failed to generate metrics' });
@@ -199,7 +200,7 @@ const setupRequestMonitoring = (app: FastifyInstance) => {
     const startTime = Date.now();
     
     // Track request in progress
-    httpRequestInProgress.inc({ method: request.method, route: request.routerPath || 'unknown' });
+    httpRequestInProgress.inc({ method: request.method, route: (request as any).routerPath || 'unknown' });
     
     // Store start time for duration calculation
     (request as any).startTime = startTime;
@@ -208,7 +209,7 @@ const setupRequestMonitoring = (app: FastifyInstance) => {
   app.addHook('onResponse', async (request: FastifyRequest, reply: FastifyReply) => {
     const startTime = (request as any).startTime;
     const duration = (Date.now() - startTime) / 1000;
-    const route = request.routerPath || 'unknown';
+    const route = (request as any).routerPath || 'unknown';
     
     // Record metrics
     httpRequestDuration.observe(

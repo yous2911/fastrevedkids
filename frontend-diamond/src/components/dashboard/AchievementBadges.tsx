@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Button } from '../ui/Button';
 
 interface Achievement {
   id: number;
@@ -99,12 +100,14 @@ const achievementBadges: React.FC<AchievementBadgesProps> = ({
           🏆 Récompenses
         </h3>
         {achievements.length > 0 && (
-          <button
+          <Button
             onClick={onViewAll}
+            variant="ghost"
+            size="sm"
             className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
           >
             Voir tout →
-          </button>
+          </Button>
         )}
       </div>
 

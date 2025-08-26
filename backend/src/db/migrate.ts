@@ -335,8 +335,8 @@ export class MigrationManager {
     try {
       console.log('🔄 Running Drizzle migrations...');
       
-      // Use the correct migrator for SQLite
-      const { migrate } = await import('drizzle-orm/better-sqlite3/migrator');
+      // Use the correct migrator for MySQL
+      const { migrate } = await import('drizzle-orm/mysql2/migrator');
       await migrate(db, { 
         migrationsFolder: './drizzle',
         migrationsTable: '__drizzle_migrations__',

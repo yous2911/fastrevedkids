@@ -29,7 +29,7 @@ export class AnalyticsService {
       const completedExercises = progressData.filter(p => p.completed === true);
       const totalExercises = progressData.length;
       const averageScore = completedExercises.length > 0 
-        ? completedExercises.reduce((sum, p) => sum + (p.score || 0), 0) / completedExercises.length 
+        ? completedExercises.reduce((sum, p) => sum + (Number(p.score) || 0), 0) / completedExercises.length 
         : 0;
 
       // Get progress by module - since exercises don't have moduleId, we'll group by exercise type
@@ -109,7 +109,7 @@ export class AnalyticsService {
       const averageSessionDuration = recentProgress.length > 0 
         ? recentProgress.reduce((sum, p) => sum + (p.timeSpent || 0), 0) / recentProgress.length 
         : 0;
-      const totalPoints = recentProgress.reduce((sum, p) => sum + (p.score || 0), 0);
+      const totalPoints = recentProgress.reduce((sum, p) => sum + (Number(p.score) || 0), 0);
       const exercisesCompleted = recentProgress.filter(p => p.completed).length;
 
       return {
@@ -150,7 +150,7 @@ export class AnalyticsService {
       const averageScore = successfulAttempts > 0 
         ? progress
             .filter(p => p.completed === true)
-            .reduce((sum, p) => sum + (p.score || 0), 0) / successfulAttempts 
+            .reduce((sum, p) => sum + (Number(p.score) || 0), 0) / successfulAttempts 
         : 0;
 
       return {

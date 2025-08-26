@@ -263,9 +263,15 @@ export class ExerciseGeneratorService {
       if (template) {
         const configuration = template.generator();
         exercises.push({
+          type: template.type || 'qcm',
           titre: configuration.titre || `Exercice ${template.type}`,
-          type: template.matiere,
-          difficulte: DIFFICULTE_MAP[template.difficulte],
+          matiere: template.matiere,
+          niveau: template.niveau,
+          difficulte: template.difficulte,
+          competenceCode: 'GENERAL',
+          contenu: configuration,
+          solution: configuration.reponse_attendue || null,
+          typeExercice: template.type || 'qcm',
           configuration: JSON.stringify(configuration),
           xp: this.calculatePoints(template.difficulte),
           createdAt: new Date(),

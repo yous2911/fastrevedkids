@@ -1,86 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/Button';
 
-interface MentalMathExerciseProps {
-  difficulty: 0 | 1 | 2 | 3 | 4 | 5; // SuperMemo quality levels
-  onComplete: (isCorrect: boolean, timeSpent: number) => void;
+interface MathProblem {
+  question: string;
+  answer: number;
+  options: number[];
 }
 
-const MentalMathExercise: React.FC<MentalMathExerciseProps> = ({
-  difficulty,
-  onComplete
-}) => {
-  const [currentProblem, setCurrentProblem] = useState<{
-    question: string;
-    answer: number;
-    options: number[];
-  } | null>(null);
+interface MentalMathExerciseProps {
+  difficulty: number;
+  onComplete: (correct: boolean, timeSpent: number) => void;
+}
+
+const MentalMathExercise: React.FC<MentalMathExerciseProps> = ({ difficulty, onComplete }) => {
+  const [currentProblem, setCurrentProblem] = useState<MathProblem | null>(null);
   const [userAnswer, setUserAnswer] = useState<number | null>(null);
-  const [startTime, setStartTime] = useState<number>(0);
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [startTime, setStartTime] = useState(0);
 
   const generateProblem = () => {
-    let question: string;
-    let answer: number;
-    let options: number[];
-
+    let num1: number, num2: number, answer: number;
+    
     switch (difficulty) {
-      case 0: // BLACKOUT - Complete forgetfulness
-        const a0 = Math.floor(Math.random() * 5) + 1;
-        const b0 = Math.floor(Math.random() * 5) + 1;
-        question = `${a0} + ${b0} = ?`;
-        answer = a0 + b0;
-        options = [answer, answer + 1, answer - 1, answer + 2].sort(() => Math.random() - 0.5);
+      case 0: // BLACKOUT
+        num1 = Math.floor(Math.random() * 20) + 1;
+        num2 = Math.floor(Math.random() * 20) + 1;
         break;
-
-      case 1: // HARD - Incorrect but remembered something
-        const a1 = Math.floor(Math.random() * 8) + 1;
-        const b1 = Math.floor(Math.random() * 8) + 1;
-        question = `${a1} + ${b1} = ?`;
-        answer = a1 + b1;
-        options = [answer, answer + 1, answer - 1, answer + 2].sort(() => Math.random() - 0.5);
+      case 1: // HARD
+        num1 = Math.floor(Math.random() * 50) + 1;
+        num2 = Math.floor(Math.random() * 50) + 1;
         break;
-
-      case 2: // DIFFICULT - Incorrect with effort
-        const a2 = Math.floor(Math.random() * 10) + 1;
-        const b2 = Math.floor(Math.random() * 10) + 1;
-        question = `${a2} + ${b2} = ?`;
-        answer = a2 + b2;
-        options = [answer, answer + 1, answer - 1, answer + 2].sort(() => Math.random() - 0.5);
+      case 2: // DIFFICULT
+        num1 = Math.floor(Math.random() * 100) + 1;
+        num2 = Math.floor(Math.random() * 100) + 1;
         break;
-
-      case 3: // GOOD - Correct with difficulty
-        const a3 = Math.floor(Math.random() * 15) + 1;
-        const b3 = Math.floor(Math.random() * 15) + 1;
-        question = `${a3} - ${b3} = ?`;
-        answer = a3 - b3;
-        options = [answer, answer + 1, answer - 1, answer + 2].sort(() => Math.random() - 0.5);
+      case 3: // GOOD
+        num1 = Math.floor(Math.random() * 200) + 1;
+        num2 = Math.floor(Math.random() * 200) + 1;
         break;
-
-      case 4: // EASY - Correct with hesitation
-        const a4 = Math.floor(Math.random() * 20) + 1;
-        const b4 = Math.floor(Math.random() * 20) + 1;
-        question = `${a4} - ${b4} = ?`;
-        answer = a4 - b4;
-        options = [answer, answer + 1, answer - 1, answer + 2].sort(() => Math.random() - 0.5);
+      case 4: // EASY
+        num1 = Math.floor(Math.random() * 500) + 1;
+        num2 = Math.floor(Math.random() * 500) + 1;
         break;
-
-      case 5: // PERFECT - Perfect response
-        const a5 = Math.floor(Math.random() * 12) + 1;
-        const b5 = Math.floor(Math.random() * 12) + 1;
-        question = `${a5} × ${b5} = ?`;
-        answer = a5 * b5;
-        options = [answer, answer + a5, answer - b5, answer + 1].sort(() => Math.random() - 0.5);
-        break;
-
-      default:
-        question = '1 + 1 = ?';
-        answer = 2;
-        options = [2, 3, 1, 4];
+      default: // PERFECT
+        num1 = Math.floor(Math.random() * 1000) + 1;
+        num2 = Math.floor(Math.random() * 1000) + 1;
     }
 
-    setCurrentProblem({ question, answer, options });
+    answer = num1 + num2;
+    const wrongAnswer1 = answer + Math.floor(Math.random() * 10) + 1;
+    const wrongAnswer2 = answer - Math.floor(Math.random() * 10) + 1;
+    const wrongAnswer3 = answer + Math.floor(Math.random() * 20) - 10;
+
+    const options = [answer, wrongAnswer1, wrongAnswer2, wrongAnswer3]
+      .sort(() => Math.random() - 0.5);
+
+    setCurrentProblem({
+      question: `${num1} + ${num2} = ?`,
+      answer,
+      options
+    });
     setUserAnswer(null);
     setShowResult(false);
     setStartTime(Date.now());
@@ -91,14 +72,15 @@ const MentalMathExercise: React.FC<MentalMathExerciseProps> = ({
   }, [difficulty]);
 
   const handleAnswerSelect = (selectedAnswer: number) => {
-    setUserAnswer(selectedAnswer);
-    const timeSpent = (Date.now() - startTime) / 1000;
-    const correct = selectedAnswer === currentProblem?.answer;
+    if (showResult) return;
     
+    setUserAnswer(selectedAnswer);
+    const correct = selectedAnswer === currentProblem?.answer;
     setIsCorrect(correct);
     setShowResult(true);
 
     setTimeout(() => {
+      const timeSpent = (Date.now() - startTime) / 1000;
       onComplete(correct, timeSpent);
       generateProblem();
     }, 2000);
@@ -144,29 +126,34 @@ const MentalMathExercise: React.FC<MentalMathExerciseProps> = ({
       <div className="grid grid-cols-2 gap-4">
         <AnimatePresence>
           {currentProblem.options.map((option, index) => (
-            <motion.button
+            <Button
               key={option}
               onClick={() => handleAnswerSelect(option)}
               disabled={showResult}
+              variant={
+                showResult
+                  ? option === currentProblem.answer
+                    ? 'success'
+                    : option === userAnswer && option !== currentProblem.answer
+                    ? 'danger'
+                    : 'secondary'
+                  : 'warning'
+              }
+              size="lg"
               className={`
-                p-6 rounded-xl text-2xl font-bold shadow-lg transition-all duration-300
+                p-6 text-2xl font-bold
                 ${showResult
                   ? option === currentProblem.answer
-                    ? 'bg-green-500 text-white scale-110'
+                    ? 'scale-110'
                     : option === userAnswer && option !== currentProblem.answer
-                    ? 'bg-red-500 text-white scale-95'
-                    : 'bg-gray-300 text-gray-600'
-                  : 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white hover:scale-105 active:scale-95'
+                    ? 'scale-95'
+                    : ''
+                  : ''
                 }
               `}
-              whileHover={!showResult ? { scale: 1.05 } : {}}
-              whileTap={!showResult ? { scale: 0.95 } : {}}
-              initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + index * 0.1 }}
             >
               {option}
-            </motion.button>
+            </Button>
           ))}
         </AnimatePresence>
       </div>

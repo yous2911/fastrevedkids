@@ -343,7 +343,7 @@ export class SecureRateLimiterService {
 /**
  * Middleware factory pour l'authentification
  */
-export function createSecureAuthRateLimiter(config?: Partial<RateLimitConfig>) {
+export function createSecureAuthRateLimiter(config?: Partial<RateLimitConfig>): (request: FastifyRequest, reply: FastifyReply) => Promise<void> {
   const limiter = SecureRateLimiterService.getInstance();
   
   const fullConfig: RateLimitConfig = {
@@ -386,9 +386,13 @@ export function createSecureAuthRateLimiter(config?: Partial<RateLimitConfig>) {
           }
         });
       }
+      
+      // Continue processing if rate limit is passed
     } catch (error) {
       logger.error('Rate limiter error:', error);
       // En cas d'erreur, on laisse passer mais on log l'incident
     }
+    
+    return Promise.resolve();
   };
 }

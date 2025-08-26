@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useStudentProgress, useStudentStats } from '../../hooks/useFastRevKidsApi';
-import { StudentProgress } from '../../services/fastrevkids-api.service';
+import { useStudentProgress, useStudentStats } from '../../hooks/useApiData';
+import { StudentProgress } from '../../services/api';
+import { Button } from '../ui/Button';
 
 interface ProgressTrackerProps {
   className?: string;
@@ -201,9 +202,13 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
       {/* Show More */}
       {competenceProgress.length > maxItems && (
         <div className="mt-4 text-center">
-          <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
             Voir {competenceProgress.length - maxItems} compétences de plus
-          </button>
+          </Button>
         </div>
       )}
 
@@ -228,12 +233,14 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                 <h3 className="text-xl font-bold text-gray-800">
                   Détails de la compétence
                 </h3>
-                <button
+                <Button
                   onClick={() => setSelectedProgress(null)}
+                  variant="ghost"
+                  size="sm"
                   className="text-gray-500 hover:text-gray-700"
                 >
                   ✕
-                </button>
+                </Button>
               </div>
 
               <div className="space-y-4">

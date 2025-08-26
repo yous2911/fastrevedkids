@@ -238,8 +238,8 @@ export default async function sessionsRoutes(fastify: FastifyInstance) {
             endedAt: new Date(),
             exercisesCompleted: summary.exercisesCompleted || sessionMetrics.totalExercises,
             totalXpGained: summary.totalXpGained || sessionMetrics.totalXp,
-            performanceScore: summary.averageScore || sessionMetrics.averageScore,
-            sessionDuration,
+            performanceScore: String(Number(summary.averageScore || sessionMetrics.averageScore || 0)),
+            sessionDuration: Number(sessionDuration),
             competencesWorked: summary.competencesWorked 
               ? JSON.stringify(summary.competencesWorked)
               : session[0].competencesWorked
@@ -438,24 +438,18 @@ export default async function sessionsRoutes(fastify: FastifyInstance) {
         }
 
         // Build query with status filter
-        let query = db
-          .select()
-          .from(learningSessions)
-          .where(eq(learningSessions.studentId, parseInt(studentId)));
+        let whereConditions = [eq(learningSessions.studentId, parseInt(studentId))];
 
         if (status === 'active') {
-          query = query.where(and(
-            eq(learningSessions.studentId, parseInt(studentId)),
-            sql`${learningSessions.endedAt} IS NULL`
-          ));
+          whereConditions.push(sql`${learningSessions.endedAt} IS NULL`);
         } else if (status === 'completed') {
-          query = query.where(and(
-            eq(learningSessions.studentId, parseInt(studentId)),
-            sql`${learningSessions.endedAt} IS NOT NULL`
-          ));
+          whereConditions.push(sql`${learningSessions.endedAt} IS NOT NULL`);
         }
 
-        const sessions = await query
+        const sessions = await db
+          .select()
+          .from(learningSessions)
+          .where(and(...whereConditions))
           .orderBy(desc(learningSessions.startedAt))
           .limit(limit)
           .offset(offset);

@@ -9,7 +9,7 @@ import { createSecureAuthRateLimiter } from '../services/secure-rate-limiter.ser
 
 declare module 'fastify' {
   interface FastifyRequest {
-    user?: {
+    authUser?: {
       studentId: number;
       email: string;
       type: string;
@@ -23,36 +23,38 @@ declare module 'fastify' {
 export async function authenticateMiddleware(
   request: FastifyRequest,
   reply: FastifyReply
-) {
+): Promise<void> {
   try {
     // Get token from HTTP-only cookie
     const token = request.cookies.auth_token;
 
     if (!token) {
-      return reply.status(401).send({
+      reply.status(401).send({
         success: false,
         error: {
           message: 'Token d\'authentification manquant',
           code: 'MISSING_AUTH_TOKEN',
         },
       });
+      return;
     }
 
     // Verify token
     const decoded = AuthService.verifyToken(token);
     
     if (decoded.type !== 'access') {
-      return reply.status(401).send({
+      reply.status(401).send({
         success: false,
         error: {
           message: 'Type de token invalide',
           code: 'INVALID_TOKEN_TYPE',
         },
       });
+      return;
     }
 
     // Add user to request
-    request.user = {
+    request.authUser = {
       studentId: decoded.studentId,
       email: decoded.email,
       type: decoded.type,
@@ -78,7 +80,7 @@ export async function authenticateMiddleware(
 
           // Verify new token
           const newDecoded = AuthService.verifyToken(newAccessToken);
-          request.user = {
+          request.authUser = {
             studentId: newDecoded.studentId,
             email: newDecoded.email,
             type: newDecoded.type,
@@ -91,13 +93,14 @@ export async function authenticateMiddleware(
       }
     }
 
-    return reply.status(401).send({
+    reply.status(401).send({
       success: false,
       error: {
         message: 'Token d\'authentification invalide ou expiré',
         code: 'INVALID_AUTH_TOKEN',
       },
     });
+    return;
   }
 }
 
@@ -107,7 +110,7 @@ export async function authenticateMiddleware(
 export async function optionalAuthMiddleware(
   request: FastifyRequest,
   reply: FastifyReply
-) {
+): Promise<void> {
   try {
     const token = request.cookies.auth_token;
 
@@ -115,7 +118,7 @@ export async function optionalAuthMiddleware(
       const decoded = AuthService.verifyToken(token);
       
       if (decoded.type === 'access') {
-        request.user = {
+        request.authUser = {
           studentId: decoded.studentId,
           email: decoded.email,
           type: decoded.type,
@@ -124,7 +127,7 @@ export async function optionalAuthMiddleware(
     }
   } catch (error) {
     // Silently fail for optional auth
-    request.user = undefined;
+    request.authUser = undefined;
   }
 }
 
@@ -134,12 +137,12 @@ export async function optionalAuthMiddleware(
 export async function authenticateAdminMiddleware(
   request: FastifyRequest,
   reply: FastifyReply
-) {
+): Promise<void> {
   // First check regular authentication
   await authenticateMiddleware(request, reply);
 
   // Then check admin privileges
-  const user = request.user;
+  const user = request.authUser;
   if (!user) {
     return; // Already handled by authenticateMiddleware
   }
@@ -149,13 +152,14 @@ export async function authenticateAdminMiddleware(
   const adminEmails = ['admin@revedkids.com', 'teacher@revedkids.com'];
   
   if (!adminEmails.includes(user.email)) {
-    return reply.status(403).send({
+    reply.status(403).send({
       success: false,
       error: {
         message: 'Accès administrateur requis',
         code: 'ADMIN_REQUIRED',
       },
     });
+    return;
   }
 }
 

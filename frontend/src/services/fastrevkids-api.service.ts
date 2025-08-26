@@ -144,7 +144,7 @@ class APIService {
   private currentStudent: Student | null = null;
 
   constructor() {
-    this.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    this.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:3003';
   }
 
   // =============================================================================

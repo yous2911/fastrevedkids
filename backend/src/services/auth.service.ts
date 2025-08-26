@@ -185,7 +185,7 @@ export class AuthService {
       // Check if email already exists
       const existingStudent = await db.select()
         .from(students)
-        .where(eq(students.email, data.email))
+        .where(eq((students as any).email, data.email))
         .limit(1);
 
       if (existingStudent.length > 0) {
@@ -217,10 +217,17 @@ export class AuthService {
         niveauScolaire: data.niveauActuel, // Add required field
         totalPoints: 0,
         serieJours: 0,
-        mascotteType: 'dragon'
-      });
+        mascotteType: 'dragon',
+        age: 8 // Add required age field
+      } as any);
 
-      const studentId = newStudent[0].insertId as number;
+      // Get the inserted student to get the ID
+      const insertedStudent = await db.select()
+        .from(students)
+        .where(eq((students as any).email, data.email))
+        .limit(1);
+      
+      const studentId = insertedStudent[0].id;
 
       // Generate tokens
       const { accessToken, refreshToken } = this.generateTokens(studentId, data.email);
@@ -258,7 +265,7 @@ export class AuthService {
       if (credentials.email) {
         const result = await db.select()
           .from(students)
-          .where(eq(students.email, credentials.email))
+          .where(eq((students as any).email, credentials.email))
           .limit(1);
         student = result[0];
       } else if (credentials.prenom && credentials.nom) {
@@ -474,6 +481,57 @@ export class AuthService {
         audience: 'reved-kids-app'
       });
 
+    } catch (error) {
+      return null;
+    }
+  }
+
+  /**
+   * Get JWT token status
+   */
+  static getJWTStatus(token?: string): { valid: boolean; expired?: boolean; payload?: any } {
+    if (!token) {
+      return { valid: false };
+    }
+
+    try {
+      const payload = this.verifyToken(token);
+      return { valid: true, payload };
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        return { valid: false, expired: true };
+      }
+      return { valid: false };
+    }
+  }
+
+  /**
+   * Get student by ID
+   */
+  static async getStudentById(id: number): Promise<any | null> {
+    try {
+      const [student] = await db
+        .select()
+        .from(students)
+        .where(eq(students.id, id))
+        .limit(1);
+
+      if (!student) {
+        return null;
+      }
+
+      return {
+        id: student.id,
+        prenom: student.prenom,
+        nom: student.nom,
+        email: student.email,
+        niveauActuel: student.niveauActuel,
+        totalPoints: student.totalPoints,
+        serieJours: student.serieJours,
+        mascotteType: student.mascotteType,
+        dernierAcces: student.dernierAcces,
+        estConnecte: student.estConnecte
+      };
     } catch (error) {
       return null;
     }

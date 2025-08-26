@@ -547,7 +547,7 @@ export class DataRetentionService {
         entityType: 'consent',
         retentionPeriodDays: 2555, // 7 years for legal compliance
         triggerCondition: 'time_based',
-        action: 'archive',
+        action: 'delete',
         priority: 'high',
         legalBasis: 'Legal obligation for consent records',
         exceptions: ['ongoing_relationship']
@@ -567,7 +567,7 @@ export class DataRetentionService {
         entityType: 'audit_log',
         retentionPeriodDays: 2190, // 6 years for compliance
         triggerCondition: 'time_based',
-        action: 'archive',
+        action: 'delete',
         priority: 'high',
         legalBasis: 'Regulatory compliance requirements',
         exceptions: ['security_incident', 'legal_proceeding']
@@ -773,12 +773,12 @@ export class DataRetentionService {
 
       switch (policy.entityType) {
         case 'student':
-          const students = await db
+          const studentRecords = await db
             .select()
             .from(students)
             .where(lt(students.dernierAcces, cutoffDate));
           
-          eligibleEntities.push(...students.map(student => ({
+          eligibleEntities.push(...studentRecords.map(student => ({
             id: student.id.toString(),
             type: 'student',
             lastActivity: student.dernierAcces,
@@ -787,15 +787,15 @@ export class DataRetentionService {
           break;
 
         case 'session':
-          const sessions = await db
+          const sessionRecords = await db
             .select()
             .from(sessions)
-            .where(lt(sessions.updatedAt, cutoffDate));
+            .where(lt(sessions.expiresAt, cutoffDate));
           
-          eligibleEntities.push(...sessions.map(session => ({
+          eligibleEntities.push(...sessionRecords.map(session => ({
             id: session.id.toString(),
             type: 'session',
-            lastActivity: session.updatedAt,
+            lastActivity: session.expiresAt,
             data: session
           })));
           break;
@@ -832,12 +832,12 @@ export class DataRetentionService {
           const consentRecords = await db
             .select()
             .from(gdprConsentRequests)
-            .where(lt(gdprConsentRequests.updatedAt, cutoffDate));
+            .where(lt(gdprConsentRequests.createdAt, cutoffDate));
           
           eligibleEntities.push(...consentRecords.map(consent => ({
             id: consent.id,
             type: 'consent',
-            lastActivity: consent.updatedAt,
+            lastActivity: consent.createdAt,
             data: consent
           })));
           break;
@@ -923,7 +923,7 @@ export class DataRetentionService {
     try {
       // Create audit log for notification
       await this.auditService.logAction({
-        entityType: 'retention_notification',
+        entityType: 'gdpr_request',
         entityId: entity.id,
         action: 'create',
         userId: null,
@@ -991,7 +991,7 @@ export class DataRetentionService {
             break;
 
           case 'session':
-            await tx.delete(sessions).where(eq(sessions.id, parseInt(entity.id)));
+            await tx.delete(sessions).where(eq(sessions.id, entity.id));
             break;
 
           case 'progress':
@@ -1065,7 +1065,7 @@ export class DataRetentionService {
       await this.auditService.logAction({
         entityType: entity.type as any,
         entityId: entity.id,
-        action: 'archive',
+        action: 'delete',
         userId: null,
         details: {
           reason: 'retention_policy',

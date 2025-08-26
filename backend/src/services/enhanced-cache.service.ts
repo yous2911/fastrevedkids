@@ -70,17 +70,11 @@ class EnhancedCacheService {
         port: config.REDIS_PORT,
         password: config.REDIS_PASSWORD,
         db: config.REDIS_DB,
-        retryDelayOnFailover: 100,
         maxRetriesPerRequest: 3,
         lazyConnect: true,
-        keepAlive: 30000,
         connectTimeout: 10000,
         commandTimeout: 5000,
-        // Connection pool settings
         family: 4,
-        // Reconnection settings
-        retryDelayOnClusterDown: 300,
-        maxRetriesPerRequest: 3,
       });
 
       this.setupEventListeners();

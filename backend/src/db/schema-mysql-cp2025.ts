@@ -13,6 +13,7 @@ import {
   mysqlEnum,
   unique
 } from 'drizzle-orm/mysql-core';
+import { sql } from 'drizzle-orm';
 
 // =============================================================================
 // TABLE DES ÉLÈVES (Students)
@@ -33,8 +34,8 @@ export const students = mysqlTable('students', {
   currentStreak: int('current_streak').default(0),
   heartsRemaining: int('hearts_remaining').default(3),
   isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // =============================================================================
@@ -52,8 +53,8 @@ export const competencesCp = mysqlTable('competences_cp', {
   seuilMaitrise: decimal('seuil_maitrise', { precision: 3, scale: 2 }).default('0.80'),
   xpReward: int('xp_reward').default(10),
   isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // =============================================================================
@@ -73,8 +74,8 @@ export const exercises = mysqlTable('exercises', {
   hintsText: json('hints_text'),
   metadata: json('metadata'),
   isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // =============================================================================
@@ -94,8 +95,8 @@ export const studentProgress = mysqlTable('student_progress', {
   repetitionNumber: int('repetition_number').default(0),
   easinessFactor: decimal('easiness_factor', { precision: 3, scale: 2 }).default('2.5'),
   totalTimeSpent: int('total_time_spent').default(0),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 }, (table) => ({
   uniqueStudentCompetence: unique('unique_student_competence').on(table.studentId, table.competenceId)
 }));
@@ -113,7 +114,7 @@ export const learningSessions = mysqlTable('learning_sessions', {
   performanceScore: decimal('performance_score', { precision: 3, scale: 2 }),
   sessionDuration: int('session_duration').default(0),
   competencesWorked: json('competences_worked'),
-  createdAt: timestamp('created_at').defaultNow()
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`)
 });
 
 // =============================================================================
@@ -130,7 +131,7 @@ export const exerciseResults = mysqlTable('exercise_results', {
   hintsUsed: int('hints_used').default(0),
   supermemoQuality: int('supermemo_quality').default(3),
   answerGiven: text('answer_given'),
-  createdAt: timestamp('created_at').defaultNow()
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`)
 });
 
 // =============================================================================
@@ -145,8 +146,8 @@ export const mascots = mysqlTable('mascots', {
   equippedItems: json('equipped_items').default('[]'),
   aiState: json('ai_state'),
   lastInteraction: datetime('last_interaction'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // =============================================================================
@@ -167,7 +168,7 @@ export const wardrobeItems = mysqlTable('wardrobe_items', {
   description: text('description'),
   icon: varchar('icon', { length: 10 }),
   isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow()
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`)
 });
 
 // =============================================================================
@@ -177,10 +178,10 @@ export const studentWardrobe = mysqlTable('student_wardrobe', {
   id: serial('id').primaryKey(),
   studentId: int('student_id').notNull(),
   itemId: int('item_id').notNull(),
-  unlockedAt: datetime('unlocked_at').defaultNow(),
+  unlockedAt: datetime('unlocked_at').default(sql`NOW()`),
   isEquipped: boolean('is_equipped').default(false),
   equippedAt: datetime('equipped_at'),
-  createdAt: timestamp('created_at').defaultNow()
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`)
 }, (table) => ({
   uniqueStudentItem: unique('unique_student_item').on(table.studentId, table.itemId)
 }));
@@ -198,7 +199,7 @@ export const achievements = mysqlTable('achievements', {
   xpReward: int('xp_reward').default(0),
   rarity: mysqlEnum('rarity', ['common', 'rare', 'epic', 'legendary']).default('common'),
   isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow()
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`)
 });
 
 // =============================================================================
@@ -208,8 +209,8 @@ export const studentAchievements = mysqlTable('student_achievements', {
   id: serial('id').primaryKey(),
   studentId: int('student_id').notNull(),
   achievementId: int('achievement_id').notNull(),
-  unlockedAt: datetime('unlocked_at').defaultNow(),
-  createdAt: timestamp('created_at').defaultNow()
+  unlockedAt: datetime('unlocked_at').default(sql`NOW()`),
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`)
 }, (table) => ({
   uniqueStudentAchievement: unique('unique_student_achievement').on(table.studentId, table.achievementId)
 }));
@@ -228,8 +229,8 @@ export const studentStats = mysqlTable('student_stats', {
   competencesMastered: int('competences_mastered').default(0),
   totalAchievements: int('total_achievements').default(0),
   lastActivity: datetime('last_activity'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // Export relations for future use

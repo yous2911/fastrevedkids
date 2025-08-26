@@ -80,7 +80,7 @@ class DatabaseReplicationService extends EventEmitter {
   private currentMaster: ReplicationServer | null = null;
   private isInitialized = false;
   private monitoringInterval: NodeJS.Timeout | null = null;
-  private scheduledTasks = new Map<string, cron.ScheduledTask>();
+  private scheduledTasks = new Map<string, any>();
   private metrics: ReplicationMetrics[] = [];
 
   constructor() {
@@ -191,10 +191,7 @@ class DatabaseReplicationService extends EventEmitter {
           user: serverConfig.user,
           password: serverConfig.password,
           database: serverConfig.database,
-          connectionLimit: 5,
-          acquireTimeout: 10000,
-          timeout: 30000,
-          reconnect: true
+          connectionLimit: 5
         });
 
         serverConfig.connectionPool = pool;
@@ -289,7 +286,7 @@ class DatabaseReplicationService extends EventEmitter {
       } catch (error) {
         logger.error('Health check failed', { error });
       }
-    }, { scheduled: true, name: 'replication-health-check' });
+    }, { name: 'replication-health-check' });
 
     // Metrics collection
     const metricsTask = cron.schedule('* * * * *', async () => { // Every minute
@@ -298,7 +295,7 @@ class DatabaseReplicationService extends EventEmitter {
       } catch (error) {
         logger.error('Metrics collection failed', { error });
       }
-    }, { scheduled: true, name: 'replication-metrics' });
+    }, { name: 'replication-metrics' });
 
     this.scheduledTasks.set('health-check', healthCheckTask);
     this.scheduledTasks.set('metrics', metricsTask);

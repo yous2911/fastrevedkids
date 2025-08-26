@@ -412,19 +412,21 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
         const user = (request as any).user;
 
         // Create attempt record
+        // Create attempt record using only required fields
+        const attemptRecord = {
+          studentId: user.studentId,
+          exerciseId: parseInt(attemptData.exerciseId),
+          competenceCode: (attemptData as any).competenceCode || 'GENERAL',
+          completed: attemptData.completed === 'true',
+          score: String(parseFloat(attemptData.score)),
+          timeSpent: parseInt(attemptData.timeSpent || '0'),
+          attempts: 1,
+          completedAt: attemptData.completed === 'true' ? new Date() : null,
+        };
+        
         const attempt = await fastify.db
           .insert(studentProgress)
-          .values({
-            studentId: user.studentId,
-            exerciseId: parseInt(attemptData.exerciseId),
-            completed: attemptData.completed === 'true',
-            score: Math.floor(parseFloat(attemptData.score)),
-            timeSpent: parseInt(attemptData.timeSpent || '0'),
-            attempts: 1,
-            completedAt: attemptData.completed === 'true' ? new Date().toISOString() : null,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          });
+          .values(attemptRecord);
 
         // Simple analytics recording (removed service calls that don't exist)
         fastify.log.info(`Exercise attempt recorded for student ${user.studentId}`);
@@ -552,70 +554,7 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
     },
   });
 
-  // Get all exercises with pagination
-  fastify.get('/', {
-    handler: async (request: FastifyRequest<{
-      Querystring: { 
-        page?: string; 
-        limit?: string; 
-        search?: string;
-        matiere?: string;
-        niveau?: string;
-        difficulte?: string;
-      };
-    }>, reply: FastifyReply) => {
-      try {
-        const { 
-          page = '1', 
-          limit = '20', 
-          search, 
-          matiere, 
-          niveau, 
-          difficulte 
-        } = request.query;
 
-        const pageNum = parseInt(page);
-        const limitNum = parseInt(limit);
-        const offset = (pageNum - 1) * limitNum;
-
-        // Build where conditions (exercises don't have matiere/niveau fields)
-        const whereConditions = [];
-        
-        if (difficulte) {
-          whereConditions.push(eq(exercises.difficulte, difficulte as any));
-        }
-
-        // Get exercises with simple query (removed complex pagination)
-        const allExercises = await fastify.db
-          .select()
-          .from(exercises)
-          .limit(limitNum)
-          .offset(offset);
-
-        // Simple response structure
-        return reply.send({
-          success: true,
-          data: {
-            items: allExercises,
-            total: allExercises.length,
-            page: pageNum,
-            limit: limitNum,
-            hasMore: allExercises.length === limitNum
-          },
-          message: 'Exercices récupérés avec succès',
-        });
-      } catch (error) {
-        fastify.log.error('Get exercises error:', error);
-        return reply.status(500).send({
-          success: false,
-          error: {
-            message: 'Erreur lors de la récupération des exercices',
-            code: 'GET_EXERCISES_ERROR',
-          },
-        });
-      }
-    },
-  });
 
   // Get exercise by ID
   fastify.get('/:exerciseId', {

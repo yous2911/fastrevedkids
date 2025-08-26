@@ -4,6 +4,7 @@ import { Star, Heart, Home, Volume2, VolumeX, LogOut } from 'lucide-react';
 import NextLevelXPSystem from './components/NextLevelXPSystem';
 import LoginScreen from './components/LoginScreen';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { Button } from './components/ui/Button';
 import { 
   useCompetences, 
   useExercisesByLevel, 
@@ -783,8 +784,10 @@ const DiamondCPCE2Interface = () => {
             <Heart className="w-6 h-6 text-red-500 mr-2" />
             <span className="font-bold text-gray-800">{studentData.hearts}</span>
           </div>
-          <button
+          <Button
             onClick={() => setSoundEnabled(!soundEnabled)}
+            variant="ghost"
+            size="sm"
             className="bg-white/80 rounded-full p-2 hover:bg-white transition-colors"
           >
             {soundEnabled ? (
@@ -792,14 +795,16 @@ const DiamondCPCE2Interface = () => {
             ) : (
               <VolumeX className="w-6 h-6 text-gray-400" />
             )}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleLogout}
+            variant="ghost"
+            size="sm"
             className="bg-white/80 rounded-full p-2 hover:bg-white transition-colors"
             title="Se déconnecter"
           >
             <LogOut className="w-6 h-6 text-gray-500" />
-          </button>
+          </Button>
         </div>
       </motion.div>
 
@@ -895,16 +900,18 @@ const DiamondCPCE2Interface = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <button
+          <Button
             onClick={() => {
               setCurrentView('home');
               setMascotEmotion('happy');
             }}
-            className="flex items-center space-x-2 bg-white/80 rounded-xl px-4 py-2 hover:bg-white transition-colors"
+            variant="ghost"
+            size="sm"
+            className="flex items-center space-x-2 bg-white/80 hover:bg-white"
           >
             <Home className="w-5 h-5" />
             <span>Accueil</span>
-          </button>
+          </Button>
           
           <h2 className="text-2xl font-bold text-gray-800">Exercice</h2>
           
@@ -927,18 +934,15 @@ const DiamondCPCE2Interface = () => {
           {currentExercise.options && (
             <div className="space-y-4">
               {currentExercise.options.map((option: string, index: number) => (
-                <motion.button
+                <Button
                   key={index}
                   onClick={() => handleAnswerSubmit(option, option === currentExercise.correctAnswer)}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-left"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
+                  variant="magical"
+                  size="lg"
+                  className="w-full text-left"
                 >
                   {String.fromCharCode(65 + index)}. {option}
-                </motion.button>
+                </Button>
               ))}
             </div>
           )}
@@ -948,22 +952,20 @@ const DiamondCPCE2Interface = () => {
             <div className="text-center">
               <div className="text-4xl font-bold mb-6">{currentExercise.question}</div>
               <div className="grid grid-cols-2 gap-4">
-                <motion.button
+                <Button
                   onClick={() => handleAnswerSubmit('correct', true)}
-                  className="bg-green-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  variant="success"
+                  size="lg"
                 >
                   ✓ Correct
-                </motion.button>
-                <motion.button
+                </Button>
+                <Button
                   onClick={() => handleAnswerSubmit('incorrect', false)}
-                  className="bg-red-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  variant="danger"
+                  size="lg"
                 >
                   ✗ Test Erreur
-                </motion.button>
+                </Button>
               </div>
             </div>
           )}

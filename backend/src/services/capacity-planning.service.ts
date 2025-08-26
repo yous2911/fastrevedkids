@@ -118,7 +118,7 @@ class CapacityPlanningService {
   private metrics: CapacityMetrics[] = [];
   private thresholds: CapacityThreshold[] = [];
   private recommendations: ScalingRecommendation[] = [];
-  private scheduledTasks = new Map<string, cron.ScheduledTask>();
+  private scheduledTasks = new Map<string, any>();
   private outputPath: string;
   private isInitialized = false;
 
@@ -363,7 +363,7 @@ class CapacityPlanningService {
       } catch (error) {
         logger.error('Daily metrics collection failed', { error });
       }
-    }, { scheduled: true, name: 'capacity-metrics' });
+    }, { name: 'capacity-metrics' });
 
     // Weekly capacity planning analysis
     const planningTask = cron.schedule('0 8 * * 1', async () => { // 8 AM Mondays
@@ -372,7 +372,7 @@ class CapacityPlanningService {
       } catch (error) {
         logger.error('Weekly capacity planning failed', { error });
       }
-    }, { scheduled: true, name: 'capacity-planning' });
+    }, { name: 'capacity-planning' });
 
     // Monthly comprehensive analysis
     const comprehensiveTask = cron.schedule('0 9 1 * *', async () => { // 9 AM 1st of month
@@ -381,7 +381,7 @@ class CapacityPlanningService {
       } catch (error) {
         logger.error('Monthly capacity planning failed', { error });
       }
-    }, { scheduled: true, name: 'comprehensive-planning' });
+    }, { name: 'comprehensive-planning' });
 
     this.scheduledTasks.set('metrics', metricsTask);
     this.scheduledTasks.set('planning', planningTask);

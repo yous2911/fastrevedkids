@@ -1,0 +1,36 @@
+{
+  "exercise_id": "ex-cp-n2-0001",
+  "version": 1,
+  "locale": "fr-MA",
+  "age_target": 6,
+  "skill_id": "CP.MA.N2.4",
+  "difficulty_level": 2,
+  "exercise_type": "QCM",
+  "question_text": "Complète: 7 + __ = 10",
+  "options": [
+    { "id": "opt_a", "text": "2" },
+    { "id": "opt_b", "text": "3" }
+  ],
+  "correct_option_id": "opt_b",
+  "correct_answer": null,
+  "step_by_step_solution": [
+    { "step": 1, "explanation_text": "On cherche le complément de 7 pour arriver au paquet de 10." },
+    { "step": 2, "explanation_text": "Si on a 7, il faut compter sur ses doigts pour arriver à 10 : huit, neuf, dix. Ça fait 3 doigts !" },
+    { "step": 3, "explanation_text": "Donc, 7 + 3 = 10. La réponse est 3." }
+  ],
+  "key_concept_takeaway": "Connaître les amis de 10 par cœur rend le calcul mental super rapide.",
+  "xp_reward": 10,
+  "hint_penalty": 2,
+  "tags": ["addition", "complements_10"],
+  "generator_meta": { "model": "Gemini-Pro", "timestamp": "2025-08-24T13:00:00Z" },
+  "judge_scores": {
+    "clarity": 9.5,
+    "factuality": 10,
+    "age_fit": 9.5,
+    "overall": 9.6,
+    "justification": "Clair, adapté CP. L'explication 'compter sur ses doigts' est une excellente ancre concrète."
+  },
+  "content_hash": null,
+  "license": "internal",
+  "visibility": "public"
+}

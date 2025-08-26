@@ -3,7 +3,6 @@ import { AuthProvider } from './contexts/FastRevKidsAuth';
 import { SecurityProvider } from './components/SecurityProvider/SecurityProvider';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import { AsyncErrorBoundary } from './components/ErrorBoundary/AsyncErrorBoundary';
-import SecurityHeaders from './components/SecurityHeaders/SecurityHeaders';
 import { AppProvider } from './context/AppContext';
 import { MainApp } from './MainApp';
 
@@ -18,8 +17,6 @@ function App() {
           <AppProvider>
             <AuthProvider>
               <MainApp />
-              {/* Security status indicator (development only) */}
-              <SecurityHeaders />
             </AuthProvider>
           </AppProvider>
         </ErrorBoundary>

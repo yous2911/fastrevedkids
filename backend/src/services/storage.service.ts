@@ -2,90 +2,75 @@ import fs from 'fs-extra';
 import path from 'path';
 import { logger } from '../utils/logger';
 import { db } from '../db/connection';
-import { files, fileVariants } from '../db/schema';
+import { files } from '../db/schema';
 import { eq, and, lt, desc, sql } from 'drizzle-orm';
-import { 
-  UploadedFile, 
-  StorageStats, 
-  FileCategory, 
-  ProcessedVariant 
-} from '../types/upload.types';
+import { StorageStats } from '../types/upload.types';
+
+export interface SimpleUploadedFile {
+  id?: number;
+  originalName?: string;
+  filename: string;
+  mimeType?: string;
+  size?: number;
+  path?: string;
+  url?: string;
+  thumbnailUrl?: string;
+  metadata?: string;
+  uploadedBy?: number;
+  category?: string;
+  isPublic?: boolean;
+  status?: string;
+  checksum?: string;
+}
 
 export class StorageService {
   private uploadPath: string;
   private maxStorageSize: number;
-  private cleanupBatchSize: number;
 
   constructor() {
     this.uploadPath = process.env.UPLOAD_PATH || path.resolve(process.cwd(), 'uploads');
     this.maxStorageSize = parseInt(process.env.MAX_STORAGE_SIZE || '10737418240'); // 10GB default
-    this.cleanupBatchSize = 100;
   }
 
   /**
    * Save file metadata to database
    */
-  async saveFileMetadata(file: UploadedFile): Promise<void> {
+  async saveFileMetadata(file: SimpleUploadedFile): Promise<void> {
     try {
-      const transaction = await db.transaction(async (tx) => {
-        // Insert main file record
-        const [insertedFile] = await tx.insert(files).values({
-          id: file.id,
-          originalName: file.originalName,
-          filename: file.filename,
-          mimetype: file.mimetype,
-          size: file.size,
-          path: file.path,
-          url: file.url,
-          thumbnailUrl: file.thumbnailUrl,
-          metadata: JSON.stringify(file.metadata),
-          uploadedBy: file.uploadedBy,
-          uploadedAt: file.uploadedAt instanceof Date ? file.uploadedAt.toISOString() : file.uploadedAt,
-          category: file.category,
-          isPublic: file.isPublic,
-          status: file.status,
-          checksum: file.checksum,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }).returning();
-
-        // Insert processed variants if any
-        if (file.processedVariants && file.processedVariants.length > 0) {
-          const variantValues = file.processedVariants.map(variant => ({
-            id: variant.id,
-            fileId: file.id,
-            type: variant.type,
-            filename: variant.filename,
-            path: variant.path,
-            url: variant.url,
-            size: variant.size,
-            mimetype: variant.mimetype,
-            metadata: JSON.stringify(variant.metadata),
-            createdAt: variant.createdAt instanceof Date ? variant.createdAt.toISOString() : variant.createdAt
-          }));
-
-          await tx.insert(fileVariants).values(variantValues);
-        }
-
-        return insertedFile;
+      await db.insert(files).values({
+        originalName: file.originalName,
+        filename: file.filename,
+        mimeType: file.mimeType,
+        size: file.size,
+        path: file.path,
+        url: file.url,
+        thumbnailUrl: file.thumbnailUrl,
+        metadata: file.metadata,
+        uploadedBy: file.uploadedBy,
+        category: file.category,
+        isPublic: file.isPublic,
+        status: file.status || 'ready',
+        checksum: file.checksum,
       });
 
-      logger.info('File metadata saved to database', { fileId: file.id });
+      logger.info('File metadata saved to database', { filename: file.filename });
     } catch (error) {
-      logger.error('Error saving file metadata:', { fileId: file.id, error: error.message });
+      logger.error('Error saving file metadata:', { filename: file.filename, error: error.message });
       throw new Error(`Failed to save file metadata: ${error.message}`);
     }
   }
 
   /**
-   * Get file by ID with variants
+   * Get file by ID
    */
-  async getFileById(fileId: string): Promise<UploadedFile | null> {
+  async getFileById(fileId: string | number): Promise<SimpleUploadedFile | null> {
     try {
+      const numericId = typeof fileId === 'string' ? parseInt(fileId, 10) : fileId;
+      
       const fileData = await db
         .select()
         .from(files)
-        .where(eq(files.id, fileId))
+        .where(eq(files.id, numericId))
         .limit(1);
 
       if (fileData.length === 0) {
@@ -93,104 +78,56 @@ export class StorageService {
       }
 
       const file = fileData[0];
-
-      // Get variants
-      const variants = await db
-        .select()
-        .from(fileVariants)
-        .where(eq(fileVariants.fileId, fileId));
-
-      const processedVariants: ProcessedVariant[] = variants.map(variant => ({
-        id: variant.id,
-        type: variant.type as any,
-        filename: variant.filename,
-        path: variant.path,
-        url: variant.url,
-        size: variant.size,
-        mimetype: variant.mimetype,
-        metadata: JSON.parse(variant.metadata || '{}'),
-        createdAt: new Date(variant.createdAt)
-      }));
-
       return {
         id: file.id,
         originalName: file.originalName,
         filename: file.filename,
-        mimetype: file.mimetype,
+        mimeType: file.mimeType,
         size: file.size,
         path: file.path,
         url: file.url,
-        thumbnailUrl: file.thumbnailUrl || undefined,
-        metadata: JSON.parse(file.metadata || '{}'),
+        thumbnailUrl: file.thumbnailUrl,
+        metadata: file.metadata,
         uploadedBy: file.uploadedBy,
-        uploadedAt: new Date(file.uploadedAt),
-        category: file.category as FileCategory,
+        category: file.category,
         isPublic: file.isPublic,
-        status: file.status as any,
+        status: file.status,
         checksum: file.checksum,
-        processedVariants
       };
     } catch (error) {
       logger.error('Error getting file by ID:', { fileId, error: error.message });
-      throw new Error(`Failed to get file: ${error.message}`);
-    }
-  }
-
-  /**
-   * Find file by checksum (for duplicate detection)
-   */
-  async findFileByChecksum(checksum: string): Promise<UploadedFile | null> {
-    try {
-      const fileData = await db
-        .select()
-        .from(files)
-        .where(and(
-          eq(files.checksum, checksum),
-          eq(files.status, 'ready')
-        ))
-        .limit(1);
-
-      if (fileData.length === 0) {
-        return null;
-      }
-
-      return this.getFileById(fileData[0].id);
-    } catch (error) {
-      logger.error('Error finding file by checksum:', { checksum, error: error.message });
       return null;
     }
   }
 
   /**
-   * Get files by user with pagination
+   * Get files by user
    */
   async getFilesByUser(
-    userId: string, 
+    userId: string | number,
     options: {
-      category?: FileCategory;
+      category?: string;
       limit?: number;
       offset?: number;
-      includePublic?: boolean;
     } = {}
-  ): Promise<{ files: UploadedFile[]; total: number }> {
+  ): Promise<{ files: SimpleUploadedFile[]; total: number }> {
     try {
-      const { category, limit = 20, offset = 0, includePublic = false } = options;
+      const { category, limit = 20, offset = 0 } = options;
+      const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId;
 
-      let whereConditions = eq(files.uploadedBy, userId);
+      let whereConditions = eq(files.uploadedBy, numericUserId);
       
       if (category) {
         whereConditions = and(whereConditions, eq(files.category, category));
       }
 
-      if (includePublic) {
-        whereConditions = and(whereConditions, eq(files.isPublic, true));
-      }
-
       // Get total count
-      const [{ count }] = await db
+      const countResult = await db
         .select({ count: sql<number>`count(*)` })
         .from(files)
         .where(whereConditions);
+
+      const total = countResult[0]?.count || 0;
 
       // Get files
       const fileData = await db
@@ -201,15 +138,24 @@ export class StorageService {
         .limit(limit)
         .offset(offset);
 
-      const filesList: UploadedFile[] = [];
-      for (const file of fileData) {
-        const fullFile = await this.getFileById(file.id);
-        if (fullFile) {
-          filesList.push(fullFile);
-        }
-      }
+      const filesList: SimpleUploadedFile[] = fileData.map(file => ({
+        id: file.id,
+        originalName: file.originalName,
+        filename: file.filename,
+        mimeType: file.mimeType,
+        size: file.size,
+        path: file.path,
+        url: file.url,
+        thumbnailUrl: file.thumbnailUrl,
+        metadata: file.metadata,
+        uploadedBy: file.uploadedBy,
+        category: file.category,
+        isPublic: file.isPublic,
+        status: file.status,
+        checksum: file.checksum,
+      }));
 
-      return { files: filesList, total: count };
+      return { files: filesList, total };
     } catch (error) {
       logger.error('Error getting files by user:', { userId, error: error.message });
       throw new Error(`Failed to get user files: ${error.message}`);
@@ -217,48 +163,31 @@ export class StorageService {
   }
 
   /**
-   * Update file status
+   * Delete file by ID
    */
-  async updateFileStatus(fileId: string, status: string): Promise<void> {
+  async deleteFile(fileId: string | number): Promise<boolean> {
     try {
-      await db
-        .update(files)
-        .set({ status })
-        .where(eq(files.id, fileId));
+      const numericId = typeof fileId === 'string' ? parseInt(fileId, 10) : fileId;
+      
+      // Get file info first
+      const file = await this.getFileById(numericId);
+      if (!file) {
+        return false;
+      }
 
-      logger.info('File status updated', { fileId, status });
+      // Delete from database
+      await db.delete(files).where(eq(files.id, numericId));
+      
+      // Delete physical file if exists
+      if (file.path && await fs.pathExists(file.path)) {
+        await fs.remove(file.path);
+      }
+
+      logger.info('File deleted successfully', { fileId: numericId });
+      return true;
     } catch (error) {
-      logger.error('Error updating file status:', { fileId, status, error: error.message });
-      throw new Error(`Failed to update file status: ${error.message}`);
-    }
-  }
-
-  /**
-   * Mark file as deleted
-   */
-  async markFileAsDeleted(fileId: string): Promise<void> {
-    try {
-      await db.transaction(async (tx) => {
-        // Update file status
-        await tx
-          .update(files)
-          .set({ 
-            status: 'deleted',
-            deletedAt: new Date().toISOString()
-          })
-          .where(eq(files.id, fileId));
-
-        // Mark variants as deleted
-        await tx
-          .update(fileVariants)
-          .set({ deletedAt: new Date() })
-          .where(eq(fileVariants.fileId, fileId));
-      });
-
-      logger.info('File marked as deleted', { fileId });
-    } catch (error) {
-      logger.error('Error marking file as deleted:', { fileId, error: error.message });
-      throw new Error(`Failed to delete file: ${error.message}`);
+      logger.error('Error deleting file:', { fileId, error: error.message });
+      return false;
     }
   }
 
@@ -267,336 +196,135 @@ export class StorageService {
    */
   async getStorageStats(): Promise<StorageStats> {
     try {
-      // Get total files and sizes
-      const [totalStats] = await db
+      const result = await db
         .select({
-          totalFiles: sql<number>`count(*)`,
+          count: sql<number>`count(*)`,
           totalSize: sql<number>`sum(${files.size})`
         })
-        .from(files)
-        .where(eq(files.status, 'ready'));
+        .from(files);
 
-      // Get category breakdown
-      const categoryStats = await db
-        .select({
-          category: files.category,
-          size: sql<number>`sum(${files.size})`
-        })
-        .from(files)
-        .where(eq(files.status, 'ready'))
-        .groupBy(files.category);
+      const stats = result[0];
+      const totalFiles = stats?.count || 0;
+      const totalSize = stats?.totalSize || 0;
+      const totalSizeMB = Math.round(totalSize / (1024 * 1024));
 
-      const categorySizes: Record<FileCategory, number> = {} as any;
-      for (const stat of categoryStats) {
-        categorySizes[stat.category as FileCategory] = stat.size;
-      }
-
-      // Get recent uploads
-      const recentFiles = await db
-        .select()
-        .from(files)
-        .where(eq(files.status, 'ready'))
-        .orderBy(desc(files.uploadedAt))
-        .limit(10);
-
-      const recentUploads: UploadedFile[] = [];
-      for (const file of recentFiles) {
-        const fullFile = await this.getFileById(file.id);
-        if (fullFile) {
-          recentUploads.push(fullFile);
-        }
-      }
-
-      // Calculate storage usage
-      const usedSpace = totalStats.totalSize || 0;
-      const availableSpace = this.maxStorageSize - usedSpace;
-      const percentage = (usedSpace / this.maxStorageSize) * 100;
-
-      return {
-        totalFiles: totalStats.totalFiles || 0,
-        totalSize: usedSpace,
-        categorySizes,
-        recentUploads,
-        storageUsage: {
-          used: usedSpace,
-          available: Math.max(0, availableSpace),
-          percentage: Math.min(100, percentage)
-        }
+      return { 
+        totalFiles, 
+        totalSize,
+        categorySizes: { image: 0, video: 0, audio: 0, document: 0, presentation: 0, exercise: 0, curriculum: 0, assessment: 0, resource: 0 },
+        recentUploads: [],
+        storageUsage: { used: totalSize, available: this.maxStorageSize - totalSize, percentage: (totalSize / this.maxStorageSize) * 100 }
       };
     } catch (error) {
-      logger.error('Error getting storage stats:', error);
-      throw new Error(`Failed to get storage statistics: ${error.message}`);
+      logger.error('Error getting storage stats:', { error: error.message });
+      return { 
+        totalFiles: 0, 
+        totalSize: 0,
+        categorySizes: { image: 0, video: 0, audio: 0, document: 0, presentation: 0, exercise: 0, curriculum: 0, assessment: 0, resource: 0 },
+        recentUploads: [],
+        storageUsage: { used: 0, available: this.maxStorageSize, percentage: 0 }
+      };
+    }
+  }
+
+  /**
+   * Find file by checksum
+   */
+  async findFileByChecksum(checksum: string): Promise<SimpleUploadedFile | null> {
+    try {
+      const [file] = await db
+        .select()
+        .from(files)
+        .where(eq(files.checksum, checksum))
+        .limit(1);
+
+      if (!file) return null;
+
+      return {
+        id: file.id,
+        filename: file.filename,
+        originalName: file.originalName,
+        size: file.size,
+        path: file.path,
+        checksum: file.checksum,
+        category: file.category
+      };
+    } catch (error) {
+      logger.error('Error finding file by checksum:', { error: error.message, checksum });
+      return null;
+    }
+  }
+
+  /**
+   * Mark file as deleted
+   */
+  async markFileAsDeleted(fileId: number): Promise<boolean> {
+    try {
+      await db
+        .update(files)
+        .set({ status: 'deleted' })
+        .where(eq(files.id, fileId));
+      
+      return true;
+    } catch (error) {
+      logger.error('Error marking file as deleted:', { error: error.message, fileId });
+      return false;
     }
   }
 
   /**
    * Cleanup expired files
    */
-  async cleanupExpiredFiles(maxAgeDays: number = 30): Promise<number> {
+  async cleanupExpiredFiles(): Promise<number> {
     try {
-      const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - maxAgeDays);
+      const expiredFiles = await db
+        .select()
+        .from(files)
+        .where(and(
+          eq(files.status, 'expired'),
+          lt(files.uploadedAt, new Date(Date.now() - 24 * 60 * 60 * 1000)) // 24 hours ago
+        ));
 
-      let deletedCount = 0;
-      let hasMore = true;
-
-      while (hasMore) {
-        // Get batch of expired files
-        const expiredFiles = await db
-          .select()
-          .from(files)
-          .where(and(
-            lt(files.uploadedAt, cutoffDate),
-            eq(files.status, 'deleted')
-          ))
-          .limit(this.cleanupBatchSize);
-
-        if (expiredFiles.length === 0) {
-          hasMore = false;
-          break;
-        }
-
-        for (const file of expiredFiles) {
-          try {
-            // Remove physical file
-            await fs.remove(file.path);
-
-            // Remove variants
-            const variants = await db
-              .select()
-              .from(fileVariants)
-              .where(eq(fileVariants.fileId, file.id));
-
-            for (const variant of variants) {
-              await fs.remove(variant.path).catch(() => {
-                // Ignore errors for variant deletion
-              });
-            }
-
-            // Remove from database
-            await db.transaction(async (tx) => {
-              await tx.delete(fileVariants).where(eq(fileVariants.fileId, file.id));
-              await tx.delete(files).where(eq(files.id, file.id));
-            });
-
-            deletedCount++;
-            logger.debug('Cleaned up expired file', { fileId: file.id });
-          } catch (error) {
-            logger.warn('Failed to cleanup file:', { 
-              fileId: file.id, 
-              error: error.message 
-            });
-          }
-        }
-      }
-
-      if (deletedCount > 0) {
-        logger.info('Cleanup completed', { deletedCount, maxAgeDays });
-      }
-
-      return deletedCount;
-    } catch (error) {
-      logger.error('Error during cleanup:', error);
-      throw new Error(`Cleanup failed: ${error.message}`);
-    }
-  }
-
-  /**
-   * Cleanup orphaned files (files on disk not in database)
-   */
-  async cleanupOrphanedFiles(): Promise<number> {
-    try {
-      const categories: FileCategory[] = ['image', 'video', 'audio', 'document', 'resource'];
       let cleanedCount = 0;
-
-      for (const category of categories) {
-        const categoryPath = path.join(this.uploadPath, category);
-        
-        if (!await fs.pathExists(categoryPath)) {
-          continue;
-        }
-
-        const dateDirs = await fs.readdir(categoryPath);
-        
-        for (const dateDir of dateDirs) {
-          const datePath = path.join(categoryPath, dateDir);
-          const stat = await fs.stat(datePath);
-          
-          if (!stat.isDirectory()) {
-            continue;
-          }
-
-          const diskFiles = await fs.readdir(datePath);
-          
-          for (const diskFile of diskFiles) {
-            const fullPath = path.join(datePath, diskFile);
-            
-            // Check if file exists in database
-            const dbFile = await db
-              .select()
-              .from(files)
-              .where(eq(files.path, fullPath))
-              .limit(1);
-
-            if (dbFile.length === 0) {
-              // Orphaned file - remove it
-              await fs.remove(fullPath);
-              cleanedCount++;
-              logger.debug('Removed orphaned file', { path: fullPath });
-            }
-          }
-        }
-      }
-
-      if (cleanedCount > 0) {
-        logger.info('Orphaned files cleanup completed', { cleanedCount });
+      for (const file of expiredFiles) {
+        const success = await this.deleteFile(file.id);
+        if (success) cleanedCount++;
       }
 
       return cleanedCount;
     } catch (error) {
-      logger.error('Error cleaning orphaned files:', error);
-      throw new Error(`Orphaned files cleanup failed: ${error.message}`);
+      logger.error('Error cleaning up expired files:', { error: error.message });
+      return 0;
     }
   }
 
   /**
-   * Get storage health information
+   * Cleanup old files
    */
-  async getStorageHealth(): Promise<{
-    status: 'healthy' | 'warning' | 'critical';
-    issues: string[];
-    recommendations: string[];
-    diskUsage: {
-      total: number;
-      used: number;
-      available: number;
-      percentage: number;
-    };
-  }> {
+  async cleanupOldFiles(maxAgeInDays: number = 30): Promise<number> {
     try {
-      const stats = await this.getStorageStats();
-      const issues: string[] = [];
-      const recommendations: string[] = [];
-      
-      // Check disk usage
-      let status: 'healthy' | 'warning' | 'critical' = 'healthy';
-      
-      if (stats.storageUsage.percentage > 90) {
-        status = 'critical';
-        issues.push('Storage usage is critical (>90%)');
-        recommendations.push('Immediately cleanup old files or increase storage capacity');
-      } else if (stats.storageUsage.percentage > 75) {
-        status = 'warning';
-        issues.push('Storage usage is high (>75%)');
-        recommendations.push('Consider cleaning up old files or increasing storage capacity');
-      }
-
-      // Check for failed uploads
-      const [failedUploads] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(files)
-        .where(eq(files.status, 'failed'));
-
-      if (failedUploads.count > 10) {
-        issues.push(`${failedUploads.count} failed uploads detected`);
-        recommendations.push('Investigate and cleanup failed uploads');
-      }
-
-      // Check for quarantined files
-      const [quarantinedFiles] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(files)
-        .where(eq(files.status, 'quarantined'));
-
-      if (quarantinedFiles.count > 0) {
-        issues.push(`${quarantinedFiles.count} quarantined files detected`);
-        recommendations.push('Review and handle quarantined files');
-      }
-
-      return {
-        status,
-        issues,
-        recommendations,
-        diskUsage: {
-          total: this.maxStorageSize,
-          used: stats.storageUsage.used,
-          available: stats.storageUsage.available,
-          percentage: stats.storageUsage.percentage
-        }
-      };
-    } catch (error) {
-      logger.error('Error getting storage health:', error);
-      return {
-        status: 'critical',
-        issues: ['Unable to assess storage health'],
-        recommendations: ['Check storage service configuration'],
-        diskUsage: {
-          total: 0,
-          used: 0,
-          available: 0,
-          percentage: 0
-        }
-      };
-    }
-  }
-
-  /**
-   * Optimize storage by compressing old files
-   */
-  async optimizeStorage(): Promise<{
-    filesProcessed: number;
-    spaceReclaimed: number;
-  }> {
-    try {
-      let filesProcessed = 0;
-      const spaceReclaimed = 0;
-
-      // Find large image files older than 30 days
       const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - 30);
+      cutoffDate.setDate(cutoffDate.getDate() - maxAgeInDays);
 
-      const largeFiles = await db
+      const oldFiles = await db
         .select()
         .from(files)
-        .where(and(
-          eq(files.category, 'image'),
-          eq(files.status, 'ready'),
-          lt(files.uploadedAt, cutoffDate),
-          sql`${files.size} > 1048576` // > 1MB
-        ))
-        .limit(50);
+        .where(lt(files.uploadedAt, cutoffDate));
 
-      for (const file of largeFiles) {
-        try {
-          const originalSize = file.size;
-          
-          // This would integrate with ImageProcessingService
-          // For now, just log what would be optimized
-          logger.info('Would optimize file', { 
-            fileId: file.id, 
-            originalSize,
-            path: file.path 
-          });
-          
-          filesProcessed++;
-          // spaceReclaimed += (originalSize - newSize);
-        } catch (error) {
-          logger.warn('Failed to optimize file:', { 
-            fileId: file.id, 
-            error: error.message 
-          });
+      let deletedCount = 0;
+
+      for (const file of oldFiles) {
+        const success = await this.deleteFile(file.id);
+        if (success) {
+          deletedCount++;
         }
       }
 
-      logger.info('Storage optimization completed', { 
-        filesProcessed, 
-        spaceReclaimed 
-      });
-
-      return { filesProcessed, spaceReclaimed };
+      logger.info('Old files cleanup completed', { deletedCount, maxAgeInDays });
+      return deletedCount;
     } catch (error) {
-      logger.error('Error optimizing storage:', error);
-      throw new Error(`Storage optimization failed: ${error.message}`);
+      logger.error('Error during file cleanup:', { error: error.message });
+      return 0;
     }
   }
 }

@@ -11,8 +11,20 @@ async function seedCP2025Exercises(): Promise<void> {
       {
         titre: 'Addition simple',
         description: 'Combien font 2 + 3 ?',
-        type: 'multiple-choice',
+        matiere: 'mathematiques',
+        niveau: 'CP',
         difficulte: 'FACILE',
+        competenceCode: 'MATH_ADD_CP',
+        contenu: {
+          question: 'Combien font 2 + 3 ?',
+          options: ['4', '5', '6', '7']
+        },
+        solution: {
+          correctAnswer: '5',
+          explanation: '2 + 3 = 5'
+        },
+        typeExercice: 'multiple-choice',
+        type: 'multiple-choice',
         xp: 10,
         configuration: JSON.stringify({
           question: 'Combien font 2 + 3 ?',
@@ -20,22 +32,33 @@ async function seedCP2025Exercises(): Promise<void> {
           correctAnswer: '5',
           explanation: '2 + 3 = 5',
         }),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
         titre: 'Soustraction',
         description: 'Combien font 10 - 4 ?',
-        type: 'fill-in-blank',
+        matiere: 'mathematiques',
+        niveau: 'CP',
         difficulte: 'MOYEN',
+        competenceCode: 'MATH_SUB_CP',
+        contenu: {
+          question: 'Combien font 10 - 4 ?'
+        },
+        solution: {
+          correctAnswer: '6',
+          explanation: '10 - 4 = 6'
+        },
+        typeExercice: 'fill-in-blank',
+        type: 'fill-in-blank',
         xp: 15,
         configuration: JSON.stringify({
           question: 'Combien font 10 - 4 ?',
           correctAnswer: '6',
           explanation: '10 - 4 = 6',
         }),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
     ];
 
@@ -55,8 +78,20 @@ async function seedCP2025Exercises(): Promise<void> {
       {
         titre: 'Multiplication',
         description: 'Combien font 7 × 8 ?',
-        type: 'multiple-choice',
+        matiere: 'mathematiques',
+        niveau: 'CE2',
         difficulte: 'DIFFICILE',
+        competenceCode: 'MATH_MULT_CE2',
+        contenu: {
+          question: 'Combien font 7 × 8 ?',
+          options: ['56', '64', '49', '72']
+        },
+        solution: {
+          correctAnswer: '56',
+          explanation: '7 × 8 = 56'
+        },
+        typeExercice: 'multiple-choice',
+        type: 'multiple-choice',
         xp: 20,
         configuration: JSON.stringify({
           question: 'Combien font 7 × 8 ?',
@@ -64,8 +99,8 @@ async function seedCP2025Exercises(): Promise<void> {
           correctAnswer: '56',
           explanation: '7 × 8 = 56',
         }),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
     ];
 

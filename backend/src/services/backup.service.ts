@@ -71,7 +71,7 @@ class BackupService {
   private jobs = new Map<string, BackupJob>();
   private isInitialized = false;
   private currentJob: BackupJob | null = null;
-  private scheduledTasks = new Map<string, cron.ScheduledTask>();
+  private scheduledTasks = new Map<string, any>();
 
   constructor() {
     this.backupConfig = {
@@ -176,7 +176,6 @@ class BackupService {
           });
         },
         {
-          scheduled: true,
           name: 'daily-backup',
           timezone: 'UTC'
         }

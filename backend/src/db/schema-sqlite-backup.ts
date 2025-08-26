@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, int, decimal, timestamp, text, boolean, json, date, blob } from 'drizzle-orm/mysql-core';
+import { mysqlTable, varchar, int, decimal, timestamp, text, boolean, json, date, longtext } from 'drizzle-orm/mysql-core';
 import { InferInsertModel, InferSelectModel, relations, sql } from 'drizzle-orm';
 
 // =============================================================================
@@ -18,26 +18,26 @@ export const students = mysqlTable('students', {
   serieJours: int('serie_jours').default(0),
   mascotteType: varchar('mascotte_type', { length: 50 }).default('dragon'),
   dernierAcces: timestamp('dernier_acces'),
-  estConnecte: integer('est_connecte', { mode: 'boolean' }).default(false),
-  failedLoginAttempts: integer('failed_login_attempts').default(0),
+  estConnecte: boolean('est_connecte').default(false),
+  failedLoginAttempts: int('failed_login_attempts').default(0),
   lockedUntil: text('locked_until'), // ISO datetime string
-  passwordResetToken: text('password_reset_token', { length: 255 }),
+  passwordResetToken: varchar('password_reset_token', { length: 255 }),
   passwordResetExpires: text('password_reset_expires'), // ISO datetime string
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
   updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
 });
 
 // Exercises table
-export const exercises = sqliteTable('exercises', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const exercises = mysqlTable('exercises', {
+  id: int('id').primaryKey().autoincrement(),
   titre: varchar('titre', { length: 200 }).notNull(),
   description: text('description'),
   type: varchar('type', { length: 50 }).notNull(),
   difficulte: varchar('difficulte', { length: 50 }).notNull(),
   xp: int('xp').default(10),
   configuration: json('configuration'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow(),
 });
 
 // Student progress table (legacy - kept for compatibility)
@@ -50,8 +50,8 @@ export const studentProgress = mysqlTable('student_progress', {
   timeSpent: int('time_spent').default(0),
   attempts: int('attempts').default(0),
   completedAt: timestamp('completed_at'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow(),
 });
 
 // =============================================================================
@@ -87,8 +87,8 @@ export const studentCompetenceProgress = mysqlTable('student_competence_progress
   firstAttemptAt: timestamp('first_attempt_at'),
   lastAttemptAt: timestamp('last_attempt_at'),
   masteredAt: timestamp('mastered_at'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow(),
 });
 
 // Competence prerequisites and dependencies
@@ -105,8 +105,8 @@ export const competencePrerequisites = mysqlTable('competence_prerequisites', {
   weight: decimal('weight', { precision: 3, scale: 1 }).default('1.0'),
   description: text('description'),
   
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow(),
 });
 
 // Student learning path and recommendations
@@ -129,8 +129,8 @@ export const studentLearningPath = mysqlTable('student_learning_path', {
   blockingReasons: json('blocking_reasons'),
   unlockedAt: timestamp('unlocked_at'),
   
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow(),
 });
 
 // =============================================================================
@@ -164,7 +164,7 @@ export const dailyLearningAnalytics = mysqlTable('daily_learning_analytics', {
   streakDays: int('streak_days').default(0),
   xpEarned: int('xp_earned').default(0),
   
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
 // Weekly progress summaries
@@ -197,7 +197,7 @@ export const weeklyProgressSummary = mysqlTable('weekly_progress_summary', {
   weeklyGoalMet: boolean('weekly_goal_met').default(false),
   achievementsUnlocked: int('achievements_unlocked').default(0),
   
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
 // Learning session tracking
@@ -229,7 +229,7 @@ export const learningSessionTracking = mysqlTable('learning_session_tracking', {
   ipAddress: varchar('ip_address', { length: 45 }),
   userAgent: text('user_agent'),
   
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
 // Exercise performance analytics
@@ -255,8 +255,8 @@ export const exercisePerformanceAnalytics = mysqlTable('exercise_performance_ana
   optimalDifficultyLevel: decimal('optimal_difficulty_level', { precision: 3, scale: 1 }).default('1.0'),
   recommendedPrerequisites: json('recommended_prerequisites'),
   
-  lastUpdated: timestamp('last_updated').notNull().defaultNow().onUpdateNow(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  lastUpdated: timestamp('last_updated').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
 // Student achievement tracking
@@ -286,8 +286,8 @@ export const studentAchievements = mysqlTable('student_achievements', {
   isVisible: boolean('is_visible').default(true),
   displayOrder: int('display_order').default(0),
   
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow(),
 });
 
 // =============================================================================
@@ -299,7 +299,7 @@ export const sessions = mysqlTable('sessions', {
   studentId: int('student_id').references(() => students.id),
   data: text('data').notNull(),
   expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const revisions = mysqlTable('revisions', {
@@ -308,7 +308,7 @@ export const revisions = mysqlTable('revisions', {
   exerciseId: int('exercise_id').references(() => exercises.id),
   revisionDate: date('revision_date').notNull(),
   score: int('score').default(0),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const modules = mysqlTable('modules', {
@@ -319,8 +319,8 @@ export const modules = mysqlTable('modules', {
   niveau: varchar('niveau', { length: 20 }).notNull(),
   ordre: int('ordre').default(0),
   estActif: boolean('est_actif').default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow(),
 });
 
 // Legacy alias

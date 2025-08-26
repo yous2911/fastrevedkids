@@ -79,7 +79,7 @@ class DataIntegrityService extends EventEmitter {
   private rules: Map<string, IntegrityRule> = new Map();
   private violations: Map<string, IntegrityViolation> = new Map();
   private checkHistory: IntegrityCheckResult[] = [];
-  private scheduledTasks = new Map<string, cron.ScheduledTask>();
+  private scheduledTasks = new Map<string, any>();
   private metrics: DataQualityMetrics[] = [];
   private isInitialized = false;
 
@@ -386,8 +386,7 @@ class DataIntegrityService extends EventEmitter {
             });
           }
         }, {
-          scheduled: true,
-          name: `integrity-${rule.id}`
+              name: `integrity-${rule.id}`
         });
 
         this.scheduledTasks.set(`rule-${rule.id}`, task);
@@ -401,7 +400,7 @@ class DataIntegrityService extends EventEmitter {
       } catch (error) {
         logger.error('Daily comprehensive integrity check failed', { error });
       }
-    }, { scheduled: true, name: 'comprehensive-integrity-check' });
+    }, { name: 'comprehensive-integrity-check' });
 
     this.scheduledTasks.set('comprehensive', comprehensiveTask);
 
@@ -419,7 +418,7 @@ class DataIntegrityService extends EventEmitter {
       } catch (error) {
         logger.error('Data quality metrics collection failed', { error });
       }
-    }, { scheduled: true, name: 'data-quality-metrics' });
+    }, { name: 'data-quality-metrics' });
 
     this.scheduledTasks.set('metrics', metricsTask);
   }
@@ -902,7 +901,7 @@ class DataIntegrityService extends EventEmitter {
         } catch (error) {
           logger.error('Custom rule check failed', { ruleId: rule.id, error });
         }
-      }, { scheduled: true });
+      }, {});
 
       this.scheduledTasks.set(`rule-${rule.id}`, task);
     }

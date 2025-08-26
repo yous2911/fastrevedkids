@@ -84,8 +84,8 @@ connection.on('connection', (conn) => {
   });
 });
 
-connection.on('error', (error) => {
-  logger.error('Database connection error', { error: error.message });
+(connection as any).on('error', (error: any) => {
+  logger.error('Database connection error', { error: error?.message || 'Unknown error' });
 });
 
 connection.on('release', (conn) => {

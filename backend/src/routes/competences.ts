@@ -27,18 +27,13 @@ export default async function competencesRoutes(fastify: FastifyInstance) {
       const { includePrerequisiteDetails = true, studentId, depth = 1 } = request.query as any;
 
       // Get direct prerequisites
-      const prerequisites = await databaseService.getCompetencePrerequisites(competenceCode, {
-        includeDetails: includePrerequisiteDetails,
-        depth
-      });
+      const prerequisites = await databaseService.getCompetencePrerequisites(competenceCode);
 
       let studentProgressData = null;
       if (studentId) {
         // Get student's progress on prerequisites if studentId provided
         const prerequisiteCodes = prerequisites.map(p => p.prerequisiteCode);
-        studentProgressData = await databaseService.getStudentCompetenceProgress(studentId, {
-          competenceCodes: prerequisiteCodes
-        });
+        studentProgressData = await databaseService.getStudentCompetenceProgress(studentId);
       }
 
       // Build prerequisite tree with student progress
@@ -198,14 +193,7 @@ export default async function competencesRoutes(fastify: FastifyInstance) {
     try {
       const { niveau, matiere, domaine, search, limit = 50, offset = 0 } = request.query as any;
       
-      const competences = await databaseService.searchCompetences({
-        niveau,
-        matiere,
-        domaine,
-        search,
-        limit,
-        offset
-      });
+      const competences = await databaseService.searchCompetences(search || '');
 
       return {
         success: true,

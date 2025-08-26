@@ -470,7 +470,6 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
           category: query.category as FileCategory,
           limit: query.limit,
           offset: query.offset,
-          includePublic: query.includePublic
         });
 
         return reply.send({

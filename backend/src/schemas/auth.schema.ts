@@ -32,144 +32,98 @@ export const authSchemas = {
           minLength: 2,
           maxLength: 50,
           pattern: '^[a-zA-ZÀ-ÿ\\s\\-\']+$',
-          description: 'Student first name (2-50 characters, letters only)',
-          example: 'Alice'
+          description: 'Student first name (2-50 characters, letters only)'
         },
         nom: {
           type: 'string',
           minLength: 2,
           maxLength: 50,
           pattern: '^[a-zA-ZÀ-ÿ\\s\\-\']+$',
-          description: 'Student last name (2-50 characters, letters only)',
-          example: 'Dupont'
+          description: 'Student last name (2-50 characters, letters only)'
         },
         motDePasse: {
           type: 'string',
           minLength: 4,
           maxLength: 100,
-          description: 'Optional password for enhanced security',
-          example: 'mon-mot-de-passe'
+          description: 'Optional password for enhanced security'
         }
       },
-      additionalProperties: false,
-      example: {
-        prenom: 'Alice',
-        nom: 'Dupont',
-        motDePasse: 'mon-mot-de-passe'
-      }
+      additionalProperties: false
     },
     response: {
       200: {
         description: 'Successful authentication',
         type: 'object',
         properties: {
-          success: { type: 'boolean', example: true },
+          success: { type: 'boolean' },
           data: {
             type: 'object',
             properties: {
               token: { 
                 type: 'string', 
-                description: 'JWT authentication token',
-                example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOjEsInByZW5vbSI6IkFsaWNlIiwibm9tIjoiRHVwb250Iiwibml2ZWF1IjoiQ1AiLCJpYXQiOjE3MDk2NDE0MDAsImV4cCI6MTcwOTcyNzgwMH0.example'
+                description: 'JWT authentication token'
               },
               student: {
                 type: 'object',
                 properties: {
-                  id: { type: 'number', example: 1 },
-                  prenom: { type: 'string', example: 'Alice' },
-                  nom: { type: 'string', example: 'Dupont' },
-                  dateNaissance: { type: 'string', format: 'date', example: '2015-01-01' },
-                  niveauActuel: { type: 'string', example: 'CP' },
-                  totalPoints: { type: 'number', example: 350 },
-                  serieJours: { type: 'number', example: 7 },
-                  mascotteType: { type: 'string', example: 'dragon' },
-                  createdAt: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00Z' },
-                  updatedAt: { type: 'string', format: 'date-time', example: '2024-01-15T10:30:00Z' }
+                  id: { type: 'number' },
+                  prenom: { type: 'string' },
+                  nom: { type: 'string' },
+                  dateNaissance: { type: 'string', format: 'date' },
+                  niveauActuel: { type: 'string' },
+                  totalPoints: { type: 'number' },
+                  serieJours: { type: 'number' },
+                  mascotteType: { type: 'string' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' }
                 },
               },
             },
           },
-          message: { type: 'string', example: 'Connexion réussie' },
+          message: { type: 'string' },
         },
-        example: {
-          success: true,
-          data: {
-            token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-            student: {
-              id: 1,
-              prenom: 'Alice',
-              nom: 'Dupont',
-              dateNaissance: '2015-01-01',
-              niveauActuel: 'CP',
-              totalPoints: 350,
-              serieJours: 7,
-              mascotteType: 'dragon'
-            }
-          },
-          message: 'Connexion réussie'
-        }
+
       },
       400: {
         description: 'Invalid input parameters',
         type: 'object',
         properties: {
-          success: { type: 'boolean', example: false },
+          success: { type: 'boolean' },
           error: {
             type: 'object',
             properties: {
-              message: { type: 'string', example: 'Les paramètres fournis sont invalides' },
-              code: { type: 'string', example: 'INVALID_INPUT' },
+              message: { type: 'string' },
+              code: { type: 'string' },
             },
           },
-        },
-        example: {
-          success: false,
-          error: {
-            code: 'INVALID_INPUT',
-            message: 'Les paramètres fournis sont invalides'
-          }
         }
       },
       404: {
         description: 'Student not found',
         type: 'object',
         properties: {
-          success: { type: 'boolean', example: false },
+          success: { type: 'boolean' },
           error: {
             type: 'object',
             properties: {
-              message: { type: 'string', example: 'Étudiant non trouvé' },
-              code: { type: 'string', example: 'STUDENT_NOT_FOUND' },
+              message: { type: 'string' },
+              code: { type: 'string' },
             },
           },
-        },
-        example: {
-          success: false,
-          error: {
-            code: 'STUDENT_NOT_FOUND',
-            message: 'Étudiant non trouvé'
-          }
         }
       },
       500: {
         description: 'Internal server error',
         type: 'object',
         properties: {
-          success: { type: 'boolean', example: false },
+          success: { type: 'boolean' },
           error: {
             type: 'object',
             properties: {
-              message: { type: 'string', example: 'Erreur lors de la connexion' },
-              code: { type: 'string', example: 'LOGIN_ERROR' },
+              message: { type: 'string' },
+              code: { type: 'string' },
             },
           },
-        },
-        example: {
-          success: false,
-          error: {
-            code: 'LOGIN_ERROR',
-            message: 'Erreur lors de la connexion'
-          }
         }
       },
     },
@@ -342,3 +296,5 @@ export function validateLogin(data: unknown) {
 export function validateVerify(data: unknown) {
   return verifySchema.safeParse(data);
 }
+
+

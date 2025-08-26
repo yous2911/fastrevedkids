@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, int, decimal, timestamp, text, boolean, json, date, blob } from 'drizzle-orm/mysql-core';
+import { mysqlTable, varchar, int, decimal, timestamp, text, boolean, json, date, longtext } from 'drizzle-orm/mysql-core';
 import { InferInsertModel, InferSelectModel, relations, sql } from 'drizzle-orm';
 
 // =============================================================================
@@ -25,8 +25,8 @@ export const students = mysqlTable('students', {
   passwordResetExpires: timestamp('password_reset_expires'),
   niveauScolaire: varchar('niveau_scolaire', { length: 20 }).notNull(),
   mascotteColor: varchar('mascotte_color', { length: 20 }).default('#ff6b35'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // Exercises table
@@ -47,8 +47,8 @@ export const exercises = mysqlTable('exercises', {
   ordre: int('ordre').default(0),
   estActif: boolean('est_actif').default(true),
   metadonnees: json('metadonnees'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // Student Progress table
@@ -70,8 +70,8 @@ export const studentProgress = mysqlTable('student_progress', {
   reviewScheduledAt: timestamp('review_scheduled_at'),
   streakCount: int('streak_count').default(0),
   difficultyPreference: varchar('difficulty_preference', { length: 30 }),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // Student Learning Path table
@@ -89,8 +89,8 @@ export const studentLearningPath = mysqlTable('student_learning_path', {
   isBlocked: boolean('is_blocked').default(false),
   blockingReasons: json('blocking_reasons'),
   unlockedAt: timestamp('unlocked_at'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // Sessions table
@@ -98,7 +98,7 @@ export const sessions = mysqlTable('sessions', {
   id: varchar('id', { length: 36 }).primaryKey(),
   studentId: int('student_id').references(() => students.id),
   expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 // Revisions table
@@ -108,7 +108,7 @@ export const revisions = mysqlTable('revisions', {
   exerciseId: int('exercise_id').references(() => exercises.id),
   revisionDate: date('revision_date').notNull(),
   score: int('score').default(0),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 // Modules table
@@ -119,8 +119,8 @@ export const modules = mysqlTable('modules', {
   niveau: varchar('niveau', { length: 20 }).notNull(),
   ordre: int('ordre').default(0),
   estActif: boolean('est_actif').default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // =============================================================================

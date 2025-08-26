@@ -42,8 +42,7 @@ export class SmartRateLimitService {
     ['auth:login', {
       windowMs: 15 * 60 * 1000, // 15 minutes
       maxRequests: 5,
-      skipSuccessfulRequests: false,
-      onLimitReached: (req) => this.handleAuthViolation(req)
+      skipSuccessfulRequests: false
     }],
     
     ['auth:register', {
@@ -433,7 +432,7 @@ export function createRateLimitMiddleware(ruleKey: string = 'api:general') {
     if (!result.allowed) {
       // Add rate limit headers
       reply.headers({
-        'X-RateLimit-Limit': rateLimitService.rules.get(ruleKey)?.maxRequests || 0,
+        'X-RateLimit-Limit': (rateLimitService as any).rules.get(ruleKey)?.maxRequests || 0,
         'X-RateLimit-Remaining': 0,
         'X-RateLimit-Reset': new Date(result.resetTime || Date.now()).toISOString(),
         'Retry-After': result.retryAfter || 60
@@ -452,7 +451,7 @@ export function createRateLimitMiddleware(ruleKey: string = 'api:general') {
     // Add rate limit info headers for successful requests
     if (result.remainingRequests !== undefined) {
       reply.headers({
-        'X-RateLimit-Limit': rateLimitService.rules.get(ruleKey)?.maxRequests || 0,
+        'X-RateLimit-Limit': (rateLimitService as any).rules.get(ruleKey)?.maxRequests || 0,
         'X-RateLimit-Remaining': result.remainingRequests,
         'X-RateLimit-Reset': new Date(result.resetTime || Date.now()).toISOString()
       });

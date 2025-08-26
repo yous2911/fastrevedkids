@@ -1,4 +1,3 @@
-import 'fastify';
 import { FastifyRequest as OriginalFastifyRequest, FastifyReply } from 'fastify';
 
 declare module 'fastify' {
@@ -26,8 +25,9 @@ declare module 'fastify' {
 
 export interface AuthenticatedRequest extends OriginalFastifyRequest {
   user: {
-    studentId: number;
+    id: number;
     email: string;
-    type: string;
+    name: string;
+    level: string;
   };
 } 

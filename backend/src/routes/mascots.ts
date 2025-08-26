@@ -277,7 +277,7 @@ export default async function mascotsRoutes(fastify: FastifyInstance) {
         }
 
         // Update AI state with performance context
-        const currentAiState = currentMascot[0].aiState || {};
+        const currentAiState = (currentMascot[0].aiState as any) || {};
         const updatedAiState = {
           ...currentAiState,
           mood: newEmotion,

@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, int, decimal, timestamp, text, boolean, json, date, blob } from 'drizzle-orm/mysql-core';
+import { mysqlTable, varchar, int, decimal, timestamp, text, boolean, json, date, longtext } from 'drizzle-orm/mysql-core';
 import { InferInsertModel, InferSelectModel, relations, sql } from 'drizzle-orm';
 
 // =============================================================================
@@ -25,8 +25,8 @@ export const students = mysqlTable('students', {
   passwordResetExpires: timestamp('password_reset_expires'),
   niveauScolaire: varchar('niveau_scolaire', { length: 20 }).notNull(),
   mascotteColor: varchar('mascotte_color', { length: 20 }).default('#ff6b35'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // Exercises table
@@ -50,8 +50,8 @@ export const exercises = mysqlTable('exercises', {
   ordre: int('ordre').default(0),
   estActif: boolean('est_actif').default(true),
   metadonnees: json('metadonnees'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // Student Progress table
@@ -79,8 +79,8 @@ export const studentProgress = mysqlTable('student_progress', {
   timeSpent: int('time_spent').default(0),
   attempts: int('attempts').default(0),
   completedAt: timestamp('completed_at'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // Student Learning Path table
@@ -98,8 +98,8 @@ export const studentLearningPath = mysqlTable('student_learning_path', {
   isBlocked: boolean('is_blocked').default(false),
   blockingReasons: json('blocking_reasons'),
   unlockedAt: timestamp('unlocked_at'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // Sessions table
@@ -107,7 +107,7 @@ export const sessions = mysqlTable('sessions', {
   id: varchar('id', { length: 36 }).primaryKey(),
   studentId: int('student_id').references(() => students.id),
   expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 // Revisions table
@@ -117,7 +117,7 @@ export const revisions = mysqlTable('revisions', {
   exerciseId: int('exercise_id').references(() => exercises.id),
   revisionDate: date('revision_date').notNull(),
   score: int('score').default(0),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 // Modules table
@@ -128,8 +128,8 @@ export const modules = mysqlTable('modules', {
   niveau: varchar('niveau', { length: 20 }).notNull(),
   ordre: int('ordre').default(0),
   estActif: boolean('est_actif').default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // GDPR tables (minimal for compatibility)
@@ -139,7 +139,7 @@ export const gdprFiles = mysqlTable('gdpr_files', {
   filename: varchar('filename', { length: 255 }).notNull(),
   fileType: varchar('file_type', { length: 50 }),
   fileSize: int('file_size'),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 export const gdprConsentRequests = mysqlTable('gdpr_consent_requests', {
@@ -151,7 +151,7 @@ export const gdprConsentRequests = mysqlTable('gdpr_consent_requests', {
   requestType: varchar('request_type', { length: 50 }),
   expiresAt: timestamp('expires_at'),
   processedAt: timestamp('processed_at'),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 export const gdprDataProcessingLog = mysqlTable('gdpr_data_processing_log', {
@@ -160,7 +160,7 @@ export const gdprDataProcessingLog = mysqlTable('gdpr_data_processing_log', {
   action: varchar('action', { length: 100 }).notNull(),
   dataType: varchar('data_type', { length: 50 }),
   details: text('details'),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 // Files tables (full for storage service compatibility)
@@ -174,13 +174,13 @@ export const files = mysqlTable('files', {
   category: varchar('category', { length: 50 }),
   isPublic: boolean('is_public').default(false),
   uploadedBy: int('uploaded_by'),
-  uploadedAt: timestamp('uploaded_at').defaultNow(),
+  uploadedAt: timestamp('uploaded_at').default(sql`CURRENT_TIMESTAMP`),
   checksum: varchar('checksum', { length: 64 }),
   path: varchar('path', { length: 500 }),
   url: varchar('url', { length: 500 }),
   thumbnailUrl: varchar('thumbnail_url', { length: 500 }),
   metadata: text('metadata'),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 export const fileVariants = mysqlTable('file_variants', {
@@ -195,7 +195,7 @@ export const fileVariants = mysqlTable('file_variants', {
   mimetype: varchar('mimetype', { length: 100 }),
   metadata: text('metadata'),
   deletedAt: timestamp('deleted_at'),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 // Legacy alias for compatibility
@@ -217,14 +217,14 @@ export const auditLogs = mysqlTable('audit_logs', {
   details: json('details').notNull(),
   ipAddress: varchar('ip_address', { length: 45 }),
   userAgent: text('user_agent'),
-  timestamp: timestamp('timestamp').notNull().defaultNow(),
+  timestamp: timestamp('timestamp').notNull().default(sql`CURRENT_TIMESTAMP`),
   severity: varchar('severity', { length: 20 }).notNull().default('medium'),
   category: varchar('category', { length: 50 }),
   sessionId: varchar('session_id', { length: 100 }),
   correlationId: varchar('correlation_id', { length: 36 }),
   checksum: varchar('checksum', { length: 64 }).notNull(),
   encrypted: boolean('encrypted').default(false),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 // Security alerts table
@@ -235,14 +235,14 @@ export const securityAlerts = mysqlTable('security_alerts', {
   entityType: varchar('entity_type', { length: 50 }).notNull(),
   entityId: varchar('entity_id', { length: 100 }).notNull(),
   description: text('description').notNull(),
-  detectedAt: timestamp('detected_at').notNull().defaultNow(),
+  detectedAt: timestamp('detected_at').notNull().default(sql`CURRENT_TIMESTAMP`),
   auditEntries: json('audit_entries').notNull(),
   resolved: boolean('resolved').default(false),
   resolvedAt: timestamp('resolved_at'),
   resolvedBy: varchar('resolved_by', { length: 36 }),
   metadata: json('metadata'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // Compliance reports table
@@ -251,7 +251,7 @@ export const complianceReports = mysqlTable('compliance_reports', {
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
   generatedBy: varchar('generated_by', { length: 36 }).notNull(),
-  generatedAt: timestamp('generated_at').notNull().defaultNow(),
+  generatedAt: timestamp('generated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
   periodStart: timestamp('period_start').notNull(),
   periodEnd: timestamp('period_end').notNull(),
   filters: json('filters'),
@@ -263,7 +263,7 @@ export const complianceReports = mysqlTable('compliance_reports', {
   exportFormat: varchar('export_format', { length: 20 }).notNull(),
   filePath: varchar('file_path', { length: 500 }),
   status: varchar('status', { length: 20 }).default('completed'),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 // Data retention policy table
@@ -281,8 +281,8 @@ export const retentionPolicies = mysqlTable('retention_policies', {
   notificationDays: int('notification_days').default(30),
   lastExecuted: timestamp('last_executed'),
   recordsProcessed: int('records_processed').default(0),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
 });
 
 // Retention schedule table  
@@ -298,7 +298,7 @@ export const retentionSchedules = mysqlTable('retention_schedules', {
   completed: boolean('completed').default(false),
   completedAt: timestamp('completed_at'),
   errors: json('errors'),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
 // =============================================================================

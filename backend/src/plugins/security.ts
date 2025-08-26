@@ -3,12 +3,11 @@ import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
-import { config, helmetConfig, rateLimitConfig, corsConfig } from '../config/config';
+import { config, rateLimitConfig, corsConfig } from '../config/config';
 
 const securityPlugin: FastifyPluginAsync = async (fastify) => {
   // Enhanced Helmet configuration
   await fastify.register(helmet, {
-    ...helmetConfig,
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],

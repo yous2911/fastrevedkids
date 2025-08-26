@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { WARDROBE_ITEMS, WardrobeItem } from './WardrobeData';
+import { Button } from './ui/Button';
 
 // Wardrobe Component
 interface WardrobeSystemProps {
@@ -123,19 +124,21 @@ const WardrobeSystem: React.FC<WardrobeSystemProps> = ({
       {/* Category Tabs */}
       <div className="flex flex-wrap gap-2 mb-6">
         {categories.map(category => (
-          <button
+          <Button
             key={category.id}
             onClick={() => setSelectedCategory(category.id)}
+            variant={selectedCategory === category.id ? 'magical' : 'secondary'}
+            size="sm"
             className={`
               px-4 py-2 rounded-full text-sm font-medium transition-all
               ${selectedCategory === category.id
-                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                ? ''
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }
             `}
           >
             {category.icon} {category.name}
-          </button>
+          </Button>
         ))}
       </div>
 

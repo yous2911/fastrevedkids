@@ -51,12 +51,15 @@ export default async function authRoutes(fastify: FastifyInstance) {
       try {
         // For testing environment, allow simple prenom/nom login
         if (process.env.NODE_ENV === 'test' && credentials.prenom && credentials.nom) {
-          const mockStudent = {
-            id: 1,
-            prenom: credentials.prenom,
-            nom: credentials.nom,
-            niveauActuel: 'CE1'
-          };
+                  const mockStudent = {
+          id: 1,
+          prenom: credentials.prenom,
+          nom: credentials.nom,
+          email: `${credentials.prenom}.${credentials.nom}@test.com`,
+          niveauActuel: 'CE1',
+          name: `${credentials.prenom} ${credentials.nom}`,
+          level: 'CE1'
+        };
 
           const mockToken = 'mock-jwt-token-' + Date.now();
           
@@ -372,7 +375,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post('/logout', {
     preHandler: [fastify.authenticate],
     handler: async (
-      request: FastifyRequest,
+      request: any,
       reply: FastifyReply
     ) => {
       try {
@@ -409,7 +412,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
   fastify.get('/me', {
     preHandler: [fastify.authenticate],
     handler: async (
-      request: FastifyRequest,
+      request: any,
       reply: FastifyReply
     ) => {
       try {

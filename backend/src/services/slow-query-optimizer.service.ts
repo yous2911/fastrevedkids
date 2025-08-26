@@ -78,7 +78,7 @@ class SlowQueryOptimizerService {
   private optimizations = new Map<string, QueryOptimization>();
   private indexRecommendations: IndexRecommendation[] = [];
   private isInitialized = false;
-  private scheduledTasks = new Map<string, cron.ScheduledTask>();
+  private scheduledTasks = new Map<string, any>();
 
   constructor() {
     this.config = {
@@ -246,7 +246,7 @@ class SlowQueryOptimizerService {
       } catch (error) {
         logger.error('Scheduled slow query analysis failed', { error });
       }
-    }, { scheduled: true, name: 'slow-query-analysis' });
+    }, { name: 'slow-query-analysis' });
 
     // Generate optimization recommendations daily
     const optimizeTask = cron.schedule('0 2 * * *', async () => {
@@ -255,7 +255,7 @@ class SlowQueryOptimizerService {
       } catch (error) {
         logger.error('Scheduled optimization generation failed', { error });
       }
-    }, { scheduled: true, name: 'optimization-recommendations' });
+    }, { name: 'optimization-recommendations' });
 
     // Clean up old logs daily
     const cleanupTask = cron.schedule('0 1 * * *', async () => {
@@ -264,7 +264,7 @@ class SlowQueryOptimizerService {
       } catch (error) {
         logger.error('Scheduled log cleanup failed', { error });
       }
-    }, { scheduled: true, name: 'log-cleanup' });
+    }, { name: 'log-cleanup' });
 
     this.scheduledTasks.set('analyze', analyzeTask);
     this.scheduledTasks.set('optimize', optimizeTask);

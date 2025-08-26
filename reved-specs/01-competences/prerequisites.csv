@@ -1,0 +1,7 @@
+skill_id,prerequisite_id,strength,description
+CP.MA.N2.1,CP.MA.N1.1,strong,Compter jusqu'à 20 nécessite de maîtriser le comptage jusqu'à 10
+CP.MA.N2.2,CP.MA.N1.1,strong,Additionner nécessite de connaître les nombres de 1 à 10
+CP.MA.N2.3,CP.MA.N2.2,strong,Soustraire nécessite de maîtriser l'addition
+CP.MA.N2.4,CP.MA.N2.2,strong,Les compléments à 10 s'appuient sur l'addition
+CP.FR.L2.1,CP.FR.L1.2,strong,Lire des syllabes nécessite de connaître les sons des lettres
+CP.FR.L2.2,CP.FR.L2.1,strong,Lire des mots nécessite de maîtriser les syllabes

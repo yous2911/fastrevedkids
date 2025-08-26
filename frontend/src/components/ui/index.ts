@@ -9,6 +9,7 @@ export { Select } from './Select';
 export { Tooltip } from './Tooltip';
 export { Modal } from './Modal';
 export { LoadingSpinner } from './LoadingSpinner';
+export { default as SparkyMascot3D } from './SparkyMascot3D';
 
 // Advanced Components
 export { Toast } from './Toast';

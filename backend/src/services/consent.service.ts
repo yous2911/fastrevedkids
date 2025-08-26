@@ -20,19 +20,27 @@ class ConsentService {
     const newRequest: NewGdprConsentRequest = {
       studentId: data.studentId,
       requestType: data.requestType,
-      parentEmail: data.parentEmail,
       requestToken,
-      requestDetails: JSON.stringify(data.requestDetails || {}),
-      expiresAt: expiresAt.toISOString(),
+      consentType: data.requestType, // Required field
+      expiresAt: expiresAt,
       status: 'PENDING',
-      metadata: '{}',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
     };
 
-    const [result] = await this.db.insert(gdprConsentRequests).values(newRequest).returning();
+    const result = await this.db.insert(gdprConsentRequests).values(newRequest);
     
-    return result;
+    // Return a properly typed result
+    return {
+      id: 0, // This would be set by the database
+      studentId: newRequest.studentId!,
+      consentType: newRequest.consentType,
+      status: newRequest.status!,
+      requestToken: newRequest.requestToken!,
+      requestType: newRequest.requestType!,
+      expiresAt: newRequest.expiresAt!,
+      processedAt: new Date(),
+      createdAt: newRequest.createdAt!
+    };
   }
 
   async findConsentByToken(token: string): Promise<GdprConsentRequest | null> {
@@ -59,8 +67,7 @@ class ConsentService {
       .update(gdprConsentRequests)
       .set({ 
         status, 
-        processedAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        processedAt: new Date(),
       })
       .where(eq(gdprConsentRequests.id, requestId));
   }

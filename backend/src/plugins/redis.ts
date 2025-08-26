@@ -70,12 +70,10 @@ const redisPlugin = async (fastify: any) => {
         port: redisConfig.port,
         password: redisConfig.password || undefined,
         db: redisConfig.db,
-        retryDelayOnFailover: redisConfig.retryDelayOnFailover,
         maxRetriesPerRequest: redisConfig.maxRetriesPerRequest,
         lazyConnect: redisConfig.lazyConnect,
         showFriendlyErrorStack: redisConfig.showFriendlyErrorStack,
         connectTimeout: redisConfig.connectTimeout,
-        commandTimeout: redisConfig.commandTimeout,
         
         // Connection retry configuration
         retryStrategy: (times) => {
@@ -86,26 +84,26 @@ const redisPlugin = async (fastify: any) => {
           const delay = Math.min(times * 50, 2000);
           logger.warn(`Redis connection retry ${times} in ${delay}ms`);
           return delay;
-        },
-        
-        // Event handlers
-        onReady: () => {
-          isRedisAvailable = true;
-          logger.info('Redis connection established successfully');
-        },
-        
-        onError: (error) => {
-          isRedisAvailable = false;
-          stats.operations.errors++;
-          logger.warn('Redis connection error, falling back to memory cache:', { 
-            error: error.message 
-          });
-        },
-        
-        onClose: () => {
-          isRedisAvailable = false;
-          logger.warn('Redis connection closed, using memory cache');
         }
+      });
+
+      // Set up event handlers
+      redis.on('ready', () => {
+        isRedisAvailable = true;
+        logger.info('Redis connection established successfully');
+      });
+      
+      redis.on('error', (error) => {
+        isRedisAvailable = false;
+        stats.operations.errors++;
+        logger.warn('Redis connection error, falling back to memory cache:', { 
+          error: error.message 
+        });
+      });
+      
+      redis.on('close', () => {
+        isRedisAvailable = false;
+        logger.warn('Redis connection closed, using memory cache');
       });
 
       // Test connection

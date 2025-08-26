@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/Button';
 
 interface DragDropItem {
   id: string;
@@ -155,14 +156,13 @@ const DragDropExercise: React.FC<DragDropExerciseProps> = ({
 
       {/* Bouton reset */}
       <div className="text-center">
-        <motion.button
+        <Button
           onClick={resetExercise}
-          className="bg-gradient-to-r from-orange-400 to-red-500 text-white px-6 py-2 rounded-lg font-semibold shadow-lg"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          variant="warning"
+          size="md"
         >
           🔄 Recommencer
-        </motion.button>
+        </Button>
       </div>
     </div>
   );

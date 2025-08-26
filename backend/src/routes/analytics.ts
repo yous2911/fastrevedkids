@@ -193,15 +193,7 @@ export default async function analyticsRoutes(fastify: FastifyInstance): Promise
       const startDate = dateStart ? new Date(dateStart) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
       // Get daily analytics data
-      const analyticsData = await databaseService.getDailyLearningAnalytics({
-        studentId,
-        startDate: startDate.toISOString().split('T')[0],
-        endDate: endDate.toISOString().split('T')[0],
-        matiere,
-        groupBy,
-        limit,
-        offset
-      });
+      const analyticsData = await databaseService.getDailyLearningAnalytics(studentId);
 
       // Calculate aggregated metrics
       const aggregatedMetrics = {
@@ -328,16 +320,7 @@ export default async function analyticsRoutes(fastify: FastifyInstance): Promise
         offset = 0 
       } = request.query as any;
 
-      const sessions = await databaseService.getLearningSessionTracking({
-        studentId,
-        dateStart,
-        dateEnd,
-        deviceType,
-        minDuration,
-        maxDuration,
-        limit,
-        offset
-      });
+      const sessions = await databaseService.getLearningSessionTracking(studentId);
 
       // Calculate session analytics
       const sessionAnalytics = {

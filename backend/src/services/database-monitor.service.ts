@@ -121,7 +121,7 @@ class DatabaseMonitorService extends EventEmitter {
   private alerts: PerformanceAlert[] = [];
   private isEnabled = false;
   private monitoringInterval: NodeJS.Timeout | null = null;
-  private scheduledTasks = new Map<string, cron.ScheduledTask>();
+  private scheduledTasks = new Map<string, any>();
   private queryStats = new Map<string, QueryAnalysis>();
   private lastMetricsCollection = new Date();
 
@@ -217,7 +217,7 @@ class DatabaseMonitorService extends EventEmitter {
       } catch (error) {
         logger.error('Daily database analysis failed', { error });
       }
-    }, { scheduled: true, name: 'daily-db-analysis' });
+    }, { name: 'daily-db-analysis' });
 
     // Hourly query analysis
     const hourlyQueryAnalysis = cron.schedule('0 * * * *', async () => {
@@ -226,7 +226,7 @@ class DatabaseMonitorService extends EventEmitter {
       } catch (error) {
         logger.error('Hourly query analysis failed', { error });
       }
-    }, { scheduled: true, name: 'hourly-query-analysis' });
+    }, { name: 'hourly-query-analysis' });
 
     // Cleanup old metrics (daily at 3 AM)
     const cleanupTask = cron.schedule('0 3 * * *', async () => {
@@ -235,7 +235,7 @@ class DatabaseMonitorService extends EventEmitter {
       } catch (error) {
         logger.error('Metrics cleanup failed', { error });
       }
-    }, { scheduled: true, name: 'metrics-cleanup' });
+    }, { name: 'metrics-cleanup' });
 
     this.scheduledTasks.set('daily-analysis', dailyAnalysis);
     this.scheduledTasks.set('hourly-query-analysis', hourlyQueryAnalysis);

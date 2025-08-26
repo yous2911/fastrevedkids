@@ -77,7 +77,7 @@ const databasePlugin: FastifyPluginAsync = async (fastify) => {
           message: 'Database connection OK',
           details: {
             responseTime: healthResult.responseTime,
-            connections: healthResult.connections,
+            poolStats: healthResult.poolStats,
             config: {
               host: config.DB_HOST,
               port: config.DB_PORT,

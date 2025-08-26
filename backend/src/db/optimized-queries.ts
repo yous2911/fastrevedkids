@@ -447,7 +447,14 @@ class OptimizedQueries {
           .orderBy(asc(sql`DATE(${studentProgress.lastAttemptAt})`))
       ]);
 
-      const overall = overallStats[0] || {};
+      const overall = overallStats[0] || {
+        totalStudents: 0,
+        totalExercises: 0,
+        completedExercises: 0,
+        totalAttempts: 0,
+        averageScore: 0,
+        activeStudents: 0
+      };
       const completionRate = overall.totalAttempts > 0 
         ? (overall.completedExercises / overall.totalAttempts) * 100 
         : 0;

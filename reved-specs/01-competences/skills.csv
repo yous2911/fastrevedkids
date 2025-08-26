@@ -1,0 +1,12 @@
+skill_id,skill_name,domain,level,description,prerequisites
+CP.MA.N1.1,Compter jusqu'à 10,Mathématiques,CP1,Compter oralement et écrire les nombres de 1 à 10,
+CP.MA.N1.2,Reconnaître les chiffres,Mathématiques,CP1,Reconnaître et écrire les chiffres de 0 à 9,
+CP.MA.N1.3,Comparer les nombres,Mathématiques,CP1,Comparer des quantités et utiliser < > =,
+CP.MA.N2.1,Compter jusqu'à 20,Mathématiques,CP2,Compter oralement et écrire les nombres de 1 à 20,CP.MA.N1.1
+CP.MA.N2.2,Addition simple,Mathématiques,CP2,Additionner des nombres jusqu'à 10,CP.MA.N1.1
+CP.MA.N2.3,Soustraction simple,Mathématiques,CP2,Soustraire des nombres jusqu'à 10,CP.MA.N2.2
+CP.MA.N2.4,Compléments à 10,Mathématiques,CP2,Trouver le complément d'un nombre pour faire 10,CP.MA.N2.2
+CP.FR.L1.1,Reconnaître les lettres,Français,CP1,Reconnaître les lettres de l'alphabet,
+CP.FR.L1.2,Associer sons et lettres,Français,CP1,Associer les sons aux lettres correspondantes,
+CP.FR.L2.1,Lire des syllabes,Français,CP2,Lire des syllabes simples (CV, VC),CP.FR.L1.2
+CP.FR.L2.2,Lire des mots simples,Français,CP2,Lire des mots de 2-3 syllabes,CP.FR.L2.1

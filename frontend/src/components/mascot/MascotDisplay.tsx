@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMascot } from '../../hooks/useFastRevKidsApi';
 import { Mascot } from '../../services/fastrevkids-api.service';
+import SparkyMascot3D from '../ui/SparkyMascot3D';
 
 interface MascotDisplayProps {
   onInteraction?: () => void;
@@ -22,60 +23,26 @@ export const MascotDisplay: React.FC<MascotDisplayProps> = ({
 
   const mascot = mascotData?.mascot;
 
-  const getMascotEmoji = (type?: Mascot['type'], emotion?: Mascot['currentEmotion']) => {
-    if (!type) return '🧚‍♀️';
-    
-    const emotionVariants = {
-      dragon: {
-        idle: '🐉',
-        happy: '😊🐉',
-        thinking: '🤔🐉',
-        celebrating: '🎉🐉',
-        oops: '😅🐉'
-      },
-      fairy: {
-        idle: '🧚‍♀️',
-        happy: '😊🧚‍♀️',
-        thinking: '🤔🧚‍♀️',
-        celebrating: '🎉🧚‍♀️',
-        oops: '😅🧚‍♀️'
-      },
-      robot: {
-        idle: '🤖',
-        happy: '😊🤖',
-        thinking: '🤔🤖',
-        celebrating: '🎉🤖',
-        oops: '😅🤖'
-      },
-      cat: {
-        idle: '🐱',
-        happy: '😸',
-        thinking: '🤔🐱',
-        celebrating: '🎉🐱',
-        oops: '😿'
-      },
-      owl: {
-        idle: '🦉',
-        happy: '😊🦉',
-        thinking: '🤔🦉',
-        celebrating: '🎉🦉',
-        oops: '😅🦉'
-      }
-    };
-
-    return emotionVariants[type]?.[emotion || 'idle'] || emotionVariants[type]?.idle || '🧚‍♀️';
+  // Use Sparky 3D mascot instead of emojis
+  const getMascotSize = () => {
+    switch (size) {
+      case 'small': return 'small';
+      case 'large': return 'large';
+      default: return 'medium';
+    }
   };
 
+  // Size classes for container
   const getSizeClasses = () => {
     switch (size) {
       case 'small':
-        return 'text-4xl w-20 h-20';
+        return 'w-20 h-20';
       case 'medium':
-        return 'text-6xl w-32 h-32';
+        return 'w-32 h-32';
       case 'large':
-        return 'text-8xl w-48 h-48';
+        return 'w-48 h-48';
       default:
-        return 'text-6xl w-32 h-32';
+        return 'w-32 h-32';
     }
   };
 
@@ -114,26 +81,16 @@ export const MascotDisplay: React.FC<MascotDisplayProps> = ({
 
   return (
     <div className={`relative ${className}`}>
-      {/* Mascot Display */}
-      <motion.div
-        className={`flex items-center justify-center ${getSizeClasses()} bg-gradient-to-br from-purple-100 to-pink-100 rounded-full border-4 border-white shadow-lg cursor-pointer`}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={handleMascotClick}
-        animate={{
-          y: [0, -5, 0],
-          rotate: [0, 2, -2, 0],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      >
-        <span className="select-none">
-          {getMascotEmoji(mascot?.type, mascot?.currentEmotion)}
-        </span>
-      </motion.div>
+      {/* Sparky 3D Mascot */}
+      <SparkyMascot3D
+        mascotType={mascot?.type || 'fairy'}
+        emotion={mascot?.currentEmotion || 'idle'}
+        items={mascot?.equippedItems?.map(item => item.toString()) || []}
+        xpLevel={mascot?.xpLevel || 1}
+        size={getMascotSize() as 'small' | 'medium' | 'large'}
+        enableInteraction={true}
+        onMascotClick={handleMascotClick}
+      />
 
       {/* XP Level Badge */}
       {mascot?.xpLevel && (

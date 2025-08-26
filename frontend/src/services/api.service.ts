@@ -91,7 +91,7 @@ export class ApiService {
       process.env.REACT_APP_API_URL,
       process.env.REACT_APP_API_BASE_URL,
       process.env.REACT_APP_BACKEND_URL,
-      'http://localhost:5000/api', // Default fallback
+      'http://localhost:3003', // Default fallback - matches backend port
     ];
 
     for (const url of POSSIBLE_URLS) {

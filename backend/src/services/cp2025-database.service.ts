@@ -49,8 +49,8 @@ export class CP2025DatabaseService {
         .insert(schema.exercises)
         .values({
           ...exerciseData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         });
 
       // Get the created exercise by searching for it
