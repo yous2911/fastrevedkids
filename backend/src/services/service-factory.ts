@@ -1,6 +1,6 @@
 // Service factory for consistent dependency injection and testing
 import { EncryptionService } from './encryption.service';
-import { EmailService } from './email.service';
+import { emailService } from './email.service';
 import { AuditTrailService } from './audit-trail.service';
 import { ParentalConsentService } from './parental-consent.service';
 import { DataAnonymizationService } from './data-anonymization.service';
@@ -20,11 +20,8 @@ export class ServiceFactory {
     return this.instances.get('encryption');
   }
 
-  static getEmailService(): EmailService {
-    if (!this.instances.has('email')) {
-      this.instances.set('email', new EmailService());
-    }
-    return this.instances.get('email');
+  static getEmailService() {
+    return emailService; // Use the singleton instance
   }
 
   static getAuditTrailService(): AuditTrailService {

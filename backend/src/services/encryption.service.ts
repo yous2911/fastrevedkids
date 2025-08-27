@@ -27,7 +27,7 @@ class EncryptionService {
 
   encryptSensitiveData(data: string): { encrypted: string; iv: string; tag: string } {
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipher(this.algorithm, this.key, iv);
+    const cipher = crypto.createCipheriv('aes-256-cbc', this.key, iv);
     
     let encrypted = cipher.update(data, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -43,7 +43,7 @@ class EncryptionService {
   }
 
   decryptSensitiveData(encryptedData: { encrypted: string; iv: string; tag: string }): string {
-    const decipher = crypto.createDecipher(this.algorithm, this.key, Buffer.from(encryptedData.iv, 'hex'));
+    const decipher = crypto.createDecipheriv('aes-256-cbc', this.key, Buffer.from(encryptedData.iv, 'hex'));
 
     let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
@@ -103,6 +103,49 @@ class EncryptionService {
   async cleanupExpiredKeys(): Promise<void> {
     // Implementation for cleanup expired keys
     logger.info('Cleanup expired keys requested');
+  }
+
+  /**
+   * Encrypt sensitive fields in a record
+   */
+  async encryptSensitiveFields(record: any, sensitiveFields: string[]): Promise<any> {
+    const result = { ...record };
+    
+    for (const field of sensitiveFields) {
+      if (result[field] !== undefined) {
+        const encrypted = this.encryptSensitiveData(String(result[field]));
+        result[`${field}_encrypted`] = {
+          data: encrypted.encrypted,
+          iv: encrypted.iv,
+          tag: encrypted.tag
+        };
+        delete result[field];
+      }
+    }
+    
+    return result;
+  }
+
+  /**
+   * Decrypt sensitive fields in a record
+   */
+  async decryptSensitiveFields(record: any, sensitiveFields: string[]): Promise<any> {
+    const result = { ...record };
+    
+    for (const field of sensitiveFields) {
+      const encryptedField = `${field}_encrypted`;
+      if (result[encryptedField]) {
+        const decrypted = this.decryptSensitiveData({
+          encrypted: result[encryptedField].data,
+          iv: result[encryptedField].iv,
+          tag: result[encryptedField].tag
+        });
+        result[field] = decrypted;
+        delete result[encryptedField];
+      }
+    }
+    
+    return result;
   }
 }
 

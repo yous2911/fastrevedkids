@@ -708,10 +708,15 @@ export class DataAnonymizationService {
    */
   private async getStudentData(studentId: string): Promise<any> {
     try {
+      const studentIdNum = parseInt(studentId);
+      if (isNaN(studentIdNum)) {
+        throw new Error(`Invalid student ID: ${studentId}`);
+      }
+      
       const [student] = await db
         .select()
         .from(students)
-        .where(eq(students.id, parseInt(studentId)))
+        .where(eq(students.id, studentIdNum))
         .limit(1);
 
       if (!student) {

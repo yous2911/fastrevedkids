@@ -22,7 +22,15 @@ interface AuthResult {
   student?: any;
   token?: string;
   refreshToken?: string;
-  error?: string;
+  data?: {
+    student: any;
+    token: string;
+    refreshToken: string;
+  };
+  error?: string | {
+    message: string;
+    code: string;
+  };
   lockoutInfo?: {
     isLocked: boolean;
     remainingTime?: number;
@@ -36,7 +44,8 @@ interface RegisterData {
   email: string;
   password: string;
   dateNaissance: string;
-  niveauActuel: string;
+  niveauActuel?: string;
+  niveauScolaire?: string;
 }
 
 export class AuthService {
@@ -188,18 +197,24 @@ export class AuthService {
         .where(eq((students as any).email, data.email))
         .limit(1);
 
-      if (existingStudent.length > 0) {
+      if (existingStudent && existingStudent.length > 0) {
         return {
           success: false,
-          error: 'Un compte avec cette adresse email existe déjà'
+          error: {
+            message: 'Un compte avec cette adresse email existe déjà',
+            code: 'EMAIL_ALREADY_EXISTS'
+          }
         };
       }
 
       // Validate password strength
-      if (data.password.length < 6) {
+      if (!data.password || data.password.length < 6) {
         return {
           success: false,
-          error: 'Le mot de passe doit contenir au moins 6 caractères'
+          error: {
+            message: 'Le mot de passe doit contenir au moins 6 caractères',
+            code: 'WEAK_PASSWORD'
+          }
         };
       }
 
@@ -213,13 +228,12 @@ export class AuthService {
         email: data.email,
         passwordHash,
         dateNaissance: new Date(data.dateNaissance),
-        niveauActuel: data.niveauActuel,
-        niveauScolaire: data.niveauActuel, // Add required field
+        niveauActuel: data.niveauScolaire || data.niveauActuel || 'CP',
+        niveauScolaire: data.niveauScolaire || data.niveauActuel || 'CP',
         totalPoints: 0,
         serieJours: 0,
-        mascotteType: 'dragon',
-        age: 8 // Add required age field
-      } as any);
+        mascotteType: 'dragon'
+      });
 
       // Get the inserted student to get the ID
       const insertedStudent = await db.select()
@@ -234,22 +248,27 @@ export class AuthService {
 
       return {
         success: true,
-        student: {
-          id: studentId,
-          prenom: data.prenom,
-          nom: data.nom,
-          email: data.email,
-          niveauActuel: data.niveauActuel
-        },
-        token: accessToken,
-        refreshToken
+        data: {
+          student: {
+            id: studentId,
+            prenom: data.prenom,
+            nom: data.nom,
+            email: data.email,
+            niveauActuel: data.niveauScolaire || data.niveauActuel || 'CP'
+          },
+          token: accessToken,
+          refreshToken
+        }
       };
 
     } catch (error) {
       console.error('Registration error:', error);
       return {
         success: false,
-        error: 'Erreur lors de la création du compte'
+        error: {
+          message: 'Erreur lors de la création du compte',
+          code: 'REGISTRATION_FAILED'
+        }
       };
     }
   }
@@ -285,7 +304,10 @@ export class AuthService {
       if (!student) {
         return {
           success: false,
-          error: 'Identifiants incorrects'
+          error: {
+            message: 'Identifiants incorrects',
+            code: 'INVALID_CREDENTIALS'
+          }
         };
       }
 
@@ -294,7 +316,10 @@ export class AuthService {
       if (isLocked) {
         return {
           success: false,
-          error: 'Compte temporairement verrouillé. Veuillez réessayer plus tard.',
+          error: {
+            message: 'Compte temporairement verrouillé. Veuillez réessayer plus tard.',
+            code: 'ACCOUNT_LOCKED'
+          },
           lockoutInfo: {
             isLocked: true,
             remainingTime: student.lockedUntil ? 
@@ -308,7 +333,10 @@ export class AuthService {
         // Legacy user without password - require password setup
         return {
           success: false,
-          error: 'Veuillez configurer un mot de passe pour ce compte'
+          error: {
+            message: 'Veuillez configurer un mot de passe pour ce compte',
+            code: 'PASSWORD_NOT_SET'
+          }
         };
       }
 
@@ -321,7 +349,10 @@ export class AuthService {
 
         return {
           success: false,
-          error: 'Mot de passe incorrect',
+          error: {
+            message: 'Mot de passe incorrect',
+            code: 'INVALID_CREDENTIALS'
+          },
           lockoutInfo: {
             isLocked: false,
             attemptsRemaining: Math.max(0, remainingAttempts)
@@ -345,25 +376,30 @@ export class AuthService {
 
       return {
         success: true,
-        student: {
-          id: student.id,
-          prenom: student.prenom,
-          nom: student.nom,
-          email: student.email,
-          niveauActuel: student.niveauActuel,
-          totalPoints: student.totalPoints,
-          serieJours: student.serieJours,
-          mascotteType: student.mascotteType
-        },
-        token: accessToken,
-        refreshToken
+        data: {
+          student: {
+            id: student.id,
+            prenom: student.prenom,
+            nom: student.nom,
+            email: student.email,
+            niveauActuel: student.niveauActuel,
+            totalPoints: student.totalPoints,
+            serieJours: student.serieJours,
+            mascotteType: student.mascotteType
+          },
+          token: accessToken,
+          refreshToken
+        }
       };
 
     } catch (error) {
       console.error('Authentication error:', error);
       return {
         success: false,
-        error: 'Erreur d\'authentification'
+        error: {
+          message: 'Erreur d\'authentification',
+          code: 'AUTHENTICATION_ERROR'
+        }
       };
     }
   }

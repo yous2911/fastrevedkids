@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { logger } from '../utils/logger';
 import { AuditTrailService } from './audit-trail.service';
 import { EncryptionService } from './encryption.service';
-import { EmailService } from './email.service';
+import { emailService } from './email.service';
 
 // Validation schemas
 const GDPRRequestSchema = z.object({
@@ -110,13 +110,11 @@ export interface StudentDataPortfolio {
 export class GDPRRightsService {
   private auditService: AuditTrailService;
   private encryptionService: EncryptionService;
-  private emailService: EmailService;
   private pendingVerifications: Map<string, { requestId: string; expiresAt: Date }> = new Map();
 
   constructor() {
     this.auditService = new AuditTrailService();
     this.encryptionService = new EncryptionService();
-    this.emailService = new EmailService();
     this.initializeGDPRSystem();
   }
 

@@ -1,6 +1,6 @@
 // src/services/database.service.ts
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-import Database from 'better-sqlite3';
+import { drizzle } from 'drizzle-orm/mysql2';
+import mysql from 'mysql2/promise';
 import { 
   students, 
   exercises, 

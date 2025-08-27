@@ -3,9 +3,16 @@ import { FastifySchema } from 'fastify';
 
 // Zod schemas for validation
 export const loginSchema = z.object({
-  prenom: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères').max(50),
-  nom: z.string().min(2, 'Le nom doit contenir au moins 2 caractères').max(50),
+  prenom: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères').max(50).optional(),
+  nom: z.string().min(2, 'Le nom doit contenir au moins 2 caractères').max(50).optional(),
+  email: z.string().email('Email invalide').optional(),
+  password: z.string().min(1, 'Le mot de passe est requis').optional(),
   motDePasse: z.string().optional(),
+}).refine((data) => {
+  // Either email/password OR prenom/nom must be provided
+  return (data.email && data.password) || (data.prenom && data.nom);
+}, {
+  message: "Either email/password or prenom/nom must be provided"
 });
 
 export const logoutSchema = z.object({});
@@ -25,7 +32,6 @@ export const authSchemas = {
     operationId: 'loginStudent',
     body: {
       type: 'object',
-      required: ['prenom', 'nom'],
       properties: {
         prenom: {
           type: 'string',
@@ -41,6 +47,16 @@ export const authSchemas = {
           pattern: '^[a-zA-ZÀ-ÿ\\s\\-\']+$',
           description: 'Student last name (2-50 characters, letters only)'
         },
+        email: {
+          type: 'string',
+          format: 'email',
+          description: 'Student email address'
+        },
+        password: {
+          type: 'string',
+          minLength: 1,
+          description: 'Student password'
+        },
         motDePasse: {
           type: 'string',
           minLength: 4,
@@ -48,7 +64,15 @@ export const authSchemas = {
           description: 'Optional password for enhanced security'
         }
       },
-      additionalProperties: false
+      additionalProperties: false,
+      anyOf: [
+        {
+          required: ['prenom', 'nom']
+        },
+        {
+          required: ['email', 'password']
+        }
+      ]
     },
     response: {
       200: {

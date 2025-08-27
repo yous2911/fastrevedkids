@@ -58,11 +58,40 @@ const poolConfig = {
   }
 };
 
-// Create MySQL connection pool
-const connection = mysql.createPool(poolConfig);
+// Connection pool and drizzle instance
+let connection: mysql.Pool;
+let db: ReturnType<typeof drizzle>;
 
-// Create Drizzle instance
-export const db = drizzle(connection);
+// Function to create a new connection pool
+function createConnectionPool(): { connection: mysql.Pool; db: ReturnType<typeof drizzle> } {
+  const pool = mysql.createPool(poolConfig);
+  const drizzleDb = drizzle(pool);
+  
+  // Set up connection pool event listeners for monitoring
+  pool.on('connection', (conn) => {
+    logger.info('New database connection established', { 
+      connectionId: conn.threadId,
+      totalConnections: (pool as any)._allConnections?.length || 0
+    });
+  });
+
+  (pool as any).on('error', (error: any) => {
+    logger.error('Database connection error', { error: error?.message || 'Unknown error' });
+  });
+
+  pool.on('release', (conn) => {
+    logger.debug('Database connection released', { 
+      connectionId: conn.threadId
+    });
+  });
+  
+  return { connection: pool, db: drizzleDb };
+}
+
+// Initialize the connection pool
+const { connection: initialConnection, db: initialDb } = createConnectionPool();
+connection = initialConnection;
+db = initialDb;
 
 // Connection pool monitoring
 interface PoolStats {
@@ -75,24 +104,6 @@ interface PoolStats {
   createdConnections: number;
   destroyedConnections: number;
 }
-
-// Connection pool event listeners for monitoring
-connection.on('connection', (conn) => {
-  logger.info('New database connection established', { 
-    connectionId: conn.threadId,
-    totalConnections: (connection as any)._allConnections?.length || 0
-  });
-});
-
-(connection as any).on('error', (error: any) => {
-  logger.error('Database connection error', { error: error?.message || 'Unknown error' });
-});
-
-connection.on('release', (conn) => {
-  logger.debug('Database connection released', { 
-    connectionId: conn.threadId
-  });
-});
 
 // Get connection pool statistics
 export function getPoolStats(): PoolStats {
@@ -237,12 +248,29 @@ export async function checkDatabaseHealth(): Promise<{
 // Enhanced connection management
 let connectionInitialized = false;
 let shutdownInProgress = false;
+let connectionPromise: Promise<void> | null = null;
+let connectionPromiseResolve: (() => void) | null = null;
+let connectionPromiseReject: ((error: Error) => void) | null = null;
 
 export async function connectDatabase(): Promise<void> {
+  // If already initialized, return immediately
   if (connectionInitialized) {
     logger.info('Database already connected');
     return;
   }
+
+  // If initialization is in progress, wait for it to complete
+  if (connectionPromise) {
+    logger.info('Database connection initialization already in progress, waiting...');
+    await connectionPromise;
+    return;
+  }
+
+  // Start new initialization
+  connectionPromise = new Promise<void>((resolve, reject) => {
+    connectionPromiseResolve = resolve;
+    connectionPromiseReject = reject;
+  });
 
   try {
     logger.info('Initializing database connection...', {
@@ -288,6 +316,16 @@ export async function connectDatabase(): Promise<void> {
       poolStats: getPoolStats()
     });
 
+    // Resolve the promise
+    if (connectionPromiseResolve) {
+      connectionPromiseResolve();
+    }
+    
+    // Clear the promise references
+    connectionPromise = null;
+    connectionPromiseResolve = null;
+    connectionPromiseReject = null;
+
   } catch (error) {
     logger.error('Failed to connect to database', {
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -297,6 +335,18 @@ export async function connectDatabase(): Promise<void> {
         database: dbConfig.database
       }
     });
+    
+    // Reject the promise first
+    if (connectionPromiseReject) {
+      connectionPromiseReject(error instanceof Error ? error : new Error('Unknown error'));
+    }
+    
+    // Reset connection state
+    connectionInitialized = false;
+    connectionPromise = null;
+    connectionPromiseResolve = null;
+    connectionPromiseReject = null;
+    
     throw error;
   }
 }
@@ -335,7 +385,17 @@ export async function disconnectDatabase(): Promise<void> {
 
     // Force close the connection pool
     await connection.end();
+    
+    // Create a new connection pool for future connections
+    const { connection: newConnection, db: newDb } = createConnectionPool();
+    connection = newConnection;
+    db = newDb;
+    
+    // Reset all connection state
     connectionInitialized = false;
+    connectionPromise = null;
+    connectionPromiseResolve = null;
+    connectionPromiseReject = null;
     
     logger.info('Database connection closed successfully');
     
@@ -417,8 +477,8 @@ export async function withTransaction<T>(
   throw new Error('Transaction failed unexpectedly');
 }
 
-// Export connection for advanced usage
-export { connection };
+// Export connection and db for usage
+export { connection, db };
 
 // Cleanup on process exit
 process.on('SIGINT', async () => {

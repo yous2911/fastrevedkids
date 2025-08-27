@@ -1,7 +1,7 @@
-import { db } from './connection';
+import { db, connection } from './connection';
 import { sql } from 'drizzle-orm';
 import { config } from '../config/config';
-import Database from 'better-sqlite3';
+import mysql from 'mysql2/promise';
 import * as schema from './schema';
 
 /**
@@ -10,10 +10,10 @@ import * as schema from './schema';
  */
 
 export class DatabaseReset {
-  private sqlite: Database.Database;
+  private mysql: mysql.Pool;
 
   constructor() {
-    this.sqlite = new Database('reved_kids.db');
+    this.mysql = connection;
   }
 
   /**
@@ -23,7 +23,7 @@ export class DatabaseReset {
     try {
       console.log('🔄 Starting database reset...');
       console.log(`📊 Environment: ${config.NODE_ENV}`);
-      console.log(`📍 Database: SQLite (${config.DB_NAME})`);
+      console.log(`📍 Database: MySQL (${config.DB_NAME})`);
 
       // Drop all tables
       await this.dropAllTables();
@@ -38,9 +38,8 @@ export class DatabaseReset {
     } catch (error) {
       console.error('❌ Database reset failed:', error);
       throw error;
-    } finally {
-      this.sqlite.close();
     }
+    // MySQL connection pool manages connections automatically
   }
 
   /**

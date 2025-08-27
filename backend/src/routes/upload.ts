@@ -227,7 +227,13 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
     schema: {
       description: 'Get file information by ID',
       tags: ['Upload'],
-      params: fileIdSchema,
+      params: {
+        type: 'object',
+        properties: {
+          fileId: { type: 'string', format: 'uuid' }
+        },
+        required: ['fileId']
+      },
       response: {
         200: {
           type: 'object',
@@ -304,7 +310,13 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
     schema: {
       description: 'Download file by ID',
       tags: ['Upload'],
-      params: fileIdSchema,
+      params: {
+        type: 'object',
+        properties: {
+          fileId: { type: 'string', format: 'uuid' }
+        },
+        required: ['fileId']
+      },
       querystring: {
         type: 'object',
         properties: {
@@ -376,7 +388,13 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
     schema: {
       description: 'Delete file by ID',
       tags: ['Upload'],
-      params: fileIdSchema,
+      params: {
+        type: 'object',
+        properties: {
+          fileId: { type: 'string', format: 'uuid' }
+        },
+        required: ['fileId']
+      },
       response: {
         200: {
           type: 'object',
@@ -548,7 +566,13 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
     schema: {
       description: 'Process image file with various operations',
       tags: ['Upload'],
-      params: fileIdSchema,
+      params: {
+        type: 'object',
+        properties: {
+          fileId: { type: 'string', format: 'uuid' }
+        },
+        required: ['fileId']
+      },
       body: {
         type: 'object',
         properties: {

@@ -327,4 +327,85 @@ export class StorageService {
       return 0;
     }
   }
+
+  /**
+   * Get storage health information
+   */
+  async getStorageHealth(): Promise<{
+    status: 'healthy' | 'warning' | 'critical';
+    issues: string[];
+    recommendations: string[];
+    diskUsage: {
+      total: number;
+      used: number;
+      available: number;
+      percentage: number;
+    };
+  }> {
+    try {
+      const stats = await this.getStorageStats();
+      const issues: string[] = [];
+      const recommendations: string[] = [];
+      
+      // Check disk usage
+      let status: 'healthy' | 'warning' | 'critical' = 'healthy';
+      
+      if (stats.storageUsage.percentage > 90) {
+        status = 'critical';
+        issues.push('Storage usage is critical (>90%)');
+        recommendations.push('Immediately cleanup old files or increase storage capacity');
+      } else if (stats.storageUsage.percentage > 75) {
+        status = 'warning';
+        issues.push('Storage usage is high (>75%)');
+        recommendations.push('Consider cleaning up old files or increasing storage capacity');
+      }
+
+      // Check for failed uploads
+      const [failedUploads] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(files)
+        .where(eq(files.status, 'failed'));
+
+      if (failedUploads.count > 10) {
+        issues.push(`${failedUploads.count} failed uploads detected`);
+        recommendations.push('Investigate and cleanup failed uploads');
+      }
+
+      // Check for quarantined files
+      const [quarantinedFiles] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(files)
+        .where(eq(files.status, 'quarantined'));
+
+      if (quarantinedFiles.count > 0) {
+        issues.push(`${quarantinedFiles.count} quarantined files detected`);
+        recommendations.push('Review and handle quarantined files');
+      }
+
+      return {
+        status,
+        issues,
+        recommendations,
+        diskUsage: {
+          total: this.maxStorageSize,
+          used: stats.storageUsage.used,
+          available: stats.storageUsage.available,
+          percentage: stats.storageUsage.percentage
+        }
+      };
+    } catch (error) {
+      logger.error('Error getting storage health:', error);
+      return {
+        status: 'critical',
+        issues: ['Unable to assess storage health'],
+        recommendations: ['Check storage service configuration'],
+        diskUsage: {
+          total: 0,
+          used: 0,
+          available: 0,
+          percentage: 0
+        }
+      };
+    }
+  }
 }

@@ -23,12 +23,24 @@ const databasePlugin: FastifyPluginAsync = async (fastify) => {
     try {
       fastify.log.info(`🔄 Database connection attempt ${attempt}/${maxConnectionAttempts}...`);
       
-      await connectDatabase();
+      // Check if already connected first
       const db = getDatabase();
+      const isTestSuccessful = await testConnection(1);
+      if (isTestSuccessful) {
+        fastify.log.info('✅ Database already connected, skipping initialization');
+        isConnected = true;
+        connectionAttempts = 1;
+        fastify.decorate('db', db);
+        return;
+      }
+      
+      // Connect to database
+      await connectDatabase();
+      const connectedDb = getDatabase();
       
       // Test the connection using the existing test function
-      const isTestSuccessful = await testConnection();
-      if (!isTestSuccessful) {
+      const isConnectionTestSuccessful = await testConnection();
+      if (!isConnectionTestSuccessful) {
         throw new Error('Database connection test failed');
       }
       
@@ -38,7 +50,7 @@ const databasePlugin: FastifyPluginAsync = async (fastify) => {
       fastify.log.info(`✅ Database connected successfully on attempt ${attempt}`);
       
       // Decorate fastify with database instance
-      fastify.decorate('db', db);
+      fastify.decorate('db', connectedDb);
       
     } catch (error) {
       fastify.log.error(`❌ Database connection attempt ${attempt} failed:`, error);

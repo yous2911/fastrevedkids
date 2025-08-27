@@ -3,7 +3,7 @@ import { FastifyInstance } from 'fastify';
 import { gdprConfig, emailConfig } from '../config/config';
 import { AuditTrailService } from '../services/audit-trail.service';
 import { EncryptionService } from '../services/encryption.service';
-import { EmailService } from '../services/email.service';
+import { emailService } from '../services/email.service';
 import { GDPRRightsService } from '../services/gdpr-rights.service';
 import { ParentalConsentService } from '../services/parental-consent.service';
 import { DataRetentionService } from '../services/data-retention.service';
@@ -14,7 +14,7 @@ declare module 'fastify' {
   interface FastifyInstance {
     auditService: AuditTrailService;
     encryptionService: EncryptionService;
-    emailService: EmailService;
+    emailService: any; // Using singleton instance
     gdprService: GDPRRightsService;
     consentService: ParentalConsentService;
     retentionService: DataRetentionService;
@@ -50,7 +50,7 @@ const gdprPlugin = async (fastify: FastifyInstance, options: GDPRPluginOptions =
     // Initialisation des services RGPD
     const auditService = new AuditTrailService();
     const encryptionService = new EncryptionService();
-    const emailService = new EmailService();
+    // emailService is already imported as singleton
     const gdprService = new GDPRRightsService();
     const consentService = new ParentalConsentService();
     const retentionService = new DataRetentionService();

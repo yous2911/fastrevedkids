@@ -1,5 +1,5 @@
 import { createConnection, Connection } from 'mysql2/promise';
-import { config } from '../../src/config/config';
+import { dbConfig } from '../../src/config/config';
 
 export interface TestDatabase {
   connection: Connection;
@@ -11,18 +11,18 @@ export async function createTestDatabase(): Promise<TestDatabase> {
   
   // Create connection to MySQL server (without specifying database)
   const connection = await createConnection({
-    host: config.database.host,
-    port: config.database.port,
-    user: config.database.user,
-    password: config.database.password
+    host: dbConfig.host,
+    port: dbConfig.port,
+    user: dbConfig.user,
+    password: dbConfig.password
   });
 
   try {
     // Create test database
     await connection.execute(`CREATE DATABASE IF NOT EXISTS \`${databaseName}\``);
     
-    // Use the test database
-    await connection.execute(`USE \`${databaseName}\``);
+    // Use the test database (use query instead of execute for USE command)
+    await connection.query(`USE \`${databaseName}\``);
     
     // Run migrations to create tables
     await runMigrations(connection);
@@ -40,14 +40,22 @@ export async function createTestDatabase(): Promise<TestDatabase> {
   }
 }
 
-export async function cleanupTestDatabase(testDb: TestDatabase): Promise<void> {
+export async function cleanupTestDatabase(testDb: TestDatabase | undefined): Promise<void> {
+  if (!testDb || !testDb.connection) {
+    return;
+  }
+  
   try {
     // Drop the test database
     await testDb.connection.execute(`DROP DATABASE IF EXISTS \`${testDb.databaseName}\``);
   } catch (error) {
     console.error('Error cleaning up test database:', error);
   } finally {
-    await testDb.connection.end();
+    try {
+      await testDb.connection.end();
+    } catch (error) {
+      console.error('Error closing test database connection:', error);
+    }
   }
 }
 
@@ -78,7 +86,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Competences CP table
     `CREATE TABLE competences_cp (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       code VARCHAR(20) UNIQUE NOT NULL,
       nom VARCHAR(200) NOT NULL,
       matiere ENUM('FR', 'MA') NOT NULL,
@@ -96,7 +104,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Exercises table
     `CREATE TABLE exercises (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       competence_id INT NOT NULL,
       type ENUM('multiple_choice', 'drag_drop', 'fill_blank', 'true_false', 'matching') NOT NULL,
       question TEXT NOT NULL,
@@ -116,7 +124,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Student progress table
     `CREATE TABLE student_progress (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       competence_id INT NOT NULL,
       status ENUM('not_started', 'in_progress', 'mastered', 'review') DEFAULT 'not_started',
@@ -138,7 +146,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Learning sessions table
     `CREATE TABLE learning_sessions (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       ended_at TIMESTAMP NULL,
@@ -153,7 +161,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Exercise results table
     `CREATE TABLE exercise_results (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       exercise_id INT NOT NULL,
       competence_id INT NOT NULL,
@@ -173,13 +181,13 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Mascots table
     `CREATE TABLE mascots (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       type ENUM('dragon', 'fairy', 'robot', 'cat', 'owl') DEFAULT 'fairy',
       current_emotion ENUM('idle', 'happy', 'thinking', 'celebrating', 'oops') DEFAULT 'idle',
       xp_level INT DEFAULT 1,
-      equipped_items JSON DEFAULT '[]',
-      personality_traits JSON DEFAULT '{}',
+      equipped_items JSON,
+      personality_traits JSON,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
@@ -188,7 +196,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Wardrobe items table
     `CREATE TABLE wardrobe_items (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(100) NOT NULL,
       type ENUM('hat', 'accessory', 'outfit', 'background') NOT NULL,
       rarity ENUM('common', 'rare', 'epic', 'legendary') DEFAULT 'common',
@@ -202,7 +210,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Student wardrobe table
     `CREATE TABLE student_wardrobe (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       item_id INT NOT NULL,
       is_unlocked BOOLEAN DEFAULT FALSE,
@@ -217,7 +225,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Achievements table
     `CREATE TABLE achievements (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(100) NOT NULL,
       description TEXT,
       icon_url VARCHAR(255),
@@ -229,7 +237,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Student achievements table
     `CREATE TABLE student_achievements (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       achievement_id INT NOT NULL,
       earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -242,7 +250,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Student stats table
     `CREATE TABLE student_stats (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       total_exercises_completed INT DEFAULT 0,
       total_correct_answers INT DEFAULT 0,
@@ -260,7 +268,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Sessions table
     `CREATE TABLE sessions (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       session_token VARCHAR(255) UNIQUE NOT NULL,
       expires_at TIMESTAMP NOT NULL,
@@ -273,7 +281,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // GDPR files table
     `CREATE TABLE gdpr_files (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       filename VARCHAR(255) NOT NULL,
       original_filename VARCHAR(255) NOT NULL,
@@ -290,7 +298,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // GDPR consent requests table
     `CREATE TABLE gdpr_consent_requests (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       consent_type VARCHAR(50) NOT NULL,
       consent_given BOOLEAN NOT NULL,
@@ -308,7 +316,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // GDPR data processing log table
     `CREATE TABLE gdpr_data_processing_log (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       processing_activity VARCHAR(100) NOT NULL,
       data_categories JSON NOT NULL,
@@ -323,7 +331,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Audit logs table
     `CREATE TABLE audit_logs (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       entity_type VARCHAR(50) NOT NULL,
       entity_id INT NOT NULL,
       action VARCHAR(50) NOT NULL,
@@ -340,7 +348,7 @@ async function runMigrations(connection: Connection): Promise<void> {
 
     // Security alerts table
     `CREATE TABLE security_alerts (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       alert_type VARCHAR(50) NOT NULL,
       severity ENUM('low', 'medium', 'high', 'critical') NOT NULL,
       description TEXT NOT NULL,

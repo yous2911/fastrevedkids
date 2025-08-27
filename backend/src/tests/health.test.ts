@@ -13,8 +13,8 @@ describe('Health Checks', () => {
     const data = JSON.parse(response.body);
     expect(data.status).toBe('healthy');
     expect(data.environment).toBe('test');
-    expect(data.database).toBe('connected');
-    expect(data.redis).toBe('connected');
+    expect(data.features.database).toBe('connected');
+    expect(data.features.redis).toBe('memory-fallback'); // Redis disabled in test, using memory fallback
   });
 
   it('should return server info on root endpoint', async () => {

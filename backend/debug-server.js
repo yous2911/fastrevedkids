@@ -28,15 +28,26 @@ try {
 // Test 3: Database connection
 console.log('\n🔍 Test 3: Database connection');
 try {
-  const Database = require('better-sqlite3');
-  const sqlite = new Database('reved_kids.db');
-  console.log('✅ SQLite database opened successfully');
+  const mysql = require('mysql2/promise');
   
-  const result = sqlite.prepare('SELECT 1 as test').get();
-  console.log('✅ SQLite query executed:', result);
+  const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: process.env.DB_PASSWORD || 'thisisREALLYIT29!',
+    database: 'reved_kids',
+    port: 3306
+  });
   
-  sqlite.close();
-  console.log('✅ SQLite database closed');
+  console.log('✅ MySQL connection created successfully');
+  
+  connection.then(async (conn) => {
+    const [rows] = await conn.execute('SELECT 1 as test');
+    console.log('✅ MySQL query executed:', rows[0]);
+    await conn.end();
+    console.log('✅ MySQL connection closed');
+  }).catch((error) => {
+    console.log('❌ MySQL query error:', error.message);
+  });
 } catch (error) {
   console.log('❌ Database error:', error.message);
 }
@@ -44,14 +55,24 @@ try {
 // Test 4: Drizzle ORM
 console.log('\n🔍 Test 4: Drizzle ORM');
 try {
-  const { drizzle } = require('drizzle-orm/better-sqlite3');
-  const Database = require('better-sqlite3');
+  const { drizzle } = require('drizzle-orm/mysql2');
+  const mysql = require('mysql2/promise');
   
-  const sqlite = new Database('reved_kids.db');
-  const db = drizzle(sqlite);
-  console.log('✅ Drizzle ORM initialized');
+  const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: process.env.DB_PASSWORD || 'thisisREALLYIT29!',
+    database: 'reved_kids',
+    port: 3306
+  });
   
-  sqlite.close();
+  connection.then(async (conn) => {
+    const db = drizzle(conn);
+    console.log('✅ Drizzle ORM with MySQL initialized');
+    await conn.end();
+  }).catch((error) => {
+    console.log('❌ Drizzle MySQL error:', error.message);
+  });
 } catch (error) {
   console.log('❌ Drizzle error:', error.message);
 }

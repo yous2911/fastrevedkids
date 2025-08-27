@@ -1,0 +1,8 @@
+ID,Timestamp,Entity Type,Entity ID,Action,User ID,Severity,Category,IP Address
+03af75a1-f5d6-4b07-b872-c969904a9176,2025-08-27T10:30:44.000Z,student,report-test-0,read,report-user,low,data_access,
+6381c8e1-e9d9-470d-b2d3-6ba19cf558a6,2025-08-27T10:30:44.000Z,admin_action,5a95f8d4-2598-4b50-a254-a99ce872537c,create,,low,compliance,
+6bd63547-1cfa-44e5-a272-41d08ba45a37,2025-08-27T10:30:44.000Z,user_session,report-test-4,access_denied,report-user,critical,security,
+6d7e6b28-e961-4ec9-ae26-68899e03a3a7,2025-08-27T10:30:44.000Z,student,report-test-1,update,report-user,medium,data_modification,
+de0d1fca-c725-4c79-99f7-808ee78ca50d,2025-08-27T10:30:44.000Z,gdpr_request,report-test-3,export,report-user,high,data_access,
+ed587adb-cda9-4470-b3b0-e10070e6fcf3,2025-08-27T10:30:44.000Z,parent,report-test-2,consent_given,report-user,high,consent_management,
+fa67d27a-7fab-4447-8ccc-60de86079a6d,2025-08-27T10:30:44.000Z,admin_action,c852f644-fcac-4091-9577-665147a7c5c3,create,,low,compliance,

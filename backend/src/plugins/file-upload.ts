@@ -240,5 +240,5 @@ const fileUploadPlugin: FastifyPluginAsync<FileUploadPluginOptions> = async (
 
 export default fp(fileUploadPlugin, {
   name: 'file-upload',
-  dependencies: ['database', 'authentication']
+  dependencies: ['database', 'auth']
 });

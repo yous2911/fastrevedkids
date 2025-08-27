@@ -133,14 +133,6 @@ export const modules = mysqlTable('modules', {
 });
 
 // GDPR tables (minimal for compatibility)
-export const gdprFiles = mysqlTable('gdpr_files', {
-  id: int('id').primaryKey().autoincrement(),
-  studentId: int('student_id').references(() => students.id),
-  filename: varchar('filename', { length: 255 }).notNull(),
-  fileType: varchar('file_type', { length: 50 }),
-  fileSize: int('file_size'),
-  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
-});
 
 export const gdprConsentRequests = mysqlTable('gdpr_consent_requests', {
   id: int('id').primaryKey().autoincrement(),
@@ -160,6 +152,106 @@ export const gdprDataProcessingLog = mysqlTable('gdpr_data_processing_log', {
   action: varchar('action', { length: 100 }).notNull(),
   dataType: varchar('data_type', { length: 50 }),
   details: text('details'),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
+});
+
+// Parental consent table
+export const parentalConsent = mysqlTable('parental_consent', {
+  id: varchar('id', { length: 36 }).primaryKey(), // UUID
+  parentEmail: varchar('parent_email', { length: 255 }).notNull(),
+  parentName: varchar('parent_name', { length: 255 }),
+  childName: varchar('child_name', { length: 255 }),
+  childAge: int('child_age'),
+  consentTypes: text('consent_types'), // JSON string
+  status: varchar('status', { length: 20 }).notNull().default('pending'),
+  firstConsentToken: varchar('first_consent_token', { length: 255 }),
+  secondConsentToken: varchar('second_consent_token', { length: 255 }),
+  firstConsentDate: timestamp('first_consent_date'),
+  secondConsentDate: timestamp('second_consent_date'),
+  verificationDate: timestamp('verification_date'),
+  expiryDate: timestamp('expiry_date'),
+  revokedAt: timestamp('revoked_at'),
+  revokedBy: varchar('revoked_by', { length: 255 }),
+  revocationReason: text('revocation_reason'),
+  ipAddress: varchar('ip_address', { length: 45 }),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
+});
+
+// Encryption keys table
+export const encryptionKeys = mysqlTable('encryption_keys', {
+  id: varchar('id', { length: 36 }).primaryKey(), // UUID
+  keyData: text('key_data').notNull(),
+  usage: varchar('usage', { length: 50 }).notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('active'),
+  expiresAt: timestamp('expires_at'),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
+});
+
+
+
+// Consent preferences table
+export const consentPreferences = mysqlTable('consent_preferences', {
+  id: varchar('id', { length: 36 }).primaryKey(), // UUID
+  studentId: int('student_id').references(() => students.id),
+  essential: boolean('essential').notNull().default(true),
+  functional: boolean('functional').notNull().default(false),
+  analytics: boolean('analytics').notNull().default(false),
+  marketing: boolean('marketing').notNull().default(false),
+  personalization: boolean('personalization').notNull().default(false),
+  ipAddress: varchar('ip_address', { length: 45 }),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
+});
+
+// GDPR requests table
+export const gdprRequests = mysqlTable('gdpr_requests', {
+  id: varchar('id', { length: 36 }).primaryKey(), // UUID
+  requestType: varchar('request_type', { length: 50 }).notNull(),
+  requesterType: varchar('requester_type', { length: 50 }).notNull(),
+  requesterEmail: varchar('requester_email', { length: 255 }).notNull(),
+  requesterName: varchar('requester_name', { length: 255 }).notNull(),
+  studentId: int('student_id').references(() => students.id),
+  studentName: varchar('student_name', { length: 255 }),
+  parentEmail: varchar('parent_email', { length: 255 }),
+  requestDetails: json('request_details').notNull(),
+  urgentRequest: boolean('urgent_request').default(false),
+  status: varchar('status', { length: 50 }).notNull(),
+  priority: varchar('priority', { length: 20 }).notNull(),
+  submittedAt: timestamp('submitted_at').notNull(),
+  dueDate: timestamp('due_date').notNull(),
+  verificationToken: varchar('verification_token', { length: 255 }),
+  verifiedAt: timestamp('verified_at'),
+  assignedTo: varchar('assigned_to', { length: 255 }),
+  processedAt: timestamp('processed_at'),
+  completedAt: timestamp('completed_at'),
+  ipAddress: varchar('ip_address', { length: 45 }).notNull(),
+  userAgent: text('user_agent').notNull(),
+  verificationMethod: varchar('verification_method', { length: 50 }).notNull(),
+  legalBasis: varchar('legal_basis', { length: 100 }),
+  responseDetails: json('response_details'),
+  actionsTaken: json('actions_taken'),
+  exportedData: json('exported_data'),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
+});
+
+// GDPR files table
+export const gdprFiles = mysqlTable('gdpr_files', {
+  id: varchar('id', { length: 36 }).primaryKey(), // UUID
+  studentId: int('student_id').references(() => students.id),
+  requestId: varchar('request_id', { length: 36 }).notNull(),
+  fileType: varchar('file_type', { length: 50 }).notNull(),
+  fileName: varchar('file_name', { length: 255 }).notNull(),
+  filePath: varchar('file_path', { length: 500 }),
+  fileSize: int('file_size'),
+  mimeType: varchar('mime_type', { length: 100 }),
+  checksum: varchar('checksum', { length: 64 }),
+  expiresAt: timestamp('expires_at'),
+  downloadedAt: timestamp('downloaded_at'),
   createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
@@ -301,6 +393,38 @@ export const retentionSchedules = mysqlTable('retention_schedules', {
   createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
+// Competences table (CP 2025 framework)
+export const competences = mysqlTable('competences', {
+  id: int('id').primaryKey().autoincrement(),
+  code: varchar('code', { length: 20 }).notNull().unique(),
+  titre: varchar('titre', { length: 200 }).notNull(),
+  description: text('description'),
+  niveau: varchar('niveau', { length: 20 }).notNull(),
+  matiere: varchar('matiere', { length: 50 }).notNull(),
+  domaine: varchar('domaine', { length: 100 }),
+  sousDomaine: varchar('sous_domaine', { length: 100 }),
+  prerequis: json('prerequis'),
+  indicateurs: json('indicateurs'),
+  estActif: boolean('est_actif').default(true),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`).onUpdateNow()
+});
+
+// Exercise attempts table
+export const exerciseAttempts = mysqlTable('exercise_attempts', {
+  id: int('id').primaryKey().autoincrement(),
+  studentId: int('student_id').notNull().references(() => students.id),
+  exerciseId: int('exercise_id').notNull().references(() => exercises.id),
+  score: decimal('score', { precision: 5, scale: 2 }).notNull(),
+  timeSpent: int('time_spent').notNull(), // in seconds
+  answers: json('answers'),
+  isCorrect: boolean('is_correct').notNull(),
+  feedback: text('feedback'),
+  attemptNumber: int('attempt_number').default(1),
+  completedAt: timestamp('completed_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
+});
+
 // =============================================================================
 // TYPE EXPORTS
 // =============================================================================
@@ -321,12 +445,24 @@ export type Module = InferSelectModel<typeof modules>;
 export type NewModule = InferInsertModel<typeof modules>;
 export type StudentLearningPath = InferSelectModel<typeof studentLearningPath>;
 export type NewStudentLearningPath = InferInsertModel<typeof studentLearningPath>;
+export type Competence = InferSelectModel<typeof competences>;
+export type NewCompetence = InferInsertModel<typeof competences>;
+export type ExerciseAttempt = InferSelectModel<typeof exerciseAttempts>;
+export type NewExerciseAttempt = InferInsertModel<typeof exerciseAttempts>;
 
 // GDPR types
 export type GdprConsentRequest = InferSelectModel<typeof gdprConsentRequests>;
 export type NewGdprConsentRequest = InferInsertModel<typeof gdprConsentRequests>;
 export type GdprDataProcessingLog = InferSelectModel<typeof gdprDataProcessingLog>;
 export type NewGdprDataProcessingLog = InferInsertModel<typeof gdprDataProcessingLog>;
+export type ParentalConsent = InferSelectModel<typeof parentalConsent>;
+export type NewParentalConsent = InferInsertModel<typeof parentalConsent>;
+export type EncryptionKey = InferSelectModel<typeof encryptionKeys>;
+export type NewEncryptionKey = InferInsertModel<typeof encryptionKeys>;
+export type ConsentPreference = InferSelectModel<typeof consentPreferences>;
+export type NewConsentPreference = InferInsertModel<typeof consentPreferences>;
+export type GdprFile = InferSelectModel<typeof gdprFiles>;
+export type NewGdprFile = InferInsertModel<typeof gdprFiles>;
 
 // Audit types
 export type AuditLog = InferSelectModel<typeof auditLogs>;

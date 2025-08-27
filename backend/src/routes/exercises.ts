@@ -290,7 +290,7 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
       querystring: {
         type: 'object',
         properties: {
-          limit: { type: 'string', minimum: 1, maximum: 50, default: 10 }
+          limit: { type: 'string', default: '10' }
         }
       }
     },
@@ -391,7 +391,7 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
         required: ['exerciseId', 'score', 'completed'],
         properties: {
           exerciseId: { type: 'string' },
-          score: { type: 'string', minimum: 0, maximum: 100 },
+          score: { type: 'string' },
           completed: { type: 'string' },
           timeSpent: { type: 'string' },
           answers: {}
@@ -456,8 +456,8 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
       querystring: {
         type: 'object',
         properties: {
-          limit: { type: 'string', minimum: 1, maximum: 100, default: 20 },
-          offset: { type: 'string', minimum: 0, default: 0 }
+          limit: { type: 'string', default: '20' },
+          offset: { type: 'string', default: '0' }
         }
       }
     },
@@ -633,7 +633,7 @@ export default async function exercisesRoutes(fastify: FastifyInstance) {
             type: 'string',
             enum: ['FACILE', 'MOYEN', 'DIFFICILE']
           },
-          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 }
+          limit: { type: 'integer', default: 20 }
         }
       }
     },

@@ -1,0 +1,8 @@
+ID,Timestamp,Entity Type,Entity ID,Action,User ID,Severity,Category,IP Address
+79cc97b9-f5ee-4e65-9241-1ecafbc4d950,2025-08-26T09:58:57.000Z,admin_action,a4051c54-7d31-464e-8c02-bf160e3ba435,create,,low,compliance,
+bb2b682d-13c5-4f63-86fb-e852984d9271,2025-08-26T09:43:09.000Z,student,anonymize-test-student-456,anonymize,,high,compliance,
+fe1c98e3-8079-4189-8005-a7a7be344249,2025-08-26T09:43:09.000Z,student,anonymize-test-student-456,anonymize,,high,compliance,
+2d3efd9b-3273-4b74-9b47-64cd048701be,2025-08-26T09:43:08.000Z,admin_action,7bccd0b5-7e21-4517-8f18-29f4569b45ec,create,,low,compliance,
+6a49b5f6-8bae-480e-a03f-94b38633b192,2025-08-26T09:43:08.000Z,admin_action,84654baf-f61b-4939-8411-73ce664fad7c,create,,low,compliance,
+759e4689-681e-4f81-9773-c09a4b89cb10,2025-08-26T09:43:08.000Z,admin_action,40adf2d7-bae2-4e78-a1fa-ed3c596c5c84,create,,low,compliance,
+9e0344cd-0c8f-4768-9235-5606919d4036,2025-08-26T09:43:08.000Z,admin_action,71d3ca74-f4de-4458-b0df-f5db8b1ba379,create,,low,compliance,

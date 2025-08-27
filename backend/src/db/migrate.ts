@@ -1,6 +1,6 @@
-import { db } from './connection';
+import { db, connection } from './connection';
 import { config } from '../config/config';
-import Database from 'better-sqlite3';
+import mysql from 'mysql2/promise';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
@@ -28,10 +28,10 @@ interface MigrationStatus {
 export class MigrationManager {
   private migrationsTable = '__migrations__';
   private migrationsPath = path.join(process.cwd(), 'drizzle');
-  private sqlite: Database.Database;
+  private mysql: mysql.Pool;
 
   constructor() {
-    this.sqlite = new Database('reved_kids.db');
+    this.mysql = connection;
     this.ensureMigrationsTable();
   }
 
@@ -40,16 +40,16 @@ export class MigrationManager {
    */
   private async ensureMigrationsTable(): Promise<void> {
     try {
-      this.sqlite.prepare(`
+      await this.mysql.execute(`
         CREATE TABLE IF NOT EXISTS ${this.migrationsTable} (
-          id TEXT PRIMARY KEY,
-          name TEXT NOT NULL,
-          applied_at TEXT NOT NULL,
-          checksum TEXT NOT NULL,
-          execution_time INTEGER NOT NULL,
-          created_at TEXT DEFAULT CURRENT_TIMESTAMP
+          id VARCHAR(20) PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          checksum VARCHAR(64) NOT NULL,
+          execution_time INT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-      `).run();
+      `);
     } catch (error) {
       console.error('Failed to create migrations table:', error);
       throw error;
@@ -155,13 +155,13 @@ export class MigrationManager {
    */
   private async getAppliedMigrations(): Promise<MigrationStatus[]> {
     try {
-      const result = this.sqlite.prepare(`
+      const [rows] = await this.mysql.execute(`
         SELECT id, name, applied_at, checksum, execution_time 
         FROM ${this.migrationsTable} 
         ORDER BY id ASC
-      `).all() as MigrationStatus[];
+      `);
       
-      return Array.isArray(result) ? result : [];
+      return Array.isArray(rows) ? rows as MigrationStatus[] : [];
     } catch (error) {
       console.error('Failed to get applied migrations:', error);
       return [];
@@ -173,32 +173,39 @@ export class MigrationManager {
    */
   private async applyMigration(migration: Migration): Promise<void> {
     const startTime = Date.now();
+    const connection = await this.mysql.getConnection();
     
     try {
       console.log(`🔄 Applying migration: ${migration.id} - ${migration.name}`);
       
-      // Use transaction for atomicity
-      const transaction = this.sqlite.transaction(() => {
-        // Execute migration using raw SQL
-        this.sqlite.prepare(migration.up).run();
+      // Start transaction
+      await connection.beginTransaction();
+      
+      try {
+        // Execute migration SQL
+        await connection.execute(migration.up);
         
         // Record migration
         const executionTime = Date.now() - startTime;
-        this.sqlite.prepare(`
+        await connection.execute(`
           INSERT INTO ${this.migrationsTable} 
           (id, name, applied_at, checksum, execution_time) 
-          VALUES (?, ?, ?, ?, ?)
-        `).run(migration.id, migration.name, new Date().toISOString(), migration.checksum, executionTime);
-      });
-      
-      // Execute transaction
-      transaction();
-      
-      const executionTime = Date.now() - startTime;
-      console.log(`✅ Applied migration: ${migration.id} (${executionTime}ms)`);
+          VALUES (?, ?, NOW(), ?, ?)
+        `, [migration.id, migration.name, migration.checksum, executionTime]);
+        
+        // Commit transaction
+        await connection.commit();
+        
+        console.log(`✅ Applied migration: ${migration.id} (${executionTime}ms)`);
+      } catch (error) {
+        await connection.rollback();
+        throw error;
+      }
     } catch (error) {
       console.error(`❌ Failed to apply migration ${migration.id}:`, error);
       throw error;
+    } finally {
+      connection.release();
     }
   }
 
@@ -207,30 +214,36 @@ export class MigrationManager {
    */
   private async rollbackMigration(migration: Migration): Promise<void> {
     const startTime = Date.now();
+    const connection = await this.mysql.getConnection();
     
     try {
       console.log(`🔄 Rolling back migration: ${migration.id} - ${migration.name}`);
       
-      // Use transaction for atomicity
-      const transaction = this.sqlite.transaction(() => {
+      await connection.beginTransaction();
+      
+      try {
         // Execute rollback
-        this.sqlite.prepare(migration.down).run();
+        await connection.execute(migration.down);
         
         // Remove migration record
-        this.sqlite.prepare(`
+        await connection.execute(`
           DELETE FROM ${this.migrationsTable} 
           WHERE id = ?
-        `).run(migration.id);
-      });
-      
-      // Execute transaction
-      transaction();
-      
-      const executionTime = Date.now() - startTime;
-      console.log(`✅ Rolled back migration: ${migration.id} (${executionTime}ms)`);
+        `, [migration.id]);
+        
+        await connection.commit();
+        
+        const executionTime = Date.now() - startTime;
+        console.log(`✅ Rolled back migration: ${migration.id} (${executionTime}ms)`);
+      } catch (error) {
+        await connection.rollback();
+        throw error;
+      }
     } catch (error) {
       console.error(`❌ Failed to rollback migration ${migration.id}:`, error);
       throw error;
+    } finally {
+      connection.release();
     }
   }
 
@@ -241,7 +254,7 @@ export class MigrationManager {
     try {
       console.log('🔄 Starting database migrations...');
       console.log(`📊 Environment: ${config.NODE_ENV}`);
-      console.log(`📍 Database: SQLite (${config.DB_NAME})`);
+      console.log(`📍 Database: MySQL (${config.DB_NAME})`);
 
       const availableMigrations = await this.getAvailableMigrations();
       const appliedMigrations = await this.getAppliedMigrations();
@@ -377,12 +390,12 @@ export class MigrationManager {
       console.log('🗑️  Dropping all tables...');
       
       // Get all table names
-      const tables = this.sqlite.prepare(`
-        SELECT name FROM sqlite_master 
-        WHERE type='table' AND name NOT LIKE 'sqlite_%'
-      `).all() as { name: string }[];
+      const [rows] = await this.mysql.execute(`
+        SELECT table_name as name FROM information_schema.tables 
+        WHERE table_schema = ? AND table_type = 'BASE TABLE'
+      `, [config.DB_NAME]);
       
-      const tableNames = tables.map(row => row.name);
+      const tableNames = (rows as { name: string }[]).map(row => row.name);
 
       // Drop tables in reverse dependency order
       const dropOrder = [
@@ -401,7 +414,7 @@ export class MigrationManager {
 
       for (const tableName of dropOrder) {
         if (tableNames.includes(tableName)) {
-          this.sqlite.prepare(`DROP TABLE IF EXISTS ${tableName}`).run();
+          await this.mysql.execute(`DROP TABLE IF EXISTS ${tableName}`);
           console.log(`🗑️  Dropped table: ${tableName}`);
         }
       }
@@ -417,7 +430,8 @@ export class MigrationManager {
    * Close database connection
    */
   close(): void {
-    this.sqlite.close();
+    // MySQL connection pool manages connections automatically
+    // No explicit close needed
   }
 }
 

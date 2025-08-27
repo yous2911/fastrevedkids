@@ -269,7 +269,16 @@ export class ExerciseGeneratorService {
           niveau: template.niveau,
           difficulte: template.difficulte,
           competenceCode: 'GENERAL',
-          contenu: configuration,
+          contenu: {
+            question: configuration.question || configuration.titre,
+            reponse_attendue: configuration.reponse_attendue,
+            choix: configuration.choix,
+            operation: configuration.operation,
+            aide: configuration.aide,
+            feedback_succes: configuration.feedback_succes,
+            feedback_echec: configuration.feedback_echec,
+            donnees: configuration.donnees
+          },
           solution: configuration.reponse_attendue || null,
           typeExercice: template.type || 'qcm',
           configuration: JSON.stringify(configuration),

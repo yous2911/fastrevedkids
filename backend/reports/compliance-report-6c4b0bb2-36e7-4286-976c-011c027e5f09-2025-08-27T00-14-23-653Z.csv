@@ -1,0 +1,2 @@
+ID,Timestamp,Entity Type,Entity ID,Action,User ID,Severity,Category,IP Address
+6e059524-88c4-45d0-a6b7-9db0f49bd22b,2025-08-27T00:14:23.000Z,admin_action,08fdc5e5-99f6-461c-a82b-b8958a231f1c,create,,low,compliance,
