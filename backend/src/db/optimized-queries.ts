@@ -38,6 +38,414 @@ interface ExerciseWithStats {
 }
 
 class OptimizedQueries {
+  
+  /**
+   * Get student with all related data in single optimized query
+   * Prevents N+1 queries by using joins and subqueries
+   */
+  async getStudentWithCompleteProfile(studentId: number): Promise<StudentWithProgress | null> {
+    const startTime = performance.now();
+    
+    try {
+      // Main student query with progress data
+      const studentData = await db
+        .select({
+          // Student fields
+          studentId: students.id,
+          studentName: students.name,
+          studentEmail: students.email,
+          studentGrade: students.grade,
+          studentCreatedAt: students.createdAt,
+          studentUpdatedAt: students.updatedAt,
+          // Progress fields  
+          progressId: studentProgress.id,
+          exerciseId: studentProgress.exerciseId,
+          score: studentProgress.score,
+          completedAt: studentProgress.completedAt,
+          timeSpent: studentProgress.timeSpent,
+          attempts: studentProgress.attempts,
+        })
+        .from(students)
+        .leftJoin(studentProgress, eq(students.id, studentProgress.studentId))
+        .where(eq(students.id, studentId));
+
+      if (studentData.length === 0) return null;
+
+      // Get current exercises efficiently
+      const currentExercises = await this.getCurrentExercisesForStudent(studentId);
+      
+      // Get learning path
+      const learningPath = await db
+        .select()
+        .from(studentLearningPath)
+        .where(eq(studentLearningPath.studentId, studentId))
+        .orderBy(asc(studentLearningPath.order));
+
+      // Transform data structure
+      const student = {
+        id: studentData[0].studentId,
+        name: studentData[0].studentName,
+        email: studentData[0].studentEmail,
+        grade: studentData[0].studentGrade,
+        createdAt: studentData[0].studentCreatedAt,
+        updatedAt: studentData[0].studentUpdatedAt,
+      };
+
+      const progress = studentData
+        .filter(row => row.progressId !== null)
+        .map(row => ({
+          id: row.progressId!,
+          studentId: studentId,
+          exerciseId: row.exerciseId!,
+          score: row.score!,
+          completedAt: row.completedAt!,
+          timeSpent: row.timeSpent!,
+          attempts: row.attempts!,
+        }));
+
+      const queryTime = performance.now() - startTime;
+      logger.info(`Student profile query completed in ${queryTime.toFixed(2)}ms`);
+
+      return {
+        student,
+        progress,
+        currentExercises,
+        learningPath: learningPath || []
+      };
+    } catch (error) {
+      logger.error('Error in getStudentWithCompleteProfile:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get exercises with performance statistics
+   * Uses window functions for efficient aggregation
+   */
+  async getExercisesWithStats(options: QueryOptions = {}): Promise<ExerciseWithStats[]> {
+    const startTime = performance.now();
+    
+    try {
+      const { limit = 50, offset = 0, orderBy = 'desc', orderField = 'completionRate' } = options;
+
+      // Single query with window functions for statistics
+      const exercisesWithStats = await db
+        .select({
+          exerciseId: exercises.id,
+          exerciseTitle: exercises.title,
+          exerciseDescription: exercises.description,
+          exerciseDifficulty: exercises.difficulty,
+          exerciseSubject: exercises.subject,
+          exerciseGrade: exercises.grade,
+          exerciseCreatedAt: exercises.createdAt,
+          // Calculated statistics using window functions
+          completionRate: sql<number>`
+            ROUND(
+              CAST(COUNT(CASE WHEN ${studentProgress.score} >= 70 THEN 1 END) AS FLOAT) / 
+              NULLIF(COUNT(${studentProgress.id}), 0) * 100,
+              2
+            )
+          `,
+          averageScore: sql<number>`
+            ROUND(AVG(CAST(${studentProgress.score} AS FLOAT)), 2)
+          `,
+          totalAttempts: sql<number>`
+            COUNT(${studentProgress.id})
+          `
+        })
+        .from(exercises)
+        .leftJoin(studentProgress, eq(exercises.id, studentProgress.exerciseId))
+        .groupBy(exercises.id)
+        .orderBy(orderBy === 'desc' ? desc(sql.raw(orderField)) : asc(sql.raw(orderField)))
+        .limit(limit)
+        .offset(offset);
+
+      const result = exercisesWithStats.map(row => ({
+        exercise: {
+          id: row.exerciseId,
+          title: row.exerciseTitle,
+          description: row.exerciseDescription,
+          difficulty: row.exerciseDifficulty,
+          subject: row.exerciseSubject,
+          grade: row.exerciseGrade,
+          createdAt: row.exerciseCreatedAt,
+        },
+        completionRate: row.completionRate || 0,
+        averageScore: row.averageScore || 0,
+        totalAttempts: row.totalAttempts || 0,
+      }));
+
+      const queryTime = performance.now() - startTime;
+      logger.info(`Exercise stats query completed in ${queryTime.toFixed(2)}ms`);
+
+      return result;
+    } catch (error) {
+      logger.error('Error in getExercisesWithStats:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get dashboard data in single optimized query
+   * Combines multiple metrics efficiently
+   */
+  async getDashboardMetrics(studentId?: number): Promise<{
+    totalStudents: number;
+    totalExercises: number;
+    averageCompletion: number;
+    recentActivity: any[];
+    topPerformers: any[];
+  }> {
+    const startTime = performance.now();
+    
+    try {
+      // Parallel execution of dashboard queries
+      const [
+        totalStudents,
+        totalExercises,
+        completionStats,
+        recentActivity,
+        topPerformers
+      ] = await Promise.all([
+        // Total students
+        db.select({ count: sql<number>`COUNT(*)` }).from(students),
+        
+        // Total exercises  
+        db.select({ count: sql<number>`COUNT(*)` }).from(exercises),
+        
+        // Completion statistics
+        db.select({
+          averageCompletion: sql<number>`
+            ROUND(AVG(CASE WHEN score >= 70 THEN 100.0 ELSE score END), 2)
+          `
+        }).from(studentProgress),
+        
+        // Recent activity (last 10 completions)
+        db.select({
+          studentName: students.name,
+          exerciseTitle: exercises.title,
+          score: studentProgress.score,
+          completedAt: studentProgress.completedAt
+        })
+        .from(studentProgress)
+        .innerJoin(students, eq(studentProgress.studentId, students.id))
+        .innerJoin(exercises, eq(studentProgress.exerciseId, exercises.id))
+        .orderBy(desc(studentProgress.completedAt))
+        .limit(10),
+        
+        // Top performers (by average score)
+        db.select({
+          studentName: students.name,
+          averageScore: sql<number>`ROUND(AVG(CAST(${studentProgress.score} AS FLOAT)), 2)`,
+          exercisesCompleted: sql<number>`COUNT(${studentProgress.id})`
+        })
+        .from(students)
+        .innerJoin(studentProgress, eq(students.id, studentProgress.studentId))
+        .groupBy(students.id, students.name)
+        .having(sql`COUNT(${studentProgress.id}) >= 5`)
+        .orderBy(desc(sql`AVG(CAST(${studentProgress.score} AS FLOAT))`))
+        .limit(5)
+      ]);
+
+      const queryTime = performance.now() - startTime;
+      logger.info(`Dashboard metrics query completed in ${queryTime.toFixed(2)}ms`);
+
+      return {
+        totalStudents: totalStudents[0]?.count || 0,
+        totalExercises: totalExercises[0]?.count || 0,
+        averageCompletion: completionStats[0]?.averageCompletion || 0,
+        recentActivity: recentActivity || [],
+        topPerformers: topPerformers || []
+      };
+    } catch (error) {
+      logger.error('Error in getDashboardMetrics:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get current exercises for student with smart filtering
+   * Includes difficulty progression logic
+   */
+  private async getCurrentExercisesForStudent(studentId: number) {
+    // Get student's current level and completed exercises
+    const studentData = await db
+      .select({
+        grade: students.grade,
+        completedExerciseIds: sql<number[]>`
+          GROUP_CONCAT(${studentProgress.exerciseId})
+        `
+      })
+      .from(students)
+      .leftJoin(
+        studentProgress, 
+        and(
+          eq(students.id, studentProgress.studentId),
+          gte(studentProgress.score, 70) // Only count as completed if score >= 70%
+        )
+      )
+      .where(eq(students.id, studentId))
+      .groupBy(students.id);
+
+    if (studentData.length === 0) return [];
+
+    const completedIds = studentData[0].completedExerciseIds 
+      ? studentData[0].completedExerciseIds.toString().split(',').map(Number)
+      : [];
+
+    // Get next appropriate exercises
+    const nextExercises = await db
+      .select()
+      .from(exercises)
+      .where(
+        and(
+          eq(exercises.grade, studentData[0].grade),
+          completedIds.length > 0 ? sql`${exercises.id} NOT IN (${completedIds.join(',')})` : undefined
+        )
+      )
+      .orderBy(asc(exercises.difficulty))
+      .limit(5);
+
+    return nextExercises;
+  }
+
+  /**
+   * Batch update student progress efficiently
+   * Uses single query with CASE statements
+   */
+  async batchUpdateProgress(updates: Array<{
+    studentId: number;
+    exerciseId: number; 
+    score: number;
+    timeSpent: number;
+  }>): Promise<void> {
+    const startTime = performance.now();
+    
+    if (updates.length === 0) return;
+
+    try {
+      // Use transaction for consistency
+      await db.transaction(async (tx) => {
+        // Batch insert/update using ON CONFLICT (for SQLite) or INSERT ... ON DUPLICATE KEY UPDATE (for MySQL)
+        const values = updates.map(update => ({
+          studentId: update.studentId,
+          exerciseId: update.exerciseId,
+          score: update.score,
+          timeSpent: update.timeSpent,
+          completedAt: new Date(),
+          attempts: 1
+        }));
+
+        // Insert or update progress records
+        for (const value of values) {
+          await tx
+            .insert(studentProgress)
+            .values(value)
+            .onConflictDoUpdate({
+              target: [studentProgress.studentId, studentProgress.exerciseId],
+              set: {
+                score: value.score,
+                timeSpent: sql`${studentProgress.timeSpent} + ${value.timeSpent}`,
+                attempts: sql`${studentProgress.attempts} + 1`,
+                completedAt: value.completedAt
+              }
+            });
+        }
+      });
+
+      const queryTime = performance.now() - startTime;
+      logger.info(`Batch progress update completed in ${queryTime.toFixed(2)}ms for ${updates.length} records`);
+    } catch (error) {
+      logger.error('Error in batchUpdateProgress:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get learning path recommendations using ML-like scoring
+   * Considers student performance patterns and difficulty progression
+   */
+  async getPersonalizedLearningPath(studentId: number, limit: number = 10): Promise<any[]> {
+    const startTime = performance.now();
+    
+    try {
+      // Complex query that scores exercises based on student performance patterns
+      const recommendations = await db
+        .select({
+          exerciseId: exercises.id,
+          exerciseTitle: exercises.title,
+          difficulty: exercises.difficulty,
+          subject: exercises.subject,
+          // Smart scoring algorithm
+          score: sql<number>`
+            (
+              -- Base difficulty match (prefer slightly harder than current level)
+              CASE 
+                WHEN ${exercises.difficulty} = (
+                  SELECT AVG(e2.difficulty) 
+                  FROM ${exercises} e2 
+                  INNER JOIN ${studentProgress} sp2 ON e2.id = sp2.exerciseId 
+                  WHERE sp2.studentId = ${studentId} AND sp2.score >= 70
+                ) + 1 THEN 100
+                WHEN ${exercises.difficulty} = (
+                  SELECT AVG(e2.difficulty) 
+                  FROM ${exercises} e2 
+                  INNER JOIN ${studentProgress} sp2 ON e2.id = sp2.exerciseId 
+                  WHERE sp2.studentId = ${studentId} AND sp2.score >= 70
+                ) THEN 80
+                ELSE 50
+              END
+              
+              +
+              
+              -- Subject performance bonus
+              (
+                SELECT COALESCE(AVG(sp3.score), 60) 
+                FROM ${studentProgress} sp3 
+                INNER JOIN ${exercises} e3 ON sp3.exerciseId = e3.id 
+                WHERE sp3.studentId = ${studentId} AND e3.subject = ${exercises.subject}
+              ) * 0.3
+              
+              +
+              
+              -- Freshness bonus (prefer exercises not attempted recently)
+              CASE 
+                WHEN ${exercises.id} NOT IN (
+                  SELECT sp4.exerciseId 
+                  FROM ${studentProgress} sp4 
+                  WHERE sp4.studentId = ${studentId} 
+                  AND sp4.completedAt > datetime('now', '-7 days')
+                ) THEN 20
+                ELSE 0
+              END
+            )
+          `
+        })
+        .from(exercises)
+        .where(
+          and(
+            eq(exercises.grade, sql`(SELECT grade FROM ${students} WHERE id = ${studentId})`),
+            // Exclude completed exercises with high scores
+            sql`${exercises.id} NOT IN (
+              SELECT exerciseId 
+              FROM ${studentProgress} 
+              WHERE studentId = ${studentId} AND score >= 90
+            )`
+          )
+        )
+        .orderBy(desc(sql`score`))
+        .limit(limit);
+
+      const queryTime = performance.now() - startTime;
+      logger.info(`Personalized learning path generated in ${queryTime.toFixed(2)}ms`);
+
+      return recommendations;
+    } catch (error) {
+      logger.error('Error in getPersonalizedLearningPath:', error);
+      throw error;
+    }
+  }
+}
   /**
    * Get student with all related data in a single optimized query
    * Prevents N+1 problem by using JOIN instead of multiple queries

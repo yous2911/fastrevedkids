@@ -258,11 +258,11 @@ describe('StudentService - Real Database Integration', () => {
 
   describe('error handling', () => {
     it('should handle network errors', async () => {
-      mockApiService.get.mockRejectedValue(new Error('Network error'));
+      mockApiService.get.mockRejectedValue(new Error('Connexion impossible - Vérifiez votre réseau'));
 
       await expect(
         studentService.getStudent(1)
-      ).rejects.toThrow('Network error');
+      ).rejects.toThrow('Connexion impossible - Vérifiez votre réseau');
     });
 
     it('should handle API errors gracefully', async () => {
